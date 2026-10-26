@@ -46,11 +46,12 @@ class R1HitEnv:
         if self.opp_prob > 0:   # training: a fight-clip opponent in range with prob opp_prob, else parked 5 m away
             from .opponent import FightReplay
             close = self.rng.random() < self.opp_prob; clip = self.opp_clips[self.rng.integers(len(self.opp_clips))]
-            dist = round(float(self.rng.uniform(0.75, 1.0)), 2) if close else 5.0
+            dist = round(float(self.rng.uniform(0.5, 0.7)), 2) if close else 5.0   # in-place opponent: strikes reach at 0.5-0.7 m
             key = (clip, dist)
             if key not in self._opp_cache: self._opp_cache[key] = FightReplay(self.m, clip, distance=dist)
             self.opp = self._opp_cache[key]; self.opp_t0 = float(self.rng.uniform(0, 5))
-            self.opp.apply(self.m, self.d, self.opp_t0, self.m.opt.timestep); mujoco.mj_forward(self.m, self.d)
+        if self.opp is not None:
+            self.opp.place(self.m, self.d, getattr(self, "opp_t0", 0.0)); mujoco.mj_forward(self.m, self.d)
         o = self._raw_obs(); self.sensor.reset(o); return self.sensor(o)
 
     def step(self, a):
@@ -60,8 +61,9 @@ class R1HitEnv:
         self.filt = self.cfg.get("action_filter", 0.3) * self.filt + (1 - self.cfg.get("action_filter", 0.3)) * a   # EMA low-pass
         self.r.pd(d, HOME + self.cfg["action_scale"] * self.filt)
         for _ in range(self.nsub):
+            self.hits_ap.apply(d, self.hits, d.time)   # clears xfrc_applied, then writes the scripted hits
             if self.opp is not None: self.opp.apply(self.m, d, d.time + getattr(self, "opp_t0", 0.0), self.m.opt.timestep)
-            self.hits_ap.apply(d, self.hits, d.time); mujoco.mj_step(self.m, d)
+            mujoco.mj_step(self.m, d)
         if self.contact_log is not None:
             from .contacts import per_body_force
             f = per_body_force(self.m, d, self.r.r1_bodies)

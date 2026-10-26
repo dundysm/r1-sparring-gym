@@ -61,3 +61,25 @@ def test_r1_opponent_retarget():
     from r1gym.opponent import FightReplay, list_clips
     m = build_spec(opponent=True).compile()
     op = FightReplay(m, list_clips()[0]); assert op.kind == "r1" and op.q.shape[1] == 31
+
+
+def test_opponent_loop_is_seamless_and_retarget_has_no_flips():
+    m = build_spec(opponent=True, cfg=CFG).compile()
+    for clip in list_clips():
+        op = FightReplay(m, clip, distance=0.6); q = np.vstack([op.q, op.q[:1]])   # includes the wrap back to frame 0
+        assert np.abs(np.diff(q[:, :2], axis=0)).max() < 0.05, clip              # no root teleport
+        assert np.abs(np.diff(q[:, 7:], axis=0)).max() < 0.4, clip               # 0.25 rad/frame cap (+~0.1 inside the loop cross-fade)
+        assert abs(np.median(q[:, 0]) - 0.6) < 0.1 and abs(np.median(q[:, 1])) < 0.1, clip   # stays in front, in range
+
+
+def test_puppet_opponent_is_a_capped_physical_r1():
+    m = build_spec(opponent=True, cfg=CFG).compile(); assert m.nu == 48
+    caps = torque_caps(CFG); opp = [m.actuator("opp_" + j.replace("_joint", "")).id for j in CTRL_JOINTS]
+    assert np.allclose(m.actuator_forcerange[opp, 1], caps)
+    from r1gym.scenario import demo_env
+    from r1gym.contacts import per_body_force
+    e, o = demo_env(m, CFG); op = e.opp; peak = 0.0
+    for _ in range(150):   # 3 s, PD stand
+        e.step(np.zeros(ACT_DIM)); peak = max(peak, sum(per_body_force(m, e.d, e.r.r1_bodies).values()))
+        assert np.linalg.norm(e.d.qpos[op.qadr:op.qadr + 3] - op.qpos_at(e.d.time)[:3]) < 0.25   # tracks its clip
+    assert peak < 3000.0

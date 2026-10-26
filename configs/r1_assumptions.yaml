@@ -10,7 +10,7 @@ model:
 # Default = the element-wise MIN of the two (conservative: a policy that survives here should survive the robot).
 torque_cap_policy: min     # one of: min | mujoco | mjlab
 # Unitree's deploy gains (below) give ankle stiffness 40 N*m/rad < m*g*h ~ 190 N*m/rad, so the R1 can NOT stand on PD
-# alone with them (it tips over in ~1 s; tests/test_model.py proves it). Unitree's walking policy stabilises it actively.
+# alone with them (it tips over in ~1 s; tests/test_gym.py::test_stand_pd_stands_and_stock_gains_fall checks it). Unitree's walking policy stabilises it actively.
 # For the hit-robustness study we use `stand_pd` for BOTH the PD baseline and the RL policy (residual on top), so the
 # only difference between the two is the learned feedback.
 stand_pd:

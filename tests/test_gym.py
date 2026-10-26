@@ -47,11 +47,11 @@ def test_opponent_replay_moves_and_touches():
     assert 0.3 < op.q[:, 0].mean() < 1.0                          # in front of the R1
 
 
-def test_verify_r1_specs():
+def test_verify_r1_specs(tmp_path):
     import subprocess, sys, json, pathlib
-    root = pathlib.Path(__file__).resolve().parents[1]
-    r = subprocess.run([sys.executable, str(root / "scripts" / "verify_r1.py"), "--out", "/tmp/r1v.json", "--policies"], capture_output=True, text=True)
-    res = json.load(open("/tmp/r1v.json"))
+    root = pathlib.Path(__file__).resolve().parents[1]; out = tmp_path / "r1v.json"
+    r = subprocess.run([sys.executable, str(root / "scripts" / "verify_r1.py"), "--out", str(out), "--policies"], capture_output=True, text=True)
+    res = json.load(open(out))
     failed = [c["check"] for c in res["checks"] if not c["pass"] and "reference available" not in c["check"]]
     assert not failed, failed
 

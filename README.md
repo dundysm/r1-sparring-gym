@@ -63,7 +63,7 @@ On single hits, v2 is about the same as v1 (0.411 vs 0.413 is within noise). It 
 **Opponent force.** The opponent is kinematic (infinite mass), so its contacts are made compliant like a padded surface (`OPP_SOLREF`/`OPP_SOLIMP` in `r1gym/model.py`). Peak contact force in the demo is 315 N (it was 630 N before). Scripted hit peak force is capped at 400 N, with the impulse preserved.
 
 ## v3 attempt: harder hits, recovery reward, domain randomisation (not adopted)
-Feedback on v1 was that it "falls over with a puff of air". v3 tried to fix that, starting from v2:
+Feedback on v1 was that it fell over too easily. v3 tried to fix that, starting from v2:
 - **Harder, denser hits:** 3–8 hits per 10 s episode, 0.5–1.8 s apart (run B: 1.0–2.5 s). The curriculum grows the impulse whenever the episode fall rate is under 0.35, up to a cap of 40 N·s.
 - **Recovery reward** (`--reward v3`): no penalty for leaving the stance, a weak leg-velocity penalty, and a strong upright/height term. The residual limit was already ±1 rad (clip ±4 × 0.25), so it did not need loosening.
 - **Domain randomisation** (`--dr 1`), sampled per episode:
@@ -123,7 +123,6 @@ New eval (`scripts/evaluate.py`): 1120 single hits per controller up to 30 N·s,
 - The single-hit eval has no grabs and no opponent contact. The demo variants cover those, but only 8 runs on one held-out clip.
 - The policy mostly absorbs hits standing in place. The v3 recovery reward allows stepping, but no reliable stepping emerged. It doesn't block or counter.
 - Small training budget (about 74M steps total) on CPU MuJoCo. The GPU path in `docs/GPU.md` isn't benchmarked here.
-- CI isn't set up. Tests run locally (`pytest -q`).
 
 ## Credits
 See [CREDITS.md](CREDITS.md): Unitree R1 MJCF (unitree_rl_mjlab, Apache-2.0), KungFuAthleteBot motions, MuJoCo, mjlab.

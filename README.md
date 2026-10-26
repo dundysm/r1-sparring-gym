@@ -4,19 +4,63 @@ MuJoCo simulation and RL for turning a **Unitree R1** into a near-real-time spar
 
 ![demo](media/demo.gif)
 
-Left: stiff PD stand (baseline). Right: the RL balance policy. Both face the same R1 opponent (KungFuAthleteBot clip `kfab_202`, held out of training) and the same scripted hits. In this demo PD falls at 9.1 s and RL at 11.0 s. The demo is not hand-picked; see "Demo robustness" below for 8 re-sampled variants. Full video: [`media/demo.mp4`](media/demo.mp4).
+Left: RL v2, the residual policy on a stiff PD stand. Right: **the stepping base**, trained on GPU with mjlab from Unitree's own R1 velocity task (`gpu/`). Both face the same opponent: **a second, physical R1** (same motors and torque caps) replaying the held-out KungFuAthleteBot clip `kfab_202` in place, 0.55 m away. **Yellow spheres are real opponent contacts** (size ∝ force); **orange arrows are scripted pushes** from the side and behind. The front kick at 5 s knocks v2 over; the stepping base steps back and stays up. Full video: [`media/demo.mp4`](media/demo.mp4).
+
+**Status:** against the physical opponent on held-out clips, the stepping base survives 10 s in **89%** of episodes (95% CI 84%–93%). The best residual policy reached 5.6–8.7%. On single hits its fall rate is **0.061**, vs 0.499 for v2, and it stays up at least half the time against hits up to 30 N·s (v2: 8 N·s). It survives the demo and all 8 demo variants. **Everything here is simulation**; see "Stepping base: what it is and what it isn't".
+
+## Headline eval: survive the physical opponent
+`scripts/eval_opponent.py`. The opponent is the physical R1 from the demo. Each episode lasts 10 s and samples a clip, a distance (0.50–0.70 m), the clip start time and the obs delay (0–2 steps), and adds two scripted side/back pushes (4–6 N·s). There are 160 test episodes (2 clips × 5 distances × 16) and 80 validation episodes. Every controller sees exactly the same episodes, so differences vs PD are **paired** (bootstrap 95% CI).
+
+**Clip splits** (`r1gym/env.py`):
+- Train: `kfab_199/200/201/203`.
+- Validation: `kfab_204`, used to choose checkpoints and candidates.
+- Test: `kfab_202` and `kfab_205`, used to report.
+
+Before this split, v2 was chosen partly on `kfab_202` demo variants, so `kfab_202` wasn't truly held out for v2.
+
+| | test survival (10 s) [95% CI] | vs PD (paired) | mean time to fall | val survival | single-hit fall rate [95% CI] | single-hit vs PD (paired) | ≥50% survival up to |
+|---|---|---|---|---|---|---|---|
+| PD stand | **0.006** [0.00, 0.04] | – | 3.17 s | 0.000 | 0.606 [0.58, 0.63] | – | 6 N·s |
+| RL v1 | **0.087** [0.05, 0.14] | +0.081 [0.04, 0.12] | 3.78 s | 0.013 | 0.495 [0.47, 0.52] | -0.112 [-0.13, -0.09] | 8 N·s |
+| RL v2 | **0.056** [0.03, 0.10] | +0.050 [0.02, 0.09] | 3.38 s | 0.050 | 0.499 [0.47, 0.53] | -0.107 [-0.13, -0.09] | 8 N·s |
+| RL v3 cand. | **0.050** [0.03, 0.10] | +0.044 [0.02, 0.07] | 3.30 s | 0.025 | 0.494 [0.47, 0.52] | -0.113 [-0.13, -0.09] | 8 N·s |
+| Stepping base, stage 1 | **0.644** [0.57, 0.71] | +0.637 [0.56, 0.71] | 7.50 s | 0.762 | 0.197 [0.17, 0.22] | -0.409 [-0.44, -0.38] | 20 N·s |
+| **Stepping base (shipped)** | **0.894** [0.84, 0.93] | +0.887 [0.84, 0.93] | 9.16 s | 0.912 | 0.061 [0.05, 0.08] | -0.546 [-0.57, -0.52] | 30 N·s |
+
+The single-hit column is the 1120-episode eval (`scripts/evaluate.py`, now with Wilson and paired intervals; `results/eval_hits/`). Before the 5 ms orientation fix (`docs/DEPLOY.md`) it reproduced the earlier numbers exactly; the fix moves them by at most 0.001.
+
+**Read it plainly:**
+- The residual-on-stiff-stand policies (v1–v3) beat PD on single hits by about 11 points, but they survive the opponent at most about 1 time in 11. They can't step (`docs/MODEL_AUDIT.md`: the stand itself falls from 0.04 rad of exploration noise).
+- The stepping base was chosen on **validation only** (stage 2: 0.912 vs stage 1: 0.762). On test it survives 0.894, a paired +0.887 [0.84, 0.93] over PD.
+- **Not just retreat:** the in-place opponent doesn't chase, so stepping back would also take the R1 out of reach. Surviving episodes drift 0.55 m on average, but only 0.15 m backward, and 18% end more than 0.3 m further back.
+
+## Stepping base: what it is and what it isn't
+- **What it is:** Unitree's official R1 velocity task in mjlab (MuJoCo Warp) with more standing, sparring-range footwork and harder pushes:
+  - stage 1: 3000 iterations
+  - stage 2: 1500 iterations with pushes every 1.5–3.5 s up to 0.8 m/s, plus 0–40 ms obs delay
+  - about 440M env steps in 1.7 h on one RTX 4090 (~$1.5)
+
+  It uses Unitree's contract: kp 100/40, per-joint action scale 0.15–0.41, 83-d obs (`configs/r1_mjlab.yaml`, `docs/DEPLOY.md`). It never trained against the opponent or with this repo's scripted hits. Everything here is evaluated in this repo's CPU MuJoCo, a different simulator, and `scripts/crosssim_mjlab.py` checks it stands and tracks commands there.
+- **Robustness cost tracking.** In this sim, stage 2 tracks vx 0.5 → 0.31 m/s, vy 0.3 → 0.18, and barely follows yaw commands (0.5 → -0.11 rad/s). Stage 1 tracked better (0.40 / 0.23 / 0.36) but survived less. Fine for standing sparring; footwork needs a better balance.
+- **What it isn't:** it doesn't see, block, counter or clinch. It only stays up. Phase 3 (perception, strikes, blocks) builds on it.
+- **Opponent caveat:** the opponent's root is held up by a bounded "hand of god" assist, and it never adapts to the R1.
+- **No hardware.** Unitree's gains and contract are the ones Unitree deploys, which is a better starting point than the kp 300 stand. But the R1 EDU's armature, friction and latency still need system ID (phase 4). Note that Unitree's own `deploy.yaml` lists the wrong action scale (`docs/DEPLOY.md`).
 
 ## Plan
 1. **Sim.** R1 model on the official Unitree MJCF, a fight-motion opponent, procedural hits, sensor delay and noise. Done.
-2. **Hit-robust balance policy.** Residual PPO on top of a PD stand, exported to ONNX. Done (v2 in this README).
+2. **Hit-robust balance.** The residual PPO on a PD stand (v1–v3) can't step. Replaced by the **stepping base** (`gpu/`, `results/policy_mjlab/`). Done in sim.
 3. **Perception + block / counter / clinch** from the head camera. Roadmap: [ROADMAP.md](ROADMAP.md).
 4. **Safety + sim-to-real** on the R1 EDU (system ID, e-stop, padded mode). Roadmap: [ROADMAP.md](ROADMAP.md).
 
 ## What's in the repo
 | path | what |
 |---|---|
-| `r1gym/model.py` | R1 from `unitree_rl_mjlab` r1.xml (24 actuated DoF, 28.93 kg), PD servos, torque caps, opponent attachment with compliant (padded) contact |
-| `r1gym/opponent.py` | kinematic sparring partner: a second R1 replaying KungFuAthleteBot G1 clips retargeted to R1 by keypoint IK |
+| `r1gym/model.py` | R1 from `unitree_rl_mjlab` r1.xml (24 actuated DoF, 28.93 kg), PD servos, torque caps; the opponent R1 with its own capped motors |
+| `r1gym/opponent.py` | sparring partner: a second, physical R1 tracking KungFuAthleteBot G1 clips (retargeted to R1 by keypoint IK), in place, with a seamless loop and a force-limited root assist |
+| `r1gym/scenario.py` | the demo scenario shared by `demo.py` and `demo_check.py` |
+| `configs/r1_mjlab.yaml`, `r1gym/policy.py` (`MjlabPolicy`) | runs unitree_rl_mjlab policies here under their own contract (checked against the ONNX metadata); same opponent |
+| `gpu/` | the mjlab task for the stepping base and how to reproduce it on RunPod |
+| `results/policy_mjlab/` | shipped stepping base: `policy.onnx` (contract in its metadata), `model_4498.pt`, mjlab `params/`, `train_log.json`, `crosssim.json`; `results/policy_mjlab_stage1/` for comparison |
 | `r1gym/perturb.py` | strikes / pushes / grabs by impulse, body and direction; peak force capped at 400 N |
 | `r1gym/env.py` | env (78-dim obs, 24-dim residual action), 0–40 ms obs delay, noise, optional opponent in training, thread/process batching |
 | `r1gym/policy.py` | PD baseline, torch policy, ONNX policy |
@@ -25,8 +69,8 @@ Left: stiff PD stand (baseline). Right: the RL balance policy. Both face the sam
 | `results/policy/` | v2 policy (`policy.pt`, `policy.onnx`, `train_log.json`, `latency.json`); `results/policy_v1/` = v1 |
 | `results/eval/`, `results/eval_v1/` | hit eval for v2 / v1 (`summary.json`, `survival.png`) |
 | `results/policy_v3_candidate/`, `results/eval_v3/` | v3 attempt (DR + recovery reward + multi-hit curriculum): **not adopted**, see below |
-| `results/demo_check.json` | demo fall times + 8 variants |
-| `docs/MODEL_AUDIT.md`, `docs/GPU.md` | model audit; GPU-batched (mjlab / MuJoCo Warp) path |
+| `results/demo_check.json` | demo fall times + 8 variants, with opponent contact counts and peak forces |
+| `docs/MODEL_AUDIT.md`, `docs/GPU.md`, `docs/DEPLOY.md` | model audit; GPU-batched (mjlab / MuJoCo Warp) path; deploy contract (`r1gym/deploy.py`, `deploy_contract.json` next to each ONNX) |
 
 ## Quickstart
 ```bash
@@ -34,9 +78,11 @@ pip install -e .[dev]
 python scripts/verify_r1.py                  # R1 spec checks -> results/r1_verification.json
 python scripts/train.py --envs 256 --horizon 32 --workers 10 --minutes 30 --imp0 6 --opp_prob 0.5 \
     --init results/policy_v1/policy.pt --out results/policy_new   # v2 recipe, stage 1
-python scripts/evaluate.py --out results/eval_v3                 # PD + v1 + v2 + v3 candidate: single hits to 30 N·s, 3-hit survival (nominal + DR)
+python scripts/eval_opponent.py --split test --policy v2=results/policy/policy.pt step=results/policy_mjlab/policy.onnx   # headline (val: --split val)
+python scripts/crosssim_mjlab.py results/policy_mjlab/policy.onnx   # mjlab-trained policy stands and tracks commands in this sim
+python scripts/evaluate.py --out results/eval_hits               # PD + v1 + v2 + v3: single hits to 30 N·s, 3-hit survival, CIs
 python scripts/demo_check.py --policy v2=results/policy/policy.pt v3=results/policy_v3_candidate/policy.pt   # demo fall times + 8 variants
-MUJOCO_GL=egl python scripts/demo.py   # PD vs v2; e.g. --right "RL v3=results/policy_v3_candidate/policy.pt"
+python scripts/demo.py   # PD vs v2 (headless Linux: MUJOCO_GL=egl); e.g. --right "RL v3=results/policy_v3_candidate/policy.pt"
 python scripts/export_onnx.py --ckpt results/policy/policy.pt    # -> results/policy/policy.onnx + latency
 pytest -q
 ```
@@ -50,17 +96,16 @@ Eval: 896 single-hit episodes per controller (strike/push × 7 locations × 8 im
 | Fall rate @ 4 / 6 / 8 / 10 N·s | 0.15 / 0.39 / 0.61 / 0.71 | 0.00 / 0.16 / 0.37 / 0.63 | 0.00 / 0.19 / 0.39 / 0.57 |
 | Largest impulse with ≥50% survival | 6 N·s | 8 N·s | 8 N·s |
 | Fall rate chest / head / pelvis | 0.72 / 0.76 / 0.57 | 0.59 / 0.67 / 0.42 | 0.56 / 0.66 / 0.43 |
-| Demo (`kfab_202`) fall time | 9.1 s | 6.1 s | **11.0 s** |
-| Demo variants: mean time to fall (8 runs, 12 s clip) | 9.16 s | 7.34 s | **9.74 s** |
-| Demo variants where RL outlasts PD | – | 2 / 8 | **6 / 8** |
+| Old demo (kinematic opponent, mostly out of reach) fall time | 9.1 s | 6.1 s | 11.0 s |
+| Old demo variants: mean time to fall (8 runs) | 9.16 s | 7.34 s | 9.74 s |
 
-On single hits, v2 is about the same as v1 (0.411 vs 0.413 is within noise). It is slightly better at 10 N·s and slightly worse at 6–8 N·s. The real gain is with an opponent in contact range. v1 never saw one in training and usually fell about 1.5 s after the 4.6 s head strike plus the opponent's knee contact. v2 trains with an opponent in 50–70% of episodes.
+On single hits, v2 is about the same as v1 (0.411 vs 0.413 is within noise). It is slightly better at 10 N·s and slightly worse at 6–8 N·s. In the old demo it looked like the gain came with an opponent in contact range; against the physical opponent that gain is gone (see the top of this README). v1 never saw one in training and usually fell about 1.5 s after the 4.6 s head strike plus the opponent's knee contact. v2 trains with an opponent in 50–70% of episodes.
 
-**Demo robustness.** Each of the 8 variants re-samples hit durations, the obs delay (0–2 steps) and the opponent distance (0.80–0.95 m). RL v2 fall times are 6.28, 11.0, 10.8, 10.84, 6.18, 10.8, 11.04 and 10.96 s; PD falls at 9.0–9.36 s in all 8. Neither controller survives the 8 N·s push at 9.5 s every time. The candidate was chosen on eval fall rate plus mean variant survival across 5 trained candidates (3 fine-tunes without the opponent, 2 with it; numbers in the PR). It was not chosen on the main demo alone.
+**Demo history.** The first demo's opponent was a kinematic (infinite-mass) replay placed by its clip's mean position. The clips drift up to 2.4 m, so it started 1.46 m away, touched the R1 for only 2 control steps in 12 s, and teleported when the clip looped. Every fall in that demo came from invisible scripted forces. It also had soft "padded" contact to stop the infinite-mass body producing unbounded forces (4–12 kN once in range). The retargeted clips also had IK flips (shoulder yaw jumping limit to limit, up to 3.7 rad in one frame); the retarget now anchors to the G1's own joint angles and caps joint speed (0.25 rad/frame, keypoint error ~5 cm).
 
 ![survival](results/eval/survival.png)
 
-**Opponent force.** The opponent is kinematic (infinite mass), so its contacts are made compliant like a padded surface (`OPP_SOLREF`/`OPP_SOLIMP` in `r1gym/model.py`). Peak contact force in the demo is 315 N (it was 630 N before). Scripted hit peak force is capped at 400 N, with the impulse preserved.
+**Opponent force.** The opponent's joints are PD servos with the R1's own torque caps; its pelvis gets a force-limited assist toward the clip (horizontal ≤ 250 N, about the friction limit of a 29 kg robot; vertical ≤ 600 N; torque ≤ 150 N·m) so it can follow kung-fu motion without falling. In the demo its contacts peak at roughly 100–300 N with about 5 N·s per punch; kicks and lunges are larger. Scripted hit peak force is capped at 400 N, with the impulse preserved.
 
 ## v3 attempt: harder hits, recovery reward, domain randomisation (not adopted)
 Feedback on v1 was that it fell over too easily. v3 tried to fix that, starting from v2:
@@ -89,9 +134,9 @@ New eval (`scripts/evaluate.py`): 1120 single hits per controller up to 30 N·s,
 | Fall rate @ 6 / 8 / 10 / 15 / 20 / 30 N·s | .40/.63/.71/.76/.82/.96 | .16/.35/.60/.71/.75/.90 | .19/.38/.57/.71/.73/.88 | .17/.42/.57/.70/.74/.88 | .21/.43/.61/.71/.71/.88 |
 | 3-hit survival @ 4 / 6 / 8 / 10 N·s (nominal) | .48/.20/.10/.04 | .95/.57/.29/.08 | .91/.49/.21/.04 | .99/.53/.23/.09 | .94/.47/.16/.05 |
 | 3-hit survival @ 4 / 6 / 8 / 10 N·s (DR) | .45/.25/.09/.04 | .89/.46/.28/.08 | .79/.40/.12/.05 | .93/.47/.16/.06 | .83/.44/.14/.03 |
-| Demo fall time | 9.1 s | 6.1 s | **11.0 s** | 10.8 s | 9.2 s |
-| Demo variants: mean survival (12 s = survived) | 9.16 s | 7.34 s | 9.74 s | **11.05 s** | 10.34 s |
-| Demo variants survived the full 12 s | 0/8 | 0/8 | 0/8 | 0/8 | 4/8 |
+| Old demo fall time (kinematic opponent) | 9.1 s | 6.1 s | 11.0 s | 10.8 s | 9.2 s |
+| Old demo variants: mean survival (12 s = survived) | 9.16 s | 7.34 s | 9.74 s | 11.05 s | 10.34 s |
+| Old demo variants survived the full 12 s | 0/8 | 0/8 | 0/8 | 0/8 | 4/8 |
 
 **Verdict: v3 is not a clear robustness improvement, so v2 stays the shipped policy** (`results/policy/`, demo media unchanged).
 - **Where the v3 candidate is better:**
@@ -121,7 +166,8 @@ New eval (`scripts/evaluate.py`): 1120 single hits per controller up to 30 N·s,
 - Proprioceptive only. Neither upstream R1 MJCF has a head camera, so nothing here sees the opponent (that is phase 3).
 - Armature, foot friction and PD gains are assumptions, not identified on hardware (`docs/MODEL_AUDIT.md`). Nothing has been run on a real R1.
 - The single-hit eval has no grabs and no opponent contact. The demo variants cover those, but only 8 runs on one held-out clip.
-- The policy mostly absorbs hits standing in place. The v3 recovery reward allows stepping, but no reliable stepping emerged. It doesn't block or counter.
+- The opponent's root assist is a "hand of god" force (bounded, but not physical). It lets the opponent replay kung-fu clips it couldn't balance through on its own motors.
+- v1–v3 mostly absorb hits standing in place; the v3 recovery reward allows stepping, but no reliable stepping emerged (the stand caps exploration, `docs/MODEL_AUDIT.md`). The stepping base steps but doesn't block or counter.
 - Small training budget (about 74M steps total) on CPU MuJoCo. The GPU path in `docs/GPU.md` isn't benchmarked here.
 
 ## Credits

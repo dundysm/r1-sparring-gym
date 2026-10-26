@@ -43,4 +43,9 @@ fall:
 action_filter: 0.3           # EMA on policy actions (tau ~17 ms) to keep exploration noise out of the feet
                              # stand on R1's small feet falls from white 0.01 rad leg-target noise without it (sweep in docs/MODEL_AUDIT.md)
 
-opponent_model: r1   # r1 (fight clips retargeted onto a kinematic R1) | g1 (raw KungFuAthleteBot G1)
+opponent_model: r1   # r1 (fight clips retargeted onto an R1) | g1 (raw KungFuAthleteBot G1, kinematic only)
+# puppet: the opponent is a second physical R1 (same motors and torque caps, opponent_gains) tracking the clip, with a
+#         force-limited root assist (r1gym/opponent.py: horizontal <= 250 N, vertical <= 600 N, torque <= 150 N*m).
+# kinematic: the original infinite-mass replay; in range it pushes through the R1 with 4-12 kN peaks, so don't train on it.
+opponent_mode: puppet
+opponent_gains: stand_pd

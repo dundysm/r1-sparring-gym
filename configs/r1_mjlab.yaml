@@ -1,0 +1,16 @@
+# Contract of unitree_rl_mjlab velocity policies (R1, @1425b15, mjlab 1.2.0), for running them in this gym.
+# Everything not listed is inherited; the opponent keeps its own gains/caps/armature so every controller faces the
+# same opponent.
+extends: r1_assumptions.yaml
+contract: mjlab        # obs 83: ang vel, projected gravity, command (3, zero = stand), phase (2), q - q0, dq, last action
+gains: pd              # Unitree deploy gains (leg kp 100, ankle 40, ...), as in r1_constants.py
+torque_cap_policy: mjlab
+armature: 0.01         # r1_constants.py
+foot_mu: 0.6           # nominal; mjlab training randomises 0.3-1.6
+action_filter: 0.0     # no EMA: q_target = q0 + (0.25 * effort / kp) * a
+action_clip: 1.0e+9    # unitree deploy.yaml: clip null
+sensors:
+  noise: {ang_vel: 0.2, gravity: 0.05, joint_pos: 0.01, joint_vel: 1.5}   # uniform half-widths (mjlab corruption)
+opponent_gains: stand_pd
+opponent_cap_policy: min
+opponent_armature: 0.03

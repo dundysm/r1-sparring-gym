@@ -7,10 +7,13 @@ import numpy as np, torch, torch.nn as nn
 from r1gym.env import BatchEnv, ProcBatchEnv, OBS_DIM, ACT_DIM
 
 class Actor(nn.Module):
-    def __init__(s):
+    def __init__(s, init_std=0.06):
         super().__init__()
         s.mu = nn.Sequential(nn.Linear(OBS_DIM, 256), nn.ELU(), nn.Linear(256, 128), nn.ELU(), nn.Linear(128, ACT_DIM))
-        s.logstd = nn.Parameter(torch.full((ACT_DIM,), -3.5))
+        # exploration std in action units (joint target = 0.25 * a). The stiff stand itself falls from white noise at
+        # std >= 0.15 (~0.04 rad) with no hits at all (scripts/noise_tolerance.py), so a residual-on-stand policy can't
+        # explore much: 0.06 is the largest level with 0/16 falls. v1-v3 used exp(-3.5) ~ 0.03.
+        s.logstd = nn.Parameter(torch.full((ACT_DIM,), float(np.log(init_std))))
         nn.init.zeros_(s.mu[-1].weight); nn.init.zeros_(s.mu[-1].bias)      # start == PD stand baseline
     def forward(s, o): return s.mu(o)
 
@@ -22,16 +25,21 @@ def main():
     ap.add_argument("--lr", type=float, default=1e-4); ap.add_argument("--opp_prob", type=float, default=0.0, help="fraction of episodes with a fight-clip opponent in contact range")
     ap.add_argument("--dr", type=int, default=0); ap.add_argument("--reward", default="v2"); ap.add_argument("--gap", type=float, nargs=2, default=[1.0, 2.5])
     ap.add_argument("--grow_below", type=float, default=0.25, help="raise max impulse x1.15 when episode fall rate is below this")
+    ap.add_argument("--init_std", type=float, default=0.06, help="initial exploration std (action units; joint target = 0.25 * a)")
+    ap.add_argument("--reset_std", action="store_true", help="with --init: reset exploration std to --init_std instead of keeping the checkpoint's")
+    ap.add_argument("--entropy", type=float, default=0.0, help="entropy bonus coefficient")
     a = ap.parse_args(); out = Path(a.out); out.mkdir(parents=True, exist_ok=True); torch.manual_seed(a.seed)
     env = (ProcBatchEnv(a.envs, seed=a.seed * 1000, workers=a.workers, max_impulse=a.imp0, opp_prob=a.opp_prob, dr=bool(a.dr), reward=a.reward, gap=tuple(a.gap)) if a.workers else BatchEnv(a.envs, seed=a.seed * 1000, max_impulse=a.imp0, opp_prob=a.opp_prob, dr=bool(a.dr), reward=a.reward, gap=tuple(a.gap)))
     torch.set_num_threads(4 if a.workers else torch.get_num_threads()); obs = env.reset()
-    actor = Actor(); critic = nn.Sequential(nn.Linear(OBS_DIM, 256), nn.ELU(), nn.Linear(256, 128), nn.ELU(), nn.Linear(128, 1))
+    actor = Actor(a.init_std); critic = nn.Sequential(nn.Linear(OBS_DIM, 256), nn.ELU(), nn.Linear(256, 128), nn.ELU(), nn.Linear(128, 1))
     dev = torch.device(a.device); actor.to(dev); critic.to(dev)
     opt = torch.optim.Adam(list(actor.parameters()) + list(critic.parameters()), lr=a.lr)
     # running obs normaliser (frozen into the ONNX export)
     mean, var, cnt = np.zeros(OBS_DIM), np.ones(OBS_DIM), 1e-4
     if a.init:
         ck = torch.load(a.init, weights_only=False); actor.load_state_dict(ck["actor"]); mean, var, cnt = ck["mean"], ck["var"], 1e6
+        if a.reset_std:
+            with torch.no_grad(): actor.logstd.fill_(float(np.log(a.init_std)))
     imp = a.imp0; t0 = time.time(); it = 0; log = []; steps = 0; ep_falls = ep_done = 0
     gamma, lam, clip = 0.99, 0.95, 0.2
     while time.time() - t0 < a.minutes * 60:
@@ -46,7 +54,11 @@ def main():
             obs, r, d, info = env.step(act.cpu().numpy())
             for x in info:
                 if x["fallen"] or x["timeout"]: ep_done += 1; ep_falls += x["fallen"]
-            for k, val in zip("o a lp r d v".split(), (on, act, lp, torch.tensor(r, device=dev), torch.tensor(d, dtype=torch.float32, device=dev), v)): B[k].append(val)
+            # time-limit truncation is not a terminal state: bootstrap it with the value estimate (as rsl_rl does);
+            # otherwise the critic learns that time running out is like falling, which the obs can't explain
+            to = torch.tensor([x["timeout"] for x in info], dtype=torch.float32, device=dev)
+            r = torch.tensor(r, device=dev) + gamma * v * to
+            for k, val in zip("o a lp r d v".split(), (on, act, lp, r, torch.tensor(d, dtype=torch.float32, device=dev), v)): B[k].append(val)
             steps += a.envs
         on = torch.tensor((obs - mean) / np.sqrt(var + 1e-8), dtype=torch.float32, device=dev).clamp(-5, 5)
         with torch.no_grad(): nv = critic(on).squeeze(-1)
@@ -62,7 +74,8 @@ def main():
                 ratio = (dist.log_prob(A[idx]).sum(-1) - LP[idx]).exp()
                 pl = -torch.min(ratio * ADV[idx], ratio.clamp(1 - clip, 1 + clip) * ADV[idx]).mean()
                 vl = ((critic(O[idx]).squeeze(-1) - RET[idx]) ** 2).mean()
-                loss = pl + 0.5 * vl
+                ent = dist.entropy().sum(-1).mean()
+                loss = pl + 0.5 * vl - a.entropy * ent
                 opt.zero_grad(); loss.backward(); nn.utils.clip_grad_norm_(list(actor.parameters()) + list(critic.parameters()), 1.0); opt.step()
         it += 1
         if ep_done >= 64:   # curriculum on episode fall rate
@@ -71,7 +84,7 @@ def main():
             elif fr > 0.6: imp = max(a.imp0, imp / 1.1)
             env.set_max_impulse(imp)
             rec = dict(it=it, steps=steps, minutes=round((time.time() - t0) / 60, 2), fall_rate=round(fr, 3), max_impulse=round(imp, 2),
-                       mean_rew=round(float(R.mean()), 3), sps=round(steps / (time.time() - t0)))
+                       mean_rew=round(float(R.mean()), 3), sps=round(steps / (time.time() - t0)), std=round(float(actor.logstd.exp().mean()), 4))
             print(json.dumps(rec), flush=True); log.append(rec); ep_falls = ep_done = 0
         if it % 20 == 0: save(actor, mean, var, out, log)
     save(actor, mean, var, out, log)

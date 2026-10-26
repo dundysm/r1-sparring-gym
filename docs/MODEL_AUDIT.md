@@ -44,3 +44,18 @@ only difference between the two is the learned feedback.
 * **Fall definition:** pelvis z < 0.45 m or tilt > 60°.
 
 `scripts/sweep_stand.py` reproduces the gain sweep.
+
+## The stiff stand caps exploration
+With no hits at all, white Gaussian residual actions knock the `stand_pd` R1 over (`python scripts/noise_tolerance.py`, 16 × 5 s per level):
+
+| exploration std (action units) | ≈ joint-target noise | falls |
+|---|---|---|
+| 0.03 | 0.007 rad | 0/16 |
+| 0.06 | 0.015 rad | 0/16 |
+| 0.10 | 0.025 rad | 3/16 |
+| 0.15 | 0.037 rad | 16/16 |
+| 0.25 | 0.062 rad | 16/16 |
+
+So PPO on a residual over this stand can only explore about ±0.015 rad per joint. That is far too little to discover stepping or
+large recovery motions, which is why every run (v1, v2, both v3 runs) stalls at 8–9 N·s. Locomotion policies that do learn
+push recovery (e.g. Unitree's own R1 velocity task) act on softer gains and are trained with noise an order of magnitude larger.

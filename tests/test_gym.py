@@ -61,3 +61,75 @@ def test_r1_opponent_retarget():
     from r1gym.opponent import FightReplay, list_clips
     m = build_spec(opponent=True).compile()
     op = FightReplay(m, list_clips()[0]); assert op.kind == "r1" and op.q.shape[1] == 31
+
+
+def test_opponent_loop_is_seamless_and_retarget_has_no_flips():
+    m = build_spec(opponent=True, cfg=CFG).compile()
+    for clip in list_clips():
+        op = FightReplay(m, clip, distance=0.6); q = np.vstack([op.q, op.q[:1]])   # includes the wrap back to frame 0
+        assert np.abs(np.diff(q[:, :2], axis=0)).max() < 0.05, clip              # no root teleport
+        assert np.abs(np.diff(q[:, 7:], axis=0)).max() < 0.4, clip               # 0.25 rad/frame cap (+~0.1 inside the loop cross-fade)
+        assert abs(np.median(q[:, 0]) - 0.6) < 0.1 and abs(np.median(q[:, 1])) < 0.1, clip   # stays in front, in range
+
+
+def test_puppet_opponent_is_a_capped_physical_r1():
+    m = build_spec(opponent=True, cfg=CFG).compile(); assert m.nu == 48
+    caps = torque_caps(CFG); opp = [m.actuator("opp_" + j.replace("_joint", "")).id for j in CTRL_JOINTS]
+    assert np.allclose(m.actuator_forcerange[opp, 1], caps)
+    from r1gym.scenario import demo_env
+    from r1gym.contacts import per_body_force
+    e, o = demo_env(m, CFG); op = e.opp; peak = 0.0
+    for _ in range(150):   # 3 s, PD stand
+        e.step(np.zeros(ACT_DIM)); peak = max(peak, sum(per_body_force(m, e.d, e.r.r1_bodies).values()))
+        assert np.linalg.norm(e.d.qpos[op.qadr:op.qadr + 3] - op.qpos_at(e.d.time)[:3]) < 0.25   # tracks its clip
+    assert peak < 3000.0
+
+
+
+def test_wilson_and_paired_diff():
+    from r1gym.stats import wilson, paired_diff
+    lo, hi = wilson(50, 100); assert lo < 0.5 < hi and 0.39 < lo < 0.41
+    assert wilson(0, 10)[0] == 0.0 and wilson(10, 10)[1] == 1.0
+    d, (a, b) = paired_diff([1, 1, 1, 0] * 25, [0, 1, 0, 0] * 25); assert d == 0.5 and a < 0.5 < b
+
+
+def test_deploy_loop_matches_env():
+    """The documented deploy contract (r1gym/deploy.py) reproduces the env's joint targets exactly, step by step."""
+    from r1gym.policy import TorchPolicy
+    from r1gym.deploy import DeployLoop
+    pol = TorchPolicy("results/policy/policy.pt"); loop = DeployLoop(pol)
+    e = R1HitEnv(seed=0, train=False); o = e.reset(hits=[make_hit("strike", "chest", 6.0, 0.4, 0.0, np.random.default_rng(0))], delay=0)
+    e.sensor.std = np.zeros_like(e.sensor.std); o = e._raw_obs()   # no sensor noise on either side
+    r, d = e.r, e.d
+    for _ in range(60):
+        tgt = loop.step(d.qvel[r.free_v + 3:r.free_v + 6], d.qpos[r.free_q + 3:r.free_q + 7], d.qpos[r.qadr], d.qvel[r.vadr])
+        o, *_ = e.step(pol.act(o[None])[0])
+        assert np.allclose(tgt, d.ctrl[r.act], atol=1e-5)
+
+
+def test_mjlab_contract_config():
+    """configs/r1_mjlab.yaml reproduces the unitree_rl_mjlab R1 contract (values from an exported ONNX's metadata),
+    and the opponent stays identical to the residual config's."""
+    from r1gym.model import action_scale
+    from r1gym import CONFIGS
+    c = load_cfg(CONFIGS / "r1_mjlab.yaml")
+    assert c["contract"] == "mjlab" and c["sensors"]["delay_steps"] == CFG["sensors"]["delay_steps"]   # inherited
+    onnx_scale = [0.150] * 4 + [0.312] * 2 + [0.150] * 4 + [0.312] * 2 + [0.150] * 2 + [0.375, 0.375, 0.412, 0.412, 0.412] * 2
+    assert np.allclose(action_scale(c), onnx_scale, atol=2e-3)
+    m, m0 = build_spec(cfg=c, opponent=True).compile(), build_spec(cfg=CFG, opponent=True).compile()
+    assert m.actuator_gainprm[0, 0] == 100 and m.actuator_forcerange[0, 1] == 60            # Unitree gains / caps
+    assert np.allclose(m.actuator_forcerange[24:], m0.actuator_forcerange[24:]) and np.allclose(m.actuator_gainprm[24:], m0.actuator_gainprm[24:])
+    e = R1HitEnv(seed=0, cfg=c, model=m, train=False); o = e.reset(hits=[]); assert o.shape == (83,)
+    e.command = np.array([0.5, 0, 0]); assert np.abs(e._raw_obs()[9:11]).sum() > 0   # gait phase active when moving
+
+
+def test_stepping_base_runs_in_this_gym():
+    """Cross-simulator regression: the mjlab-trained stepping base (MuJoCo Warp) stands and walks forward here (CPU MuJoCo)."""
+    from r1gym.policy import load_controller, controller_cfg
+    c = load_controller("step=results/policy_mjlab/policy.onnx"); cfg = controller_cfg(c); m = build_spec(cfg=cfg).compile()
+    for cmd, check in [((0.0, 0.0, 0.0), lambda x: abs(x) < 0.25), ((0.5, 0.0, 0.0), lambda x: x > 0.2)]:
+        e = R1HitEnv(seed=0, cfg=cfg, model=m, episode_s=5, max_impulse=0, train=False); e.reset(hits=[], delay=1); e.command = np.array(cmd)
+        o = e._raw_obs(); x0 = e.d.qpos[0]
+        for _ in range(200):
+            o, r, d, info = e.step(c.act(o[None])[0]); assert not info["fallen"]
+        assert check((e.d.qpos[0] - x0) / 4.0), (cmd, e.d.qpos[0] - x0)

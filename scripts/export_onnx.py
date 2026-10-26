@@ -34,5 +34,6 @@ def main():
            "p99": round(float(np.percentile(t, 99)), 1), "mean": round(float(t.mean()), 1)}, "batch4096_ms": round(batch_ms, 2),
            "hardware": f"{platform.processor() or platform.machine()} ({os.cpu_count()} vCPU box, 1 ORT thread, shared with other jobs)", "onnxruntime": ort.__version__}
     print(json.dumps(res, indent=1)); json.dump(res, open(Path(a.out).parent / "latency.json", "w"), indent=1)
+    from r1gym.deploy import write; write(Path(a.out).parent / "deploy_contract.json")   # everything outside the graph
 
 if __name__ == "__main__": main()

@@ -1,0 +1,15 @@
+[project]
+name = "r1gym"
+version = "0.1.0"
+description = "Open sparring/grappling gym for the Unitree R1: fight-motion opponent, procedural hits, hit-robust balance RL"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+dependencies = ["mujoco>=3.3", "numpy", "pyyaml", "imageio[ffmpeg]", "pillow", "matplotlib", "torch", "onnx", "onnxruntime"]
+[project.optional-dependencies]
+dev = ["pytest"]
+[tool.setuptools]
+packages = ["r1gym"]
+[tool.setuptools.package-data]
+r1gym = ["assets/**/*"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]

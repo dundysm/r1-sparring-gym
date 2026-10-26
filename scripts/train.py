@@ -18,15 +18,18 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--envs", type=int, default=64); ap.add_argument("--horizon", type=int, default=64)
     ap.add_argument("--minutes", type=float, default=30); ap.add_argument("--out", default="results/policy")
     ap.add_argument("--imp0", type=float, default=4.0); ap.add_argument("--imp_max", type=float, default=40.0); ap.add_argument("--seed", type=int, default=0); ap.add_argument("--workers", type=int, default=0, help=">0: one process per worker")
-    ap.add_argument("--device", default="cpu")
+    ap.add_argument("--device", default="cpu"); ap.add_argument("--init", default="", help="warm-start from a policy.pt (actor + obs normaliser)")
+    ap.add_argument("--lr", type=float, default=1e-4); ap.add_argument("--opp_prob", type=float, default=0.0, help="fraction of episodes with a fight-clip opponent in contact range")
     a = ap.parse_args(); out = Path(a.out); out.mkdir(parents=True, exist_ok=True); torch.manual_seed(a.seed)
-    env = (ProcBatchEnv(a.envs, seed=a.seed * 1000, workers=a.workers, max_impulse=a.imp0) if a.workers else BatchEnv(a.envs, seed=a.seed * 1000, max_impulse=a.imp0))
+    env = (ProcBatchEnv(a.envs, seed=a.seed * 1000, workers=a.workers, max_impulse=a.imp0, opp_prob=a.opp_prob) if a.workers else BatchEnv(a.envs, seed=a.seed * 1000, max_impulse=a.imp0, opp_prob=a.opp_prob))
     torch.set_num_threads(4 if a.workers else torch.get_num_threads()); obs = env.reset()
     actor = Actor(); critic = nn.Sequential(nn.Linear(OBS_DIM, 256), nn.ELU(), nn.Linear(256, 128), nn.ELU(), nn.Linear(128, 1))
     dev = torch.device(a.device); actor.to(dev); critic.to(dev)
-    opt = torch.optim.Adam(list(actor.parameters()) + list(critic.parameters()), lr=1e-4)
+    opt = torch.optim.Adam(list(actor.parameters()) + list(critic.parameters()), lr=a.lr)
     # running obs normaliser (frozen into the ONNX export)
     mean, var, cnt = np.zeros(OBS_DIM), np.ones(OBS_DIM), 1e-4
+    if a.init:
+        ck = torch.load(a.init, weights_only=False); actor.load_state_dict(ck["actor"]); mean, var, cnt = ck["mean"], ck["var"], 1e6
     imp = a.imp0; t0 = time.time(); it = 0; log = []; steps = 0; ep_falls = ep_done = 0
     gamma, lam, clip = 0.99, 0.95, 0.2
     while time.time() - t0 < a.minutes * 60:

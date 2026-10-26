@@ -62,8 +62,14 @@ def build_spec(opponent: bool = False, cfg=None, gains: str = "stand_pd") -> muj
         for ge in g.geoms:                               # opponent hits the R1 but not itself
             ge.contype, ge.conaffinity = (1, 0) if ge.contype or ge.conaffinity else (0, 0)
             ge.rgba = [0.85, 0.35, 0.25, 1]
+            ge.solref = OPP_SOLREF; ge.solimp = OPP_SOLIMP   # padded, compliant contact: bounds the kinematic opponent's peak force
         f = s.worldbody.add_frame(); f.attach_body(g.body("pelvis"), "opp_", "")
     return s
+
+# Opponent contact compliance (sparring-pad-like). The replayed opponent is kinematic (infinite mass), so a stiff contact
+# would produce unbounded forces; with this soft contact the demo peak stays ~a few hundred N (logged in results/demo_contacts.json).
+OPP_SOLREF = [0.06, 1.0]
+OPP_SOLIMP = [0.5, 0.9, 0.02, 0.5, 2.0]
 
 # Torque caps: unitree_mujoco ctrlrange (R1_C++.xml, commit 1eb6642) vs unitree_rl_mjlab effort_limit. See docs/MODEL_AUDIT.md
 MUJOCO_CAPS = [(r"_hip_", 88.0), (r"_knee", 139.0), (r"_ankle_", 50.0), (r"waist_roll", 50.0), (r"waist_yaw", 88.0), (r"shoulder|elbow|wrist", 25.0)]

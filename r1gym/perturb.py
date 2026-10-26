@@ -15,6 +15,7 @@ class Hit:
     @property
     def impulse(self): return float(np.linalg.norm(self.force) * self.duration)
 
+MAX_FORCE_N = 400.0   # peak scripted hit force [N] (padded sparring strike on a 29 kg robot)
 KINDS = {"strike": (0.05, 0.12), "push": (0.15, 0.3), "grab": (0.4, 0.8)}   # duration ranges [s]
 # where on the R1 an opponent can land a hit (body, local point): chest, upper chest/face height, shoulders, hips, knees
 LOCATIONS = {"chest": ("torso_link", [0.08, 0, 0.15]), "head": ("torso_link", [0.06, 0, 0.35]),
@@ -26,6 +27,7 @@ def make_hit(kind, location, impulse, t0, yaw, rng=None, pitch=0.0):
     i.e. a frontal strike). A grab pulls (yaw+pi semantics are up to the caller)."""
     rng = rng or np.random.default_rng()
     lo, hi = KINDS[kind]; dur = float(rng.uniform(lo, hi))
+    dur = max(dur, impulse / MAX_FORCE_N)   # bound peak force to a realistic sparring level; impulse preserved
     body, off = LOCATIONS[location]
     dirn = np.array([-np.cos(yaw) * np.cos(pitch), -np.sin(yaw) * np.cos(pitch), np.sin(pitch)])
     return Hit(kind, body, t0, dur, dirn * impulse / dur, np.array(off, float))

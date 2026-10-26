@@ -238,5 +238,65 @@
   ],
   "variants_mean_survival_s": 6.43,
   "variants_survived_full": 1
+ },
+ "rl_step": {
+  "demo": {
+   "fell_s": null,
+   "contact_events": 3,
+   "contact_steps": 14,
+   "peak_contact_N": 181
+  },
+  "variants": [
+   {
+    "fell_s": null,
+    "contact_events": 5,
+    "contact_steps": 22,
+    "peak_contact_N": 671
+   },
+   {
+    "fell_s": null,
+    "contact_events": 1,
+    "contact_steps": 9,
+    "peak_contact_N": 89
+   },
+   {
+    "fell_s": null,
+    "contact_events": 2,
+    "contact_steps": 12,
+    "peak_contact_N": 205
+   },
+   {
+    "fell_s": null,
+    "contact_events": 2,
+    "contact_steps": 9,
+    "peak_contact_N": 3833
+   },
+   {
+    "fell_s": null,
+    "contact_events": 8,
+    "contact_steps": 25,
+    "peak_contact_N": 524
+   },
+   {
+    "fell_s": null,
+    "contact_events": 2,
+    "contact_steps": 16,
+    "peak_contact_N": 164
+   },
+   {
+    "fell_s": null,
+    "contact_events": 3,
+    "contact_steps": 10,
+    "peak_contact_N": 423
+   },
+   {
+    "fell_s": null,
+    "contact_events": 2,
+    "contact_steps": 7,
+    "peak_contact_N": 2651
+   }
+  ],
+  "variants_mean_survival_s": 12.0,
+  "variants_survived_full": 8
  }
 }

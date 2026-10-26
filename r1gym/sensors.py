@@ -3,10 +3,11 @@ from collections import deque
 import numpy as np
 
 class DelayedNoisyObs:
-    def __init__(self, delay_steps: int, noise_std: np.ndarray, rng):
-        self.k = int(delay_steps); self.std = noise_std; self.rng = rng; self.buf = deque(maxlen=self.k + 1)
+    """noise_std: Gaussian std per element, or (uniform=True) the half-width of uniform noise, as mjlab uses."""
+    def __init__(self, delay_steps: int, noise_std: np.ndarray, rng, uniform=False):
+        self.k = int(delay_steps); self.std = noise_std; self.rng = rng; self.buf = deque(maxlen=self.k + 1); self.uniform = uniform
     def reset(self, obs):
         self.buf.clear(); [self.buf.append(obs) for _ in range(self.k + 1)]
     def __call__(self, obs):
         self.buf.append(obs); o = self.buf[0]
-        return o + self.rng.normal(0, 1, o.shape) * self.std
+        return o + (self.rng.uniform(-1, 1, o.shape) if self.uniform else self.rng.normal(0, 1, o.shape)) * self.std

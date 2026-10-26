@@ -105,3 +105,31 @@ def test_deploy_loop_matches_env():
         tgt = loop.step(d.qvel[r.free_v + 3:r.free_v + 6], d.qpos[r.free_q + 3:r.free_q + 7], d.qpos[r.qadr], d.qvel[r.vadr])
         o, *_ = e.step(pol.act(o[None])[0])
         assert np.allclose(tgt, d.ctrl[r.act], atol=1e-5)
+
+
+def test_mjlab_contract_config():
+    """configs/r1_mjlab.yaml reproduces the unitree_rl_mjlab R1 contract (values from an exported ONNX's metadata),
+    and the opponent stays identical to the residual config's."""
+    from r1gym.model import action_scale
+    from r1gym import CONFIGS
+    c = load_cfg(CONFIGS / "r1_mjlab.yaml")
+    assert c["contract"] == "mjlab" and c["sensors"]["delay_steps"] == CFG["sensors"]["delay_steps"]   # inherited
+    onnx_scale = [0.150] * 4 + [0.312] * 2 + [0.150] * 4 + [0.312] * 2 + [0.150] * 2 + [0.375, 0.375, 0.412, 0.412, 0.412] * 2
+    assert np.allclose(action_scale(c), onnx_scale, atol=2e-3)
+    m, m0 = build_spec(cfg=c, opponent=True).compile(), build_spec(cfg=CFG, opponent=True).compile()
+    assert m.actuator_gainprm[0, 0] == 100 and m.actuator_forcerange[0, 1] == 60            # Unitree gains / caps
+    assert np.allclose(m.actuator_forcerange[24:], m0.actuator_forcerange[24:]) and np.allclose(m.actuator_gainprm[24:], m0.actuator_gainprm[24:])
+    e = R1HitEnv(seed=0, cfg=c, model=m, train=False); o = e.reset(hits=[]); assert o.shape == (83,)
+    e.command = np.array([0.5, 0, 0]); assert np.abs(e._raw_obs()[9:11]).sum() > 0   # gait phase active when moving
+
+
+def test_stepping_base_runs_in_this_gym():
+    """Cross-simulator regression: the mjlab-trained stepping base (MuJoCo Warp) stands and walks forward here (CPU MuJoCo)."""
+    from r1gym.policy import load_controller, controller_cfg
+    c = load_controller("step=results/policy_mjlab/policy.onnx"); cfg = controller_cfg(c); m = build_spec(cfg=cfg).compile()
+    for cmd, check in [((0.0, 0.0, 0.0), lambda x: abs(x) < 0.25), ((0.5, 0.0, 0.0), lambda x: x > 0.2)]:
+        e = R1HitEnv(seed=0, cfg=cfg, model=m, episode_s=5, max_impulse=0, train=False); e.reset(hits=[], delay=1); e.command = np.array(cmd)
+        o = e._raw_obs(); x0 = e.d.qpos[0]
+        for _ in range(200):
+            o, r, d, info = e.step(c.act(o[None])[0]); assert not info["fallen"]
+        assert check((e.d.qpos[0] - x0) / 4.0), (cmd, e.d.qpos[0] - x0)

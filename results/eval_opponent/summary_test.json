@@ -32,7 +32,10 @@
     "0.6": 0.0,
     "0.65": 0.0,
     "0.7": 0.031
-   }
+   },
+   "survivors_mean_drift_m": 0.711,
+   "survivors_mean_back_m": -0.635,
+   "survivors_back_over_0p3m": 0.0
   },
   "RL v1": {
    "episodes": 160,
@@ -49,6 +52,9 @@
     "0.65": 0.156,
     "0.7": 0.094
    },
+   "survivors_mean_drift_m": 0.109,
+   "survivors_mean_back_m": 0.038,
+   "survivors_back_over_0p3m": 0.071,
    "survival_minus_pd": 0.081,
    "survival_minus_pd_ci95": [
     0.044,
@@ -70,6 +76,9 @@
     "0.65": 0.125,
     "0.7": 0.062
    },
+   "survivors_mean_drift_m": 0.09,
+   "survivors_mean_back_m": 0.066,
+   "survivors_back_over_0p3m": 0.111,
    "survival_minus_pd": 0.05,
    "survival_minus_pd_ci95": [
     0.019,
@@ -91,10 +100,61 @@
     "0.65": 0.156,
     "0.7": 0.062
    },
+   "survivors_mean_drift_m": 0.034,
+   "survivors_mean_back_m": 0.018,
+   "survivors_back_over_0p3m": 0.0,
    "survival_minus_pd": 0.044,
    "survival_minus_pd_ci95": [
     0.019,
     0.075
+   ]
+  },
+  "RL step_s1": {
+   "episodes": 160,
+   "survival": 0.644,
+   "survival_ci95": [
+    0.567,
+    0.714
+   ],
+   "mean_time_to_fall_s": 7.5,
+   "survival_by_distance": {
+    "0.5": 0.531,
+    "0.55": 0.531,
+    "0.6": 0.594,
+    "0.65": 0.688,
+    "0.7": 0.875
+   },
+   "survivors_mean_drift_m": 0.449,
+   "survivors_mean_back_m": 0.125,
+   "survivors_back_over_0p3m": 0.146,
+   "survival_minus_pd": 0.637,
+   "survival_minus_pd_ci95": [
+    0.562,
+    0.713
+   ]
+  },
+  "RL step": {
+   "episodes": 160,
+   "survival": 0.894,
+   "survival_ci95": [
+    0.836,
+    0.933
+   ],
+   "mean_time_to_fall_s": 9.16,
+   "survival_by_distance": {
+    "0.5": 0.812,
+    "0.55": 0.75,
+    "0.6": 0.969,
+    "0.65": 0.938,
+    "0.7": 1.0
+   },
+   "survivors_mean_drift_m": 0.55,
+   "survivors_mean_back_m": 0.148,
+   "survivors_back_over_0p3m": 0.175,
+   "survival_minus_pd": 0.887,
+   "survival_minus_pd_ci95": [
+    0.838,
+    0.931
    ]
   }
  }

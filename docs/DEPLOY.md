@@ -27,6 +27,34 @@ step by step, from raw sensor readings.
   re-train if they have to change.
 - **Latency.** Training randomised 0–40 ms observation delay. Measure the real loop and keep it inside that range.
 - **Exploration-limited policy.** See `docs/MODEL_AUDIT.md`: this policy family can't step. The stepping base
-  (`gpu/`) uses Unitree's own contract (kp 100/40, per-joint action scales), which this doc will cover once it ships.
+  (below) uses Unitree's own contract.
 - **Safety layer.** E-stop, torque/velocity caps below the vendor limits and a stale-observation watchdog are not
   part of the policy. See ROADMAP phase 4.
+
+# Stepping base (unitree_rl_mjlab contract)
+The stepping base policy (`gpu/r1_spar_task.py`, trained in mjlab) is exported by mjlab with its contract in the ONNX
+metadata: `joint_names`, `joint_stiffness`, `joint_damping`, `default_joint_pos`, `action_scale`,
+`observation_names`. `r1gym.policy.MjlabPolicy` asserts that these match `configs/r1_mjlab.yaml` before running.
+
+- **Observation (83):**
+  - base angular velocity
+  - projected gravity
+  - velocity command (vx, vy, wz); zero means stand
+  - gait phase: sin/cos of t mod 0.6 s, zero when |command| < 0.1
+  - `q - default_joint_pos`
+  - `dq` (unscaled)
+  - last action
+- **Action:** `q_target = default_joint_pos + action_scale * a`, with no clip and no filter. `action_scale = 0.25 * effort_limit / stiffness` per joint:
+
+  | joints | action_scale |
+  |---|---|
+  | legs, waist | 0.150 |
+  | ankles | 0.312 |
+  | shoulder pitch/roll | 0.375 |
+  | shoulder yaw, elbow, wrist | 0.412 |
+- **PD:** Unitree's deploy gains (kp 100 legs/waist, 40 ankles/shoulders, 20 arms), with torque caps 60/50/60/60/33 N·m.
+
+**Check before deploying with Unitree's C++ stack.** `unitree_rl_mjlab`'s `deploy/robots/r1/config/policy/velocity/v0/params/deploy.yaml`
+(@1425b15) lists `scale: 0.25` for every joint. The policy that the same repo trains and exports uses the per-joint
+scales above (from the ONNX metadata). Deployed with 0.25, the legs and waist would get 1.67× the trained motion and the arms
+and ankles 0.6–0.8×. Use the metadata values.

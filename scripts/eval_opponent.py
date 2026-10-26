@@ -13,7 +13,7 @@ from r1gym.env import R1HitEnv, VAL_CLIPS, TEST_CLIPS
 from r1gym.model import build_spec, load_cfg
 from r1gym.opponent import FightReplay
 from r1gym.perturb import make_hit
-from r1gym.policy import PDStand, TorchPolicy
+from r1gym.policy import PDStand, load_controller, controller_cfg
 from r1gym.stats import wilson, paired_diff
 
 DISTANCES = [0.5, 0.55, 0.6, 0.65, 0.7]
@@ -45,31 +45,41 @@ def run(ctrl, eps, m, cfg, T=10.0, threads=8):
         A = ctrl.act(np.stack([envs[i][1] for i in live]))
         def st(j):
             x = envs[live[j]]; o, r, d, info = x[0].step(A[j]); x[1] = o
-            if info["fallen"]: x[2] = x[0].t * x[0].dt
+            if info["fallen"]: x[2] = x[0].t * x[0].dt; x.append(x[0].d.qpos[:2].copy())   # where it was when it fell
         list(pool.map(st, range(len(live))))
     pool.shutdown()
-    return [dict(clip=ep["clip"], distance=ep["distance"], fell_s=x[2]) for ep, x in zip(eps, envs)]
+    # drift: how far the R1's pelvis moved from its start (xy). The in-place opponent doesn't follow, so stepping back
+    # also takes the R1 out of reach; report it next to survival.
+    return [dict(clip=ep["clip"], distance=ep["distance"], fell_s=x[2], drift_m=round(float(np.linalg.norm((x[3] if len(x) > 3 else x[0].d.qpos[:2]))), 3),
+                 back_m=round(float(-(x[3] if len(x) > 3 else x[0].d.qpos[:2])[0]), 3)) for ep, x in zip(eps, envs)]
 
 def summarise(rows, T):
     s = [x["fell_s"] is None for x in rows]; n = len(s); k = int(sum(s))
     ttf = [x["fell_s"] if x["fell_s"] is not None else T for x in rows]
     by_d = {d: round(float(np.mean([x["fell_s"] is None for x in rows if x["distance"] == d])), 3) for d in DISTANCES}
-    return dict(episodes=n, survival=round(k / n, 3), survival_ci95=wilson(k, n), mean_time_to_fall_s=round(float(np.mean(ttf)), 2), survival_by_distance=by_d)
+    surv = [x for x in rows if x["fell_s"] is None]
+    return dict(episodes=n, survival=round(k / n, 3), survival_ci95=wilson(k, n), mean_time_to_fall_s=round(float(np.mean(ttf)), 2), survival_by_distance=by_d,
+                survivors_mean_drift_m=round(float(np.mean([x["drift_m"] for x in surv])), 3) if surv else None,
+                survivors_mean_back_m=round(float(np.mean([x["back_m"] for x in surv])), 3) if surv else None,
+                survivors_back_over_0p3m=round(float(np.mean([x["back_m"] > 0.3 for x in surv])), 3) if surv else None)
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--policy", nargs="*", default=["v1=results/policy_v1/policy.pt", "v2=results/policy/policy.pt", "v3=results/policy_v3_candidate/policy.pt"])
+    ap = argparse.ArgumentParser(); ap.add_argument("--policy", nargs="*", default=["v1=results/policy_v1/policy.pt", "v2=results/policy/policy.pt", "v3=results/policy_v3_candidate/policy.pt"],
+                    help="label=path (.pt residual policy, .onnx unitree_rl_mjlab policy)")
     ap.add_argument("--split", choices=["test", "val"], default="test"); ap.add_argument("--reps", type=int, default=16)
     ap.add_argument("--no_pushes", action="store_true"); ap.add_argument("--seconds", type=float, default=10.0); ap.add_argument("--out", default="results/eval_opponent")
     a = ap.parse_args(); out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
-    cfg = load_cfg(); m = build_spec(opponent=True, cfg=cfg).compile()
+    cfg = load_cfg(); models = {}
     clips = TEST_CLIPS if a.split == "test" else VAL_CLIPS; eps = episodes(clips, a.reps, not a.no_pushes)
     ctrls = [PDStand()]
     for lp in a.policy:
         lab, path = lp.split("=", 1)
-        if Path(path).exists(): c = TorchPolicy(path); c.name = f"RL {lab}"; ctrls.append(c)
+        if Path(path).exists(): ctrls.append(load_controller(f"RL {lab}={path}"))
     raw, summ = {}, {}
     for c in ctrls:
-        t0 = time.time(); raw[c.name] = run(c, eps, m, cfg, a.seconds); summ[c.name] = summarise(raw[c.name], a.seconds)
+        cc = controller_cfg(c); key = str(getattr(c, "cfg_path", "default"))   # each controller runs under its own contract
+        if key not in models: models[key] = build_spec(opponent=True, cfg=cc).compile()
+        t0 = time.time(); raw[c.name] = run(c, eps, models[key], cc, a.seconds); summ[c.name] = summarise(raw[c.name], a.seconds)
         print(c.name, json.dumps(summ[c.name]), f"({time.time() - t0:.0f} s)", flush=True)
     base = [x["fell_s"] is None for x in raw["pd_stand"]]
     for name in raw:

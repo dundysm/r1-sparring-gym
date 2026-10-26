@@ -8,7 +8,7 @@ import numpy as np
 from r1gym.model import build_spec, load_cfg
 from r1gym.scenario import demo_env, variant_kwargs, DEMO_SECONDS
 from r1gym.contacts import per_body_force
-from r1gym.policy import PDStand, TorchPolicy
+from r1gym.policy import PDStand, load_controller, controller_cfg
 
 def run(ctrl, m, cfg, **kw):
     e, o = demo_env(m, cfg, **kw); peak = 0.0; touching = 0; events = 0; prev = False
@@ -22,12 +22,14 @@ def run(ctrl, m, cfg, **kw):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("--policy", nargs="+", default=["v2=results/policy/policy.pt"], help="label=path ...")
     ap.add_argument("--variants", type=int, default=8); ap.add_argument("--out", default="")
-    a = ap.parse_args(); cfg = load_cfg(); m = build_spec(opponent=True, cfg=cfg).compile()
-    out = {}
+    a = ap.parse_args(); out = {}; models = {}
     cs = [PDStand()]
     for lp in a.policy:
-        lab, path = lp.split("=", 1); c = TorchPolicy(path); c.name = f"rl_{lab}"; cs.append(c)
+        lab, path = lp.split("=", 1); cs.append(load_controller(f"rl_{lab}={path}"))
     for c in cs:
+        cfg = controller_cfg(c); key = str(getattr(c, "cfg_path", "default"))
+        if key not in models: models[key] = build_spec(opponent=True, cfg=cfg).compile()
+        m = models[key]
         out[c.name] = {"demo": run(c, m, cfg), "variants": [run(c, m, cfg, **variant_kwargs(s)) for s in range(a.variants)]}
         t = [x["fell_s"] if x["fell_s"] is not None else DEMO_SECONDS for x in out[c.name]["variants"]]
         out[c.name]["variants_mean_survival_s"] = round(float(np.mean(t)), 2)

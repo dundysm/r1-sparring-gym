@@ -1,6 +1,7 @@
 """Build the R1 sparring world (R1 + optional kinematic opponent: R1 by default, G1 via opponent_model) and the PD/torque-cap layer."""
 from __future__ import annotations
 import re, numpy as np, mujoco, yaml
+from pathlib import Path
 from . import ASSETS, CONFIGS
 
 # 24 actuated joints in Unitree's deploy order (unitree_rl_mjlab deploy.yaml joint_ids_map)
@@ -16,7 +17,23 @@ MJLAB_CAPS = [(r"_hip_|_knee", 60.0), (r"_ankle_", 50.0), (r"waist_", 60.0), (r"
 HIT_BODIES = ["pelvis", "torso_link", "left_shoulder_roll_link", "right_shoulder_roll_link", "left_knee_link", "right_knee_link"]
 
 def load_cfg(path=None):
-    return yaml.safe_load(open(path or CONFIGS / "r1_assumptions.yaml"))
+    """Load a config; `extends: <file>` (relative to the config's folder) deep-merges it over a base config."""
+    path = Path(path or CONFIGS / "r1_assumptions.yaml"); cfg = yaml.safe_load(open(path))
+    if "extends" in cfg:
+        base = load_cfg(path.parent / cfg.pop("extends"))
+        def merge(a, b):
+            for k, v in b.items(): a[k] = merge(a.get(k, {}), v) if isinstance(v, dict) and isinstance(a.get(k), dict) else v
+            return a
+        cfg = merge(base, cfg)
+    return cfg
+
+def action_scale(cfg):
+    """Joint-target scale per unit action: the residual policies use one scalar; mjlab velocity policies use
+    0.25 * effort_limit / stiffness per joint (unitree_rl_mjlab R1_ACTION_SCALE)."""
+    if cfg.get("contract", "residual") == "mjlab":
+        kp = np.array([cfg[cfg.get("gains", "stand_pd")][_group(j)]["kp"] for j in CTRL_JOINTS], float)
+        return 0.25 * torque_caps(cfg) / kp
+    return cfg["action_scale"]
 
 def _group(j):
     if "ankle" in j: return "ankle"
@@ -25,9 +42,9 @@ def _group(j):
     if re.search(r"shoulder_(pitch|roll)", j): return "shoulder"
     return "arm"
 
-def build_spec(opponent: bool = False, cfg=None, gains: str = "stand_pd") -> mujoco.MjSpec:
+def build_spec(opponent: bool = False, cfg=None, gains: str | None = None) -> mujoco.MjSpec:
     """R1 from unitree_rl_mjlab (the MJCF Unitree trains its own R1 policies on) + PD servos + floor [+ G1 opponent]."""
-    cfg = cfg or load_cfg()
+    cfg = cfg or load_cfg(); gains = gains or cfg.get("gains", "stand_pd")
     s = mujoco.MjSpec.from_file(str(ASSETS / "r1" / "r1.xml"))
     s.meshdir = str(ASSETS / "r1" / "assets")
     # upstream r1.xml (unitree_rl_mjlab 1425b15) excludes contacts with *_wrist_pitch_link, a body that does not exist
@@ -68,13 +85,16 @@ def build_spec(opponent: bool = False, cfg=None, gains: str = "stand_pd") -> muj
         # fight clip (see FightReplay), so what it can do to the R1 is bounded by real actuator limits.
         # "kinematic": the original infinite-mass replay (qpos written every substep).
         if kind == "r1" and cfg.get("opponent_mode", "puppet") == "puppet":
+            # the opponent's own gains, caps and armature are independent of the protagonist's contract, so every
+            # controller (residual or mjlab) faces the identical opponent
             og = cfg.get("opponent_gains", gains)
+            ocaps = torque_caps({**cfg, "torque_cap_policy": cfg.get("opponent_cap_policy", cfg["torque_cap_policy"])})
             for i, j in enumerate(CTRL_JOINTS):
-                grp = cfg[og][_group(j)]; s.joint("opp_" + j).armature = cfg.get("armature", 0.01)
+                grp = cfg[og][_group(j)]; s.joint("opp_" + j).armature = cfg.get("opponent_armature", cfg.get("armature", 0.01))
                 s.add_actuator(name="opp_" + j.replace("_joint", ""), target="opp_" + j, trntype=mujoco.mjtTrn.mjTRN_JOINT,
                                gaintype=mujoco.mjtGain.mjGAIN_FIXED, gainprm=[grp["kp"]] + [0] * 9,
                                biastype=mujoco.mjtBias.mjBIAS_AFFINE, biasprm=[0, -grp["kp"], -grp["kd"]] + [0] * 7,
-                               forcelimited=1, forcerange=[-caps[i], caps[i]])
+                               forcelimited=1, forcerange=[-ocaps[i], ocaps[i]])
     return s
 
 # Opponent contact: MuJoCo's default stiffness. With the puppet opponent the force is bounded by its motors, so no extra

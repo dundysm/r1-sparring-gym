@@ -1,3 +1,5 @@
+> **Done:** the stepping base was trained this way. See [`gpu/README.md`](../gpu/README.md) for the task, the version pins and the commands that worked (2026-10-26). The plan below is kept for reference.
+
 # Batched GPU path (thousands of parallel copies)
 
 The CPU gym here (`r1gym/`) is the reference: model, hit model, sensor delay/noise, eval harness. It runs about 4.2k env-steps/s on

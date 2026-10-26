@@ -12,7 +12,7 @@ from PIL import Image, ImageDraw, ImageFont
 from r1gym.model import build_spec, load_cfg
 from r1gym.scenario import demo_env, DEMO_CLIP, DEMO_DISTANCE, DEMO_SECONDS
 from r1gym.contacts import body_contacts, per_body_force
-from r1gym.policy import PDStand, TorchPolicy
+from r1gym.policy import PDStand, load_controller, controller_cfg
 
 def font(sz):
     for p in ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", "C:/Windows/Fonts/segoeuib.ttf", "C:/Windows/Fonts/arialbd.ttf"]:
@@ -44,12 +44,13 @@ def main():
     ap.add_argument("--clip", default=DEMO_CLIP); ap.add_argument("--distance", type=float, default=DEMO_DISTANCE)
     ap.add_argument("--w", type=int, default=640); ap.add_argument("--h", type=int, default=480); ap.add_argument("--name", default="demo"); a = ap.parse_args()
     root = Path(__file__).resolve().parents[1]; (root / "media").mkdir(exist_ok=True)
-    cfg = load_cfg(); m = build_spec(opponent=True, cfg=cfg).compile()
     labels = [x.split("=", 1)[0] for x in (a.left, a.right)]
-    ctrls = [PDStand() if p == "PD" else TorchPolicy(p) for p in (x.split("=", 1)[1] for x in (a.left, a.right))]
-    envs = []; rens = []
-    for c in ctrls:
-        e, o = demo_env(m, cfg, distance=a.distance, clip=a.clip, seconds=a.seconds); e.contact_log = []
+    ctrls = [load_controller(x) for x in (a.left, a.right)]
+    envs = []; rens = []; models = {}
+    for c in ctrls:   # each controller runs under its own contract (residual or mjlab); the opponent is identical
+        cfg = controller_cfg(c); key = str(getattr(c, "cfg_path", "default"))
+        if key not in models: models[key] = build_spec(opponent=True, cfg=cfg).compile()
+        m = models[key]; e, o = demo_env(m, cfg, distance=a.distance, clip=a.clip, seconds=a.seconds); e.contact_log = []
         envs.append([e, o, None]); rens.append(mujoco.Renderer(m, a.h, a.w))
     cam = mujoco.MjvCamera(); cam.type = mujoco.mjtCamera.mjCAMERA_FREE; cam.lookat[:] = [a.distance / 2, 0, 0.6]; cam.distance = 2.6; cam.azimuth = 100; cam.elevation = -8   # side-on
     fps = 25; every = int(round(1 / (fps * envs[0][0].dt))); frames = []; F = font(22); Fs = font(17); Ft = font(13)
@@ -62,9 +63,9 @@ def main():
         if t % every == 0:
             row = []
             for k, (c, x, rn) in enumerate(zip(ctrls, envs, rens)):
-                e = x[0]; rn.update_scene(e.d, cam); overlay(rn.scene, m, e); img = Image.fromarray(rn.render()); dr = ImageDraw.Draw(img)
+                e = x[0]; rn.update_scene(e.d, cam); overlay(rn.scene, e.m, e); img = Image.fromarray(rn.render()); dr = ImageDraw.Draw(img)
                 dr.text((14, 10), "Unitree R1 · " + labels[k], font=F, fill=(255, 255, 255))
-                f = sum(per_body_force(m, e.d, e.r.r1_bodies).values())
+                f = sum(per_body_force(e.m, e.d, e.r.r1_bodies).values())
                 if f > 1.0: dr.text((14, 40), f"OPPONENT CONTACT {f:.0f} N", font=Fs, fill=(255, 220, 40))
                 act = [h for h in e.hits if h.t0 <= e.d.time < h.t0 + h.duration + 0.25]
                 if act: h = act[0]; dr.text((14, 62), f"SCRIPTED {h.kind.upper()} {h.impulse:.0f} N·s → {h.body.replace('_link', '')}", font=Fs, fill=(255, 140, 50))

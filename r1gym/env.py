@@ -39,7 +39,7 @@ class R1HitEnv:
             self.d.qpos[self.r.qadr] += self.rng.normal(0, 0.02, 24); mujoco.mj_forward(self.m, self.d)
         self.t = 0; self.last_a = np.zeros(24, np.float32); self.filt = np.zeros(24)
         lo, hi = self.cfg["sensors"]["delay_steps"]; k = self.rng.integers(lo, hi + 1) if delay is None else delay
-        self.sensor = DelayedNoisyObs(k, self.noise if self.train or delay is None else self.noise, self.rng)
+        self.sensor = DelayedNoisyObs(k, self.noise, self.rng)
         self.hits = hits if hits is not None else random_schedule(self.rng, self.T * self.dt, self.max_impulse, gap=self.gap)
         if self.dr: self._dr_sample()
         self.a_prev = np.zeros(24, np.float32)
@@ -114,6 +114,8 @@ class R1HitEnv:
 class BatchEnv:
     """N independent envs stepped by a thread pool (MuJoCo releases the GIL inside mj_step)."""
     def __init__(self, n, seed=0, threads=8, **kw):
+        if kw.get("dr") and threads > 1:   # DR envs write their parameters into the shared model before stepping
+            raise ValueError("BatchEnv with dr=True needs threads=1; use ProcBatchEnv (--workers) for parallel DR training")
         first = R1HitEnv(seed=seed, **kw)                       # one compiled model shared by all envs
         self.envs = [first] + [R1HitEnv(seed=seed + i, model=first.m, **kw) for i in range(1, n)]; self.n = n
         self.pool = ThreadPoolExecutor(threads); self.chunks = np.array_split(np.arange(n), threads)

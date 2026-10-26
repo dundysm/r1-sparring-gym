@@ -40,10 +40,7 @@ def run(ctrl, scenarios, m, cfg, t_hit=1.0, T=4.0, threads=8):
     pool.shutdown(); gc.collect()
     return [dict(kind=s[0], loc=s[1], impulse=s[2], dir=s[3], fell=bool(x[2]), recovery_s=(None if x[2] else x[4])) for s, x in zip(scenarios, envs)]
 
-def run_multi(ctrl, imp, n, m, cfg, dr=False, T=5.0, threads=8, chunk=24):
-    if False:
-        r = [_multi(ctrl, imp, chunk, m, cfg, True, T, threads, k0) for k0 in range(0, n, chunk)]
-        return round(float(np.mean(r)), 3)
+def run_multi(ctrl, imp, n, m, cfg, dr=False, T=5.0, threads=8):
     return _multi(ctrl, imp, n, m, cfg, dr, T, threads, 0)
 
 def _multi(ctrl, imp, n, m, cfg, dr, T, threads, k0):

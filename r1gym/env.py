@@ -6,11 +6,12 @@ act (24): residual joint targets, target = HOME + 0.25 * a   (same convention as
 from __future__ import annotations
 import numpy as np, mujoco
 from concurrent.futures import ThreadPoolExecutor
-from .model import build_spec, R1Robot, load_cfg, HOME
+from .model import build_spec, R1Robot, load_cfg, HOME, action_scale
 from .perturb import HitApplier, random_schedule
 from .sensors import DelayedNoisyObs
 
-OBS_DIM, ACT_DIM = 78, 24
+OBS_DIM, ACT_DIM = 78, 24      # residual contract; the mjlab contract (configs/r1_mjlab.yaml) has 83-d obs
+MJLAB_OBS_DIM = 83
 # Clip splits. Train on TRAIN_CLIPS; pick checkpoints / candidates on VAL_CLIPS only; report on TEST_CLIPS
 # (kfab_202 is also the demo clip). Before this split, the v2 candidate was chosen partly on kfab_202 demo variants.
 TRAIN_CLIPS = ["kfab_199", "kfab_200", "kfab_201", "kfab_203"]
@@ -28,14 +29,24 @@ class R1HitEnv:
         if dr: self._dr_init()
         self.nsub = int(round(self.cfg["model"]["control_dt"] / self.cfg["model"]["timestep"])); self.dt = self.cfg["model"]["control_dt"]
         self.T = int(episode_s / self.dt); self.max_impulse = max_impulse; self.train = train
-        n = self.cfg["sensors"]["noise"]
-        self.noise = np.concatenate([np.full(3, n["ang_vel"]), np.full(3, n["gravity"]), np.full(24, n["joint_pos"]), np.full(24, n["joint_vel"] * 0.05), np.zeros(24)])
+        n = self.cfg["sensors"]["noise"]; self.contract = self.cfg.get("contract", "residual")
+        self.scale = action_scale(self.cfg); self.clip = float(self.cfg.get("action_clip", 4.0)); self.alpha = self.cfg.get("action_filter", 0.3)
+        if self.contract == "mjlab":   # uniform half-widths, as unitree_rl_mjlab trains; command and phase are noise-free
+            self.noise = np.concatenate([np.full(3, n["ang_vel"]), np.full(3, n["gravity"]), np.zeros(5), np.full(24, n["joint_pos"]), np.full(24, n["joint_vel"]), np.zeros(24)])
+        else:
+            self.noise = np.concatenate([np.full(3, n["ang_vel"]), np.full(3, n["gravity"]), np.full(24, n["joint_pos"]), np.full(24, n["joint_vel"] * 0.05), np.zeros(24)])
         self.hits = []; self.schedule_fn = None; self.opp = None; self.contact_log = None   # set by demo/eval
+        self.command = np.zeros(3)   # mjlab contract only: velocity command (vx, vy, wz); zero = stand / spar in place
 
     def _raw_obs(self):
         # orientation from qpos, not d.xmat: after mj_step, xmat is from before the last integration (one 5 ms substep
         # stale), while a real IMU (and r1gym/deploy.py) reports the current orientation
         d, r = self.d, self.r; R = np.zeros(9); mujoco.mju_quat2Mat(R, d.qpos[r.free_q + 3:r.free_q + 7]); R = R.reshape(3, 3)
+        if self.contract == "mjlab":   # base_ang_vel, projected_gravity, command (vx, vy, wz), gait phase, q - q0, dq, last action
+            c = self.command; ph = 2 * np.pi * ((self.t * self.dt) % 0.6) / 0.6   # mjlab phase(period=0.6), zero when standing
+            phase = np.zeros(2) if np.linalg.norm(c) < 0.1 else np.array([np.sin(ph), np.cos(ph)])
+            return np.concatenate([d.qvel[r.free_v + 3:r.free_v + 6], R.T @ np.array([0, 0, -1.0]), c, phase,
+                                   d.qpos[r.qadr] - HOME, d.qvel[r.vadr], self.last_a]).astype(np.float32)
         return np.concatenate([d.qvel[r.free_v + 3:r.free_v + 6], R.T @ np.array([0, 0, -1.0]),
                                d.qpos[r.qadr] - HOME, 0.05 * d.qvel[r.vadr], self.last_a]).astype(np.float32)
 
@@ -45,7 +56,7 @@ class R1HitEnv:
             self.d.qpos[self.r.qadr] += self.rng.normal(0, 0.02, 24); mujoco.mj_forward(self.m, self.d)
         self.t = 0; self.last_a = np.zeros(24, np.float32); self.filt = np.zeros(24)
         lo, hi = self.cfg["sensors"]["delay_steps"]; k = self.rng.integers(lo, hi + 1) if delay is None else delay
-        self.sensor = DelayedNoisyObs(k, self.noise, self.rng)
+        self.sensor = DelayedNoisyObs(k, self.noise, self.rng, uniform=self.contract == "mjlab")
         self.hits = hits if hits is not None else random_schedule(self.rng, self.T * self.dt, self.max_impulse, gap=self.gap)
         if self.dr: self._dr_sample()
         self.a_prev = np.zeros(24, np.float32)
@@ -61,11 +72,11 @@ class R1HitEnv:
         o = self._raw_obs(); self.sensor.reset(o); return self.sensor(o)
 
     def step(self, a):
-        a = np.clip(a, -4, 4).astype(np.float32); d = self.d
+        a = np.clip(a, -self.clip, self.clip).astype(np.float32); d = self.d
         if self.dr: self._dr_apply()
         if self.act_delay: a, self.a_prev = self.a_prev, a          # DR: one control step (20 ms) of motor-command latency
-        self.filt = self.cfg.get("action_filter", 0.3) * self.filt + (1 - self.cfg.get("action_filter", 0.3)) * a   # EMA low-pass
-        self.r.pd(d, HOME + self.cfg["action_scale"] * self.filt)
+        self.filt = self.alpha * self.filt + (1 - self.alpha) * a   # EMA low-pass (mjlab contract: alpha 0, no filter)
+        self.r.pd(d, HOME + self.scale * self.filt)
         for _ in range(self.nsub):
             self.hits_ap.apply(d, self.hits, d.time)   # clears xfrc_applied, then writes the scripted hits
             if self.opp is not None: self.opp.apply(self.m, d, d.time + getattr(self, "opp_t0", 0.0), self.m.opt.timestep)

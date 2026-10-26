@@ -10,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 from r1gym.env import R1HitEnv
 from r1gym.model import build_spec, load_cfg
 from r1gym.perturb import make_hit, LOCATIONS
-from r1gym.policy import PDStand, TorchPolicy
+from r1gym.policy import PDStand, load_controller, controller_cfg
 from r1gym.stats import wilson, paired_diff
 
 IMPULSES = [2, 4, 6, 8, 10, 12, 15, 20, 25, 30]
@@ -70,16 +70,18 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--policy", nargs="+", default=["v1=results/policy_v1/policy.pt", "v2=results/policy/policy.pt", "v3=results/policy_v3_candidate/policy.pt"], help="label=path ...")
     ap.add_argument("--multi_n", type=int, default=96); ap.add_argument("--reps", type=int, default=2)
     ap.add_argument("--out", default="results/eval"); a = ap.parse_args(); out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
-    cfg = load_cfg(); m = build_spec(cfg=cfg).compile()
+    models = {}
     sc = [(k, l, i, dn, 1000 * r + j) for j, (k, l, i, dn, r) in enumerate(itertools.product(["strike", "push"], LOCATIONS, IMPULSES, DIRS, range(a.reps)))]
     res = {}
     ctrls = [PDStand()]
     for lp in a.policy:
         lab, path = lp.split("=", 1)
-        if Path(path).exists(): c = TorchPolicy(path); c.name = f"RL {lab}"; ctrls.append(c)
+        if Path(path).exists(): ctrls.append(load_controller(f"RL {lab}={path}"))
     multi = {}
     for ctrl in ctrls:
-        t0 = time.time(); rows = run(ctrl, sc, m, cfg); print(ctrl.name, len(rows), "episodes in", round(time.time() - t0, 1), "s", flush=True)
+        cfg = controller_cfg(ctrl); key = str(getattr(ctrl, "cfg_path", "default"))   # own contract per controller
+        if key not in models: models[key] = build_spec(cfg=cfg).compile()
+        m = models[key]; t0 = time.time(); rows = run(ctrl, sc, m, cfg); print(ctrl.name, len(rows), "episodes in", round(time.time() - t0, 1), "s", flush=True)
         res[ctrl.name] = rows
         multi[ctrl.name] = {"nominal": {i: run_multi(ctrl, i, a.multi_n, m, cfg) for i in MULTI},
                             "domain_randomised": {i: run_multi(ctrl, i, a.multi_n, m, cfg, dr=True) for i in MULTI}}

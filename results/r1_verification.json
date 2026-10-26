@@ -1,0 +1,237 @@
+{
+ "pass": true,
+ "checks": [
+  {
+   "check": "24 actuated hinge DoF (unitree_rl_mjlab R1)",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "no G1-only joints (waist_pitch / wrist_pitch / wrist_yaw)",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "R1 mesh files share no hash with G1 meshes",
+   "pass": true,
+   "detail": "42 R1 STL, 0 overlap"
+  },
+  {
+   "check": "protagonist geoms use only R1 meshes",
+   "pass": true,
+   "detail": "42 meshes"
+  },
+  {
+   "check": "body masses identical to upstream r1.xml",
+   "pass": true,
+   "detail": "total 28.93 kg"
+  },
+  {
+   "check": "total mass is not the G1's",
+   "pass": true,
+   "detail": "R1 28.93 vs G1 35.11"
+  },
+  {
+   "check": "joint ranges identical to upstream r1.xml",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "joint damping/frictionloss from r1.xml defaults",
+   "pass": true,
+   "detail": {
+    "damping": 0.05,
+    "frictionloss": 0.2
+   }
+  },
+  {
+   "check": "actuator force caps == configured R1 torque caps",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "torque caps <= unitree_mujoco R1_C++.xml ctrlrange",
+   "pass": true,
+   "detail": {
+    "left_hip_pitch_joint": 88.0,
+    "left_hip_roll_joint": 88.0,
+    "left_hip_yaw_joint": 88.0,
+    "left_knee_joint": 139.0,
+    "left_ankle_pitch_joint": 50.0,
+    "left_ankle_roll_joint": 50.0,
+    "right_hip_pitch_joint": 88.0,
+    "right_hip_roll_joint": 88.0,
+    "right_hip_yaw_joint": 88.0,
+    "right_knee_joint": 139.0,
+    "right_ankle_pitch_joint": 50.0,
+    "right_ankle_roll_joint": 50.0,
+    "waist_roll_joint": 50.0,
+    "waist_yaw_joint": 88.0,
+    "left_shoulder_pitch_joint": 25.0,
+    "left_shoulder_roll_joint": 25.0,
+    "left_shoulder_yaw_joint": 25.0,
+    "left_elbow_joint": 25.0,
+    "left_wrist_roll_joint": 25.0,
+    "right_shoulder_pitch_joint": 25.0,
+    "right_shoulder_roll_joint": 25.0,
+    "right_shoulder_yaw_joint": 25.0,
+    "right_elbow_joint": 25.0,
+    "right_wrist_roll_joint": 25.0
+   }
+  },
+  {
+   "check": "all 24 joints exist in unitree_mujoco R1_C++.xml",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "IMU site + gyro/accelerometer from r1.xml",
+   "pass": true,
+   "detail": null
+  },
+  {
+   "check": "env model is the R1 model (same nq/nbody)",
+   "pass": true,
+   "detail": "nq 31, nbody 26"
+  },
+  {
+   "check": "policy: obs/act dims match R1 env (78/24)",
+   "pass": true,
+   "detail": "obs 78, act 24"
+  },
+  {
+   "check": "policy_cpu: obs/act dims match R1 env (78/24)",
+   "pass": true,
+   "detail": "obs 78, act 24"
+  },
+  {
+   "check": "policy_gpu: obs/act dims match R1 env (78/24)",
+   "pass": true,
+   "detail": "obs 78, act 24"
+  },
+  {
+   "check": "policy_try1: obs/act dims match R1 env (78/24)",
+   "pass": true,
+   "detail": "obs 78, act 24"
+  },
+  {
+   "check": "opponent is an R1 (config default)",
+   "pass": true,
+   "detail": "24 hinges"
+  }
+ ],
+ "info": {
+  "hinge_dof": 24,
+  "actuated_dof": 24,
+  "joints": [
+   "left_hip_pitch_joint",
+   "left_hip_roll_joint",
+   "left_hip_yaw_joint",
+   "left_knee_joint",
+   "left_ankle_pitch_joint",
+   "left_ankle_roll_joint",
+   "right_hip_pitch_joint",
+   "right_hip_roll_joint",
+   "right_hip_yaw_joint",
+   "right_knee_joint",
+   "right_ankle_pitch_joint",
+   "right_ankle_roll_joint",
+   "waist_roll_joint",
+   "waist_yaw_joint",
+   "left_shoulder_pitch_joint",
+   "left_shoulder_roll_joint",
+   "left_shoulder_yaw_joint",
+   "left_elbow_joint",
+   "left_wrist_roll_joint",
+   "right_shoulder_pitch_joint",
+   "right_shoulder_roll_joint",
+   "right_shoulder_yaw_joint",
+   "right_elbow_joint",
+   "right_wrist_roll_joint"
+  ],
+  "total_mass_kg": 28.932,
+  "body_mass_kg": {
+   "pelvis": 2.25,
+   "left_hip_pitch_link": 0.9355,
+   "left_hip_roll_link": 0.2076,
+   "left_hip_yaw_link": 1.7397,
+   "left_knee_link": 2.3748,
+   "left_ankle_pitch_link": 0.0712,
+   "left_ankle_roll_link": 0.4817,
+   "right_hip_pitch_link": 0.9355,
+   "right_hip_roll_link": 0.2076,
+   "right_hip_yaw_link": 1.7397,
+   "right_knee_link": 2.3748,
+   "right_ankle_pitch_link": 0.0712,
+   "right_ankle_roll_link": 0.4817,
+   "waist_roll_link": 0.9207,
+   "torso_link": 7.3387,
+   "left_shoulder_pitch_link": 0.8379,
+   "left_shoulder_roll_link": 0.7402,
+   "left_shoulder_yaw_link": 0.7384,
+   "left_elbow_link": 0.7594,
+   "left_wrist_roll_link": 0.3248,
+   "right_shoulder_pitch_link": 0.8379,
+   "right_shoulder_roll_link": 0.7402,
+   "right_shoulder_yaw_link": 0.7384,
+   "right_elbow_link": 0.7594,
+   "right_wrist_roll_link": 0.3248
+  },
+  "g1_total_mass_kg_for_contrast": 35.11,
+  "armature": {
+   "used": 0.03,
+   "upstream_r1_xml": 0.01,
+   "flag": "ASSUMPTION (configs/r1_assumptions.yaml)"
+  },
+  "unitree_mujoco_R1_hinges": 29,
+  "unitree_mujoco_extra_unactuated": [
+   "left_wrist_pitch_joint",
+   "left_wrist_yaw_joint",
+   "right_wrist_pitch_joint",
+   "right_wrist_yaw_joint",
+   "waist_pitch_joint"
+  ],
+  "pd_gains": {
+   "leg": {
+    "kp": 300,
+    "kd": 10
+   },
+   "ankle": {
+    "kp": 300,
+    "kd": 10
+   },
+   "waist": {
+    "kp": 200,
+    "kd": 5
+   },
+   "shoulder": {
+    "kp": 40,
+    "kd": 2
+   },
+   "arm": {
+    "kp": 20,
+    "kd": 1
+   }
+  },
+  "pd_gains_flag": "ASSUMPTION: tuned in this repo (not from G1, not from Unitree); see configs/r1_assumptions.yaml",
+  "sites": [
+   "imu",
+   "left_foot",
+   "right_foot",
+   "left_palm",
+   "right_palm"
+  ],
+  "sensors": [
+   "imu_ang_vel",
+   "imu_lin_vel",
+   "imu_lin_acc",
+   "root_angmom"
+  ],
+  "cameras": [],
+  "head_camera": "ABSENT in both upstream R1 MJCFs; not used in phases 1-2 (phase 3 adds one)",
+  "obs_dim": 78,
+  "act_dim": 24,
+  "opponent_model": "r1",
+  "opponent_hinges": 24
+ }
+}

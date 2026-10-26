@@ -1,0 +1,46 @@
+# Every number the R1 sim depends on that Unitree does NOT publish is here, with its source.
+# Change these, re-run `python -m r1gym.check_model`, and every test/eval picks them up.
+model:
+  mjcf: r1gym/assets/r1/r1.xml   # Unitree unitree_rl_mjlab r1.xml @1425b15 (Apache-2.0); see docs/MODEL_AUDIT.md
+  timestep: 0.005          # sim dt [s]; control at 50 Hz -> 4 substeps (matches unitree_rl_mjlab step_dt=0.02)
+  control_dt: 0.02
+# Torque caps [N*m]. The two official sources DISAGREE (see docs/MODEL_AUDIT.md):
+#   unitree_mujoco ctrlrange : hip 88, knee 139, ankle 50, waist 50/88, arm 25
+#   unitree_rl_mjlab effort  : hip/knee 60, ankle 50, waist 60, shoulder p/r 60, shoulder yaw/elbow/wrist 33
+# Default = the element-wise MIN of the two (conservative: a policy that survives here should survive the robot).
+torque_cap_policy: min     # one of: min | mujoco | mjlab
+# Unitree's deploy gains (below) give ankle stiffness 40 N*m/rad < m*g*h ~ 190 N*m/rad, so the R1 can NOT stand on PD
+# alone with them (it tips over in ~1 s; tests/test_model.py proves it). Unitree's walking policy stabilises it actively.
+# For the hit-robustness study we use `stand_pd` for BOTH the PD baseline and the RL policy (residual on top), so the
+# only difference between the two is the learned feedback.
+stand_pd:
+  leg:   {kp: 300, kd: 10}   # chosen by sweep (scripts/sweep_stand.py): 0/10 falls at 0.04 rad init noise
+  ankle: {kp: 300, kd: 10}
+  waist: {kp: 200, kd: 5}
+  shoulder: {kp: 40, kd: 2}
+  arm:   {kp: 20,  kd: 1}
+# Stock PD gains + home pose: copied from unitree_rl_mjlab deploy/robots/r1/.../deploy.yaml (Apache-2.0)
+pd:
+  leg:   {kp: 100, kd: 2}    # hip pitch/roll/yaw, knee
+  ankle: {kp: 40,  kd: 2}
+  waist: {kp: 100, kd: 2}
+  shoulder: {kp: 40, kd: 2}  # shoulder pitch/roll
+  arm:   {kp: 20,  kd: 1}    # shoulder yaw, elbow, wrist roll
+# Joints that exist in the MJCF but have ctrlrange [0,0] and no limits (unactuated in Unitree's deploy map):
+# waist_pitch, left/right wrist_pitch, left/right wrist_yaw (in unitree_mujoco R1_C++.xml). unitree_rl_mjlab's r1.xml
+# has them fixed, which is the model we use. Result: 24 actuated DoF.
+foot_mu: 1.0                 # ASSUMPTION: mjlab uses 0.6; at 0.6 the stiff-PD stand slips and falls 6/10 from 0.02 rad noise
+integrator: implicitfast
+armature: 0.03               # ASSUMPTION. unitree_rl_mjlab r1_constants.py uses 0.01 for every joint (placeholder-looking). At 0.01 and
+                             # dt=5 ms the stiff stand falls 16/16 from 0.025 rad white target noise; at 0.03 3/16 (docs/MODEL_AUDIT.md)
+action_scale: 0.25           # rad, same as unitree_rl_mjlab
+sensors:
+  delay_steps: [0, 2]        # control steps of observation latency, sampled per episode (0-40 ms), mjlab#1230 idea
+  noise: {ang_vel: 0.2, gravity: 0.05, joint_pos: 0.01, joint_vel: 1.5}
+fall:
+  min_pelvis_z: 0.45         # [m]; home pelvis z is ~0.70
+  max_tilt_deg: 60
+action_filter: 0.3           # EMA on policy actions (tau ~17 ms) to keep exploration noise out of the feet
+                             # stand on R1's small feet falls from white 0.01 rad leg-target noise without it (sweep in docs/MODEL_AUDIT.md)
+
+opponent_model: r1   # r1 (fight clips retargeted onto a kinematic R1) | g1 (raw KungFuAthleteBot G1)

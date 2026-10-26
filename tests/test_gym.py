@@ -83,3 +83,11 @@ def test_puppet_opponent_is_a_capped_physical_r1():
         e.step(np.zeros(ACT_DIM)); peak = max(peak, sum(per_body_force(m, e.d, e.r.r1_bodies).values()))
         assert np.linalg.norm(e.d.qpos[op.qadr:op.qadr + 3] - op.qpos_at(e.d.time)[:3]) < 0.25   # tracks its clip
     assert peak < 3000.0
+
+
+
+def test_wilson_and_paired_diff():
+    from r1gym.stats import wilson, paired_diff
+    lo, hi = wilson(50, 100); assert lo < 0.5 < hi and 0.39 < lo < 0.41
+    assert wilson(0, 10)[0] == 0.0 and wilson(10, 10)[1] == 1.0
+    d, (a, b) = paired_diff([1, 1, 1, 0] * 25, [0, 1, 0, 0] * 25); assert d == 0.5 and a < 0.5 < b

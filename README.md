@@ -8,6 +8,31 @@ Left: stiff PD stand (baseline). Right: the RL balance policy (v2). Both face th
 
 **Honest status: against this opponent, none of the current policies holds up.** The front kick at about 5 s knocks every controller over: PD at 4.92 s, v2 at 5.16 s. Over 8 re-sampled variants, mean time to fall is PD 5.38 s, v1 6.85 s, v2 6.43 s, v3 6.49 s (`results/demo_check.json`). The earlier demo looked better only because its opponent was mostly out of reach (see "Demo history" below). Training against this opponent is the next step.
 
+## Headline eval: survive the physical opponent
+`scripts/eval_opponent.py`. The opponent is the physical R1 from the demo. Each episode lasts 10 s and samples a clip, a distance (0.50–0.70 m), the clip start time and the obs delay (0–2 steps), and adds two scripted side/back pushes (4–6 N·s). There are 160 test episodes (2 clips × 5 distances × 16) and 80 validation episodes. Every controller sees exactly the same episodes, so differences vs PD are **paired** (bootstrap 95% CI).
+
+**Clip splits** (`r1gym/env.py`):
+- Train: `kfab_199/200/201/203`.
+- Validation: `kfab_204`, used to choose checkpoints and candidates.
+- Test: `kfab_202` and `kfab_205`, used to report.
+
+Before this split, v2 was chosen partly on `kfab_202` demo variants, so `kfab_202` wasn't truly held out for v2.
+
+| | test survival (10 s) [95% CI] | vs PD (paired) | mean time to fall | val survival | single-hit fall rate [95% CI] | single-hit vs PD (paired) |
+|---|---|---|---|---|---|---|
+| PD stand | **0.006** [0.00, 0.04] | – | 3.17 s | 0.000 | 0.606 [0.58, 0.63] | – |
+| RL v1 | **0.113** [0.07, 0.17] | +0.106 [0.06, 0.15] | 3.87 s | 0.000 | 0.495 [0.47, 0.52] | -0.112 [-0.13, -0.09] |
+| RL v2 | **0.056** [0.03, 0.10] | +0.050 [0.02, 0.09] | 3.42 s | 0.037 | 0.498 [0.47, 0.53] | -0.108 [-0.13, -0.09] |
+| RL v3 cand. | **0.050** [0.03, 0.10] | +0.044 [0.01, 0.07] | 3.23 s | 0.037 | 0.495 [0.47, 0.52] | -0.112 [-0.13, -0.09] |
+
+The single-hit column is the 1120-episode eval (`scripts/evaluate.py`, now with Wilson and paired intervals; `results/eval_hits/`). It reproduces the earlier numbers exactly.
+
+**Read it plainly:**
+- Every learned policy beats PD on single hits by about 11 points.
+- Against the opponent, all of them survive 10 s at most about 1 time in 9.
+- v1, which never trained with an opponent, does best. v2's "opponent training" used the old out-of-reach opponent.
+- Single-hit robustness doesn't transfer to a sparring partner who keeps attacking.
+
 ## Plan
 1. **Sim.** R1 model on the official Unitree MJCF, a fight-motion opponent, procedural hits, sensor delay and noise. Done.
 2. **Hit-robust balance policy.** Residual PPO on top of a PD stand, exported to ONNX. Done (v2 in this README).
@@ -37,7 +62,8 @@ pip install -e .[dev]
 python scripts/verify_r1.py                  # R1 spec checks -> results/r1_verification.json
 python scripts/train.py --envs 256 --horizon 32 --workers 10 --minutes 30 --imp0 6 --opp_prob 0.5 \
     --init results/policy_v1/policy.pt --out results/policy_new   # v2 recipe, stage 1
-python scripts/evaluate.py --out results/eval_v3                 # PD + v1 + v2 + v3 candidate: single hits to 30 N·s, 3-hit survival (nominal + DR)
+python scripts/eval_opponent.py --split test                   # headline: survive the physical opponent (val: --split val)
+python scripts/evaluate.py --out results/eval_hits               # PD + v1 + v2 + v3: single hits to 30 N·s, 3-hit survival, CIs
 python scripts/demo_check.py --policy v2=results/policy/policy.pt v3=results/policy_v3_candidate/policy.pt   # demo fall times + 8 variants
 python scripts/demo.py   # PD vs v2 (headless Linux: MUJOCO_GL=egl); e.g. --right "RL v3=results/policy_v3_candidate/policy.pt"
 python scripts/export_onnx.py --ckpt results/policy/policy.pt    # -> results/policy/policy.onnx + latency

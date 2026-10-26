@@ -11,6 +11,7 @@ from r1gym.env import R1HitEnv
 from r1gym.model import build_spec, load_cfg
 from r1gym.perturb import make_hit, LOCATIONS
 from r1gym.policy import PDStand, TorchPolicy
+from r1gym.stats import wilson, paired_diff
 
 IMPULSES = [2, 4, 6, 8, 10, 12, 15, 20, 25, 30]
 MULTI = [4, 6, 8, 10, 12]   # N*s  (R1 = 28.9 kg)
@@ -94,6 +95,10 @@ def main():
             r = [x for x in rows if x["loc"] == l]; S["fall_rate_vs_location"][l] = round(np.mean([x["fell"] for x in r]), 3)
             S["fall_rate_vs_location_impulse"][l] = {i: round(np.mean([x["fell"] for x in r if x["impulse"] == i]), 3) for i in IMPULSES}
         f = [x["fell"] for x in rows]; S["overall_fall_rate"] = round(float(np.mean(f)), 3); S["episodes"] = len(rows)
+        S["overall_fall_rate_ci95"] = wilson(int(sum(f)), len(f))
+        S["fall_rate_vs_impulse_ci95"] = {i: wilson(int(sum(x["fell"] for x in rows if x["impulse"] == i)), sum(x["impulse"] == i for x in rows)) for i in IMPULSES}
+        if name != "pd_stand":   # same scenarios for every controller -> paired difference
+            d, ci = paired_diff(f, [x["fell"] for x in res["pd_stand"]]); S["fall_rate_minus_pd"] = d; S["fall_rate_minus_pd_ci95"] = ci
         S["max_impulse_50pct_survival"] = max([i for i in IMPULSES if S["fall_rate_vs_impulse"][i] <= 0.5], default=0)
         S["three_hit_survival"] = multi[name]; summary[name] = S
     json.dump(summary, open(out / "summary.json", "w"), indent=1); print(json.dumps({k: {kk: v[kk] for kk in ["overall_fall_rate", "fall_rate_vs_impulse", "max_impulse_50pct_survival", "three_hit_survival"]} for k, v in summary.items()}, indent=1))

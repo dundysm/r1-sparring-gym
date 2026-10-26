@@ -11,7 +11,11 @@ from .perturb import HitApplier, random_schedule
 from .sensors import DelayedNoisyObs
 
 OBS_DIM, ACT_DIM = 78, 24
-TRAIN_CLIPS = ["kfab_199", "kfab_200", "kfab_201", "kfab_203"]   # kfab_202 is held out for the demo
+# Clip splits. Train on TRAIN_CLIPS; pick checkpoints / candidates on VAL_CLIPS only; report on TEST_CLIPS
+# (kfab_202 is also the demo clip). Before this split, the v2 candidate was chosen partly on kfab_202 demo variants.
+TRAIN_CLIPS = ["kfab_199", "kfab_200", "kfab_201", "kfab_203"]
+VAL_CLIPS = ["kfab_204"]
+TEST_CLIPS = ["kfab_202", "kfab_205"]
 
 _DR_NOMINAL = {}
 

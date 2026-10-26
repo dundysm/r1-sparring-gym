@@ -1,0 +1,4133 @@
+[
+{
+"it": 14,
+"steps": 107520,
+"minutes": 0.62,
+"fall_rate": 1.0,
+"max_impulse": 6.0,
+"mean_rew": 1.938,
+"sps": 2900
+},
+{
+"it": 16,
+"steps": 122880,
+"minutes": 0.71,
+"fall_rate": 0.037,
+"max_impulse": 6.9,
+"mean_rew": 1.976,
+"sps": 2872
+},
+{
+"it": 23,
+"steps": 176640,
+"minutes": 1.02,
+"fall_rate": 0.578,
+"max_impulse": 6.9,
+"mean_rew": 1.975,
+"sps": 2896
+},
+{
+"it": 30,
+"steps": 230400,
+"minutes": 1.32,
+"fall_rate": 0.671,
+"max_impulse": 6.27,
+"mean_rew": 1.932,
+"sps": 2911
+},
+{
+"it": 32,
+"steps": 245760,
+"minutes": 1.4,
+"fall_rate": 0.053,
+"max_impulse": 7.21,
+"mean_rew": 1.975,
+"sps": 2918
+},
+{
+"it": 38,
+"steps": 291840,
+"minutes": 1.67,
+"fall_rate": 0.471,
+"max_impulse": 7.21,
+"mean_rew": 1.906,
+"sps": 2911
+},
+{
+"it": 44,
+"steps": 337920,
+"minutes": 1.93,
+"fall_rate": 0.58,
+"max_impulse": 7.21,
+"mean_rew": 1.922,
+"sps": 2916
+},
+{
+"it": 47,
+"steps": 360960,
+"minutes": 2.07,
+"fall_rate": 0.183,
+"max_impulse": 8.3,
+"mean_rew": 1.937,
+"sps": 2908
+},
+{
+"it": 51,
+"steps": 391680,
+"minutes": 2.24,
+"fall_rate": 0.538,
+"max_impulse": 8.3,
+"mean_rew": 1.929,
+"sps": 2912
+},
+{
+"it": 56,
+"steps": 430080,
+"minutes": 2.46,
+"fall_rate": 0.676,
+"max_impulse": 7.54,
+"mean_rew": 1.92,
+"sps": 2916
+},
+{
+"it": 60,
+"steps": 460800,
+"minutes": 2.64,
+"fall_rate": 0.623,
+"max_impulse": 6.86,
+"mean_rew": 1.885,
+"sps": 2911
+},
+{
+"it": 63,
+"steps": 483840,
+"minutes": 2.77,
+"fall_rate": 0.283,
+"max_impulse": 7.88,
+"mean_rew": 1.935,
+"sps": 2912
+},
+{
+"it": 68,
+"steps": 522240,
+"minutes": 2.98,
+"fall_rate": 0.568,
+"max_impulse": 7.88,
+"mean_rew": 1.916,
+"sps": 2917
+},
+{
+"it": 72,
+"steps": 552960,
+"minutes": 3.15,
+"fall_rate": 0.484,
+"max_impulse": 7.88,
+"mean_rew": 1.935,
+"sps": 2921
+},
+{
+"it": 76,
+"steps": 583680,
+"minutes": 3.33,
+"fall_rate": 0.471,
+"max_impulse": 7.88,
+"mean_rew": 1.875,
+"sps": 2922
+},
+{
+"it": 79,
+"steps": 606720,
+"minutes": 3.46,
+"fall_rate": 0.311,
+"max_impulse": 9.07,
+"mean_rew": 1.949,
+"sps": 2922
+},
+{
+"it": 83,
+"steps": 637440,
+"minutes": 3.64,
+"fall_rate": 0.671,
+"max_impulse": 8.24,
+"mean_rew": 1.898,
+"sps": 2923
+},
+{
+"it": 87,
+"steps": 668160,
+"minutes": 3.81,
+"fall_rate": 0.61,
+"max_impulse": 7.49,
+"mean_rew": 1.892,
+"sps": 2920
+},
+{
+"it": 91,
+"steps": 698880,
+"minutes": 3.99,
+"fall_rate": 0.506,
+"max_impulse": 7.49,
+"mean_rew": 1.913,
+"sps": 2917
+},
+{
+"it": 94,
+"steps": 721920,
+"minutes": 4.13,
+"fall_rate": 0.398,
+"max_impulse": 7.49,
+"mean_rew": 1.923,
+"sps": 2913
+},
+{
+"it": 99,
+"steps": 760320,
+"minutes": 4.36,
+"fall_rate": 0.557,
+"max_impulse": 7.49,
+"mean_rew": 1.901,
+"sps": 2906
+},
+{
+"it": 103,
+"steps": 791040,
+"minutes": 4.53,
+"fall_rate": 0.448,
+"max_impulse": 7.49,
+"mean_rew": 1.95,
+"sps": 2907
+},
+{
+"it": 107,
+"steps": 821760,
+"minutes": 4.71,
+"fall_rate": 0.429,
+"max_impulse": 7.49,
+"mean_rew": 1.921,
+"sps": 2910
+},
+{
+"it": 110,
+"steps": 844800,
+"minutes": 4.84,
+"fall_rate": 0.37,
+"max_impulse": 7.49,
+"mean_rew": 1.93,
+"sps": 2912
+},
+{
+"it": 114,
+"steps": 875520,
+"minutes": 5.01,
+"fall_rate": 0.558,
+"max_impulse": 7.49,
+"mean_rew": 1.892,
+"sps": 2911
+},
+{
+"it": 117,
+"steps": 898560,
+"minutes": 5.14,
+"fall_rate": 0.538,
+"max_impulse": 7.49,
+"mean_rew": 1.925,
+"sps": 2913
+},
+{
+"it": 120,
+"steps": 921600,
+"minutes": 5.28,
+"fall_rate": 0.542,
+"max_impulse": 7.49,
+"mean_rew": 1.915,
+"sps": 2909
+},
+{
+"it": 124,
+"steps": 952320,
+"minutes": 5.45,
+"fall_rate": 0.468,
+"max_impulse": 7.49,
+"mean_rew": 1.931,
+"sps": 2913
+},
+{
+"it": 128,
+"steps": 983040,
+"minutes": 5.64,
+"fall_rate": 0.47,
+"max_impulse": 7.49,
+"mean_rew": 1.917,
+"sps": 2907
+},
+{
+"it": 131,
+"steps": 1006080,
+"minutes": 5.77,
+"fall_rate": 0.469,
+"max_impulse": 7.49,
+"mean_rew": 1.894,
+"sps": 2906
+},
+{
+"it": 135,
+"steps": 1036800,
+"minutes": 5.95,
+"fall_rate": 0.476,
+"max_impulse": 7.49,
+"mean_rew": 1.925,
+"sps": 2904
+},
+{
+"it": 139,
+"steps": 1067520,
+"minutes": 6.13,
+"fall_rate": 0.442,
+"max_impulse": 7.49,
+"mean_rew": 1.907,
+"sps": 2902
+},
+{
+"it": 143,
+"steps": 1098240,
+"minutes": 6.3,
+"fall_rate": 0.507,
+"max_impulse": 7.49,
+"mean_rew": 1.893,
+"sps": 2906
+},
+{
+"it": 147,
+"steps": 1128960,
+"minutes": 6.48,
+"fall_rate": 0.462,
+"max_impulse": 7.49,
+"mean_rew": 1.922,
+"sps": 2906
+},
+{
+"it": 150,
+"steps": 1152000,
+"minutes": 6.61,
+"fall_rate": 0.412,
+"max_impulse": 7.49,
+"mean_rew": 1.916,
+"sps": 2903
+},
+{
+"it": 154,
+"steps": 1182720,
+"minutes": 6.78,
+"fall_rate": 0.513,
+"max_impulse": 7.49,
+"mean_rew": 1.889,
+"sps": 2906
+},
+{
+"it": 158,
+"steps": 1213440,
+"minutes": 6.96,
+"fall_rate": 0.38,
+"max_impulse": 7.49,
+"mean_rew": 1.944,
+"sps": 2906
+},
+{
+"it": 162,
+"steps": 1244160,
+"minutes": 7.13,
+"fall_rate": 0.442,
+"max_impulse": 7.49,
+"mean_rew": 1.904,
+"sps": 2908
+},
+{
+"it": 165,
+"steps": 1267200,
+"minutes": 7.25,
+"fall_rate": 0.529,
+"max_impulse": 7.49,
+"mean_rew": 1.913,
+"sps": 2911
+},
+{
+"it": 169,
+"steps": 1297920,
+"minutes": 7.43,
+"fall_rate": 0.486,
+"max_impulse": 7.49,
+"mean_rew": 1.905,
+"sps": 2910
+},
+{
+"it": 172,
+"steps": 1320960,
+"minutes": 7.57,
+"fall_rate": 0.507,
+"max_impulse": 7.49,
+"mean_rew": 1.89,
+"sps": 2908
+},
+{
+"it": 176,
+"steps": 1351680,
+"minutes": 7.75,
+"fall_rate": 0.515,
+"max_impulse": 7.49,
+"mean_rew": 1.95,
+"sps": 2905
+},
+{
+"it": 179,
+"steps": 1374720,
+"minutes": 7.89,
+"fall_rate": 0.465,
+"max_impulse": 7.49,
+"mean_rew": 1.917,
+"sps": 2903
+},
+{
+"it": 183,
+"steps": 1405440,
+"minutes": 8.08,
+"fall_rate": 0.386,
+"max_impulse": 7.49,
+"mean_rew": 1.93,
+"sps": 2900
+},
+{
+"it": 187,
+"steps": 1436160,
+"minutes": 8.26,
+"fall_rate": 0.389,
+"max_impulse": 7.49,
+"mean_rew": 1.933,
+"sps": 2896
+},
+{
+"it": 190,
+"steps": 1459200,
+"minutes": 8.4,
+"fall_rate": 0.5,
+"max_impulse": 7.49,
+"mean_rew": 1.928,
+"sps": 2896
+},
+{
+"it": 193,
+"steps": 1482240,
+"minutes": 8.53,
+"fall_rate": 0.438,
+"max_impulse": 7.49,
+"mean_rew": 1.904,
+"sps": 2897
+},
+{
+"it": 196,
+"steps": 1505280,
+"minutes": 8.66,
+"fall_rate": 0.552,
+"max_impulse": 7.49,
+"mean_rew": 1.929,
+"sps": 2898
+},
+{
+"it": 200,
+"steps": 1536000,
+"minutes": 8.82,
+"fall_rate": 0.468,
+"max_impulse": 7.49,
+"mean_rew": 1.908,
+"sps": 2901
+},
+{
+"it": 204,
+"steps": 1566720,
+"minutes": 8.99,
+"fall_rate": 0.472,
+"max_impulse": 7.49,
+"mean_rew": 1.93,
+"sps": 2904
+},
+{
+"it": 208,
+"steps": 1597440,
+"minutes": 9.17,
+"fall_rate": 0.487,
+"max_impulse": 7.49,
+"mean_rew": 1.946,
+"sps": 2902
+},
+{
+"it": 212,
+"steps": 1628160,
+"minutes": 9.35,
+"fall_rate": 0.306,
+"max_impulse": 8.62,
+"mean_rew": 1.929,
+"sps": 2902
+},
+{
+"it": 216,
+"steps": 1658880,
+"minutes": 9.52,
+"fall_rate": 0.44,
+"max_impulse": 8.62,
+"mean_rew": 1.902,
+"sps": 2903
+},
+{
+"it": 220,
+"steps": 1689600,
+"minutes": 9.71,
+"fall_rate": 0.539,
+"max_impulse": 8.62,
+"mean_rew": 1.848,
+"sps": 2901
+},
+{
+"it": 223,
+"steps": 1712640,
+"minutes": 9.85,
+"fall_rate": 0.478,
+"max_impulse": 8.62,
+"mean_rew": 1.841,
+"sps": 2899
+},
+{
+"it": 227,
+"steps": 1743360,
+"minutes": 10.02,
+"fall_rate": 0.476,
+"max_impulse": 8.62,
+"mean_rew": 1.903,
+"sps": 2900
+},
+{
+"it": 231,
+"steps": 1774080,
+"minutes": 10.19,
+"fall_rate": 0.524,
+"max_impulse": 8.62,
+"mean_rew": 1.917,
+"sps": 2900
+},
+{
+"it": 234,
+"steps": 1797120,
+"minutes": 10.33,
+"fall_rate": 0.592,
+"max_impulse": 8.62,
+"mean_rew": 1.935,
+"sps": 2901
+},
+{
+"it": 237,
+"steps": 1820160,
+"minutes": 10.46,
+"fall_rate": 0.636,
+"max_impulse": 7.83,
+"mean_rew": 1.877,
+"sps": 2902
+},
+{
+"it": 241,
+"steps": 1850880,
+"minutes": 10.63,
+"fall_rate": 0.48,
+"max_impulse": 7.83,
+"mean_rew": 1.921,
+"sps": 2902
+},
+{
+"it": 244,
+"steps": 1873920,
+"minutes": 10.76,
+"fall_rate": 0.569,
+"max_impulse": 7.83,
+"mean_rew": 1.943,
+"sps": 2901
+},
+{
+"it": 248,
+"steps": 1904640,
+"minutes": 10.94,
+"fall_rate": 0.489,
+"max_impulse": 7.83,
+"mean_rew": 1.891,
+"sps": 2903
+},
+{
+"it": 252,
+"steps": 1935360,
+"minutes": 11.11,
+"fall_rate": 0.461,
+"max_impulse": 7.83,
+"mean_rew": 1.914,
+"sps": 2904
+},
+{
+"it": 256,
+"steps": 1966080,
+"minutes": 11.28,
+"fall_rate": 0.571,
+"max_impulse": 7.83,
+"mean_rew": 1.891,
+"sps": 2905
+},
+{
+"it": 259,
+"steps": 1989120,
+"minutes": 11.41,
+"fall_rate": 0.514,
+"max_impulse": 7.83,
+"mean_rew": 1.879,
+"sps": 2905
+},
+{
+"it": 263,
+"steps": 2019840,
+"minutes": 11.58,
+"fall_rate": 0.333,
+"max_impulse": 9.01,
+"mean_rew": 1.951,
+"sps": 2908
+},
+{
+"it": 267,
+"steps": 2050560,
+"minutes": 11.75,
+"fall_rate": 0.539,
+"max_impulse": 9.01,
+"mean_rew": 1.93,
+"sps": 2908
+},
+{
+"it": 271,
+"steps": 2081280,
+"minutes": 11.93,
+"fall_rate": 0.58,
+"max_impulse": 9.01,
+"mean_rew": 1.904,
+"sps": 2908
+},
+{
+"it": 274,
+"steps": 2104320,
+"minutes": 12.06,
+"fall_rate": 0.415,
+"max_impulse": 9.01,
+"mean_rew": 1.953,
+"sps": 2909
+},
+{
+"it": 277,
+"steps": 2127360,
+"minutes": 12.19,
+"fall_rate": 0.631,
+"max_impulse": 8.19,
+"mean_rew": 1.913,
+"sps": 2909
+},
+{
+"it": 280,
+"steps": 2150400,
+"minutes": 12.32,
+"fall_rate": 0.538,
+"max_impulse": 8.19,
+"mean_rew": 1.906,
+"sps": 2909
+},
+{
+"it": 284,
+"steps": 2181120,
+"minutes": 12.49,
+"fall_rate": 0.593,
+"max_impulse": 8.19,
+"mean_rew": 1.87,
+"sps": 2911
+},
+{
+"it": 288,
+"steps": 2211840,
+"minutes": 12.65,
+"fall_rate": 0.52,
+"max_impulse": 8.19,
+"mean_rew": 1.9,
+"sps": 2913
+},
+{
+"it": 292,
+"steps": 2242560,
+"minutes": 12.82,
+"fall_rate": 0.442,
+"max_impulse": 8.19,
+"mean_rew": 1.921,
+"sps": 2914
+},
+{
+"it": 295,
+"steps": 2265600,
+"minutes": 12.96,
+"fall_rate": 0.477,
+"max_impulse": 8.19,
+"mean_rew": 1.875,
+"sps": 2913
+},
+{
+"it": 299,
+"steps": 2296320,
+"minutes": 13.14,
+"fall_rate": 0.639,
+"max_impulse": 7.45,
+"mean_rew": 1.906,
+"sps": 2912
+},
+{
+"it": 303,
+"steps": 2327040,
+"minutes": 13.32,
+"fall_rate": 0.449,
+"max_impulse": 7.45,
+"mean_rew": 1.943,
+"sps": 2911
+},
+{
+"it": 306,
+"steps": 2350080,
+"minutes": 13.45,
+"fall_rate": 0.609,
+"max_impulse": 6.77,
+"mean_rew": 1.93,
+"sps": 2912
+},
+{
+"it": 310,
+"steps": 2380800,
+"minutes": 13.62,
+"fall_rate": 0.481,
+"max_impulse": 6.77,
+"mean_rew": 1.928,
+"sps": 2913
+},
+{
+"it": 313,
+"steps": 2403840,
+"minutes": 13.75,
+"fall_rate": 0.514,
+"max_impulse": 6.77,
+"mean_rew": 1.926,
+"sps": 2913
+},
+{
+"it": 317,
+"steps": 2434560,
+"minutes": 13.93,
+"fall_rate": 0.486,
+"max_impulse": 6.77,
+"mean_rew": 1.929,
+"sps": 2914
+},
+{
+"it": 321,
+"steps": 2465280,
+"minutes": 14.1,
+"fall_rate": 0.364,
+"max_impulse": 6.77,
+"mean_rew": 1.938,
+"sps": 2914
+},
+{
+"it": 325,
+"steps": 2496000,
+"minutes": 14.27,
+"fall_rate": 0.4,
+"max_impulse": 6.77,
+"mean_rew": 1.921,
+"sps": 2915
+},
+{
+"it": 328,
+"steps": 2519040,
+"minutes": 14.4,
+"fall_rate": 0.357,
+"max_impulse": 6.77,
+"mean_rew": 1.93,
+"sps": 2916
+},
+{
+"it": 332,
+"steps": 2549760,
+"minutes": 14.57,
+"fall_rate": 0.362,
+"max_impulse": 6.77,
+"mean_rew": 1.929,
+"sps": 2916
+},
+{
+"it": 336,
+"steps": 2580480,
+"minutes": 14.74,
+"fall_rate": 0.434,
+"max_impulse": 6.77,
+"mean_rew": 1.923,
+"sps": 2917
+},
+{
+"it": 340,
+"steps": 2611200,
+"minutes": 14.92,
+"fall_rate": 0.453,
+"max_impulse": 6.77,
+"mean_rew": 1.921,
+"sps": 2917
+},
+{
+"it": 344,
+"steps": 2641920,
+"minutes": 15.08,
+"fall_rate": 0.372,
+"max_impulse": 6.77,
+"mean_rew": 1.956,
+"sps": 2919
+},
+{
+"it": 348,
+"steps": 2672640,
+"minutes": 15.25,
+"fall_rate": 0.357,
+"max_impulse": 6.77,
+"mean_rew": 1.96,
+"sps": 2921
+},
+{
+"it": 352,
+"steps": 2703360,
+"minutes": 15.42,
+"fall_rate": 0.329,
+"max_impulse": 7.78,
+"mean_rew": 1.952,
+"sps": 2922
+},
+{
+"it": 356,
+"steps": 2734080,
+"minutes": 15.61,
+"fall_rate": 0.362,
+"max_impulse": 7.78,
+"mean_rew": 1.93,
+"sps": 2920
+},
+{
+"it": 360,
+"steps": 2764800,
+"minutes": 15.78,
+"fall_rate": 0.35,
+"max_impulse": 7.78,
+"mean_rew": 1.936,
+"sps": 2921
+},
+{
+"it": 363,
+"steps": 2787840,
+"minutes": 15.91,
+"fall_rate": 0.471,
+"max_impulse": 7.78,
+"mean_rew": 1.931,
+"sps": 2921
+},
+{
+"it": 367,
+"steps": 2818560,
+"minutes": 16.08,
+"fall_rate": 0.476,
+"max_impulse": 7.78,
+"mean_rew": 1.913,
+"sps": 2921
+},
+{
+"it": 371,
+"steps": 2849280,
+"minutes": 16.25,
+"fall_rate": 0.593,
+"max_impulse": 7.78,
+"mean_rew": 1.908,
+"sps": 2923
+},
+{
+"it": 374,
+"steps": 2872320,
+"minutes": 16.37,
+"fall_rate": 0.5,
+"max_impulse": 7.78,
+"mean_rew": 1.915,
+"sps": 2924
+},
+{
+"it": 378,
+"steps": 2903040,
+"minutes": 16.55,
+"fall_rate": 0.512,
+"max_impulse": 7.78,
+"mean_rew": 1.87,
+"sps": 2924
+},
+{
+"it": 382,
+"steps": 2933760,
+"minutes": 16.72,
+"fall_rate": 0.522,
+"max_impulse": 7.78,
+"mean_rew": 1.93,
+"sps": 2925
+},
+{
+"it": 386,
+"steps": 2964480,
+"minutes": 16.89,
+"fall_rate": 0.369,
+"max_impulse": 7.78,
+"mean_rew": 1.92,
+"sps": 2925
+},
+{
+"it": 390,
+"steps": 2995200,
+"minutes": 17.06,
+"fall_rate": 0.524,
+"max_impulse": 7.78,
+"mean_rew": 1.887,
+"sps": 2926
+},
+{
+"it": 394,
+"steps": 3025920,
+"minutes": 17.24,
+"fall_rate": 0.42,
+"max_impulse": 7.78,
+"mean_rew": 1.925,
+"sps": 2925
+},
+{
+"it": 398,
+"steps": 3056640,
+"minutes": 17.41,
+"fall_rate": 0.5,
+"max_impulse": 7.78,
+"mean_rew": 1.858,
+"sps": 2926
+},
+{
+"it": 402,
+"steps": 3087360,
+"minutes": 17.59,
+"fall_rate": 0.518,
+"max_impulse": 7.78,
+"mean_rew": 1.877,
+"sps": 2925
+},
+{
+"it": 406,
+"steps": 3118080,
+"minutes": 17.75,
+"fall_rate": 0.432,
+"max_impulse": 7.78,
+"mean_rew": 1.928,
+"sps": 2927
+},
+{
+"it": 410,
+"steps": 3148800,
+"minutes": 17.93,
+"fall_rate": 0.432,
+"max_impulse": 7.78,
+"mean_rew": 1.931,
+"sps": 2927
+},
+{
+"it": 414,
+"steps": 3179520,
+"minutes": 18.1,
+"fall_rate": 0.475,
+"max_impulse": 7.78,
+"mean_rew": 1.908,
+"sps": 2927
+},
+{
+"it": 418,
+"steps": 3210240,
+"minutes": 18.29,
+"fall_rate": 0.44,
+"max_impulse": 7.78,
+"mean_rew": 1.905,
+"sps": 2926
+},
+{
+"it": 422,
+"steps": 3240960,
+"minutes": 18.46,
+"fall_rate": 0.5,
+"max_impulse": 7.78,
+"mean_rew": 1.897,
+"sps": 2927
+},
+{
+"it": 426,
+"steps": 3271680,
+"minutes": 18.62,
+"fall_rate": 0.597,
+"max_impulse": 7.78,
+"mean_rew": 1.9,
+"sps": 2928
+},
+{
+"it": 430,
+"steps": 3302400,
+"minutes": 18.79,
+"fall_rate": 0.392,
+"max_impulse": 7.78,
+"mean_rew": 1.938,
+"sps": 2929
+},
+{
+"it": 434,
+"steps": 3333120,
+"minutes": 18.96,
+"fall_rate": 0.433,
+"max_impulse": 7.78,
+"mean_rew": 1.885,
+"sps": 2930
+},
+{
+"it": 438,
+"steps": 3363840,
+"minutes": 19.13,
+"fall_rate": 0.47,
+"max_impulse": 7.78,
+"mean_rew": 1.923,
+"sps": 2931
+},
+{
+"it": 442,
+"steps": 3394560,
+"minutes": 19.3,
+"fall_rate": 0.506,
+"max_impulse": 7.78,
+"mean_rew": 1.914,
+"sps": 2931
+},
+{
+"it": 446,
+"steps": 3425280,
+"minutes": 19.47,
+"fall_rate": 0.561,
+"max_impulse": 7.78,
+"mean_rew": 1.907,
+"sps": 2932
+},
+{
+"it": 449,
+"steps": 3448320,
+"minutes": 19.6,
+"fall_rate": 0.479,
+"max_impulse": 7.78,
+"mean_rew": 1.934,
+"sps": 2933
+},
+{
+"it": 452,
+"steps": 3471360,
+"minutes": 19.73,
+"fall_rate": 0.453,
+"max_impulse": 7.78,
+"mean_rew": 1.922,
+"sps": 2933
+},
+{
+"it": 456,
+"steps": 3502080,
+"minutes": 19.9,
+"fall_rate": 0.473,
+"max_impulse": 7.78,
+"mean_rew": 1.944,
+"sps": 2934
+},
+{
+"it": 460,
+"steps": 3532800,
+"minutes": 20.07,
+"fall_rate": 0.512,
+"max_impulse": 7.78,
+"mean_rew": 1.898,
+"sps": 2934
+},
+{
+"it": 464,
+"steps": 3563520,
+"minutes": 20.23,
+"fall_rate": 0.493,
+"max_impulse": 7.78,
+"mean_rew": 1.921,
+"sps": 2935
+},
+{
+"it": 467,
+"steps": 3586560,
+"minutes": 20.36,
+"fall_rate": 0.375,
+"max_impulse": 7.78,
+"mean_rew": 1.922,
+"sps": 2936
+},
+{
+"it": 471,
+"steps": 3617280,
+"minutes": 20.53,
+"fall_rate": 0.493,
+"max_impulse": 7.78,
+"mean_rew": 1.923,
+"sps": 2937
+},
+{
+"it": 474,
+"steps": 3640320,
+"minutes": 20.65,
+"fall_rate": 0.424,
+"max_impulse": 7.78,
+"mean_rew": 1.913,
+"sps": 2938
+},
+{
+"it": 477,
+"steps": 3663360,
+"minutes": 20.79,
+"fall_rate": 0.492,
+"max_impulse": 7.78,
+"mean_rew": 1.943,
+"sps": 2937
+},
+{
+"it": 481,
+"steps": 3694080,
+"minutes": 20.96,
+"fall_rate": 0.493,
+"max_impulse": 7.78,
+"mean_rew": 1.93,
+"sps": 2937
+},
+{
+"it": 485,
+"steps": 3724800,
+"minutes": 21.14,
+"fall_rate": 0.403,
+"max_impulse": 7.78,
+"mean_rew": 1.946,
+"sps": 2937
+},
+{
+"it": 488,
+"steps": 3747840,
+"minutes": 21.28,
+"fall_rate": 0.391,
+"max_impulse": 7.78,
+"mean_rew": 1.897,
+"sps": 2935
+},
+{
+"it": 491,
+"steps": 3770880,
+"minutes": 21.98,
+"fall_rate": 0.471,
+"max_impulse": 7.78,
+"mean_rew": 1.951,
+"sps": 2860
+},
+{
+"it": 494,
+"steps": 3793920,
+"minutes": 29.65,
+"fall_rate": 0.457,
+"max_impulse": 7.78,
+"mean_rew": 1.889,
+"sps": 2132
+},
+{
+"it": 498,
+"steps": 3824640,
+"minutes": 29.78,
+"fall_rate": 0.536,
+"max_impulse": 7.78,
+"mean_rew": 1.909,
+"sps": 2140
+},
+{
+"it": 502,
+"steps": 3855360,
+"minutes": 29.89,
+"fall_rate": 0.443,
+"max_impulse": 7.78,
+"mean_rew": 1.921,
+"sps": 2150
+},
+{
+"it": 505,
+"steps": 3878400,
+"minutes": 29.97,
+"fall_rate": 0.455,
+"max_impulse": 7.78,
+"mean_rew": 1.874,
+"sps": 2157
+},
+{
+"it": 509,
+"steps": 3909120,
+"minutes": 30.07,
+"fall_rate": 0.476,
+"max_impulse": 7.78,
+"mean_rew": 1.892,
+"sps": 2167
+},
+{
+"it": 513,
+"steps": 3939840,
+"minutes": 30.18,
+"fall_rate": 0.473,
+"max_impulse": 7.78,
+"mean_rew": 1.951,
+"sps": 2176
+},
+{
+"it": 517,
+"steps": 3970560,
+"minutes": 30.29,
+"fall_rate": 0.467,
+"max_impulse": 7.78,
+"mean_rew": 1.936,
+"sps": 2185
+},
+{
+"it": 520,
+"steps": 3993600,
+"minutes": 30.37,
+"fall_rate": 0.377,
+"max_impulse": 7.78,
+"mean_rew": 1.923,
+"sps": 2192
+},
+{
+"it": 524,
+"steps": 4024320,
+"minutes": 30.47,
+"fall_rate": 0.435,
+"max_impulse": 7.78,
+"mean_rew": 1.909,
+"sps": 2201
+},
+{
+"it": 528,
+"steps": 4055040,
+"minutes": 30.58,
+"fall_rate": 0.429,
+"max_impulse": 7.78,
+"mean_rew": 1.915,
+"sps": 2210
+},
+{
+"it": 532,
+"steps": 4085760,
+"minutes": 30.68,
+"fall_rate": 0.514,
+"max_impulse": 7.78,
+"mean_rew": 1.95,
+"sps": 2220
+},
+{
+"it": 535,
+"steps": 4108800,
+"minutes": 30.76,
+"fall_rate": 0.493,
+"max_impulse": 7.78,
+"mean_rew": 1.899,
+"sps": 2227
+},
+{
+"it": 538,
+"steps": 4131840,
+"minutes": 30.84,
+"fall_rate": 0.515,
+"max_impulse": 7.78,
+"mean_rew": 1.906,
+"sps": 2233
+},
+{
+"it": 541,
+"steps": 4154880,
+"minutes": 30.92,
+"fall_rate": 0.523,
+"max_impulse": 7.78,
+"mean_rew": 1.856,
+"sps": 2240
+},
+{
+"it": 545,
+"steps": 4185600,
+"minutes": 31.02,
+"fall_rate": 0.457,
+"max_impulse": 7.78,
+"mean_rew": 1.929,
+"sps": 2249
+},
+{
+"it": 548,
+"steps": 4208640,
+"minutes": 31.11,
+"fall_rate": 0.571,
+"max_impulse": 7.78,
+"mean_rew": 1.887,
+"sps": 2255
+},
+{
+"it": 551,
+"steps": 4231680,
+"minutes": 31.19,
+"fall_rate": 0.507,
+"max_impulse": 7.78,
+"mean_rew": 1.884,
+"sps": 2261
+},
+{
+"it": 555,
+"steps": 4262400,
+"minutes": 31.29,
+"fall_rate": 0.547,
+"max_impulse": 7.78,
+"mean_rew": 1.915,
+"sps": 2270
+},
+{
+"it": 559,
+"steps": 4293120,
+"minutes": 31.39,
+"fall_rate": 0.493,
+"max_impulse": 7.78,
+"mean_rew": 1.93,
+"sps": 2279
+},
+{
+"it": 562,
+"steps": 4316160,
+"minutes": 31.47,
+"fall_rate": 0.5,
+"max_impulse": 7.78,
+"mean_rew": 1.876,
+"sps": 2286
+},
+{
+"it": 567,
+"steps": 4354560,
+"minutes": 31.61,
+"fall_rate": 0.483,
+"max_impulse": 7.78,
+"mean_rew": 1.929,
+"sps": 2296
+},
+{
+"it": 571,
+"steps": 4385280,
+"minutes": 31.71,
+"fall_rate": 0.494,
+"max_impulse": 7.78,
+"mean_rew": 1.886,
+"sps": 2305
+},
+{
+"it": 575,
+"steps": 4416000,
+"minutes": 31.82,
+"fall_rate": 0.558,
+"max_impulse": 7.78,
+"mean_rew": 1.892,
+"sps": 2313
+},
+{
+"it": 578,
+"steps": 4439040,
+"minutes": 31.9,
+"fall_rate": 0.478,
+"max_impulse": 7.78,
+"mean_rew": 1.929,
+"sps": 2319
+},
+{
+"it": 582,
+"steps": 4469760,
+"minutes": 32.0,
+"fall_rate": 0.551,
+"max_impulse": 7.78,
+"mean_rew": 1.899,
+"sps": 2328
+},
+{
+"it": 585,
+"steps": 4492800,
+"minutes": 32.09,
+"fall_rate": 0.471,
+"max_impulse": 7.78,
+"mean_rew": 1.904,
+"sps": 2334
+},
+{
+"it": 588,
+"steps": 4515840,
+"minutes": 32.17,
+"fall_rate": 0.629,
+"max_impulse": 7.08,
+"mean_rew": 1.908,
+"sps": 2340
+},
+{
+"it": 592,
+"steps": 4546560,
+"minutes": 32.27,
+"fall_rate": 0.5,
+"max_impulse": 7.08,
+"mean_rew": 1.908,
+"sps": 2348
+},
+{
+"it": 596,
+"steps": 4577280,
+"minutes": 32.38,
+"fall_rate": 0.481,
+"max_impulse": 7.08,
+"mean_rew": 1.935,
+"sps": 2356
+},
+{
+"it": 600,
+"steps": 4608000,
+"minutes": 32.49,
+"fall_rate": 0.468,
+"max_impulse": 7.08,
+"mean_rew": 1.907,
+"sps": 2364
+},
+{
+"it": 603,
+"steps": 4631040,
+"minutes": 32.57,
+"fall_rate": 0.438,
+"max_impulse": 7.08,
+"mean_rew": 1.906,
+"sps": 2370
+},
+{
+"it": 608,
+"steps": 4669440,
+"minutes": 32.7,
+"fall_rate": 0.365,
+"max_impulse": 7.08,
+"mean_rew": 1.951,
+"sps": 2380
+},
+{
+"it": 611,
+"steps": 4692480,
+"minutes": 32.78,
+"fall_rate": 0.373,
+"max_impulse": 7.08,
+"mean_rew": 1.921,
+"sps": 2386
+},
+{
+"it": 615,
+"steps": 4723200,
+"minutes": 32.89,
+"fall_rate": 0.319,
+"max_impulse": 8.14,
+"mean_rew": 1.959,
+"sps": 2394
+},
+{
+"it": 619,
+"steps": 4753920,
+"minutes": 32.99,
+"fall_rate": 0.377,
+"max_impulse": 8.14,
+"mean_rew": 1.914,
+"sps": 2402
+},
+{
+"it": 623,
+"steps": 4784640,
+"minutes": 33.1,
+"fall_rate": 0.442,
+"max_impulse": 8.14,
+"mean_rew": 1.944,
+"sps": 2409
+},
+{
+"it": 626,
+"steps": 4807680,
+"minutes": 33.18,
+"fall_rate": 0.408,
+"max_impulse": 8.14,
+"mean_rew": 1.937,
+"sps": 2415
+},
+{
+"it": 629,
+"steps": 4830720,
+"minutes": 33.26,
+"fall_rate": 0.516,
+"max_impulse": 8.14,
+"mean_rew": 1.896,
+"sps": 2421
+},
+{
+"it": 633,
+"steps": 4861440,
+"minutes": 33.37,
+"fall_rate": 0.539,
+"max_impulse": 8.14,
+"mean_rew": 1.929,
+"sps": 2428
+},
+{
+"it": 636,
+"steps": 4884480,
+"minutes": 33.53,
+"fall_rate": 0.493,
+"max_impulse": 8.14,
+"mean_rew": 1.906,
+"sps": 2428
+},
+{
+"it": 639,
+"steps": 4907520,
+"minutes": 33.67,
+"fall_rate": 0.575,
+"max_impulse": 8.14,
+"mean_rew": 1.879,
+"sps": 2429
+},
+{
+"it": 642,
+"steps": 4930560,
+"minutes": 33.81,
+"fall_rate": 0.478,
+"max_impulse": 8.14,
+"mean_rew": 1.923,
+"sps": 2430
+},
+{
+"it": 646,
+"steps": 4961280,
+"minutes": 33.99,
+"fall_rate": 0.535,
+"max_impulse": 8.14,
+"mean_rew": 1.951,
+"sps": 2433
+},
+{
+"it": 650,
+"steps": 4992000,
+"minutes": 34.16,
+"fall_rate": 0.547,
+"max_impulse": 8.14,
+"mean_rew": 1.898,
+"sps": 2436
+},
+{
+"it": 653,
+"steps": 5015040,
+"minutes": 34.29,
+"fall_rate": 0.485,
+"max_impulse": 8.14,
+"mean_rew": 1.906,
+"sps": 2437
+},
+{
+"it": 657,
+"steps": 5045760,
+"minutes": 34.46,
+"fall_rate": 0.425,
+"max_impulse": 8.14,
+"mean_rew": 1.884,
+"sps": 2440
+},
+{
+"it": 660,
+"steps": 5068800,
+"minutes": 34.59,
+"fall_rate": 0.508,
+"max_impulse": 8.14,
+"mean_rew": 1.914,
+"sps": 2442
+},
+{
+"it": 664,
+"steps": 5099520,
+"minutes": 34.77,
+"fall_rate": 0.613,
+"max_impulse": 7.4,
+"mean_rew": 1.905,
+"sps": 2444
+},
+{
+"it": 668,
+"steps": 5130240,
+"minutes": 34.95,
+"fall_rate": 0.549,
+"max_impulse": 7.4,
+"mean_rew": 1.912,
+"sps": 2447
+},
+{
+"it": 671,
+"steps": 5153280,
+"minutes": 35.08,
+"fall_rate": 0.506,
+"max_impulse": 7.4,
+"mean_rew": 1.919,
+"sps": 2448
+},
+{
+"it": 674,
+"steps": 5176320,
+"minutes": 35.21,
+"fall_rate": 0.522,
+"max_impulse": 7.4,
+"mean_rew": 1.899,
+"sps": 2450
+},
+{
+"it": 678,
+"steps": 5207040,
+"minutes": 35.39,
+"fall_rate": 0.545,
+"max_impulse": 7.4,
+"mean_rew": 1.874,
+"sps": 2452
+},
+{
+"it": 682,
+"steps": 5237760,
+"minutes": 35.56,
+"fall_rate": 0.528,
+"max_impulse": 7.4,
+"mean_rew": 1.915,
+"sps": 2455
+},
+{
+"it": 686,
+"steps": 5268480,
+"minutes": 35.73,
+"fall_rate": 0.42,
+"max_impulse": 7.4,
+"mean_rew": 1.913,
+"sps": 2458
+},
+{
+"it": 689,
+"steps": 5291520,
+"minutes": 35.85,
+"fall_rate": 0.412,
+"max_impulse": 7.4,
+"mean_rew": 1.884,
+"sps": 2460
+},
+{
+"it": 693,
+"steps": 5322240,
+"minutes": 36.02,
+"fall_rate": 0.519,
+"max_impulse": 7.4,
+"mean_rew": 1.907,
+"sps": 2462
+},
+{
+"it": 697,
+"steps": 5352960,
+"minutes": 36.2,
+"fall_rate": 0.385,
+"max_impulse": 7.4,
+"mean_rew": 1.919,
+"sps": 2465
+},
+{
+"it": 701,
+"steps": 5383680,
+"minutes": 36.38,
+"fall_rate": 0.493,
+"max_impulse": 7.4,
+"mean_rew": 1.949,
+"sps": 2467
+},
+{
+"it": 704,
+"steps": 5406720,
+"minutes": 36.52,
+"fall_rate": 0.513,
+"max_impulse": 7.4,
+"mean_rew": 1.876,
+"sps": 2468
+},
+{
+"it": 709,
+"steps": 5445120,
+"minutes": 36.75,
+"fall_rate": 0.408,
+"max_impulse": 7.4,
+"mean_rew": 1.936,
+"sps": 2470
+},
+{
+"it": 713,
+"steps": 5475840,
+"minutes": 36.93,
+"fall_rate": 0.446,
+"max_impulse": 7.4,
+"mean_rew": 1.932,
+"sps": 2472
+},
+{
+"it": 717,
+"steps": 5506560,
+"minutes": 37.1,
+"fall_rate": 0.378,
+"max_impulse": 7.4,
+"mean_rew": 1.884,
+"sps": 2474
+},
+{
+"it": 720,
+"steps": 5529600,
+"minutes": 37.23,
+"fall_rate": 0.384,
+"max_impulse": 7.4,
+"mean_rew": 1.893,
+"sps": 2476
+},
+{
+"it": 724,
+"steps": 5560320,
+"minutes": 37.4,
+"fall_rate": 0.441,
+"max_impulse": 7.4,
+"mean_rew": 1.943,
+"sps": 2478
+},
+{
+"it": 728,
+"steps": 5591040,
+"minutes": 37.57,
+"fall_rate": 0.453,
+"max_impulse": 7.4,
+"mean_rew": 1.893,
+"sps": 2481
+},
+{
+"it": 732,
+"steps": 5621760,
+"minutes": 37.75,
+"fall_rate": 0.371,
+"max_impulse": 7.4,
+"mean_rew": 1.922,
+"sps": 2482
+},
+{
+"it": 736,
+"steps": 5652480,
+"minutes": 37.92,
+"fall_rate": 0.256,
+"max_impulse": 8.51,
+"mean_rew": 1.957,
+"sps": 2484
+},
+{
+"it": 740,
+"steps": 5683200,
+"minutes": 38.1,
+"fall_rate": 0.5,
+"max_impulse": 8.51,
+"mean_rew": 1.907,
+"sps": 2486
+},
+{
+"it": 744,
+"steps": 5713920,
+"minutes": 38.27,
+"fall_rate": 0.44,
+"max_impulse": 8.51,
+"mean_rew": 1.906,
+"sps": 2488
+},
+{
+"it": 747,
+"steps": 5736960,
+"minutes": 38.4,
+"fall_rate": 0.531,
+"max_impulse": 8.51,
+"mean_rew": 1.933,
+"sps": 2490
+},
+{
+"it": 750,
+"steps": 5760000,
+"minutes": 38.53,
+"fall_rate": 0.512,
+"max_impulse": 8.51,
+"mean_rew": 1.883,
+"sps": 2492
+},
+{
+"it": 753,
+"steps": 5783040,
+"minutes": 38.66,
+"fall_rate": 0.594,
+"max_impulse": 8.51,
+"mean_rew": 1.905,
+"sps": 2493
+},
+{
+"it": 756,
+"steps": 5806080,
+"minutes": 38.8,
+"fall_rate": 0.743,
+"max_impulse": 7.73,
+"mean_rew": 1.834,
+"sps": 2494
+},
+{
+"it": 760,
+"steps": 5836800,
+"minutes": 38.97,
+"fall_rate": 0.608,
+"max_impulse": 7.03,
+"mean_rew": 1.874,
+"sps": 2496
+},
+{
+"it": 764,
+"steps": 5867520,
+"minutes": 39.14,
+"fall_rate": 0.588,
+"max_impulse": 7.03,
+"mean_rew": 1.908,
+"sps": 2498
+},
+{
+"it": 768,
+"steps": 5898240,
+"minutes": 39.32,
+"fall_rate": 0.431,
+"max_impulse": 7.03,
+"mean_rew": 1.938,
+"sps": 2500
+},
+{
+"it": 772,
+"steps": 5928960,
+"minutes": 39.49,
+"fall_rate": 0.377,
+"max_impulse": 7.03,
+"mean_rew": 1.959,
+"sps": 2502
+},
+{
+"it": 775,
+"steps": 5952000,
+"minutes": 39.62,
+"fall_rate": 0.412,
+"max_impulse": 7.03,
+"mean_rew": 1.898,
+"sps": 2504
+},
+{
+"it": 779,
+"steps": 5982720,
+"minutes": 39.79,
+"fall_rate": 0.37,
+"max_impulse": 7.03,
+"mean_rew": 1.942,
+"sps": 2506
+},
+{
+"it": 783,
+"steps": 6013440,
+"minutes": 39.97,
+"fall_rate": 0.447,
+"max_impulse": 7.03,
+"mean_rew": 1.937,
+"sps": 2508
+},
+{
+"it": 787,
+"steps": 6044160,
+"minutes": 40.14,
+"fall_rate": 0.443,
+"max_impulse": 7.03,
+"mean_rew": 1.921,
+"sps": 2509
+},
+{
+"it": 791,
+"steps": 6074880,
+"minutes": 40.32,
+"fall_rate": 0.289,
+"max_impulse": 8.09,
+"mean_rew": 1.945,
+"sps": 2511
+},
+{
+"it": 795,
+"steps": 6105600,
+"minutes": 40.49,
+"fall_rate": 0.402,
+"max_impulse": 8.09,
+"mean_rew": 1.922,
+"sps": 2513
+},
+{
+"it": 799,
+"steps": 6136320,
+"minutes": 40.67,
+"fall_rate": 0.414,
+"max_impulse": 8.09,
+"mean_rew": 1.951,
+"sps": 2515
+},
+{
+"it": 802,
+"steps": 6159360,
+"minutes": 40.8,
+"fall_rate": 0.394,
+"max_impulse": 8.09,
+"mean_rew": 1.933,
+"sps": 2516
+},
+{
+"it": 805,
+"steps": 6182400,
+"minutes": 40.93,
+"fall_rate": 0.521,
+"max_impulse": 8.09,
+"mean_rew": 1.9,
+"sps": 2517
+},
+{
+"it": 808,
+"steps": 6205440,
+"minutes": 41.06,
+"fall_rate": 0.485,
+"max_impulse": 8.09,
+"mean_rew": 1.884,
+"sps": 2519
+},
+{
+"it": 813,
+"steps": 6243840,
+"minutes": 41.27,
+"fall_rate": 0.43,
+"max_impulse": 8.09,
+"mean_rew": 1.892,
+"sps": 2522
+},
+{
+"it": 817,
+"steps": 6274560,
+"minutes": 41.44,
+"fall_rate": 0.493,
+"max_impulse": 8.09,
+"mean_rew": 1.915,
+"sps": 2524
+},
+{
+"it": 820,
+"steps": 6297600,
+"minutes": 41.57,
+"fall_rate": 0.429,
+"max_impulse": 8.09,
+"mean_rew": 1.879,
+"sps": 2525
+},
+{
+"it": 823,
+"steps": 6320640,
+"minutes": 41.7,
+"fall_rate": 0.408,
+"max_impulse": 8.09,
+"mean_rew": 1.919,
+"sps": 2526
+},
+{
+"it": 827,
+"steps": 6351360,
+"minutes": 41.88,
+"fall_rate": 0.52,
+"max_impulse": 8.09,
+"mean_rew": 1.939,
+"sps": 2528
+},
+{
+"it": 831,
+"steps": 6382080,
+"minutes": 42.05,
+"fall_rate": 0.471,
+"max_impulse": 8.09,
+"mean_rew": 1.913,
+"sps": 2529
+},
+{
+"it": 834,
+"steps": 6405120,
+"minutes": 42.19,
+"fall_rate": 0.485,
+"max_impulse": 8.09,
+"mean_rew": 1.9,
+"sps": 2530
+},
+{
+"it": 838,
+"steps": 6435840,
+"minutes": 42.37,
+"fall_rate": 0.439,
+"max_impulse": 8.09,
+"mean_rew": 1.904,
+"sps": 2532
+},
+{
+"it": 842,
+"steps": 6466560,
+"minutes": 42.54,
+"fall_rate": 0.434,
+"max_impulse": 8.09,
+"mean_rew": 1.928,
+"sps": 2533
+},
+{
+"it": 846,
+"steps": 6497280,
+"minutes": 42.72,
+"fall_rate": 0.543,
+"max_impulse": 8.09,
+"mean_rew": 1.912,
+"sps": 2535
+},
+{
+"it": 849,
+"steps": 6520320,
+"minutes": 42.85,
+"fall_rate": 0.465,
+"max_impulse": 8.09,
+"mean_rew": 1.898,
+"sps": 2536
+},
+{
+"it": 853,
+"steps": 6551040,
+"minutes": 43.02,
+"fall_rate": 0.403,
+"max_impulse": 8.09,
+"mean_rew": 1.942,
+"sps": 2538
+},
+{
+"it": 856,
+"steps": 6574080,
+"minutes": 43.15,
+"fall_rate": 0.465,
+"max_impulse": 8.09,
+"mean_rew": 1.904,
+"sps": 2539
+},
+{
+"it": 860,
+"steps": 6604800,
+"minutes": 43.33,
+"fall_rate": 0.533,
+"max_impulse": 8.09,
+"mean_rew": 1.943,
+"sps": 2541
+},
+{
+"it": 864,
+"steps": 6635520,
+"minutes": 43.51,
+"fall_rate": 0.52,
+"max_impulse": 8.09,
+"mean_rew": 1.921,
+"sps": 2542
+},
+{
+"it": 867,
+"steps": 6658560,
+"minutes": 43.63,
+"fall_rate": 0.423,
+"max_impulse": 8.09,
+"mean_rew": 1.923,
+"sps": 2543
+},
+{
+"it": 871,
+"steps": 6689280,
+"minutes": 43.8,
+"fall_rate": 0.493,
+"max_impulse": 8.09,
+"mean_rew": 1.931,
+"sps": 2545
+},
+{
+"it": 874,
+"steps": 6712320,
+"minutes": 43.93,
+"fall_rate": 0.368,
+"max_impulse": 8.09,
+"mean_rew": 1.912,
+"sps": 2546
+},
+{
+"it": 878,
+"steps": 6743040,
+"minutes": 44.11,
+"fall_rate": 0.556,
+"max_impulse": 8.09,
+"mean_rew": 1.878,
+"sps": 2548
+},
+{
+"it": 882,
+"steps": 6773760,
+"minutes": 44.28,
+"fall_rate": 0.488,
+"max_impulse": 8.09,
+"mean_rew": 1.899,
+"sps": 2549
+},
+{
+"it": 886,
+"steps": 6804480,
+"minutes": 44.45,
+"fall_rate": 0.592,
+"max_impulse": 8.09,
+"mean_rew": 1.927,
+"sps": 2551
+},
+{
+"it": 889,
+"steps": 6827520,
+"minutes": 44.58,
+"fall_rate": 0.472,
+"max_impulse": 8.09,
+"mean_rew": 1.893,
+"sps": 2552
+},
+{
+"it": 893,
+"steps": 6858240,
+"minutes": 44.75,
+"fall_rate": 0.535,
+"max_impulse": 8.09,
+"mean_rew": 1.891,
+"sps": 2554
+},
+{
+"it": 897,
+"steps": 6888960,
+"minutes": 44.92,
+"fall_rate": 0.461,
+"max_impulse": 8.09,
+"mean_rew": 1.933,
+"sps": 2556
+},
+{
+"it": 900,
+"steps": 6912000,
+"minutes": 45.05,
+"fall_rate": 0.529,
+"max_impulse": 8.09,
+"mean_rew": 1.919,
+"sps": 2557
+},
+{
+"it": 904,
+"steps": 6942720,
+"minutes": 45.23,
+"fall_rate": 0.519,
+"max_impulse": 8.09,
+"mean_rew": 1.9,
+"sps": 2558
+},
+{
+"it": 908,
+"steps": 6973440,
+"minutes": 45.4,
+"fall_rate": 0.457,
+"max_impulse": 8.09,
+"mean_rew": 1.926,
+"sps": 2560
+},
+{
+"it": 911,
+"steps": 6996480,
+"minutes": 45.54,
+"fall_rate": 0.493,
+"max_impulse": 8.09,
+"mean_rew": 1.919,
+"sps": 2560
+},
+{
+"it": 915,
+"steps": 7027200,
+"minutes": 45.71,
+"fall_rate": 0.512,
+"max_impulse": 8.09,
+"mean_rew": 1.862,
+"sps": 2562
+},
+{
+"it": 919,
+"steps": 7057920,
+"minutes": 45.88,
+"fall_rate": 0.548,
+"max_impulse": 8.09,
+"mean_rew": 1.877,
+"sps": 2564
+},
+{
+"it": 923,
+"steps": 7088640,
+"minutes": 46.05,
+"fall_rate": 0.531,
+"max_impulse": 8.09,
+"mean_rew": 1.907,
+"sps": 2565
+},
+{
+"it": 926,
+"steps": 7111680,
+"minutes": 46.18,
+"fall_rate": 0.397,
+"max_impulse": 8.09,
+"mean_rew": 1.862,
+"sps": 2567
+},
+{
+"it": 930,
+"steps": 7142400,
+"minutes": 46.35,
+"fall_rate": 0.521,
+"max_impulse": 8.09,
+"mean_rew": 1.892,
+"sps": 2568
+},
+{
+"it": 934,
+"steps": 7173120,
+"minutes": 46.52,
+"fall_rate": 0.351,
+"max_impulse": 8.09,
+"mean_rew": 1.922,
+"sps": 2570
+},
+{
+"it": 938,
+"steps": 7203840,
+"minutes": 46.7,
+"fall_rate": 0.547,
+"max_impulse": 8.09,
+"mean_rew": 1.893,
+"sps": 2571
+},
+{
+"it": 941,
+"steps": 7226880,
+"minutes": 46.84,
+"fall_rate": 0.451,
+"max_impulse": 8.09,
+"mean_rew": 1.896,
+"sps": 2572
+},
+{
+"it": 945,
+"steps": 7257600,
+"minutes": 47.01,
+"fall_rate": 0.431,
+"max_impulse": 8.09,
+"mean_rew": 1.914,
+"sps": 2573
+},
+{
+"it": 949,
+"steps": 7288320,
+"minutes": 47.19,
+"fall_rate": 0.548,
+"max_impulse": 8.09,
+"mean_rew": 1.869,
+"sps": 2574
+},
+{
+"it": 952,
+"steps": 7311360,
+"minutes": 47.31,
+"fall_rate": 0.557,
+"max_impulse": 8.09,
+"mean_rew": 1.885,
+"sps": 2576
+},
+{
+"it": 956,
+"steps": 7342080,
+"minutes": 47.49,
+"fall_rate": 0.425,
+"max_impulse": 8.09,
+"mean_rew": 1.898,
+"sps": 2577
+},
+{
+"it": 960,
+"steps": 7372800,
+"minutes": 47.66,
+"fall_rate": 0.441,
+"max_impulse": 8.09,
+"mean_rew": 1.93,
+"sps": 2578
+},
+{
+"it": 964,
+"steps": 7403520,
+"minutes": 47.85,
+"fall_rate": 0.479,
+"max_impulse": 8.09,
+"mean_rew": 1.917,
+"sps": 2579
+},
+{
+"it": 967,
+"steps": 7426560,
+"minutes": 47.98,
+"fall_rate": 0.406,
+"max_impulse": 8.09,
+"mean_rew": 1.936,
+"sps": 2580
+},
+{
+"it": 970,
+"steps": 7449600,
+"minutes": 48.11,
+"fall_rate": 0.47,
+"max_impulse": 8.09,
+"mean_rew": 1.903,
+"sps": 2581
+},
+{
+"it": 973,
+"steps": 7472640,
+"minutes": 48.24,
+"fall_rate": 0.473,
+"max_impulse": 8.09,
+"mean_rew": 1.929,
+"sps": 2582
+},
+{
+"it": 977,
+"steps": 7503360,
+"minutes": 48.41,
+"fall_rate": 0.528,
+"max_impulse": 8.09,
+"mean_rew": 1.914,
+"sps": 2583
+},
+{
+"it": 980,
+"steps": 7526400,
+"minutes": 48.55,
+"fall_rate": 0.515,
+"max_impulse": 8.09,
+"mean_rew": 1.884,
+"sps": 2584
+},
+{
+"it": 984,
+"steps": 7557120,
+"minutes": 48.72,
+"fall_rate": 0.447,
+"max_impulse": 8.09,
+"mean_rew": 1.927,
+"sps": 2585
+},
+{
+"it": 987,
+"steps": 7580160,
+"minutes": 48.86,
+"fall_rate": 0.403,
+"max_impulse": 8.09,
+"mean_rew": 1.923,
+"sps": 2586
+},
+{
+"it": 991,
+"steps": 7610880,
+"minutes": 49.04,
+"fall_rate": 0.543,
+"max_impulse": 8.09,
+"mean_rew": 1.898,
+"sps": 2587
+},
+{
+"it": 994,
+"steps": 7633920,
+"minutes": 49.17,
+"fall_rate": 0.563,
+"max_impulse": 8.09,
+"mean_rew": 1.906,
+"sps": 2588
+},
+{
+"it": 997,
+"steps": 7656960,
+"minutes": 49.3,
+"fall_rate": 0.486,
+"max_impulse": 8.09,
+"mean_rew": 1.907,
+"sps": 2589
+},
+{
+"it": 1000,
+"steps": 7680000,
+"minutes": 49.43,
+"fall_rate": 0.609,
+"max_impulse": 7.35,
+"mean_rew": 1.898,
+"sps": 2589
+},
+{
+"it": 1004,
+"steps": 7710720,
+"minutes": 49.6,
+"fall_rate": 0.488,
+"max_impulse": 7.35,
+"mean_rew": 1.915,
+"sps": 2591
+},
+{
+"it": 1008,
+"steps": 7741440,
+"minutes": 49.77,
+"fall_rate": 0.562,
+"max_impulse": 7.35,
+"mean_rew": 1.887,
+"sps": 2592
+},
+{
+"it": 1012,
+"steps": 7772160,
+"minutes": 49.95,
+"fall_rate": 0.379,
+"max_impulse": 7.35,
+"mean_rew": 1.923,
+"sps": 2593
+},
+{
+"it": 1016,
+"steps": 7802880,
+"minutes": 50.12,
+"fall_rate": 0.413,
+"max_impulse": 7.35,
+"mean_rew": 1.925,
+"sps": 2595
+},
+{
+"it": 1020,
+"steps": 7833600,
+"minutes": 50.31,
+"fall_rate": 0.379,
+"max_impulse": 7.35,
+"mean_rew": 1.945,
+"sps": 2595
+},
+{
+"it": 1024,
+"steps": 7864320,
+"minutes": 50.48,
+"fall_rate": 0.436,
+"max_impulse": 7.35,
+"mean_rew": 1.93,
+"sps": 2597
+},
+{
+"it": 1028,
+"steps": 7895040,
+"minutes": 50.65,
+"fall_rate": 0.338,
+"max_impulse": 8.45,
+"mean_rew": 1.952,
+"sps": 2598
+},
+{
+"it": 1032,
+"steps": 7925760,
+"minutes": 50.84,
+"fall_rate": 0.407,
+"max_impulse": 8.45,
+"mean_rew": 1.924,
+"sps": 2598
+},
+{
+"it": 1036,
+"steps": 7956480,
+"minutes": 51.01,
+"fall_rate": 0.493,
+"max_impulse": 8.45,
+"mean_rew": 1.95,
+"sps": 2600
+},
+{
+"it": 1040,
+"steps": 7987200,
+"minutes": 51.18,
+"fall_rate": 0.4,
+"max_impulse": 8.45,
+"mean_rew": 1.9,
+"sps": 2601
+},
+{
+"it": 1043,
+"steps": 8010240,
+"minutes": 51.31,
+"fall_rate": 0.515,
+"max_impulse": 8.45,
+"mean_rew": 1.899,
+"sps": 2602
+},
+{
+"it": 1046,
+"steps": 8033280,
+"minutes": 51.43,
+"fall_rate": 0.507,
+"max_impulse": 8.45,
+"mean_rew": 1.872,
+"sps": 2603
+},
+{
+"it": 1049,
+"steps": 8056320,
+"minutes": 51.57,
+"fall_rate": 0.522,
+"max_impulse": 8.45,
+"mean_rew": 1.913,
+"sps": 2604
+},
+{
+"it": 1052,
+"steps": 8079360,
+"minutes": 51.7,
+"fall_rate": 0.615,
+"max_impulse": 7.68,
+"mean_rew": 1.82,
+"sps": 2604
+},
+{
+"it": 1056,
+"steps": 8110080,
+"minutes": 51.87,
+"fall_rate": 0.584,
+"max_impulse": 7.68,
+"mean_rew": 1.877,
+"sps": 2606
+},
+{
+"it": 1060,
+"steps": 8140800,
+"minutes": 52.04,
+"fall_rate": 0.538,
+"max_impulse": 7.68,
+"mean_rew": 1.914,
+"sps": 2607
+},
+{
+"it": 1064,
+"steps": 8171520,
+"minutes": 52.22,
+"fall_rate": 0.533,
+"max_impulse": 7.68,
+"mean_rew": 1.908,
+"sps": 2608
+},
+{
+"it": 1067,
+"steps": 8194560,
+"minutes": 52.35,
+"fall_rate": 0.348,
+"max_impulse": 8.84,
+"mean_rew": 1.916,
+"sps": 2609
+},
+{
+"it": 1071,
+"steps": 8225280,
+"minutes": 52.52,
+"fall_rate": 0.463,
+"max_impulse": 8.84,
+"mean_rew": 1.958,
+"sps": 2610
+},
+{
+"it": 1075,
+"steps": 8256000,
+"minutes": 52.69,
+"fall_rate": 0.463,
+"max_impulse": 8.84,
+"mean_rew": 1.929,
+"sps": 2612
+},
+{
+"it": 1078,
+"steps": 8279040,
+"minutes": 52.82,
+"fall_rate": 0.507,
+"max_impulse": 8.84,
+"mean_rew": 1.931,
+"sps": 2612
+},
+{
+"it": 1081,
+"steps": 8302080,
+"minutes": 52.96,
+"fall_rate": 0.493,
+"max_impulse": 8.84,
+"mean_rew": 1.907,
+"sps": 2613
+},
+{
+"it": 1084,
+"steps": 8325120,
+"minutes": 53.09,
+"fall_rate": 0.484,
+"max_impulse": 8.84,
+"mean_rew": 1.906,
+"sps": 2614
+},
+{
+"it": 1088,
+"steps": 8355840,
+"minutes": 53.26,
+"fall_rate": 0.587,
+"max_impulse": 8.84,
+"mean_rew": 1.921,
+"sps": 2615
+},
+{
+"it": 1091,
+"steps": 8378880,
+"minutes": 53.39,
+"fall_rate": 0.589,
+"max_impulse": 8.84,
+"mean_rew": 1.876,
+"sps": 2616
+},
+{
+"it": 1094,
+"steps": 8401920,
+"minutes": 53.52,
+"fall_rate": 0.5,
+"max_impulse": 8.84,
+"mean_rew": 1.923,
+"sps": 2616
+},
+{
+"it": 1098,
+"steps": 8432640,
+"minutes": 53.7,
+"fall_rate": 0.475,
+"max_impulse": 8.84,
+"mean_rew": 1.9,
+"sps": 2617
+},
+{
+"it": 1102,
+"steps": 8463360,
+"minutes": 53.86,
+"fall_rate": 0.561,
+"max_impulse": 8.84,
+"mean_rew": 1.902,
+"sps": 2619
+},
+{
+"it": 1105,
+"steps": 8486400,
+"minutes": 54.0,
+"fall_rate": 0.515,
+"max_impulse": 8.84,
+"mean_rew": 1.88,
+"sps": 2619
+},
+{
+"it": 1108,
+"steps": 8509440,
+"minutes": 54.13,
+"fall_rate": 0.414,
+"max_impulse": 8.84,
+"mean_rew": 1.872,
+"sps": 2620
+},
+{
+"it": 1112,
+"steps": 8540160,
+"minutes": 54.29,
+"fall_rate": 0.534,
+"max_impulse": 8.84,
+"mean_rew": 1.902,
+"sps": 2622
+},
+{
+"it": 1116,
+"steps": 8570880,
+"minutes": 54.46,
+"fall_rate": 0.466,
+"max_impulse": 8.84,
+"mean_rew": 1.855,
+"sps": 2623
+},
+{
+"it": 1120,
+"steps": 8601600,
+"minutes": 54.64,
+"fall_rate": 0.507,
+"max_impulse": 8.84,
+"mean_rew": 1.968,
+"sps": 2624
+},
+{
+"it": 1124,
+"steps": 8632320,
+"minutes": 54.81,
+"fall_rate": 0.42,
+"max_impulse": 8.84,
+"mean_rew": 1.944,
+"sps": 2625
+},
+{
+"it": 1128,
+"steps": 8663040,
+"minutes": 54.98,
+"fall_rate": 0.493,
+"max_impulse": 8.84,
+"mean_rew": 1.928,
+"sps": 2626
+},
+{
+"it": 1131,
+"steps": 8686080,
+"minutes": 55.11,
+"fall_rate": 0.5,
+"max_impulse": 8.84,
+"mean_rew": 1.908,
+"sps": 2627
+},
+{
+"it": 1134,
+"steps": 8709120,
+"minutes": 55.24,
+"fall_rate": 0.5,
+"max_impulse": 8.84,
+"mean_rew": 1.886,
+"sps": 2628
+},
+{
+"it": 1138,
+"steps": 8739840,
+"minutes": 55.41,
+"fall_rate": 0.529,
+"max_impulse": 8.84,
+"mean_rew": 1.899,
+"sps": 2629
+},
+{
+"it": 1141,
+"steps": 8762880,
+"minutes": 55.55,
+"fall_rate": 0.562,
+"max_impulse": 8.84,
+"mean_rew": 1.891,
+"sps": 2629
+},
+{
+"it": 1145,
+"steps": 8793600,
+"minutes": 55.72,
+"fall_rate": 0.62,
+"max_impulse": 8.03,
+"mean_rew": 1.938,
+"sps": 2630
+},
+{
+"it": 1148,
+"steps": 8816640,
+"minutes": 55.85,
+"fall_rate": 0.453,
+"max_impulse": 8.03,
+"mean_rew": 1.915,
+"sps": 2631
+},
+{
+"it": 1152,
+"steps": 8847360,
+"minutes": 56.02,
+"fall_rate": 0.526,
+"max_impulse": 8.03,
+"mean_rew": 1.905,
+"sps": 2632
+},
+{
+"it": 1156,
+"steps": 8878080,
+"minutes": 56.19,
+"fall_rate": 0.52,
+"max_impulse": 8.03,
+"mean_rew": 1.923,
+"sps": 2633
+},
+{
+"it": 1160,
+"steps": 8908800,
+"minutes": 56.37,
+"fall_rate": 0.595,
+"max_impulse": 8.03,
+"mean_rew": 1.887,
+"sps": 2634
+},
+{
+"it": 1164,
+"steps": 8939520,
+"minutes": 56.54,
+"fall_rate": 0.434,
+"max_impulse": 8.03,
+"mean_rew": 1.896,
+"sps": 2635
+},
+{
+"it": 1167,
+"steps": 8962560,
+"minutes": 56.67,
+"fall_rate": 0.477,
+"max_impulse": 8.03,
+"mean_rew": 1.89,
+"sps": 2636
+},
+{
+"it": 1170,
+"steps": 8985600,
+"minutes": 56.81,
+"fall_rate": 0.515,
+"max_impulse": 8.03,
+"mean_rew": 1.894,
+"sps": 2636
+},
+{
+"it": 1174,
+"steps": 9016320,
+"minutes": 56.99,
+"fall_rate": 0.5,
+"max_impulse": 8.03,
+"mean_rew": 1.937,
+"sps": 2637
+},
+{
+"it": 1177,
+"steps": 9039360,
+"minutes": 57.12,
+"fall_rate": 0.507,
+"max_impulse": 8.03,
+"mean_rew": -159695.328,
+"sps": 2637
+},
+{
+"it": 1181,
+"steps": 9070080,
+"minutes": 57.31,
+"fall_rate": 0.5,
+"max_impulse": 8.03,
+"mean_rew": 1.938,
+"sps": 2638
+},
+{
+"it": 1185,
+"steps": 9100800,
+"minutes": 57.49,
+"fall_rate": 0.416,
+"max_impulse": 8.03,
+"mean_rew": 1.77,
+"sps": 2638
+},
+{
+"it": 1190,
+"steps": 9139200,
+"minutes": 57.72,
+"fall_rate": 0.392,
+"max_impulse": 8.03,
+"mean_rew": 1.914,
+"sps": 2639
+},
+{
+"it": 1193,
+"steps": 9162240,
+"minutes": 57.85,
+"fall_rate": 0.447,
+"max_impulse": 8.03,
+"mean_rew": 1.917,
+"sps": 2640
+},
+{
+"it": 1197,
+"steps": 9192960,
+"minutes": 58.04,
+"fall_rate": 0.468,
+"max_impulse": 8.03,
+"mean_rew": 1.93,
+"sps": 2640
+},
+{
+"it": 1201,
+"steps": 9223680,
+"minutes": 58.22,
+"fall_rate": 0.41,
+"max_impulse": 8.03,
+"mean_rew": 1.937,
+"sps": 2641
+},
+{
+"it": 1205,
+"steps": 9254400,
+"minutes": 58.39,
+"fall_rate": 0.455,
+"max_impulse": 8.03,
+"mean_rew": -3.468,
+"sps": 2642
+},
+{
+"it": 1208,
+"steps": 9277440,
+"minutes": 58.52,
+"fall_rate": 0.328,
+"max_impulse": 9.24,
+"mean_rew": 1.953,
+"sps": 2642
+},
+{
+"it": 1212,
+"steps": 9308160,
+"minutes": 58.71,
+"fall_rate": 0.377,
+"max_impulse": 9.24,
+"mean_rew": 1.899,
+"sps": 2642
+},
+{
+"it": 1215,
+"steps": 9331200,
+"minutes": 58.84,
+"fall_rate": 0.507,
+"max_impulse": 9.24,
+"mean_rew": 1.907,
+"sps": 2643
+},
+{
+"it": 1219,
+"steps": 9361920,
+"minutes": 59.02,
+"fall_rate": 0.485,
+"max_impulse": 9.24,
+"mean_rew": 1.916,
+"sps": 2644
+},
+{
+"it": 1222,
+"steps": 9384960,
+"minutes": 59.15,
+"fall_rate": 0.628,
+"max_impulse": 8.4,
+"mean_rew": 1.878,
+"sps": 2644
+},
+{
+"it": 1226,
+"steps": 9415680,
+"minutes": 59.33,
+"fall_rate": 0.582,
+"max_impulse": 8.4,
+"mean_rew": 1.915,
+"sps": 2645
+},
+{
+"it": 1229,
+"steps": 9438720,
+"minutes": 59.46,
+"fall_rate": 0.459,
+"max_impulse": 8.4,
+"mean_rew": 1.879,
+"sps": 2646
+},
+{
+"it": 1233,
+"steps": 9469440,
+"minutes": 59.64,
+"fall_rate": 0.533,
+"max_impulse": 8.4,
+"mean_rew": 1.928,
+"sps": 2646
+},
+{
+"it": 1237,
+"steps": 9500160,
+"minutes": 59.8,
+"fall_rate": 0.519,
+"max_impulse": 8.4,
+"mean_rew": 1.909,
+"sps": 2648
+},
+{
+"it": 1241,
+"steps": 9530880,
+"minutes": 59.98,
+"fall_rate": 0.378,
+"max_impulse": 8.4,
+"mean_rew": 1.944,
+"sps": 2648
+},
+{
+"it": 1244,
+"steps": 9553920,
+"minutes": 60.1,
+"fall_rate": 0.493,
+"max_impulse": 8.4,
+"mean_rew": 1.878,
+"sps": 2649
+},
+{
+"it": 1247,
+"steps": 9576960,
+"minutes": 60.24,
+"fall_rate": 0.486,
+"max_impulse": 8.4,
+"mean_rew": 1.884,
+"sps": 2650
+},
+{
+"it": 1251,
+"steps": 9607680,
+"minutes": 60.41,
+"fall_rate": 0.494,
+"max_impulse": 8.4,
+"mean_rew": 1.917,
+"sps": 2651
+},
+{
+"it": 1255,
+"steps": 9638400,
+"minutes": 60.58,
+"fall_rate": 0.523,
+"max_impulse": 8.4,
+"mean_rew": 1.879,
+"sps": 2652
+},
+{
+"it": 1259,
+"steps": 9669120,
+"minutes": 60.76,
+"fall_rate": 0.543,
+"max_impulse": 8.4,
+"mean_rew": 1.887,
+"sps": 2652
+},
+{
+"it": 1262,
+"steps": 9692160,
+"minutes": 60.9,
+"fall_rate": 0.485,
+"max_impulse": 8.4,
+"mean_rew": 1.899,
+"sps": 2653
+},
+{
+"it": 1265,
+"steps": 9715200,
+"minutes": 61.03,
+"fall_rate": 0.577,
+"max_impulse": 8.4,
+"mean_rew": 1.866,
+"sps": 2653
+},
+{
+"it": 1269,
+"steps": 9745920,
+"minutes": 61.21,
+"fall_rate": 0.554,
+"max_impulse": 8.4,
+"mean_rew": 1.921,
+"sps": 2654
+},
+{
+"it": 1272,
+"steps": 9768960,
+"minutes": 61.34,
+"fall_rate": 0.4,
+"max_impulse": 8.4,
+"mean_rew": 1.905,
+"sps": 2654
+},
+{
+"it": 1275,
+"steps": 9792000,
+"minutes": 61.46,
+"fall_rate": 0.578,
+"max_impulse": 8.4,
+"mean_rew": 1.907,
+"sps": 2655
+},
+{
+"it": 1278,
+"steps": 9815040,
+"minutes": 61.59,
+"fall_rate": 0.484,
+"max_impulse": 8.4,
+"mean_rew": 1.912,
+"sps": 2656
+},
+{
+"it": 1281,
+"steps": 9838080,
+"minutes": 61.72,
+"fall_rate": 0.5,
+"max_impulse": 8.4,
+"mean_rew": 1.923,
+"sps": 2657
+},
+{
+"it": 1285,
+"steps": 9868800,
+"minutes": 61.9,
+"fall_rate": 0.5,
+"max_impulse": 8.4,
+"mean_rew": 1.922,
+"sps": 2657
+},
+{
+"it": 1289,
+"steps": 9899520,
+"minutes": 62.08,
+"fall_rate": 0.542,
+"max_impulse": 8.4,
+"mean_rew": 1.922,
+"sps": 2658
+},
+{
+"it": 1293,
+"steps": 9930240,
+"minutes": 62.26,
+"fall_rate": 0.44,
+"max_impulse": 8.4,
+"mean_rew": 1.931,
+"sps": 2658
+},
+{
+"it": 1297,
+"steps": 9960960,
+"minutes": 62.43,
+"fall_rate": 0.333,
+"max_impulse": 9.66,
+"mean_rew": 1.914,
+"sps": 2659
+},
+{
+"it": 1300,
+"steps": 9984000,
+"minutes": 62.56,
+"fall_rate": 0.409,
+"max_impulse": 9.66,
+"mean_rew": 1.907,
+"sps": 2660
+},
+{
+"it": 1304,
+"steps": 10014720,
+"minutes": 62.74,
+"fall_rate": 0.535,
+"max_impulse": 9.66,
+"mean_rew": 1.894,
+"sps": 2660
+},
+{
+"it": 1307,
+"steps": 10037760,
+"minutes": 62.88,
+"fall_rate": 0.545,
+"max_impulse": 9.66,
+"mean_rew": 1.886,
+"sps": 2661
+},
+{
+"it": 1310,
+"steps": 10060800,
+"minutes": 63.01,
+"fall_rate": 0.47,
+"max_impulse": 9.66,
+"mean_rew": 1.886,
+"sps": 2661
+},
+{
+"it": 1314,
+"steps": 10091520,
+"minutes": 63.18,
+"fall_rate": 0.618,
+"max_impulse": 8.78,
+"mean_rew": 1.83,
+"sps": 2662
+},
+{
+"it": 1318,
+"steps": 10122240,
+"minutes": 63.36,
+"fall_rate": 0.635,
+"max_impulse": 7.98,
+"mean_rew": 1.868,
+"sps": 2663
+},
+{
+"it": 1321,
+"steps": 10145280,
+"minutes": 63.48,
+"fall_rate": 0.704,
+"max_impulse": 7.26,
+"mean_rew": 1.885,
+"sps": 2664
+},
+{
+"it": 1325,
+"steps": 10176000,
+"minutes": 63.65,
+"fall_rate": 0.543,
+"max_impulse": 7.26,
+"mean_rew": 1.93,
+"sps": 2664
+},
+{
+"it": 1328,
+"steps": 10199040,
+"minutes": 63.78,
+"fall_rate": 0.554,
+"max_impulse": 7.26,
+"mean_rew": 1.878,
+"sps": 2665
+},
+{
+"it": 1332,
+"steps": 10229760,
+"minutes": 63.96,
+"fall_rate": 0.448,
+"max_impulse": 7.26,
+"mean_rew": 1.934,
+"sps": 2666
+},
+{
+"it": 1336,
+"steps": 10260480,
+"minutes": 64.14,
+"fall_rate": 0.412,
+"max_impulse": 7.26,
+"mean_rew": 1.906,
+"sps": 2666
+},
+{
+"it": 1340,
+"steps": 10291200,
+"minutes": 64.32,
+"fall_rate": 0.377,
+"max_impulse": 7.26,
+"mean_rew": 1.96,
+"sps": 2667
+},
+{
+"it": 1344,
+"steps": 10321920,
+"minutes": 64.49,
+"fall_rate": 0.307,
+"max_impulse": 8.35,
+"mean_rew": 1.946,
+"sps": 2667
+},
+{
+"it": 1348,
+"steps": 10352640,
+"minutes": 64.67,
+"fall_rate": 0.386,
+"max_impulse": 8.35,
+"mean_rew": 1.903,
+"sps": 2668
+},
+{
+"it": 1352,
+"steps": 10383360,
+"minutes": 64.85,
+"fall_rate": 0.361,
+"max_impulse": 8.35,
+"mean_rew": 1.931,
+"sps": 2669
+},
+{
+"it": 1356,
+"steps": 10414080,
+"minutes": 65.02,
+"fall_rate": 0.405,
+"max_impulse": 8.35,
+"mean_rew": 1.943,
+"sps": 2670
+},
+{
+"it": 1359,
+"steps": 10437120,
+"minutes": 65.15,
+"fall_rate": 0.514,
+"max_impulse": 8.35,
+"mean_rew": 1.824,
+"sps": 2670
+},
+{
+"it": 1363,
+"steps": 10467840,
+"minutes": 65.32,
+"fall_rate": 0.54,
+"max_impulse": 8.35,
+"mean_rew": 1.893,
+"sps": 2671
+},
+{
+"it": 1366,
+"steps": 10490880,
+"minutes": 65.45,
+"fall_rate": 0.632,
+"max_impulse": 7.59,
+"mean_rew": 1.872,
+"sps": 2671
+},
+{
+"it": 1370,
+"steps": 10521600,
+"minutes": 65.63,
+"fall_rate": 0.519,
+"max_impulse": 7.59,
+"mean_rew": 1.893,
+"sps": 2672
+},
+{
+"it": 1374,
+"steps": 10552320,
+"minutes": 65.8,
+"fall_rate": 0.449,
+"max_impulse": 7.59,
+"mean_rew": 1.913,
+"sps": 2673
+},
+{
+"it": 1378,
+"steps": 10583040,
+"minutes": 65.97,
+"fall_rate": 0.481,
+"max_impulse": 7.59,
+"mean_rew": 1.931,
+"sps": 2674
+},
+{
+"it": 1382,
+"steps": 10613760,
+"minutes": 66.14,
+"fall_rate": 0.435,
+"max_impulse": 7.59,
+"mean_rew": 1.976,
+"sps": 2675
+},
+{
+"it": 1386,
+"steps": 10644480,
+"minutes": 66.31,
+"fall_rate": 0.405,
+"max_impulse": 7.59,
+"mean_rew": 1.935,
+"sps": 2675
+},
+{
+"it": 1390,
+"steps": 10675200,
+"minutes": 66.51,
+"fall_rate": 0.322,
+"max_impulse": 8.73,
+"mean_rew": 1.946,
+"sps": 2675
+},
+{
+"it": 1394,
+"steps": 10705920,
+"minutes": 66.69,
+"fall_rate": 0.387,
+"max_impulse": 8.73,
+"mean_rew": 1.924,
+"sps": 2675
+},
+{
+"it": 1398,
+"steps": 10736640,
+"minutes": 66.86,
+"fall_rate": 0.469,
+"max_impulse": 8.73,
+"mean_rew": 1.9,
+"sps": 2676
+},
+{
+"it": 1402,
+"steps": 10767360,
+"minutes": 67.03,
+"fall_rate": 0.451,
+"max_impulse": 8.73,
+"mean_rew": 1.899,
+"sps": 2677
+},
+{
+"it": 1405,
+"steps": 10790400,
+"minutes": 67.16,
+"fall_rate": 0.463,
+"max_impulse": 8.73,
+"mean_rew": 1.937,
+"sps": 2678
+},
+{
+"it": 1409,
+"steps": 10821120,
+"minutes": 67.33,
+"fall_rate": 0.525,
+"max_impulse": 8.73,
+"mean_rew": 1.906,
+"sps": 2679
+},
+{
+"it": 1412,
+"steps": 10844160,
+"minutes": 67.46,
+"fall_rate": 0.592,
+"max_impulse": 8.73,
+"mean_rew": 1.915,
+"sps": 2679
+},
+{
+"it": 1416,
+"steps": 10874880,
+"minutes": 67.64,
+"fall_rate": 0.437,
+"max_impulse": 8.73,
+"mean_rew": 1.922,
+"sps": 2680
+},
+{
+"it": 1420,
+"steps": 10905600,
+"minutes": 67.81,
+"fall_rate": 0.524,
+"max_impulse": 8.73,
+"mean_rew": 1.899,
+"sps": 2680
+},
+{
+"it": 1424,
+"steps": 10936320,
+"minutes": 67.98,
+"fall_rate": 0.488,
+"max_impulse": 8.73,
+"mean_rew": 1.87,
+"sps": 2681
+},
+{
+"it": 1427,
+"steps": 10959360,
+"minutes": 68.11,
+"fall_rate": 0.475,
+"max_impulse": 8.73,
+"mean_rew": 1.879,
+"sps": 2682
+},
+{
+"it": 1431,
+"steps": 10990080,
+"minutes": 68.28,
+"fall_rate": 0.544,
+"max_impulse": 8.73,
+"mean_rew": 1.905,
+"sps": 2683
+},
+{
+"it": 1435,
+"steps": 11020800,
+"minutes": 68.46,
+"fall_rate": 0.527,
+"max_impulse": 8.73,
+"mean_rew": 1.909,
+"sps": 2683
+},
+{
+"it": 1438,
+"steps": 11043840,
+"minutes": 68.59,
+"fall_rate": 0.548,
+"max_impulse": 8.73,
+"mean_rew": 1.886,
+"sps": 2684
+},
+{
+"it": 1441,
+"steps": 11066880,
+"minutes": 68.72,
+"fall_rate": 0.627,
+"max_impulse": 7.93,
+"mean_rew": 1.834,
+"sps": 2684
+},
+{
+"it": 1444,
+"steps": 11089920,
+"minutes": 68.85,
+"fall_rate": 0.545,
+"max_impulse": 7.93,
+"mean_rew": 1.914,
+"sps": 2685
+},
+{
+"it": 1447,
+"steps": 11112960,
+"minutes": 68.98,
+"fall_rate": 0.547,
+"max_impulse": 7.93,
+"mean_rew": 1.929,
+"sps": 2685
+},
+{
+"it": 1450,
+"steps": 11136000,
+"minutes": 69.1,
+"fall_rate": 0.631,
+"max_impulse": 7.21,
+"mean_rew": 1.891,
+"sps": 2686
+},
+{
+"it": 1454,
+"steps": 11166720,
+"minutes": 69.27,
+"fall_rate": 0.534,
+"max_impulse": 7.21,
+"mean_rew": 1.878,
+"sps": 2687
+},
+{
+"it": 1457,
+"steps": 11189760,
+"minutes": 69.4,
+"fall_rate": 0.516,
+"max_impulse": 7.21,
+"mean_rew": 1.923,
+"sps": 2687
+},
+{
+"it": 1461,
+"steps": 11220480,
+"minutes": 69.58,
+"fall_rate": 0.368,
+"max_impulse": 7.21,
+"mean_rew": 1.961,
+"sps": 2688
+},
+{
+"it": 1465,
+"steps": 11251200,
+"minutes": 69.75,
+"fall_rate": 0.48,
+"max_impulse": 7.21,
+"mean_rew": 1.923,
+"sps": 2688
+},
+{
+"it": 1469,
+"steps": 11281920,
+"minutes": 69.94,
+"fall_rate": 0.421,
+"max_impulse": 7.21,
+"mean_rew": 1.931,
+"sps": 2689
+},
+{
+"it": 1473,
+"steps": 11312640,
+"minutes": 70.11,
+"fall_rate": 0.351,
+"max_impulse": 7.21,
+"mean_rew": 1.953,
+"sps": 2689
+},
+{
+"it": 1477,
+"steps": 11343360,
+"minutes": 70.29,
+"fall_rate": 0.376,
+"max_impulse": 7.21,
+"mean_rew": 1.945,
+"sps": 2690
+},
+{
+"it": 1481,
+"steps": 11374080,
+"minutes": 70.47,
+"fall_rate": 0.299,
+"max_impulse": 8.29,
+"mean_rew": 1.951,
+"sps": 2690
+},
+{
+"it": 1484,
+"steps": 11397120,
+"minutes": 70.6,
+"fall_rate": 0.453,
+"max_impulse": 8.29,
+"mean_rew": 1.947,
+"sps": 2690
+},
+{
+"it": 1488,
+"steps": 11427840,
+"minutes": 70.78,
+"fall_rate": 0.425,
+"max_impulse": 8.29,
+"mean_rew": 1.93,
+"sps": 2691
+},
+{
+"it": 1491,
+"steps": 11450880,
+"minutes": 70.91,
+"fall_rate": 0.365,
+"max_impulse": 8.29,
+"mean_rew": 1.939,
+"sps": 2691
+},
+{
+"it": 1495,
+"steps": 11481600,
+"minutes": 71.08,
+"fall_rate": 0.416,
+"max_impulse": 8.29,
+"mean_rew": 1.902,
+"sps": 2692
+},
+{
+"it": 1499,
+"steps": 11512320,
+"minutes": 71.24,
+"fall_rate": 0.432,
+"max_impulse": 8.29,
+"mean_rew": 1.972,
+"sps": 2693
+},
+{
+"it": 1503,
+"steps": 11543040,
+"minutes": 71.42,
+"fall_rate": 0.539,
+"max_impulse": 8.29,
+"mean_rew": 1.892,
+"sps": 2694
+},
+{
+"it": 1506,
+"steps": 11566080,
+"minutes": 71.54,
+"fall_rate": 0.468,
+"max_impulse": 8.29,
+"mean_rew": 1.872,
+"sps": 2694
+},
+{
+"it": 1510,
+"steps": 11596800,
+"minutes": 71.72,
+"fall_rate": 0.481,
+"max_impulse": 8.29,
+"mean_rew": 1.894,
+"sps": 2695
+},
+{
+"it": 1513,
+"steps": 11619840,
+"minutes": 71.86,
+"fall_rate": 0.561,
+"max_impulse": 8.29,
+"mean_rew": 1.888,
+"sps": 2695
+},
+{
+"it": 1517,
+"steps": 11650560,
+"minutes": 72.04,
+"fall_rate": 0.457,
+"max_impulse": 8.29,
+"mean_rew": 1.938,
+"sps": 2695
+},
+{
+"it": 1521,
+"steps": 11681280,
+"minutes": 72.22,
+"fall_rate": 0.464,
+"max_impulse": 8.29,
+"mean_rew": 1.88,
+"sps": 2696
+},
+{
+"it": 1525,
+"steps": 11712000,
+"minutes": 72.39,
+"fall_rate": 0.5,
+"max_impulse": 8.29,
+"mean_rew": 1.922,
+"sps": 2697
+},
+{
+"it": 1528,
+"steps": 11735040,
+"minutes": 72.53,
+"fall_rate": 0.473,
+"max_impulse": 8.29,
+"mean_rew": 1.907,
+"sps": 2697
+},
+{
+"it": 1531,
+"steps": 11758080,
+"minutes": 72.65,
+"fall_rate": 0.537,
+"max_impulse": 8.29,
+"mean_rew": 1.91,
+"sps": 2697
+},
+{
+"it": 1536,
+"steps": 11796480,
+"minutes": 72.86,
+"fall_rate": 0.457,
+"max_impulse": 8.29,
+"mean_rew": 1.927,
+"sps": 2698
+},
+{
+"it": 1540,
+"steps": 11827200,
+"minutes": 73.04,
+"fall_rate": 0.506,
+"max_impulse": 8.29,
+"mean_rew": 1.915,
+"sps": 2699
+},
+{
+"it": 1544,
+"steps": 11857920,
+"minutes": 73.22,
+"fall_rate": 0.435,
+"max_impulse": 8.29,
+"mean_rew": 1.899,
+"sps": 2699
+},
+{
+"it": 1547,
+"steps": 11880960,
+"minutes": 73.35,
+"fall_rate": 0.508,
+"max_impulse": 8.29,
+"mean_rew": 1.907,
+"sps": 2700
+},
+{
+"it": 1551,
+"steps": 11911680,
+"minutes": 73.52,
+"fall_rate": 0.553,
+"max_impulse": 8.29,
+"mean_rew": 1.907,
+"sps": 2700
+},
+{
+"it": 1555,
+"steps": 11942400,
+"minutes": 73.7,
+"fall_rate": 0.468,
+"max_impulse": 8.29,
+"mean_rew": 1.91,
+"sps": 2701
+},
+{
+"it": 1559,
+"steps": 11973120,
+"minutes": 73.86,
+"fall_rate": 0.325,
+"max_impulse": 9.54,
+"mean_rew": 1.924,
+"sps": 2702
+},
+{
+"it": 1562,
+"steps": 11996160,
+"minutes": 73.99,
+"fall_rate": 0.493,
+"max_impulse": 9.54,
+"mean_rew": 1.893,
+"sps": 2702
+},
+{
+"it": 1566,
+"steps": 12026880,
+"minutes": 74.17,
+"fall_rate": 0.519,
+"max_impulse": 9.54,
+"mean_rew": 1.902,
+"sps": 2702
+},
+{
+"it": 1569,
+"steps": 12049920,
+"minutes": 74.3,
+"fall_rate": 0.478,
+"max_impulse": 9.54,
+"mean_rew": 1.877,
+"sps": 2703
+},
+{
+"it": 1572,
+"steps": 12072960,
+"minutes": 74.43,
+"fall_rate": 0.549,
+"max_impulse": 9.54,
+"mean_rew": 1.898,
+"sps": 2703
+},
+{
+"it": 1575,
+"steps": 12096000,
+"minutes": 74.58,
+"fall_rate": 0.603,
+"max_impulse": 8.67,
+"mean_rew": 1.891,
+"sps": 2703
+},
+{
+"it": 1578,
+"steps": 12119040,
+"minutes": 74.72,
+"fall_rate": 0.562,
+"max_impulse": 8.67,
+"mean_rew": 1.914,
+"sps": 2703
+},
+{
+"it": 1582,
+"steps": 12149760,
+"minutes": 74.9,
+"fall_rate": 0.639,
+"max_impulse": 7.88,
+"mean_rew": 1.877,
+"sps": 2704
+},
+{
+"it": 1586,
+"steps": 12180480,
+"minutes": 75.07,
+"fall_rate": 0.451,
+"max_impulse": 7.88,
+"mean_rew": 1.929,
+"sps": 2704
+},
+{
+"it": 1589,
+"steps": 12203520,
+"minutes": 75.2,
+"fall_rate": 0.529,
+"max_impulse": 7.88,
+"mean_rew": 1.936,
+"sps": 2705
+},
+{
+"it": 1592,
+"steps": 12226560,
+"minutes": 75.34,
+"fall_rate": 0.507,
+"max_impulse": 7.88,
+"mean_rew": 1.893,
+"sps": 2705
+},
+{
+"it": 1596,
+"steps": 12257280,
+"minutes": 75.51,
+"fall_rate": 0.48,
+"max_impulse": 7.88,
+"mean_rew": 1.93,
+"sps": 2705
+},
+{
+"it": 1600,
+"steps": 12288000,
+"minutes": 75.68,
+"fall_rate": 0.443,
+"max_impulse": 7.88,
+"mean_rew": 1.939,
+"sps": 2706
+},
+{
+"it": 1604,
+"steps": 12318720,
+"minutes": 75.86,
+"fall_rate": 0.373,
+"max_impulse": 7.88,
+"mean_rew": 1.961,
+"sps": 2706
+},
+{
+"it": 1608,
+"steps": 12349440,
+"minutes": 76.04,
+"fall_rate": 0.436,
+"max_impulse": 7.88,
+"mean_rew": 1.878,
+"sps": 2707
+},
+{
+"it": 1611,
+"steps": 12372480,
+"minutes": 76.16,
+"fall_rate": 0.451,
+"max_impulse": 7.88,
+"mean_rew": 1.914,
+"sps": 2707
+},
+{
+"it": 1615,
+"steps": 12403200,
+"minutes": 76.34,
+"fall_rate": 0.507,
+"max_impulse": 7.88,
+"mean_rew": 1.953,
+"sps": 2708
+},
+{
+"it": 1619,
+"steps": 12433920,
+"minutes": 76.51,
+"fall_rate": 0.4,
+"max_impulse": 7.88,
+"mean_rew": 1.972,
+"sps": 2709
+},
+{
+"it": 1623,
+"steps": 12464640,
+"minutes": 76.68,
+"fall_rate": 0.487,
+"max_impulse": 7.88,
+"mean_rew": 1.73,
+"sps": 2709
+},
+{
+"it": 1626,
+"steps": 12487680,
+"minutes": 76.81,
+"fall_rate": 0.343,
+"max_impulse": 9.06,
+"mean_rew": 1.908,
+"sps": 2710
+},
+{
+"it": 1630,
+"steps": 12518400,
+"minutes": 76.98,
+"fall_rate": 0.414,
+"max_impulse": 9.06,
+"mean_rew": 1.922,
+"sps": 2710
+},
+{
+"it": 1634,
+"steps": 12549120,
+"minutes": 77.16,
+"fall_rate": 0.489,
+"max_impulse": 9.06,
+"mean_rew": 1.879,
+"sps": 2711
+},
+{
+"it": 1638,
+"steps": 12579840,
+"minutes": 77.33,
+"fall_rate": 0.526,
+"max_impulse": 9.06,
+"mean_rew": 1.901,
+"sps": 2711
+},
+{
+"it": 1641,
+"steps": 12602880,
+"minutes": 77.46,
+"fall_rate": 0.505,
+"max_impulse": 9.06,
+"mean_rew": 1.791,
+"sps": 2712
+},
+{
+"it": 1645,
+"steps": 12633600,
+"minutes": 77.63,
+"fall_rate": 0.671,
+"max_impulse": 8.24,
+"mean_rew": 1.886,
+"sps": 2712
+},
+{
+"it": 1649,
+"steps": 12664320,
+"minutes": 77.8,
+"fall_rate": 0.512,
+"max_impulse": 8.24,
+"mean_rew": 1.891,
+"sps": 2713
+},
+{
+"it": 1652,
+"steps": 12687360,
+"minutes": 77.93,
+"fall_rate": 0.585,
+"max_impulse": 8.24,
+"mean_rew": 1.908,
+"sps": 2713
+},
+{
+"it": 1656,
+"steps": 12718080,
+"minutes": 78.1,
+"fall_rate": 0.387,
+"max_impulse": 8.24,
+"mean_rew": 1.928,
+"sps": 2714
+},
+{
+"it": 1660,
+"steps": 12748800,
+"minutes": 78.27,
+"fall_rate": 0.538,
+"max_impulse": 8.24,
+"mean_rew": 1.885,
+"sps": 2715
+},
+{
+"it": 1664,
+"steps": 12779520,
+"minutes": 78.45,
+"fall_rate": 0.554,
+"max_impulse": 8.24,
+"mean_rew": 1.886,
+"sps": 2715
+},
+{
+"it": 1667,
+"steps": 12802560,
+"minutes": 78.58,
+"fall_rate": 0.441,
+"max_impulse": 8.24,
+"mean_rew": 1.913,
+"sps": 2715
+},
+{
+"it": 1671,
+"steps": 12833280,
+"minutes": 78.75,
+"fall_rate": 0.542,
+"max_impulse": 8.24,
+"mean_rew": 1.914,
+"sps": 2716
+},
+{
+"it": 1675,
+"steps": 12864000,
+"minutes": 78.93,
+"fall_rate": 0.4,
+"max_impulse": 8.24,
+"mean_rew": 1.921,
+"sps": 2716
+},
+{
+"it": 1679,
+"steps": 12894720,
+"minutes": 79.09,
+"fall_rate": 0.461,
+"max_impulse": 8.24,
+"mean_rew": 1.923,
+"sps": 2717
+},
+{
+"it": 1683,
+"steps": 12925440,
+"minutes": 79.26,
+"fall_rate": 0.392,
+"max_impulse": 8.24,
+"mean_rew": 1.934,
+"sps": 2718
+},
+{
+"it": 1686,
+"steps": 12948480,
+"minutes": 79.39,
+"fall_rate": 0.547,
+"max_impulse": 8.24,
+"mean_rew": 1.894,
+"sps": 2718
+},
+{
+"it": 1690,
+"steps": 12979200,
+"minutes": 79.56,
+"fall_rate": 0.403,
+"max_impulse": 8.24,
+"mean_rew": 1.929,
+"sps": 2719
+},
+{
+"it": 1693,
+"steps": 13002240,
+"minutes": 79.69,
+"fall_rate": 0.415,
+"max_impulse": 8.24,
+"mean_rew": 1.93,
+"sps": 2720
+},
+{
+"it": 1697,
+"steps": 13032960,
+"minutes": 79.86,
+"fall_rate": 0.473,
+"max_impulse": 8.24,
+"mean_rew": 1.937,
+"sps": 2720
+},
+{
+"it": 1700,
+"steps": 13056000,
+"minutes": 79.99,
+"fall_rate": 0.484,
+"max_impulse": 8.24,
+"mean_rew": 1.93,
+"sps": 2720
+}
+]

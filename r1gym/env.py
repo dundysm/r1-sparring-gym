@@ -13,11 +13,15 @@ from .sensors import DelayedNoisyObs
 OBS_DIM, ACT_DIM = 78, 24
 TRAIN_CLIPS = ["kfab_199", "kfab_200", "kfab_201", "kfab_203"]   # kfab_202 is held out for the demo
 
+_DR_NOMINAL = {}
+
 class R1HitEnv:
-    def __init__(self, seed=0, cfg=None, episode_s=10.0, max_impulse=20.0, model=None, train=True, opp_prob=0.0, opp_clips=TRAIN_CLIPS):
+    def __init__(self, seed=0, cfg=None, episode_s=10.0, max_impulse=20.0, model=None, train=True, opp_prob=0.0, opp_clips=TRAIN_CLIPS, dr=False, reward="v2", gap=(1.0, 2.5)):
         self.cfg = cfg or load_cfg(); self.m = model or build_spec(cfg=self.cfg, opponent=opp_prob > 0).compile()
+        self.dr = dr; self.reward = reward; self.gap = gap; self.act_delay = 0; self.a_prev = np.zeros(24, np.float32)
         self.opp_prob = opp_prob; self.opp_clips = opp_clips; self._opp_cache = {}; self.d = mujoco.MjData(self.m)
         self.r = R1Robot(self.m, self.cfg); self.hits_ap = HitApplier(self.m); self.rng = np.random.default_rng(seed)
+        if dr: self._dr_init()
         self.nsub = int(round(self.cfg["model"]["control_dt"] / self.cfg["model"]["timestep"])); self.dt = self.cfg["model"]["control_dt"]
         self.T = int(episode_s / self.dt); self.max_impulse = max_impulse; self.train = train
         n = self.cfg["sensors"]["noise"]
@@ -36,7 +40,9 @@ class R1HitEnv:
         self.t = 0; self.last_a = np.zeros(24, np.float32); self.filt = np.zeros(24)
         lo, hi = self.cfg["sensors"]["delay_steps"]; k = self.rng.integers(lo, hi + 1) if delay is None else delay
         self.sensor = DelayedNoisyObs(k, self.noise if self.train or delay is None else self.noise, self.rng)
-        self.hits = hits if hits is not None else random_schedule(self.rng, self.T * self.dt, self.max_impulse)
+        self.hits = hits if hits is not None else random_schedule(self.rng, self.T * self.dt, self.max_impulse, gap=self.gap)
+        if self.dr: self._dr_sample()
+        self.a_prev = np.zeros(24, np.float32)
         if self.opp_prob > 0:   # training: a fight-clip opponent in range with prob opp_prob, else parked 5 m away
             from .opponent import FightReplay
             close = self.rng.random() < self.opp_prob; clip = self.opp_clips[self.rng.integers(len(self.opp_clips))]
@@ -49,6 +55,8 @@ class R1HitEnv:
 
     def step(self, a):
         a = np.clip(a, -4, 4).astype(np.float32); d = self.d
+        if self.dr: self._dr_apply()
+        if self.act_delay: a, self.a_prev = self.a_prev, a          # DR: one control step (20 ms) of motor-command latency
         self.filt = self.cfg.get("action_filter", 0.3) * self.filt + (1 - self.cfg.get("action_filter", 0.3)) * a   # EMA low-pass
         self.r.pd(d, HOME + self.cfg["action_scale"] * self.filt)
         for _ in range(self.nsub):
@@ -62,12 +70,46 @@ class R1HitEnv:
         fallen = self.r.fallen(d)
         R = d.xmat[self.r.pel].reshape(3, 3); up = R[2, 2]; z = d.xpos[self.r.pel][2]
         dq = d.qpos[self.r.qadr] - HOME
-        rew = (1.0 + 0.5 * up - 2.0 * abs(z - 0.72) - 0.02 * np.sum(dq ** 2) - 0.01 * np.sum((a - self.last_a) ** 2)
+        if self.reward == "v3":   # stay up / recover: no penalty for leaving the stance, mild pull back to home legs
+            w = d.qvel[self.r.free_v + 3:self.r.free_v + 6]
+            rew = (1.0 + 1.0 * up - 2.0 * max(0.0, 0.64 - z) - 0.003 * np.sum(dq[:12] ** 2) - 0.01 * np.sum(dq[12:] ** 2)
+                   - 0.005 * np.sum((a - self.last_a) ** 2) - 0.0002 * np.sum(np.square(d.qvel[self.r.vadr])) - 0.02 * np.sum(w[:2] ** 2))
+        else: rew = (1.0 + 0.5 * up - 2.0 * abs(z - 0.72) - 0.02 * np.sum(dq ** 2) - 0.01 * np.sum((a - self.last_a) ** 2)
                - 0.001 * np.sum(np.square(d.qvel[self.r.vadr])) * 0.05 - 0.05 * np.sum(np.square(d.qvel[self.r.free_v + 3:self.r.free_v + 5])))
         if fallen: rew -= 50.0
         self.last_a = a
         done = fallen or self.t >= self.T
         return self.sensor(self._raw_obs()), float(rew), bool(done), {"fallen": fallen, "timeout": self.t >= self.T and not fallen}
+
+    # ---- domain randomisation (training only): mass, COM, foot friction, motor strength, armature, command latency
+    def _dr_init(self):
+        m = self.m   # nominal values cached per model object (later envs see a model already DR-modified by earlier ones)
+        self._nom = _DR_NOMINAL.setdefault(id(m), dict(mass=m.body_mass.copy(), ipos=m.body_ipos.copy(), fric=m.geom_friction.copy(), gain=m.actuator_gainprm.copy(),
+                         bias=m.actuator_biasprm.copy(), frc=m.actuator_forcerange.copy(), arm=m.dof_armature.copy()))
+        self._r1b = np.array(sorted(self.r.r1_bodies)); self._feet = np.array([g for g in range(m.ngeom) if "foot" in (m.geom(g).name or "")])
+    # Envs in one process share one MjModel (a private copy per env costs ~200 MB): each env keeps its own sampled
+    # parameters and writes them into the shared model right before it steps. Safe because envs step sequentially
+    # within a worker process; do NOT step DR envs that share a model from multiple threads.
+    def _dr_apply(self):
+        m, p = self.m, self._drp
+        m.body_mass[:] = p["mass"]; m.body_ipos[:] = p["ipos"]; m.geom_friction[:] = p["fric"]; m.actuator_gainprm[:] = p["gain"]
+        m.actuator_biasprm[:] = p["bias"]; m.actuator_forcerange[:] = p["frc"]; m.dof_armature[:] = p["arm"]
+    def _dr_sample(self):
+        self._dr_sample_into_model(); self._drp = {k: getattr(self.m, a).copy() for k, a in [("mass", "body_mass"), ("ipos", "body_ipos"),
+            ("fric", "geom_friction"), ("gain", "actuator_gainprm"), ("bias", "actuator_biasprm"), ("frc", "actuator_forcerange"), ("arm", "dof_armature")]}
+    def _dr_sample_into_model(self):
+        m, n, g = self.m, self._nom, self.rng
+        m.body_mass[:] = n["mass"]; m.body_mass[self._r1b] *= g.uniform(0.85, 1.15, len(self._r1b))
+        m.body_mass[self.r.torso] += g.uniform(-0.5, 2.0)                       # payload / battery / padding
+        m.body_ipos[:] = n["ipos"]; m.body_ipos[[self.r.pel, self.r.torso]] += g.uniform(-0.025, 0.025, (2, 3))
+        m.geom_friction[:] = n["fric"]
+        if len(self._feet): m.geom_friction[self._feet, 0] = g.uniform(0.5, 1.25)
+        k = g.uniform(0.8, 1.2, 24); kd = g.uniform(0.8, 1.2, 24); a = self.r.act
+        m.actuator_gainprm[:] = n["gain"]; m.actuator_biasprm[:] = n["bias"]; m.actuator_forcerange[:] = n["frc"]
+        m.actuator_gainprm[a, 0] *= k; m.actuator_biasprm[a, 1] *= k; m.actuator_biasprm[a, 2] *= kd
+        m.actuator_forcerange[a] *= g.uniform(0.8, 1.05, 24)[:, None]
+        m.dof_armature[:] = n["arm"] * g.uniform(0.5, 1.5, m.nv)
+        self.act_delay = int(g.random() < 0.5)
 
 class BatchEnv:
     """N independent envs stepped by a thread pool (MuJoCo releases the GIL inside mj_step)."""

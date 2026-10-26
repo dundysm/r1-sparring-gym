@@ -23,10 +23,13 @@ def run(ctrl, m, cfg, hit_seed=3, delay=2, seconds=12.0, clip="kfab_202", distan
     return None   # survived
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(); ap.add_argument("--policy", default="results/policy/policy.pt"); ap.add_argument("--variants", type=int, default=8)
+    ap = argparse.ArgumentParser(); ap.add_argument("--policy", nargs="+", default=["v2=results/policy/policy.pt"], help="label=path ..."); ap.add_argument("--variants", type=int, default=8)
     a = ap.parse_args(); cfg = load_cfg(); m = build_spec(opponent=True, cfg=cfg).compile()
     out = {}
-    for c in [PDStand(), TorchPolicy(a.policy)]:
+    cs = [PDStand()]
+    for lp in a.policy:
+        lab, path = lp.split("=", 1); c = TorchPolicy(path); c.name = f"rl_{lab}"; cs.append(c)
+    for c in cs:
         out[c.name] = {"demo": run(c, m, cfg), "variants": [run(c, m, cfg, hit_seed=100 + s, delay=s % 3, distance=[0.8, 0.85, 0.9, 0.95][s % 4]) for s in range(a.variants)]}
     for k, v in out.items():   # survival time per run (None = survived the full clip)
         t = [x if x is not None else 12.0 for x in v["variants"]]; v["variants_mean_survival_s"] = round(float(np.mean(t)), 2)

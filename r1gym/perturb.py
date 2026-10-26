@@ -32,12 +32,12 @@ def make_hit(kind, location, impulse, t0, yaw, rng=None, pitch=0.0):
     dirn = np.array([-np.cos(yaw) * np.cos(pitch), -np.sin(yaw) * np.cos(pitch), np.sin(pitch)])
     return Hit(kind, body, t0, dur, dirn * impulse / dur, np.array(off, float))
 
-def random_schedule(rng, t_end, max_impulse, gap=(1.0, 2.5), first=0.6):
+def random_schedule(rng, t_end, max_impulse, gap=(1.0, 2.5), first=0.6, lo=0.2):
     hits, t = [], first + rng.uniform(0, 0.6)
     while t < t_end - 0.5:
         kind = rng.choice(["strike", "strike", "push", "grab"])
         loc = rng.choice(list(LOCATIONS))
-        imp = rng.uniform(0.2, 1.0) * max_impulse * (0.6 if kind == "grab" else 1.0)
+        imp = rng.uniform(lo, 1.0) * max_impulse * (0.6 if kind == "grab" else 1.0)
         h = make_hit(kind, loc, imp, t, rng.uniform(-np.pi, np.pi), rng, pitch=rng.uniform(-0.2, 0.2))
         hits.append(h); t += h.duration + rng.uniform(*gap)
     return hits

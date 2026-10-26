@@ -18,14 +18,18 @@ def font(sz):
     return ImageFont.load_default()
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--policy", default="results/policy/policy.pt"); ap.add_argument("--seconds", type=float, default=12)
+    ap = argparse.ArgumentParser(); ap.add_argument("--left", default="PD stand (baseline)=PD", help="label=PD or label=path/to/policy.pt")
+    ap.add_argument("--right", default="RL hit-robust policy (v2)=results/policy/policy.pt"); ap.add_argument("--seconds", type=float, default=12)
     ap.add_argument("--clip", default="kfab_202"); ap.add_argument("--distance", type=float, default=0.85); ap.add_argument("--w", type=int, default=640); ap.add_argument("--h", type=int, default=480); a = ap.parse_args()
     root = Path(__file__).resolve().parents[1]; (root / "media").mkdir(exist_ok=True)
     cfg = load_cfg(); m = build_spec(opponent=True, cfg=cfg).compile()
     rng = np.random.default_rng(7)
     sched = [("strike", "chest", 4, 1.5, 0.0), ("push", "l_shoulder", 5, 3.0, np.pi / 2), ("strike", "head", 4, 4.6, 0.0),
              ("grab", "r_shoulder", 4, 6.0, -np.pi / 2), ("strike", "pelvis", 7, 7.8, np.pi), ("push", "chest", 8, 9.5, 0.0)]
-    ctrls = [PDStand(), TorchPolicy(a.policy)]; envs = []; rens = []
+    labels = [x.split("=", 1)[0] for x in (a.left, a.right)]
+    ctrls = [PDStand() if p == "PD" else TorchPolicy(p) for p in (x.split("=", 1)[1] for x in (a.left, a.right))]
+    for c, l in zip(ctrls, labels): c.name = l
+    envs = []; rens = []
     for c in ctrls:
         e = R1HitEnv(seed=1, cfg=cfg, model=m, episode_s=a.seconds + 1, max_impulse=0, train=False)
         e.opp = FightReplay(m, a.clip, distance=a.distance); e.contact_log = []
@@ -46,7 +50,7 @@ def main():
             row = []
             for k, (c, x, rn) in enumerate(zip(ctrls, envs, rens)):
                 e = x[0]; rn.update_scene(e.d, cam); img = Image.fromarray(rn.render()); dr = ImageDraw.Draw(img)
-                lab = ["PD stand (baseline)", "RL hit-robust policy"][k]; dr.text((14, 10), "Unitree R1 · " + lab, font=F, fill=(255, 255, 255))
+                lab = labels[k]; dr.text((14, 10), "Unitree R1 · " + lab, font=F, fill=(255, 255, 255))
                 dr.text((14, a.h - 52), "silver: Unitree R1 (24-DoF, official MJCF)  |  orange: R1 sparring partner", font=font(13), fill=(200, 200, 210))
                 act = [h for h in e.hits if h.t0 <= e.d.time < h.t0 + h.duration + 0.25]
                 if act: h = act[0]; dr.text((14, 40), f"{h.kind.upper()} {h.impulse:.0f} N·s → {h.body.replace('_link','')}", font=Fs, fill=(255, 200, 60))

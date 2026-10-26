@@ -35,65 +35,65 @@
   },
   "RL v1": {
    "episodes": 80,
-   "survival": 0.0,
+   "survival": 0.013,
    "survival_ci95": [
-    0.0,
-    0.046
+    0.002,
+    0.067
    ],
-   "mean_time_to_fall_s": 3.0,
+   "mean_time_to_fall_s": 2.99,
    "survival_by_distance": {
     "0.5": 0.0,
     "0.55": 0.0,
     "0.6": 0.0,
     "0.65": 0.0,
-    "0.7": 0.0
+    "0.7": 0.062
    },
-   "survival_minus_pd": 0.0,
+   "survival_minus_pd": 0.013,
    "survival_minus_pd_ci95": [
     0.0,
-    0.0
+    0.037
    ]
   },
   "RL v2": {
    "episodes": 80,
-   "survival": 0.037,
+   "survival": 0.05,
    "survival_ci95": [
-    0.013,
-    0.105
+    0.02,
+    0.122
    ],
-   "mean_time_to_fall_s": 3.22,
+   "mean_time_to_fall_s": 3.29,
    "survival_by_distance": {
     "0.5": 0.0,
     "0.55": 0.0,
-    "0.6": 0.0,
+    "0.6": 0.062,
     "0.65": 0.0,
     "0.7": 0.188
    },
-   "survival_minus_pd": 0.037,
+   "survival_minus_pd": 0.05,
    "survival_minus_pd_ci95": [
-    0.0,
-    0.087
+    0.013,
+    0.1
    ]
   },
   "RL v3": {
    "episodes": 80,
-   "survival": 0.037,
+   "survival": 0.025,
    "survival_ci95": [
-    0.013,
-    0.105
+    0.007,
+    0.087
    ],
-   "mean_time_to_fall_s": 3.3,
+   "mean_time_to_fall_s": 3.33,
    "survival_by_distance": {
     "0.5": 0.0,
     "0.55": 0.0,
     "0.6": 0.0,
     "0.65": 0.0,
-    "0.7": 0.188
+    "0.7": 0.125
    },
-   "survival_minus_pd": 0.037,
+   "survival_minus_pd": 0.025,
    "survival_minus_pd_ci95": [
     0.0,
-    0.087
+    0.062
    ]
   }
  }

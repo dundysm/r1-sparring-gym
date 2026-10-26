@@ -91,3 +91,17 @@ def test_wilson_and_paired_diff():
     lo, hi = wilson(50, 100); assert lo < 0.5 < hi and 0.39 < lo < 0.41
     assert wilson(0, 10)[0] == 0.0 and wilson(10, 10)[1] == 1.0
     d, (a, b) = paired_diff([1, 1, 1, 0] * 25, [0, 1, 0, 0] * 25); assert d == 0.5 and a < 0.5 < b
+
+
+def test_deploy_loop_matches_env():
+    """The documented deploy contract (r1gym/deploy.py) reproduces the env's joint targets exactly, step by step."""
+    from r1gym.policy import TorchPolicy
+    from r1gym.deploy import DeployLoop
+    pol = TorchPolicy("results/policy/policy.pt"); loop = DeployLoop(pol)
+    e = R1HitEnv(seed=0, train=False); o = e.reset(hits=[make_hit("strike", "chest", 6.0, 0.4, 0.0, np.random.default_rng(0))], delay=0)
+    e.sensor.std = np.zeros_like(e.sensor.std); o = e._raw_obs()   # no sensor noise on either side
+    r, d = e.r, e.d
+    for _ in range(60):
+        tgt = loop.step(d.qvel[r.free_v + 3:r.free_v + 6], d.qpos[r.free_q + 3:r.free_q + 7], d.qpos[r.qadr], d.qvel[r.vadr])
+        o, *_ = e.step(pol.act(o[None])[0])
+        assert np.allclose(tgt, d.ctrl[r.act], atol=1e-5)

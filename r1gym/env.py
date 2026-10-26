@@ -33,7 +33,9 @@ class R1HitEnv:
         self.hits = []; self.schedule_fn = None; self.opp = None; self.contact_log = None   # set by demo/eval
 
     def _raw_obs(self):
-        d, r = self.d, self.r; R = d.xmat[r.pel].reshape(3, 3)
+        # orientation from qpos, not d.xmat: after mj_step, xmat is from before the last integration (one 5 ms substep
+        # stale), while a real IMU (and r1gym/deploy.py) reports the current orientation
+        d, r = self.d, self.r; R = np.zeros(9); mujoco.mju_quat2Mat(R, d.qpos[r.free_q + 3:r.free_q + 7]); R = R.reshape(3, 3)
         return np.concatenate([d.qvel[r.free_v + 3:r.free_v + 6], R.T @ np.array([0, 0, -1.0]),
                                d.qpos[r.qadr] - HOME, 0.05 * d.qvel[r.vadr], self.last_a]).astype(np.float32)
 

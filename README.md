@@ -6,7 +6,7 @@ MuJoCo simulation and RL for turning a **Unitree R1** into a near-real-time spar
 
 Left: stiff PD stand (baseline). Right: the RL balance policy (v2). Both face the same opponent: **a second, physical R1** (same motors and torque caps) replaying the held-out KungFuAthleteBot clip `kfab_202` in place, 0.55 m away. **Yellow spheres are real opponent contacts** (size ∝ force); **orange arrows are scripted pushes** from the side and behind, where the opponent can't reach. Full video: [`media/demo.mp4`](media/demo.mp4).
 
-**Honest status: against this opponent, none of the current policies holds up.** The front kick at about 5 s knocks every controller over: PD at 4.92 s, v2 at 5.16 s. Over 8 re-sampled variants, mean time to fall is PD 5.38 s, v1 6.85 s, v2 6.43 s, v3 6.49 s (`results/demo_check.json`). The earlier demo looked better only because its opponent was mostly out of reach (see "Demo history" below). Training against this opponent is the next step.
+**Honest status: against this opponent, none of the current policies holds up.** The front kick at about 5 s knocks every controller over: PD at 4.92 s, v2 at 5.14 s. Over 8 re-sampled variants, mean time to fall is PD 5.38 s, v1 6.85 s, v2 6.56 s, v3 6.43 s (`results/demo_check.json`). The earlier demo looked better only because its opponent was mostly out of reach (see "Demo history" below). Training against this opponent is the next step.
 
 ## Headline eval: survive the physical opponent
 `scripts/eval_opponent.py`. The opponent is the physical R1 from the demo. Each episode lasts 10 s and samples a clip, a distance (0.50–0.70 m), the clip start time and the obs delay (0–2 steps), and adds two scripted side/back pushes (4–6 N·s). There are 160 test episodes (2 clips × 5 distances × 16) and 80 validation episodes. Every controller sees exactly the same episodes, so differences vs PD are **paired** (bootstrap 95% CI).
@@ -21,16 +21,16 @@ Before this split, v2 was chosen partly on `kfab_202` demo variants, so `kfab_20
 | | test survival (10 s) [95% CI] | vs PD (paired) | mean time to fall | val survival | single-hit fall rate [95% CI] | single-hit vs PD (paired) |
 |---|---|---|---|---|---|---|
 | PD stand | **0.006** [0.00, 0.04] | – | 3.17 s | 0.000 | 0.606 [0.58, 0.63] | – |
-| RL v1 | **0.113** [0.07, 0.17] | +0.106 [0.06, 0.15] | 3.87 s | 0.000 | 0.495 [0.47, 0.52] | -0.112 [-0.13, -0.09] |
-| RL v2 | **0.056** [0.03, 0.10] | +0.050 [0.02, 0.09] | 3.42 s | 0.037 | 0.498 [0.47, 0.53] | -0.108 [-0.13, -0.09] |
-| RL v3 cand. | **0.050** [0.03, 0.10] | +0.044 [0.01, 0.07] | 3.23 s | 0.037 | 0.495 [0.47, 0.52] | -0.112 [-0.13, -0.09] |
+| RL v1 | **0.087** [0.05, 0.14] | +0.081 [0.04, 0.12] | 3.78 s | 0.013 | 0.495 [0.47, 0.52] | -0.112 [-0.13, -0.09] |
+| RL v2 | **0.056** [0.03, 0.10] | +0.050 [0.02, 0.09] | 3.38 s | 0.050 | 0.499 [0.47, 0.53] | -0.107 [-0.13, -0.09] |
+| RL v3 cand. | **0.050** [0.03, 0.10] | +0.044 [0.02, 0.07] | 3.30 s | 0.025 | 0.494 [0.47, 0.52] | -0.113 [-0.13, -0.09] |
 
-The single-hit column is the 1120-episode eval (`scripts/evaluate.py`, now with Wilson and paired intervals; `results/eval_hits/`). It reproduces the earlier numbers exactly.
+The single-hit column is the 1120-episode eval (`scripts/evaluate.py`, now with Wilson and paired intervals; `results/eval_hits/`). Before the 5 ms orientation fix (`docs/DEPLOY.md`) it reproduced the earlier numbers exactly; the fix moves them by at most 0.001.
 
 **Read it plainly:**
 - Every learned policy beats PD on single hits by about 11 points.
 - Against the opponent, all of them survive 10 s at most about 1 time in 9.
-- v1, which never trained with an opponent, does best. v2's "opponent training" used the old out-of-reach opponent.
+- v1, which never trained with an opponent, does at least as well as v2 and v3. v2's "opponent training" used the old out-of-reach opponent.
 - Single-hit robustness doesn't transfer to a sparring partner who keeps attacking.
 
 ## Plan
@@ -54,7 +54,7 @@ The single-hit column is the 1120-episode eval (`scripts/evaluate.py`, now with 
 | `results/eval/`, `results/eval_v1/` | hit eval for v2 / v1 (`summary.json`, `survival.png`) |
 | `results/policy_v3_candidate/`, `results/eval_v3/` | v3 attempt (DR + recovery reward + multi-hit curriculum): **not adopted**, see below |
 | `results/demo_check.json` | demo fall times + 8 variants, with opponent contact counts and peak forces |
-| `docs/MODEL_AUDIT.md`, `docs/GPU.md` | model audit; GPU-batched (mjlab / MuJoCo Warp) path |
+| `docs/MODEL_AUDIT.md`, `docs/GPU.md`, `docs/DEPLOY.md` | model audit; GPU-batched (mjlab / MuJoCo Warp) path; deploy contract (`r1gym/deploy.py`, `deploy_contract.json` next to each ONNX) |
 
 ## Quickstart
 ```bash

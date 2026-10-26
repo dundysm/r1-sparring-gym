@@ -1,13 +1,13 @@
 {
  "onnx": "results/policy/policy.onnx",
  "bytes": 226690,
- "max_abs_err_vs_torch": 1.7881393432617188e-07,
+ "max_abs_err_vs_torch": 2.384185791015625e-07,
  "latency_us_batch1": {
-  "p50": 8.2,
-  "p99": 12.9,
-  "mean": 8.3
+  "p50": 8.4,
+  "p99": 17.0,
+  "mean": 8.9
  },
- "batch4096_ms": 5.32,
+ "batch4096_ms": 5.8,
  "hardware": "x86_64 (8 vCPU box, 1 ORT thread, shared with other jobs)",
  "onnxruntime": "1.31.0"
 }

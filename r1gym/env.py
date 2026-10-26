@@ -11,10 +11,12 @@ from .perturb import HitApplier, random_schedule
 from .sensors import DelayedNoisyObs
 
 OBS_DIM, ACT_DIM = 78, 24
+TRAIN_CLIPS = ["kfab_199", "kfab_200", "kfab_201", "kfab_203"]   # kfab_202 is held out for the demo
 
 class R1HitEnv:
-    def __init__(self, seed=0, cfg=None, episode_s=10.0, max_impulse=20.0, model=None, train=True):
-        self.cfg = cfg or load_cfg(); self.m = model or build_spec(cfg=self.cfg).compile(); self.d = mujoco.MjData(self.m)
+    def __init__(self, seed=0, cfg=None, episode_s=10.0, max_impulse=20.0, model=None, train=True, opp_prob=0.0, opp_clips=TRAIN_CLIPS):
+        self.cfg = cfg or load_cfg(); self.m = model or build_spec(cfg=self.cfg, opponent=opp_prob > 0).compile()
+        self.opp_prob = opp_prob; self.opp_clips = opp_clips; self._opp_cache = {}; self.d = mujoco.MjData(self.m)
         self.r = R1Robot(self.m, self.cfg); self.hits_ap = HitApplier(self.m); self.rng = np.random.default_rng(seed)
         self.nsub = int(round(self.cfg["model"]["control_dt"] / self.cfg["model"]["timestep"])); self.dt = self.cfg["model"]["control_dt"]
         self.T = int(episode_s / self.dt); self.max_impulse = max_impulse; self.train = train
@@ -35,6 +37,14 @@ class R1HitEnv:
         lo, hi = self.cfg["sensors"]["delay_steps"]; k = self.rng.integers(lo, hi + 1) if delay is None else delay
         self.sensor = DelayedNoisyObs(k, self.noise if self.train or delay is None else self.noise, self.rng)
         self.hits = hits if hits is not None else random_schedule(self.rng, self.T * self.dt, self.max_impulse)
+        if self.opp_prob > 0:   # training: a fight-clip opponent in range with prob opp_prob, else parked 5 m away
+            from .opponent import FightReplay
+            close = self.rng.random() < self.opp_prob; clip = self.opp_clips[self.rng.integers(len(self.opp_clips))]
+            dist = round(float(self.rng.uniform(0.75, 1.0)), 2) if close else 5.0
+            key = (clip, dist)
+            if key not in self._opp_cache: self._opp_cache[key] = FightReplay(self.m, clip, distance=dist)
+            self.opp = self._opp_cache[key]; self.opp_t0 = float(self.rng.uniform(0, 5))
+            self.opp.apply(self.m, self.d, self.opp_t0, self.m.opt.timestep); mujoco.mj_forward(self.m, self.d)
         o = self._raw_obs(); self.sensor.reset(o); return self.sensor(o)
 
     def step(self, a):
@@ -42,7 +52,7 @@ class R1HitEnv:
         self.filt = self.cfg.get("action_filter", 0.3) * self.filt + (1 - self.cfg.get("action_filter", 0.3)) * a   # EMA low-pass
         self.r.pd(d, HOME + self.cfg["action_scale"] * self.filt)
         for _ in range(self.nsub):
-            if self.opp is not None: self.opp.apply(self.m, d, d.time, self.m.opt.timestep)
+            if self.opp is not None: self.opp.apply(self.m, d, d.time + getattr(self, "opp_t0", 0.0), self.m.opt.timestep)
             self.hits_ap.apply(d, self.hits, d.time); mujoco.mj_step(self.m, d)
         if self.contact_log is not None:
             from .contacts import per_body_force

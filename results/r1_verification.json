@@ -105,12 +105,12 @@
    "detail": "obs 78, act 24"
   },
   {
-   "check": "policy_gpu: obs/act dims match R1 env (78/24)",
+   "check": "policy_try1: obs/act dims match R1 env (78/24)",
    "pass": true,
    "detail": "obs 78, act 24"
   },
   {
-   "check": "policy_try1: obs/act dims match R1 env (78/24)",
+   "check": "policy_v1: obs/act dims match R1 env (78/24)",
    "pass": true,
    "detail": "obs 78, act 24"
   },

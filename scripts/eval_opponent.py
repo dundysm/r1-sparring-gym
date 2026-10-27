@@ -9,7 +9,7 @@ Tiers (--tier):
             saturated the standard tier (guard 1.000, arms-down 0.994 on test).
 Each episode samples the clip start time, the obs delay (0-2 steps) and the hits. The start time is drawn uniformly from
 the clean ones: those where no part of the opponent begins inside the R1 in either reference pose (REF_POSES), which
-skips 6-76% of starts in the stored runs, depending on clip and distance (meta.start_times_skipped). Every controller sees exactly the same
+skips 7-85% of starts in the stored (shell-contact) runs, by clip and distance (meta.start_times_skipped). Every controller sees exactly the same
 episodes, so differences are paired, and the episodes don't depend on which controllers are in the run. --split test
 (default) uses TEST_CLIPS, --split val uses VAL_CLIPS: choose candidates on val, report on test."""
 import sys, json, time, argparse, itertools, copy

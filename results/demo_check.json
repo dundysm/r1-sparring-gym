@@ -2,88 +2,88 @@
  "pd_stand": {
   "demo": {
    "fell_s": null,
-   "contact_events": 4,
-   "contact_steps": 7,
-   "peak_contact_N": 111
+   "contact_events": 11,
+   "contact_steps": 22,
+   "peak_contact_N": 242
   },
   "variants": [
    {
-    "fell_s": 5.28,
-    "contact_events": 5,
-    "contact_steps": 72,
-    "peak_contact_N": 845
+    "fell_s": null,
+    "contact_events": 21,
+    "contact_steps": 69,
+    "peak_contact_N": 1034
+   },
+   {
+    "fell_s": null,
+    "contact_events": 8,
+    "contact_steps": 30,
+    "peak_contact_N": 725
+   },
+   {
+    "fell_s": null,
+    "contact_events": 8,
+    "contact_steps": 22,
+    "peak_contact_N": 389
    },
    {
     "fell_s": 10.4,
-    "contact_events": 16,
-    "contact_steps": 52,
-    "peak_contact_N": 204
+    "contact_events": 2,
+    "contact_steps": 26,
+    "peak_contact_N": 258
    },
    {
-    "fell_s": 10.92,
+    "fell_s": null,
+    "contact_events": 12,
+    "contact_steps": 51,
+    "peak_contact_N": 117
+   },
+   {
+    "fell_s": null,
+    "contact_events": 7,
+    "contact_steps": 31,
+    "peak_contact_N": 363
+   },
+   {
+    "fell_s": null,
     "contact_events": 6,
     "contact_steps": 22,
-    "peak_contact_N": 302
+    "peak_contact_N": 308
    },
    {
-    "fell_s": 10.2,
-    "contact_events": 4,
-    "contact_steps": 23,
-    "peak_contact_N": 2058
-   },
-   {
-    "fell_s": 5.28,
+    "fell_s": 11.12,
     "contact_events": 5,
-    "contact_steps": 71,
-    "peak_contact_N": 879
-   },
-   {
-    "fell_s": 9.8,
-    "contact_events": 11,
-    "contact_steps": 36,
-    "peak_contact_N": 605
-   },
-   {
-    "fell_s": 10.88,
-    "contact_events": 6,
-    "contact_steps": 27,
-    "peak_contact_N": 358
-   },
-   {
-    "fell_s": 10.28,
-    "contact_events": 3,
     "contact_steps": 20,
-    "peak_contact_N": 945
+    "peak_contact_N": 378
    }
   ],
-  "variants_mean_survival_s": 9.13,
-  "variants_survived_full": 0
+  "variants_mean_survival_s": 11.69,
+  "variants_survived_full": 6
  },
  "rl_v1": {
   "demo": {
    "fell_s": null,
-   "contact_events": 1,
-   "contact_steps": 1,
-   "peak_contact_N": 188
+   "contact_events": 2,
+   "contact_steps": 2,
+   "peak_contact_N": 50
   },
   "variants": [
    {
     "fell_s": null,
-    "contact_events": 22,
-    "contact_steps": 58,
-    "peak_contact_N": 214
+    "contact_events": 20,
+    "contact_steps": 60,
+    "peak_contact_N": 440
+   },
+   {
+    "fell_s": 11.02,
+    "contact_events": 7,
+    "contact_steps": 18,
+    "peak_contact_N": 258
    },
    {
     "fell_s": null,
-    "contact_events": 11,
-    "contact_steps": 16,
-    "peak_contact_N": 497
-   },
-   {
-    "fell_s": null,
-    "contact_events": 1,
-    "contact_steps": 1,
-    "peak_contact_N": 192
+    "contact_events": 2,
+    "contact_steps": 2,
+    "peak_contact_N": 1337
    },
    {
     "fell_s": null,
@@ -93,21 +93,21 @@
    },
    {
     "fell_s": null,
-    "contact_events": 17,
-    "contact_steps": 52,
-    "peak_contact_N": 564
+    "contact_events": 13,
+    "contact_steps": 43,
+    "peak_contact_N": 227
+   },
+   {
+    "fell_s": 10.68,
+    "contact_events": 7,
+    "contact_steps": 19,
+    "peak_contact_N": 448
    },
    {
     "fell_s": null,
-    "contact_events": 8,
-    "contact_steps": 15,
-    "peak_contact_N": 170
-   },
-   {
-    "fell_s": null,
-    "contact_events": 1,
-    "contact_steps": 1,
-    "peak_contact_N": 186
+    "contact_events": 3,
+    "contact_steps": 3,
+    "peak_contact_N": 565
    },
    {
     "fell_s": null,
@@ -116,34 +116,34 @@
     "peak_contact_N": 0
    }
   ],
-  "variants_mean_survival_s": 12.0,
-  "variants_survived_full": 8
+  "variants_mean_survival_s": 11.71,
+  "variants_survived_full": 6
  },
  "rl_v2": {
   "demo": {
    "fell_s": null,
-   "contact_events": 1,
-   "contact_steps": 2,
-   "peak_contact_N": 181
+   "contact_events": 2,
+   "contact_steps": 6,
+   "peak_contact_N": 73
   },
   "variants": [
    {
-    "fell_s": null,
-    "contact_events": 11,
-    "contact_steps": 32,
-    "peak_contact_N": 209
+    "fell_s": 4.0,
+    "contact_events": 2,
+    "contact_steps": 6,
+    "peak_contact_N": 140
+   },
+   {
+    "fell_s": 11.02,
+    "contact_events": 7,
+    "contact_steps": 20,
+    "peak_contact_N": 217
    },
    {
     "fell_s": null,
-    "contact_events": 8,
-    "contact_steps": 24,
-    "peak_contact_N": 1146
-   },
-   {
-    "fell_s": null,
-    "contact_events": 1,
-    "contact_steps": 2,
-    "peak_contact_N": 110
+    "contact_events": 4,
+    "contact_steps": 6,
+    "peak_contact_N": 1632
    },
    {
     "fell_s": null,
@@ -152,22 +152,22 @@
     "peak_contact_N": 0
    },
    {
-    "fell_s": null,
-    "contact_events": 15,
-    "contact_steps": 52,
-    "peak_contact_N": 341
-   },
-   {
-    "fell_s": null,
-    "contact_events": 8,
-    "contact_steps": 20,
-    "peak_contact_N": 195
-   },
-   {
-    "fell_s": null,
+    "fell_s": 3.98,
     "contact_events": 1,
-    "contact_steps": 1,
-    "peak_contact_N": 173
+    "contact_steps": 5,
+    "peak_contact_N": 83
+   },
+   {
+    "fell_s": 10.92,
+    "contact_events": 7,
+    "contact_steps": 23,
+    "peak_contact_N": 774
+   },
+   {
+    "fell_s": null,
+    "contact_events": 2,
+    "contact_steps": 2,
+    "peak_contact_N": 37
    },
    {
     "fell_s": null,
@@ -176,8 +176,8 @@
     "peak_contact_N": 0
    }
   ],
-  "variants_mean_survival_s": 12.0,
-  "variants_survived_full": 8
+  "variants_mean_survival_s": 9.74,
+  "variants_survived_full": 4
  },
  "rl_v3": {
   "demo": {
@@ -188,46 +188,46 @@
   },
   "variants": [
    {
-    "fell_s": 5.92,
+    "fell_s": 4.88,
     "contact_events": 2,
     "contact_steps": 6,
-    "peak_contact_N": 228
+    "peak_contact_N": 86
+   },
+   {
+    "fell_s": 10.68,
+    "contact_events": 6,
+    "contact_steps": 14,
+    "peak_contact_N": 89
    },
    {
     "fell_s": null,
-    "contact_events": 9,
+    "contact_events": 1,
+    "contact_steps": 1,
+    "peak_contact_N": 387
+   },
+   {
+    "fell_s": null,
+    "contact_events": 0,
+    "contact_steps": 0,
+    "peak_contact_N": 0
+   },
+   {
+    "fell_s": 6.48,
+    "contact_events": 4,
     "contact_steps": 15,
-    "peak_contact_N": 628
+    "peak_contact_N": 84
    },
    {
-    "fell_s": null,
-    "contact_events": 0,
-    "contact_steps": 0,
-    "peak_contact_N": 0
-   },
-   {
-    "fell_s": null,
-    "contact_events": 0,
-    "contact_steps": 0,
-    "peak_contact_N": 0
-   },
-   {
-    "fell_s": 10.5,
-    "contact_events": 15,
-    "contact_steps": 49,
-    "peak_contact_N": 154
-   },
-   {
-    "fell_s": null,
-    "contact_events": 5,
+    "fell_s": 10.28,
+    "contact_events": 7,
     "contact_steps": 10,
-    "peak_contact_N": 526
+    "peak_contact_N": 111
    },
    {
     "fell_s": null,
-    "contact_events": 0,
-    "contact_steps": 0,
-    "peak_contact_N": 0
+    "contact_events": 1,
+    "contact_steps": 1,
+    "peak_contact_N": 58
    },
    {
     "fell_s": null,
@@ -236,64 +236,64 @@
     "peak_contact_N": 0
    }
   ],
-  "variants_mean_survival_s": 11.05,
-  "variants_survived_full": 6
+  "variants_mean_survival_s": 10.04,
+  "variants_survived_full": 4
  },
  "rl_step": {
   "demo": {
    "fell_s": null,
-   "contact_events": 3,
-   "contact_steps": 7,
-   "peak_contact_N": 195
+   "contact_events": 6,
+   "contact_steps": 12,
+   "peak_contact_N": 326
   },
   "variants": [
    {
     "fell_s": null,
-    "contact_events": 22,
-    "contact_steps": 55,
-    "peak_contact_N": 453
+    "contact_events": 15,
+    "contact_steps": 41,
+    "peak_contact_N": 567
    },
    {
     "fell_s": null,
-    "contact_events": 11,
-    "contact_steps": 28,
-    "peak_contact_N": 574
+    "contact_events": 8,
+    "contact_steps": 21,
+    "peak_contact_N": 366
    },
    {
     "fell_s": null,
-    "contact_events": 4,
-    "contact_steps": 5,
-    "peak_contact_N": 133
+    "contact_events": 3,
+    "contact_steps": 7,
+    "peak_contact_N": 391
    },
    {
     "fell_s": null,
     "contact_events": 1,
     "contact_steps": 1,
-    "peak_contact_N": 3
+    "peak_contact_N": 458
    },
    {
     "fell_s": null,
-    "contact_events": 21,
-    "contact_steps": 65,
-    "peak_contact_N": 695
+    "contact_events": 18,
+    "contact_steps": 51,
+    "peak_contact_N": 498
    },
    {
     "fell_s": null,
-    "contact_events": 9,
-    "contact_steps": 76,
-    "peak_contact_N": 517
+    "contact_events": 8,
+    "contact_steps": 15,
+    "peak_contact_N": 1267
    },
    {
     "fell_s": null,
-    "contact_events": 3,
-    "contact_steps": 5,
-    "peak_contact_N": 572
+    "contact_events": 4,
+    "contact_steps": 6,
+    "peak_contact_N": 405
    },
    {
     "fell_s": null,
     "contact_events": 2,
-    "contact_steps": 5,
-    "peak_contact_N": 186
+    "contact_steps": 3,
+    "peak_contact_N": 34
    }
   ],
   "variants_mean_survival_s": 12.0,
@@ -302,58 +302,58 @@
  "rl_guard": {
   "demo": {
    "fell_s": null,
-   "contact_events": 11,
-   "contact_steps": 53,
-   "peak_contact_N": 216
+   "contact_events": 14,
+   "contact_steps": 65,
+   "peak_contact_N": 316
   },
   "variants": [
    {
     "fell_s": null,
-    "contact_events": 25,
-    "contact_steps": 84,
-    "peak_contact_N": 476
-   },
-   {
-    "fell_s": null,
-    "contact_events": 21,
-    "contact_steps": 156,
-    "peak_contact_N": 466
-   },
-   {
-    "fell_s": null,
-    "contact_events": 13,
-    "contact_steps": 59,
-    "peak_contact_N": 343
-   },
-   {
-    "fell_s": null,
-    "contact_events": 15,
-    "contact_steps": 99,
-    "peak_contact_N": 411
-   },
-   {
-    "fell_s": null,
-    "contact_events": 18,
-    "contact_steps": 73,
-    "peak_contact_N": 319
+    "contact_events": 36,
+    "contact_steps": 159,
+    "peak_contact_N": 392
    },
    {
     "fell_s": null,
     "contact_events": 27,
-    "contact_steps": 110,
-    "peak_contact_N": 907
+    "contact_steps": 102,
+    "peak_contact_N": 430
+   },
+   {
+    "fell_s": null,
+    "contact_events": 10,
+    "contact_steps": 54,
+    "peak_contact_N": 316
+   },
+   {
+    "fell_s": null,
+    "contact_events": 13,
+    "contact_steps": 52,
+    "peak_contact_N": 277
+   },
+   {
+    "fell_s": null,
+    "contact_events": 27,
+    "contact_steps": 83,
+    "peak_contact_N": 431
+   },
+   {
+    "fell_s": null,
+    "contact_events": 17,
+    "contact_steps": 65,
+    "peak_contact_N": 293
+   },
+   {
+    "fell_s": null,
+    "contact_events": 23,
+    "contact_steps": 78,
+    "peak_contact_N": 481
    },
    {
     "fell_s": null,
     "contact_events": 21,
-    "contact_steps": 113,
-    "peak_contact_N": 387
-   },
-   {
-    "fell_s": null,
-    "contact_events": 20,
-    "contact_steps": 90,
-    "peak_contact_N": 774
+    "contact_steps": 64,
+    "peak_contact_N": 872
    }
   ],
   "variants_mean_survival_s": 12.0,

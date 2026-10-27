@@ -1,4 +1,4 @@
 {
  "face_opponent": false,
- "_why": "can't turn left here (+0.8 rad/s command -> -0.04 measured); the command made its facing worse (median 8.9 -> 25.7 deg) and doesn't improve validation survival (hard off/on/deadband 0.812/0.75/0.766). results/face_opponent_ab.json (scripts/face_ab.py)"
+ "_why": "can't turn left here (+0.8 rad/s command -> -0.04 measured); the command makes its facing worse (median 10.4 -> 29.0 deg), and validation survival is within one bout either way (hard off/on/deadband 0.891/0.906/0.891). results/face_opponent_ab.json (scripts/face_ab.py)"
 }

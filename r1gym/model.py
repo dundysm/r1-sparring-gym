@@ -59,11 +59,14 @@ def build_spec(opponent: bool = False, cfg=None, gains: str | None = None) -> mu
     s.worldbody.add_geom(name="floor", type=mujoco.mjtGeom.mjGEOM_PLANE, size=[0, 0, 0.05], rgba=[0.22, 0.26, 0.3, 1])
     s.visual.global_.offwidth = 1280; s.visual.global_.offheight = 720
     # collision setup = unitree_rl_mjlab FULL_COLLISION_WITHOUT_SELF (feet condim 3, mu 0.6)
+    shell = opponent and cfg.get("robot_contact", "shell") == "shell"
     for g in s.geoms:
         if g.name.endswith("_collision"):
             g.contype, g.conaffinity = 0, 1
             if "foot" in g.name: g.condim, g.priority, g.friction = 3, 1, [cfg.get("foot_mu", 1.0), 0.005, 0.0001]
             else: g.condim = 1
+        elif shell and g.type == mujoco.mjtGeom.mjGEOM_MESH: _shell(g, 0, SHELL_BIT)
+        elif shell and g.name == "floor": g.conaffinity = 3   # bit 2: the opponent's capsules still stand on it
     caps = torque_caps(cfg)
     for i, j in enumerate(CTRL_JOINTS):
         grp = cfg[gains][_group(j)]; s.joint(j).armature = cfg.get("armature", 0.01)
@@ -79,14 +82,17 @@ def build_spec(opponent: bool = False, cfg=None, gains: str | None = None) -> mu
         for se in list(g.sensors): g.delete(se)
         tracked = kind == "r1" and cfg.get("opponent_mode") == "policy"
         for ge in g.geoms:
-            if not (ge.contype or ge.conaffinity): ge.contype, ge.conaffinity = 0, 0
+            visual = not (ge.contype or ge.conaffinity)
+            if visual: ge.contype, ge.conaffinity = 0, 0
             elif tracked:   # as in unitree_rl_mjlab FULL_COLLISION, where the tracker trained: self-collision on (bit 2),
                 ge.contype, ge.conaffinity = 3, 2   # feet condim 3 / mu 0.6 / priority 1, other collision geoms condim 1
                 if "foot" in ge.name: ge.condim, ge.priority, ge.friction = 3, 1, [0.6, 0.005, 0.0001]
                 elif ge.name.endswith("_collision"): ge.condim, ge.priority = 1, 0
             else: ge.contype, ge.conaffinity = 1, 0   # opponent hits the R1 but not itself
+            if shell and not visual: ge.contype = 2   # capsules: floor and (tracked) itself, no longer the R1
             ge.rgba = [0.85, 0.35, 0.25, 1]
             ge.solref = OPP_SOLREF; ge.solimp = OPP_SOLIMP
+            if shell and visual and ge.type == mujoco.mjtGeom.mjGEOM_MESH: _shell(ge, SHELL_BIT, 0)
         f = s.worldbody.add_frame(); f.attach_body(g.body("pelvis"), "opp_", "")
         # "puppet" (default): the opponent is a second physical R1 with the same motors and torque caps, tracking the
         # fight clip (see FightReplay), so what it can do to the R1 is bounded by real actuator limits.
@@ -109,7 +115,20 @@ def build_spec(opponent: bool = False, cfg=None, gains: str | None = None) -> mu
                                forcelimited=1, forcerange=[-ocaps[i], ocaps[i]])
     return s
 
-# Opponent contact: MuJoCo's default stiffness. With the puppet opponent the force is bounded by its motors, so no extra
+# Robot-vs-robot contact (robot_contact: shell, the default with an opponent). Unitree's collision capsules are thinner
+# than the visible shell (pelvis mesh ~16.5 cm vs a 10 cm sphere, elbow ~9 vs 6 cm) and 9 of 25 links have none, so the
+# shells passed through each other before the capsules touched (deepest overlap per bout a median ~5.5 cm, up to ~8.5 cm;
+# results/clip_check.json). Each link's visual mesh (MuJoCo collides its
+# convex hull) becomes a collider for the other robot only (bit 4; R1 shells affinity, opponent shells type), and the
+# capsules stop colliding across robots. Ground contact and the opponent's self-collision keep the capsules they trained
+# with. Contact is stiffer than the default (time constant 2 timesteps) and frictionless (condim 1, as mjlab's non-foot
+# geoms; with capsule contact only foot contacts had friction). scripts/clip_check.py measures the overlap.
+SHELL_BIT, SHELL_SOLREF, SHELL_SOLIMP = 4, [0.01, 1.0], [0.95, 0.99, 0.001, 0.5, 2.0]
+
+def _shell(g, contype, conaffinity):
+    g.contype, g.conaffinity, g.condim = contype, conaffinity, 1; g.solref = SHELL_SOLREF; g.solimp = SHELL_SOLIMP
+
+# Opponent contact (robot_contact: capsule, and the opponent's own capsules): MuJoCo's default stiffness. With the puppet opponent the force is bounded by its motors, so no extra
 # compliance is needed (max penetration in the demo ~1-2.5 cm). The kinematic opponent used [0.06, 1] / [0.5, 0.9, 0.02]
 # to keep an infinite-mass body from producing unbounded forces.
 OPP_SOLREF = [0.02, 1.0]

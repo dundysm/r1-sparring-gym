@@ -21,25 +21,25 @@
    "off": {
     "bouts": 48,
     "falls": 1,
-    "facing_err_median_deg": 8.9,
-    "facing_err_p90_median_deg": 26.3,
-    "drift_mean_m": 0.16,
+    "facing_err_median_deg": 10.4,
+    "facing_err_p90_median_deg": 21.7,
+    "drift_mean_m": 0.25,
     "ring_out": 0.0
    },
    "on": {
     "bouts": 48,
     "falls": 0,
-    "facing_err_median_deg": 25.7,
-    "facing_err_p90_median_deg": 42.0,
-    "drift_mean_m": 0.47,
-    "ring_out": 0.042
+    "facing_err_median_deg": 29.0,
+    "facing_err_p90_median_deg": 43.2,
+    "drift_mean_m": 0.37,
+    "ring_out": 0.021
    },
    "deadband": {
     "bouts": 48,
     "falls": 1,
-    "facing_err_median_deg": 9.3,
-    "facing_err_p90_median_deg": 23.5,
-    "drift_mean_m": 0.26,
+    "facing_err_median_deg": 12.3,
+    "facing_err_p90_median_deg": 24.1,
+    "drift_mean_m": 0.29,
     "ring_out": 0.0
    }
   },
@@ -47,52 +47,52 @@
    "off": {
     "bouts": 48,
     "falls": 0,
-    "facing_err_median_deg": 15.0,
-    "facing_err_p90_median_deg": 29.6,
-    "drift_mean_m": 0.27,
-    "ring_out": 0.042
+    "facing_err_median_deg": 20.2,
+    "facing_err_p90_median_deg": 37.9,
+    "drift_mean_m": 0.37,
+    "ring_out": 0.0
    },
    "on": {
     "bouts": 48,
-    "falls": 1,
-    "facing_err_median_deg": 9.5,
-    "facing_err_p90_median_deg": 23.6,
-    "drift_mean_m": 0.73,
-    "ring_out": 0.319
+    "falls": 0,
+    "facing_err_median_deg": 9.1,
+    "facing_err_p90_median_deg": 21.0,
+    "drift_mean_m": 0.8,
+    "ring_out": 0.375
    },
    "deadband": {
     "bouts": 48,
-    "falls": 3,
-    "facing_err_median_deg": 9.6,
-    "facing_err_p90_median_deg": 20.9,
-    "drift_mean_m": 0.48,
-    "ring_out": 0.133
+    "falls": 0,
+    "facing_err_median_deg": 10.6,
+    "facing_err_p90_median_deg": 22.6,
+    "drift_mean_m": 0.62,
+    "ring_out": 0.229
    }
   }
  },
  "val_survival": {
   "arms_down": {
    "standard": {
-    "off": 0.975,
-    "on": 0.988,
-    "deadband": 1.0
+    "off": 0.988,
+    "on": 1.0,
+    "deadband": 0.988
    },
    "hard": {
-    "off": 0.812,
-    "on": 0.75,
-    "deadband": 0.766
+    "off": 0.891,
+    "on": 0.906,
+    "deadband": 0.891
    }
   },
   "guard": {
    "standard": {
-    "off": 0.863,
-    "on": 0.863,
-    "deadband": 0.85
+    "off": 1.0,
+    "on": 1.0,
+    "deadband": 1.0
    },
    "hard": {
-    "off": 0.609,
-    "on": 0.609,
-    "deadband": 0.484
+    "off": 0.891,
+    "on": 0.891,
+    "deadband": 0.875
    }
   }
  }

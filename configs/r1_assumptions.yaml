@@ -50,6 +50,7 @@ opponent_model: r1   # r1 (fight clips retargeted onto an R1) | g1 (raw KungFuAt
 # puppet: a second R1 (opponent_gains, opponent_cap_policy) whose pelvis gets a force-limited assist toward the clip
 #         (horizontal <= 250 N, vertical <= 600 N, torque <= 150 N*m). In the old demo that assist carried ~80% of its weight.
 # kinematic: the original infinite-mass replay; in range it pushes through the R1 with 4-12 kN peaks, so don't train on it.
+robot_contact: shell          # robot vs robot: visible shells (mesh hulls) collide | capsule: Unitree's capsules (thinner; clipped) - r1gym/model.py
 opponent_mode: policy
 opponent_policy: results/opponent_tracker/policy.onnx   # relative to the repo root; motion_index.json sits next to it
 opponent_gains: stand_pd      # puppet mode only

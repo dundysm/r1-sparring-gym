@@ -33,148 +33,148 @@
    "guard"
   ],
   "start_times_skipped": {
-   "kfab_202@0.4": 0.547,
-   "kfab_202@0.45": 0.457,
-   "kfab_202@0.5": 0.343,
-   "kfab_202@0.55": 0.287,
-   "kfab_205@0.4": 0.76,
-   "kfab_205@0.45": 0.613,
-   "kfab_205@0.5": 0.523,
-   "kfab_205@0.55": 0.403
+   "kfab_202@0.4": 0.633,
+   "kfab_202@0.45": 0.563,
+   "kfab_202@0.5": 0.423,
+   "kfab_202@0.55": 0.327,
+   "kfab_205@0.4": 0.85,
+   "kfab_205@0.45": 0.77,
+   "kfab_205@0.5": 0.63,
+   "kfab_205@0.55": 0.523
   }
  },
  "summary": {
   "pd_stand": {
    "episodes": 128,
-   "survival": 0.18,
+   "survival": 0.289,
    "survival_ci95": [
-    0.123,
-    0.255
+    0.218,
+    0.373
    ],
-   "mean_time_to_fall_s": 8.35,
+   "mean_time_to_fall_s": 10.15,
    "survival_by_distance": {
-    "0.4": 0.0,
-    "0.45": 0.062,
-    "0.5": 0.188,
-    "0.55": 0.469
+    "0.4": 0.125,
+    "0.45": 0.219,
+    "0.5": 0.375,
+    "0.55": 0.438
    },
-   "survival_in_ring": 0.18,
+   "survival_in_ring": 0.289,
    "survival_in_ring_ci95": [
-    0.123,
-    0.255
+    0.218,
+    0.373
    ],
    "survivors_ring_out": 0.0,
-   "survivors_mean_drift_m": 0.033,
-   "survivors_mean_back_m": -0.028,
+   "survivors_mean_drift_m": 0.03,
+   "survivors_mean_back_m": -0.003,
    "survivors_back_over_0p3m": 0.0,
-   "opponent_fell": 0.07,
+   "opponent_fell": 0.062,
    "survival_minus": {
     "RL step": {
-     "diff": -0.758,
+     "diff": -0.625,
      "ci95": [
-      -0.828,
-      -0.68
+      -0.711,
+      -0.531
      ]
     },
     "RL guard": {
-     "diff": -0.773,
+     "diff": -0.695,
      "ci95": [
-      -0.852,
-      -0.688
+      -0.773,
+      -0.609
      ]
     }
    }
   },
   "RL step": {
    "episodes": 128,
-   "survival": 0.938,
+   "survival": 0.914,
    "survival_ci95": [
-    0.882,
-    0.968
+    0.853,
+    0.951
    ],
-   "mean_time_to_fall_s": 19.24,
+   "mean_time_to_fall_s": 18.81,
    "survival_by_distance": {
-    "0.4": 0.969,
-    "0.45": 0.906,
-    "0.5": 0.906,
+    "0.4": 0.906,
+    "0.45": 0.844,
+    "0.5": 0.938,
     "0.55": 0.969
    },
-   "survival_in_ring": 0.633,
+   "survival_in_ring": 0.539,
    "survival_in_ring_ci95": [
-    0.547,
-    0.711
+    0.453,
+    0.623
    ],
-   "survivors_ring_out": 0.325,
-   "survivors_mean_drift_m": 0.769,
-   "survivors_mean_back_m": 0.499,
-   "survivors_back_over_0p3m": 0.583,
-   "opponent_fell": 0.086,
+   "survivors_ring_out": 0.41,
+   "survivors_mean_drift_m": 0.991,
+   "survivors_mean_back_m": 0.786,
+   "survivors_back_over_0p3m": 0.795,
+   "opponent_fell": 0.062,
    "survival_minus": {
     "pd_stand": {
-     "diff": 0.758,
+     "diff": 0.625,
      "ci95": [
-      0.68,
-      0.828
+      0.531,
+      0.711
      ]
     },
     "RL guard": {
-     "diff": -0.016,
+     "diff": -0.07,
      "ci95": [
-      -0.07,
-      0.039
+      -0.117,
+      -0.023
      ]
     }
    },
-   "survival_minus_pd": 0.758,
+   "survival_minus_pd": 0.625,
    "survival_minus_pd_ci95": [
-    0.68,
-    0.828
+    0.531,
+    0.711
    ]
   },
   "RL guard": {
    "episodes": 128,
-   "survival": 0.953,
+   "survival": 0.984,
    "survival_ci95": [
-    0.902,
-    0.978
+    0.945,
+    0.996
    ],
-   "mean_time_to_fall_s": 19.34,
+   "mean_time_to_fall_s": 19.79,
    "survival_by_distance": {
-    "0.4": 0.969,
-    "0.45": 0.906,
-    "0.5": 1.0,
-    "0.55": 0.938
+    "0.4": 1.0,
+    "0.45": 0.969,
+    "0.5": 0.969,
+    "0.55": 1.0
    },
-   "survival_in_ring": 0.594,
+   "survival_in_ring": 0.547,
    "survival_in_ring_ci95": [
-    0.507,
-    0.675
+    0.461,
+    0.63
    ],
-   "survivors_ring_out": 0.377,
-   "survivors_mean_drift_m": 0.949,
-   "survivors_mean_back_m": 0.594,
-   "survivors_back_over_0p3m": 0.656,
-   "opponent_fell": 0.078,
+   "survivors_ring_out": 0.444,
+   "survivors_mean_drift_m": 1.014,
+   "survivors_mean_back_m": 0.773,
+   "survivors_back_over_0p3m": 0.738,
+   "opponent_fell": 0.07,
    "survival_minus": {
     "pd_stand": {
-     "diff": 0.773,
+     "diff": 0.695,
      "ci95": [
-      0.688,
-      0.852
+      0.609,
+      0.773
      ]
     },
     "RL step": {
-     "diff": 0.016,
+     "diff": 0.07,
      "ci95": [
-      -0.039,
-      0.07
+      0.023,
+      0.117
      ]
     }
    },
-   "survival_minus_pd": 0.773,
+   "survival_minus_pd": 0.695,
    "survival_minus_pd_ci95": [
-    0.688,
-    0.852
+    0.609,
+    0.773
    ]
   }
  }

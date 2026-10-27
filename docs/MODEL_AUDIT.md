@@ -59,3 +59,13 @@ With no hits at all, white Gaussian residual actions knock the `stand_pd` R1 ove
 So PPO on a residual over this stand can only explore about ±0.015 rad per joint. That is far too little to discover stepping or
 large recovery motions, which is why every run (v1, v2, both v3 runs) stalls at 8–9 N·s. Locomotion policies that do learn
 push recovery (e.g. Unitree's own R1 velocity task) act on softer gains and are trained with noise an order of magnitude larger.
+
+## Collision shapes are thinner than the visible robot
+`r1.xml` collides through capsules and spheres that sit inside the visual meshes: the pelvis mesh is ~16.5 cm across
+against a 10 cm sphere, the elbow ~9 cm against a 6 cm capsule, the knee ~10 cm against 7 cm, and 9 of the 25 links
+(shoulder pitch/roll housings, hip and ankle pitch, waist roll) have no collision shape at all. For walking that is
+fine, but with two robots the visible shells passed up to ~8 cm into each other before the capsules touched ("clipping").
+With an opponent the gym now lets each link's visual mesh (MuJoCo collides its convex hull) collide with the other robot's
+only (`robot_contact: shell`, `r1gym/model.py`), with stiffer, frictionless contact (condim 1, as mjlab's non-foot geoms), and keeps the capsules for the ground and the
+opponent's self-collision, which is what the policies trained with. `scripts/clip_check.py` measures the overlap
+(`results/clip_check.json`): the deepest overlap per bout drops from a median ~5.5 cm to under 1 cm.

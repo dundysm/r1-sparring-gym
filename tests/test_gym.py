@@ -257,3 +257,26 @@ def test_face_command_turns_toward_the_opponent():
     for ang, turning in [(0.2, False), (0.5, True), (0.2, True), (0.05, False)]:
         e.d.qpos[adr:adr + 2] = [0.6 * np.cos(ang), 0.6 * np.sin(ang)]; mujoco.mj_kinematics(m, e.d); e._face()
         assert e.turning == turning and (e.command[2] != 0) == turning, (ang, e.turning, e.command[2])
+
+
+def test_robots_collide_on_their_visible_shells():
+    """robot_contact: shell (default): each robot's visual meshes collide with the other robot's only, Unitree's capsules
+    stop colliding across robots but still carry the feet and the opponent's self-collision; in the demo the shells
+    overlap by under 2 cm (with capsules they passed ~5 cm into each other)."""
+    import importlib.util, pathlib
+    from r1gym.policy import load_controller, controller_cfg
+    from r1gym.scenario import demo_env
+    spec = importlib.util.spec_from_file_location("clip_check", pathlib.Path(__file__).resolve().parents[1] / "scripts" / "clip_check.py")
+    cc = importlib.util.module_from_spec(spec); spec.loader.exec_module(cc)
+    c = load_controller("step=results/policy_mjlab/policy.onnx"); cfg = {**controller_cfg(c), "opponent_mode": "policy"}
+    m = build_spec(opponent=True, cfg=cfg).compile(); opp = {b for b in range(m.nbody) if m.body(b).name.startswith("opp_")}
+    can = lambda a, b: bool((m.geom_contype[a] & m.geom_conaffinity[b]) or (m.geom_contype[b] & m.geom_conaffinity[a]))
+    mesh = [g for g in range(m.ngeom) if m.geom_type[g] == mujoco.mjtGeom.mjGEOM_MESH]
+    caps = [g for g in range(m.ngeom) if m.geom_type[g] != mujoco.mjtGeom.mjGEOM_MESH and m.geom_bodyid[g] and (m.geom_contype[g] or m.geom_conaffinity[g])]
+    rs, os_ = [g for g in mesh if m.geom_bodyid[g] not in opp], [g for g in mesh if m.geom_bodyid[g] in opp]
+    rc, oc = [g for g in caps if m.geom_bodyid[g] not in opp], [g for g in caps if m.geom_bodyid[g] in opp]
+    assert len(rs) == len(os_) > 20 and all(can(a, b) for a in rs[:5] for b in os_[:5])
+    assert not any(can(a, b) for a in rs + os_ for b in rc + oc + [0]) and not any(can(a, b) for a in rc for b in oc)
+    assert all(can(g, 0) for g in rc + oc) and can(oc[0], oc[-1])   # floor contact, opponent self-collision
+    ms = build_spec(opponent=True, cfg={**cfg, "robot_contact": "shell"}).compile(); e, o = demo_env(m, cfg, seconds=6.0)
+    r = cc.bout(c, cfg, m, ms, e, o, 300); assert not r["fell"] and max(r["overlap"]) < 0.02, max(r["overlap"])

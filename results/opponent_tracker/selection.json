@@ -2,29 +2,29 @@
  "about": "Opponent checkpoint comparison -> results/opponent_tracker/selection.json.\n\nTrain + val clips only (never test): 2 distances x 6 clean starts per clip, 10 s bouts, no scripted hits, against the\narms-down stepping base (it stands its ground; its turn command is off). Per bout: does the opponent fall, does the R1 fall,\nthe opponent's bearing off the R1's starting axis (0 = straight in front; median and 90th percentile), and its distance\nerror. --opponent label=path.onnx[:nostyle] (the motion_index.json next to the ONNX; nostyle = the clips without the style\ncuts, i.e. the motion the stage-3 tracker was trained on: git show 5787b83:results/opponent_tracker/policy.onnx and\nmotion_index.json).",
  "stage3_unsteered": {
   "bouts": 48,
-  "opponent_fell": 3,
+  "opponent_fell": 4,
   "r1_fell": 0,
-  "bearing_median_deg": 13.1,
-  "bearing_p90_median_deg": 25.8,
-  "bearing_p90_worst_deg": 115.8,
-  "dist_err_median_m": 0.085
+  "bearing_median_deg": 10.7,
+  "bearing_p90_median_deg": 23.5,
+  "bearing_p90_worst_deg": 85.3,
+  "dist_err_median_m": 0.07
  },
  "iter_11250": {
   "bouts": 48,
-  "opponent_fell": 2,
-  "r1_fell": 0,
-  "bearing_median_deg": 3.7,
-  "bearing_p90_median_deg": 9.7,
-  "bearing_p90_worst_deg": 69.9,
-  "dist_err_median_m": 0.056
+  "opponent_fell": 4,
+  "r1_fell": 1,
+  "bearing_median_deg": 3.9,
+  "bearing_p90_median_deg": 9.6,
+  "bearing_p90_worst_deg": 66.0,
+  "dist_err_median_m": 0.062
  },
  "iter_13749_shipped": {
   "bouts": 48,
   "opponent_fell": 1,
   "r1_fell": 1,
-  "bearing_median_deg": 3.3,
-  "bearing_p90_median_deg": 8.5,
-  "bearing_p90_worst_deg": 26.3,
-  "dist_err_median_m": 0.048
+  "bearing_median_deg": 3.6,
+  "bearing_p90_median_deg": 9.3,
+  "bearing_p90_worst_deg": 27.8,
+  "dist_err_median_m": 0.059
  }
 }

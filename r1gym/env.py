@@ -83,7 +83,8 @@ class R1HitEnv:
             # as in mjlab training: kinematics current (sim.forward before obs), and the reference shown is the frame to reach
             # by the end of this control step (MotionCommand increments time_steps before the obs is computed)
             mujoco.mj_kinematics(self.m, d)
-            self.opp.tracker.act(self.m, d, self.opp, self.opp_state, d.time + getattr(self, "opp_t0", 0.0) + self.dt)
+            if self.cfg.get("opponent_face", True): self.opp_state["target"] = d.xpos[self.r.pel][:2].copy()   # face the R1
+            self.opp.tracker.act(self.m, d, self.opp, self.opp_state, d.time + getattr(self, "opp_t0", 0.0) + self.dt, self.dt)
         for _ in range(self.nsub):
             self.hits_ap.apply(d, self.hits, d.time)   # clears xfrc_applied, then writes the scripted hits
             if self.opp is not None: self.opp.apply(self.m, d, d.time + getattr(self, "opp_t0", 0.0), self.m.opt.timestep)

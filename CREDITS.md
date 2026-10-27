@@ -4,3 +4,5 @@
 - **[MuJoCo](https://github.com/google-deepmind/mujoco)**, Apache-2.0.
 - **[mjlab](https://github.com/mujocolab/mjlab)** (MuJoCo Warp), Apache-2.0: the batched GPU path in docs/GPU.md.
 - PyTorch, ONNX Runtime.
+- **Motion tracking:** unitree_rl_mjlab's tracking task, a re-implementation of [BeyondMimic](https://beyondmimic.github.io/) (HybridRobotics/whole_body_tracking), used to train the opponent (`gpu/r1_track_task.py`).
+- **[unitree_rl_mjlab](https://github.com/unitreerobotics/unitree_rl_mjlab)** (Apache-2.0): the R1 velocity task the stepping base is built on.

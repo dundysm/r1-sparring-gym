@@ -70,9 +70,12 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--policy", nargs="*", default=["v1=results/policy_v1/policy.pt", "v2=results/policy/policy.pt", "v3=results/policy_v3_candidate/policy.pt"],
                     help="label=path (.pt residual policy, .onnx unitree_rl_mjlab policy)")
     ap.add_argument("--split", choices=["test", "val"], default="test"); ap.add_argument("--reps", type=int, default=16)
+    ap.add_argument("--opponent", choices=["tracked", "puppet"], default="tracked",
+                    help="tracked: the R1 on its own motors (default, realistic); puppet: assisted replay (stress test, up to 250 N horizontal assist)")
     ap.add_argument("--no_pushes", action="store_true"); ap.add_argument("--seconds", type=float, default=10.0); ap.add_argument("--out", default="results/eval_opponent")
     a = ap.parse_args(); out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
-    cfg = load_cfg(); models = {}
+    cfg = load_cfg(); models = {}; tag = "" if a.opponent == "tracked" else "_puppet"
+    if a.opponent == "puppet": cfg["opponent_mode"] = "puppet"
     clips = TEST_CLIPS if a.split == "test" else VAL_CLIPS; eps = episodes(clips, a.reps, not a.no_pushes)
     ctrls = [PDStand()]
     for lp in a.policy:
@@ -80,7 +83,7 @@ def main():
         if Path(path).exists(): ctrls.append(load_controller(f"RL {lab}={path}"))
     raw, summ = {}, {}
     for c in ctrls:
-        cc = controller_cfg(c); key = str(getattr(c, "cfg_path", "default"))   # each controller runs under its own contract
+        cc = {**controller_cfg(c), "opponent_mode": cfg["opponent_mode"]}; key = str(getattr(c, "cfg_path", "default"))   # own contract per controller
         if key not in models: models[key] = build_spec(opponent=True, cfg=cc).compile()
         t0 = time.time(); raw[c.name] = run(c, eps, models[key], cc, a.seconds); summ[c.name] = summarise(raw[c.name], a.seconds)
         print(c.name, json.dumps(summ[c.name]), f"({time.time() - t0:.0f} s)", flush=True)
@@ -88,9 +91,9 @@ def main():
     for name in raw:
         if name != "pd_stand":
             d, ci = paired_diff([x["fell_s"] is None for x in raw[name]], base); summ[name]["survival_minus_pd"] = d; summ[name]["survival_minus_pd_ci95"] = ci
-    meta = dict(split=a.split, clips=clips, distances=DISTANCES, reps=a.reps, pushes=not a.no_pushes, seconds=a.seconds, opponent_mode=cfg.get("opponent_mode", "puppet"))
-    json.dump(dict(meta=meta, summary=summ), open(out / f"summary_{a.split}.json", "w"), indent=1)
-    json.dump(dict(meta=meta, episodes=eps, raw=raw), open(out / f"raw_{a.split}.json", "w"))
+    meta = dict(opponent=a.opponent, split=a.split, clips=clips, distances=DISTANCES, reps=a.reps, pushes=not a.no_pushes, seconds=a.seconds, opponent_mode=cfg.get("opponent_mode", "puppet"))
+    json.dump(dict(meta=meta, summary=summ), open(out / f"summary_{a.split}{tag}.json", "w"), indent=1)
+    json.dump(dict(meta=meta, episodes=eps, raw=raw), open(out / f"raw_{a.split}{tag}.json", "w"))
     print(json.dumps(summ, indent=1))
 
 if __name__ == "__main__": main()

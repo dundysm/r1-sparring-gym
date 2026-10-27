@@ -250,10 +250,21 @@ class Tracker:
         assert np.allclose(m.actuator_gainprm[replay.act, 0], self.kp) and np.allclose(-m.actuator_biasprm[replay.act, 2], self.kd),             "opponent motors differ from the tracker's training contract"
         for f in (0, self.blend - 1, self.blend, replay.T - 1):
             assert np.abs(self.ref_q[self.frame(replay.clip, f)] - replay.q[f, 7:]).max() < 1e-3, (replay.clip, f)
-    def act(self, m, d, replay, state, t):
+    FACE_TAU = 0.5   # s; how quickly the heading correction follows the bearing to the target
+
+    def act(self, m, d, replay, state, t, dt=0.02):
+        """state: {"last": last action, "target": xy the opponent should face (or absent), "yaw": smoothed correction}.
+        Facing: the tracker reads the reference only relative to its own torso, so turning the whole reference about the
+        vertical axis is the same as turning the world, which the policy saw in training (random reset yaw). Turning it
+        toward the bearing to the target keeps the opponent facing the R1 instead of wandering off-axis."""
         f = self.frame(replay.clip, int(round(t * replay.fps * replay.speed)))
         q, dq = d.qpos[replay.qadr + 7:replay.qadr + replay.nq], d.qvel[replay.vadr + 6:replay.vadr + replay.nq - 1]
-        inv, rel = np.zeros(4), np.zeros(4); mujoco.mju_negQuat(inv, d.xquat[replay.torso]); mujoco.mju_mulQuat(rel, inv, self.ref_anchor[f])
+        ref = self.ref_anchor[f]
+        if state.get("target") is not None:
+            to = np.asarray(state["target"]) - d.xpos[replay.pel][:2]; want = np.arctan2(to[1], to[0]) - np.pi   # reference faces -x
+            y0 = state.setdefault("yaw", want); state["yaw"] = y0 + np.angle(np.exp(1j * (want - y0))) * min(1.0, dt / self.FACE_TAU)
+            rz = np.array([np.cos(state["yaw"] / 2), 0, 0, np.sin(state["yaw"] / 2)]); ref = np.zeros(4); mujoco.mju_mulQuat(ref, rz, self.ref_anchor[f])
+        inv, rel = np.zeros(4), np.zeros(4); mujoco.mju_negQuat(inv, d.xquat[replay.torso]); mujoco.mju_mulQuat(rel, inv, ref)
         R = np.zeros(9); mujoco.mju_quat2Mat(R, rel); R = R.reshape(3, 3)
         obs = np.concatenate([self.ref_q[f], self.ref_dq[f], R[:, :2].reshape(-1), d.qvel[replay.vadr + 3:replay.vadr + 6],
                               q - self.default, dq, state["last"]]).astype(np.float32)

@@ -151,3 +151,16 @@ def test_stepping_base_runs_in_this_gym():
         for _ in range(200):
             o, r, d, info = e.step(c.act(o[None])[0]); assert not info["fallen"]
         assert check((e.d.qpos[0] - x0) / 4.0), (cmd, e.d.qpos[0] - x0)
+
+
+def test_shipped_guard_policy_holds_its_guard():
+    """The shipped policy takes its default pose (a guard) from its ONNX metadata, stands, and keeps its fists up."""
+    from r1gym.policy import load_controller, controller_cfg
+    c = load_controller("guard=results/policy_mjlab_guard/policy.onnx"); cfg = controller_cfg(c)
+    home = np.array(cfg["home"]); assert np.isclose(home[CTRL_JOINTS.index("left_elbow_joint")], -0.7, atol=1e-3)
+    m = build_spec(cfg=cfg).compile(); e = R1HitEnv(seed=0, cfg=cfg, model=m, episode_s=5, max_impulse=0, train=False)
+    e.reset(hits=[], delay=1); o = e._raw_obs(); torso = m.body("torso_link").id
+    for _ in range(200):
+        o, r, d, info = e.step(c.act(o[None])[0]); assert not info["fallen"]
+    wrist = e.d.xpos[m.body("left_wrist_roll_link").id] - e.d.xpos[torso]
+    assert wrist[2] > 0.1 and wrist[0] > 0.1   # fist up and in front of the torso, not hanging by the hip

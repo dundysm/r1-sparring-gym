@@ -1,4 +1,10 @@
 {
  "face_opponent": false,
- "_why": "turns both ways (+-0.8 rad/s command -> 0.21 / -0.29) and the command improves facing (median 20.2 -> 9.1 deg), but validation survival doesn't improve (standard off/on/deadband 1.0/1.0/1.0, hard 0.891/0.891/0.875) and drift rises (0.37 -> 0.8 m; it steps while it turns). Off. results/face_opponent_ab.json (scripts/face_ab.py)"
+ "_why": "turns both ways (+-0.8 rad/s command -> 0.21 / -0.29) and the command improves facing (median 20.2 -> 9.1 deg), but validation survival doesn't improve (standard off/on/deadband 1.0/1.0/1.0, hard 0.891/0.891/0.875) and drift rises (0.37 -> 0.8 m; it steps while it turns). Off. results/face_opponent_ab.json (scripts/face_ab.py)",
+ "hold_position": true,
+ "hold_deadband": [
+  0.25,
+  0.08
+ ],
+ "_why_hold": "hold-your-spot, chosen on validation (results/hold_ab.json, scripts/face_ab.py --hold): hard-tier val survival off/hold/hold_tight 0.891/0.922/0.875, up and within 1 m 0.25/0.375/0.281, drift 1.37/0.97/0.93 m; standard tier unchanged; facing a few degrees worse (20.2 -> 25.0 deg)."
 }

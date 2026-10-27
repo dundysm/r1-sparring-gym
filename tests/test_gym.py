@@ -280,3 +280,19 @@ def test_robots_collide_on_their_visible_shells():
     assert all(can(g, 0) for g in rc + oc) and can(oc[0], oc[-1])   # floor contact, opponent self-collision
     ms = build_spec(opponent=True, cfg={**cfg, "robot_contact": "shell"}).compile(); e, o = demo_env(m, cfg, seconds=6.0)
     r = cc.bout(c, cfg, m, ms, e, o, 300); assert not r["fell"] and max(r["overlap"]) < 0.02, max(r["overlap"])
+
+
+def test_hold_command_walks_back_to_the_spot():
+    """r1gym/env.py _hold: once the pelvis is past hold_deadband[0] from the bout's spot, (vx, vy) point back to it in
+    the heading frame (inside the trained ranges) until it is within hold_deadband[1]; off without an opponent."""
+    from r1gym import CONFIGS
+    c = {**load_cfg(CONFIGS / "r1_mjlab.yaml"), "hold_position": True, "hold_deadband": [0.25, 0.08]}; m = build_spec(cfg=c, opponent=True).compile()
+    e = R1HitEnv(seed=0, cfg=c, model=m, episode_s=1, max_impulse=0, train=False); e.opp = FightReplay(m, "kfab_200", distance=0.6, cfg={**c, "opponent_mode": "puppet"})
+    e.reset(hits=[], delay=0); q = e.r.free_q; spot = e.spot.copy()
+    for off, moving in [((0.1, 0.0), False), ((0.0, 0.4), True), ((0.1, 0.0), True), ((0.05, 0.0), False)]:
+        e.d.qpos[q:q + 2] = spot + off; e._hold()
+        assert e.returning == moving and (np.abs(e.command[:2]).sum() > 0) == moving, (off, e.returning, e.command)
+    e.d.qpos[q:q + 2] = spot + (0.0, 0.4); e._hold(); assert e.command[1] < 0 and abs(e.command[0]) < 1e-6   # left of the spot -> step right
+    e.d.qpos[q + 3:q + 7] = [np.cos(np.pi / 4), 0, 0, np.sin(np.pi / 4)]; e._hold()                          # facing +y: the spot is behind
+    assert e.command[0] < 0 and abs(e.command[1]) < 1e-6 and e.command[0] >= e.HOLD_VX[0]
+    e.opp = None; e.command[:] = 0; e._hold(); assert not e.command.any()

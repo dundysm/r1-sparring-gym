@@ -41,6 +41,8 @@ class R1HitEnv:
         self.command = np.zeros(3)   # mjlab contract only: velocity command (vx, vy, wz); zero = stand / spar in place
         self.face = self.contract == "mjlab" and bool(self.cfg.get("face_opponent", False))   # turn toward the opponent (wz)
         self.face_band = self.cfg.get("face_deadband")   # [start, stop] bearing error (rad): turn only when clearly off, or None
+        self.hold = self.contract == "mjlab" and bool(self.cfg.get("hold_position", False))   # walk back to the bout's spot (vx, vy)
+        self.hold_band, self.hold_gain = self.cfg.get("hold_deadband", [0.25, 0.08]), float(self.cfg.get("hold_gain", 1.5))
 
     def _raw_obs(self):
         # orientation from qpos, not d.xmat: after mj_step, xmat is from before the last integration (one 5 ms substep
@@ -74,7 +76,8 @@ class R1HitEnv:
         if self.opp is not None:
             self.opp.place(self.m, self.d, getattr(self, "opp_t0", 0.0)); mujoco.mj_forward(self.m, self.d)
             self.opp_state = {"last": np.zeros(24, np.float32)}   # tracker opponent: its last action
-        self.turning = False; self._face(); o = self._raw_obs(); self.sensor.reset(o); return self.sensor(o)
+        self.turning = False; self.returning = False; self.spot = self.d.qpos[self.r.free_q:self.r.free_q + 2].copy()
+        self._face(); self._hold(); o = self._raw_obs(); self.sensor.reset(o); return self.sensor(o)
 
     def step(self, a):
         a = np.clip(a, -self.clip, self.clip).astype(np.float32); d = self.d
@@ -109,7 +112,7 @@ class R1HitEnv:
         if fallen: rew -= 50.0
         self.last_a = a
         done = fallen or self.t >= self.T
-        self._face()
+        self._face(); self._hold()
         return self.sensor(self._raw_obs()), float(rew), bool(done), {"fallen": fallen, "timeout": self.t >= self.T and not fallen}
 
     FACE_GAIN, FACE_MAX = 2.0, 0.8   # yaw-rate command per rad of bearing error; cap (rad/s) inside the +-1.0 it trained on
@@ -124,6 +127,19 @@ class R1HitEnv:
             self.turning = abs(err) > self.face_band[1] if self.turning else abs(err) > self.face_band[0]
             if not self.turning: self.command[2] = 0.0; return
         self.command[2] = float(np.clip(self.FACE_GAIN * err, -self.FACE_MAX, self.FACE_MAX))
+
+    HOLD_VX, HOLD_VY = (-0.5, 0.8), 0.5   # m/s; inside the vx -0.5..1.0, vy +-0.5 the stepping policies trained on
+    def _hold(self):
+        """Hold the spot the bout started on: once the pelvis is more than hold_deadband[0] m away, command the stepping
+        policy's (vx, vy) back toward it (gain hold_gain, in the heading frame) until it is within hold_deadband[1] m.
+        With an opponent only; the opponent is steered to stay in front of the R1, so this also keeps the bout centred."""
+        if not self.hold or self.opp is None: return
+        d, r = self.d, self.r; w, x, y, z = d.qpos[r.free_q + 3:r.free_q + 7]; e = self.spot - d.qpos[r.free_q:r.free_q + 2]
+        dist = float(np.linalg.norm(e)); self.returning = dist > self.hold_band[1] if self.returning else dist > self.hold_band[0]
+        if not self.returning: self.command[:2] = 0.0; return
+        yaw = np.arctan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z)); c, s = np.cos(yaw), np.sin(yaw)
+        self.command[0] = float(np.clip(self.hold_gain * (c * e[0] + s * e[1]), *self.HOLD_VX))
+        self.command[1] = float(np.clip(self.hold_gain * (-s * e[0] + c * e[1]), -self.HOLD_VY, self.HOLD_VY))
 
     # ---- domain randomisation (training only): mass, COM, foot friction, motor strength, armature, command latency
     def _dr_init(self):

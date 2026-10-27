@@ -1,0 +1,132 @@
+{
+ "about": "Turn-toward-the-opponent A/B for the stepping policies -> results/face_opponent_ab.json (the evidence behind gym.json).\n\n1. Turn response: yaw-rate command held from standing for 6 s, mean measured rate after 2 s, 3 seeds.\n2. Bouts with the shipped opponent on train + val clips (never test): 2 distances x 6 clean starts per clip, 12 s, the demo's\n   scripted pushes, obs delay 1 step. Each policy runs with the command off, on, and on with a deadband (turn once the\n   bearing error passes 20 deg, stop below 6 deg). Facing error = |bearing to the opponent - pelvis heading|, median per\n   bout, then median over the bouts it survived; drift = pelvis distance from its start at the end; ring-out = got more\n   than 1 m from its start at any time (rates over survived bouts).\n--hold: the same bouts for the hold-your-spot outer loop (off / hold / hold_tight) -> results/hold_ab.json.\n3. --val: survival (and up-and-within-1 m, drift) on the headline eval's validation episodes (scripts/eval_opponent.py, standard and hard tier) for each\n   setting, merged into the same file. Settings are chosen on these, never on test.",
+ "turn_response_cmd_to_measured_rad_s": {},
+ "bouts": {
+  "arms_down": {
+   "off": {
+    "bouts": 48,
+    "falls": 1,
+    "facing_err_median_deg": 10.4,
+    "facing_err_p90_median_deg": 21.7,
+    "drift_mean_m": 0.25,
+    "ring_out": 0.0
+   },
+   "hold": {
+    "bouts": 48,
+    "falls": 1,
+    "facing_err_median_deg": 12.3,
+    "facing_err_p90_median_deg": 26.3,
+    "drift_mean_m": 0.14,
+    "ring_out": 0.0
+   },
+   "hold_tight": {
+    "bouts": 48,
+    "falls": 0,
+    "facing_err_median_deg": 14.0,
+    "facing_err_p90_median_deg": 35.7,
+    "drift_mean_m": 0.1,
+    "ring_out": 0.0
+   }
+  },
+  "guard": {
+   "off": {
+    "bouts": 48,
+    "falls": 0,
+    "facing_err_median_deg": 20.2,
+    "facing_err_p90_median_deg": 37.9,
+    "drift_mean_m": 0.37,
+    "ring_out": 0.0
+   },
+   "hold": {
+    "bouts": 48,
+    "falls": 0,
+    "facing_err_median_deg": 25.0,
+    "facing_err_p90_median_deg": 52.2,
+    "drift_mean_m": 0.24,
+    "ring_out": 0.021
+   },
+   "hold_tight": {
+    "bouts": 48,
+    "falls": 0,
+    "facing_err_median_deg": 25.4,
+    "facing_err_p90_median_deg": 47.8,
+    "drift_mean_m": 0.24,
+    "ring_out": 0.042
+   }
+  }
+ },
+ "val_survival": {
+  "arms_down": {
+   "standard": {
+    "off": {
+     "survival": 0.988,
+     "in_ring": 0.988,
+     "drift_m": 0.24
+    },
+    "hold": {
+     "survival": 0.988,
+     "in_ring": 0.975,
+     "drift_m": 0.12
+    },
+    "hold_tight": {
+     "survival": 0.988,
+     "in_ring": 0.975,
+     "drift_m": 0.09
+    }
+   },
+   "hard": {
+    "off": {
+     "survival": 0.891,
+     "in_ring": 0.312,
+     "drift_m": 1.35
+    },
+    "hold": {
+     "survival": 0.859,
+     "in_ring": 0.5,
+     "drift_m": 0.47
+    },
+    "hold_tight": {
+     "survival": 0.938,
+     "in_ring": 0.547,
+     "drift_m": 0.42
+    }
+   }
+  },
+  "guard": {
+   "standard": {
+    "off": {
+     "survival": 1.0,
+     "in_ring": 0.95,
+     "drift_m": 0.34
+    },
+    "hold": {
+     "survival": 1.0,
+     "in_ring": 0.975,
+     "drift_m": 0.18
+    },
+    "hold_tight": {
+     "survival": 1.0,
+     "in_ring": 1.0,
+     "drift_m": 0.2
+    }
+   },
+   "hard": {
+    "off": {
+     "survival": 0.891,
+     "in_ring": 0.25,
+     "drift_m": 1.37
+    },
+    "hold": {
+     "survival": 0.922,
+     "in_ring": 0.375,
+     "drift_m": 0.97
+    },
+    "hold_tight": {
+     "survival": 0.875,
+     "in_ring": 0.281,
+     "drift_m": 0.93
+    }
+   }
+  }
+ }
+}

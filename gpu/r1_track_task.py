@@ -6,7 +6,16 @@ demo, so it floats through moves no real robot could do. A tracking policy has t
 R1-Track-KungFu = unitree_rl_mjlab's tracking task (@1425b15, mjlab 1.2.0) with the R1 robot and contract (kp 100/40,
 per-joint action scale), R1 body names (the R1 has no wrist-yaw links), and no global position or linear velocity in the
 actor's observation (Unitree's "No-State-Estimation" variant), so the policy needs only IMU and encoders.
-Motion: gpu/export_motion.py -> r1_kungfu.csv (all 7 clips, each twice, cross-faded).
+Motion: gpu/export_motion.py -> r1_kungfu.csv (all clips, each twice, cross-faded).
+
+R1-Track-KungFu-Steer adds the motion anchor's position to the actor's observation (Unitree's standard variant has it)
+and lets the reference drift in xy during training (SteerMotionCommand), so the policy learns to walk after its
+reference. The sim then keeps the opponent in front of the R1 by moving the reference (r1gym/opponent.py Tracker),
+instead of it wandering off to the R1's side. Warm-started from the stage-3 policy with the new inputs' weights at zero:
+python r1_track_task.py widen model_9748.pt model_9748_wide.pt. With BeyondMimic's anchor-position reward (std 0.3 m,
+weight 1) the policy kept tracking the pose and let the position go (0.77 m off after 1000 iterations), so
+R1-Track-KungFu-Steer2 (the shipped opponent) makes position count: reward std 0.5 m, weight 2, an episode ends when the
+anchor is more than 0.6 m from its reference, and the drift is at most 0.3 m/s.
 
 On the GPU box, from a unitree_rl_mjlab checkout:
   python r1_track_task.py convert r1_kungfu.csv motions/r1_kungfu.npz
@@ -25,7 +34,49 @@ JOINTS = ["left_hip_pitch_joint", "left_hip_roll_joint", "left_hip_yaw_joint", "
           "left_shoulder_roll_joint", "left_shoulder_yaw_joint", "left_elbow_joint", "left_wrist_roll_joint",
           "right_shoulder_pitch_joint", "right_shoulder_roll_joint", "right_shoulder_yaw_joint", "right_elbow_joint", "right_wrist_roll_joint"]
 
-def env_cfg(play=False, motion_file="", relaxed_hands=False, feet=0.25, hands=0.5):
+STEER_SPEED, STEER_HOLD, STEER_EVERY_S, STEER_TAU = 0.4, 0.3, (1.0, 3.0), 0.3   # m/s, P(stand still), s, s
+_STEER = {}
+
+def _steer_cfg(mc, speed=STEER_SPEED):
+    """MotionCommandCfg -> the same config building a SteerMotionCommand: the reference (all bodies, anchor included) is
+    offset in xy by a per-env drift. Every 1-3 s the drift's target velocity is resampled (zero with probability 0.3, else
+    a random direction at up to 0.4 m/s) and followed with a 0.3 s lag. Body velocities include the drift, so the
+    reference stays self-consistent; relative body poses (re-anchored at the robot) are unchanged by it."""
+    import dataclasses, torch
+    from mjlab.tasks.tracking.mdp import MotionCommand, MotionCommandCfg
+    if not _STEER:
+        class SteerMotionCommand(MotionCommand):
+            def __init__(self, cfg, env):
+                super().__init__(cfg, env); z = lambda: torch.zeros(self.num_envs, 3, device=self.device)
+                self.off, self.v, self.v_goal = z(), z(), z(); self.t_next = torch.zeros(self.num_envs, device=self.device)
+            @property
+            def body_pos_w(self): return super().body_pos_w + self.off[:, None, :]
+            @property
+            def anchor_pos_w(self): return super().anchor_pos_w + self.off
+            @property
+            def body_lin_vel_w(self): return super().body_lin_vel_w + self.v[:, None, :]
+            @property
+            def anchor_lin_vel_w(self): return super().anchor_lin_vel_w + self.v
+            def _resample_command(self, env_ids):   # new episode or end of motion: the robot is put on an undrifted reference
+                self.off[env_ids] = 0; self.v[env_ids] = 0; self.v_goal[env_ids] = 0; self.t_next[env_ids] = 0
+                super()._resample_command(env_ids)
+            def _update_command(self):
+                dt = self._env.step_dt; self.t_next -= dt; ids = torch.where(self.t_next <= 0)[0]
+                if len(ids):
+                    n = len(ids); ang = torch.rand(n, device=self.device) * 2 * torch.pi
+                    sp = torch.rand(n, device=self.device) * self.cfg.steer_speed * (torch.rand(n, device=self.device) > STEER_HOLD)
+                    self.v_goal[ids, 0] = sp * torch.cos(ang); self.v_goal[ids, 1] = sp * torch.sin(ang)
+                    self.t_next[ids] = STEER_EVERY_S[0] + torch.rand(n, device=self.device) * (STEER_EVERY_S[1] - STEER_EVERY_S[0])
+                self.v += (self.v_goal - self.v) * min(1.0, dt / STEER_TAU); self.off += self.v * dt
+                super()._update_command()
+        @dataclasses.dataclass(kw_only=True)
+        class SteerMotionCommandCfg(MotionCommandCfg):
+            steer_speed: float = STEER_SPEED
+            def build(self, env): return SteerMotionCommand(self, env)
+        _STEER["cfg"] = SteerMotionCommandCfg
+    return _STEER["cfg"](**{f.name: getattr(mc, f.name) for f in dataclasses.fields(mc)}, steer_speed=speed)
+
+def env_cfg(play=False, motion_file="", relaxed_hands=False, feet=0.25, hands=0.5, steer=False, strict=False):
     from src.assets.robots import R1_ACTION_SCALE, get_r1_robot_cfg
     from mjlab.envs.mdp.actions import JointPositionActionCfg
     from mjlab.managers.observation_manager import ObservationGroupCfg
@@ -52,7 +103,18 @@ def env_cfg(play=False, motion_file="", relaxed_hands=False, feet=0.25, hands=0.
         cfg.terminations["ee_body_pos"].params["body_names"] = END_EFFECTORS[:2]; cfg.terminations["ee_body_pos"].params["threshold"] = feet
         cfg.terminations["hand_body_pos"] = h
     cfg.viewer.body_name = "torso_link"
-    terms = {k: v for k, v in cfg.observations["actor"].terms.items() if k not in ("motion_anchor_pos_b", "base_lin_vel")}
+    drop = ("base_lin_vel",) if steer else ("motion_anchor_pos_b", "base_lin_vel")
+    terms = {k: v for k, v in cfg.observations["actor"].terms.items() if k not in drop}
+    if steer:   # the opponent is a sim agent with exact state: small noise, and the position term counts as much as the others
+        from mjlab.utils.noise import UniformNoiseCfg as Unoise
+        terms["motion_anchor_pos_b"].noise = Unoise(n_min=-0.05, n_max=0.05); cfg.rewards["motion_global_root_pos"].weight = 1.0
+        cfg.commands["motion"] = mc = _steer_cfg(mc, 0.3 if strict else STEER_SPEED)
+        if strict:   # position has to matter: a reward with gradient out to ~1 m, and leaving the reference ends the episode
+            import copy
+            from mjlab.tasks.tracking.mdp import bad_anchor_pos
+            r = cfg.rewards["motion_global_root_pos"]; r.weight = 2.0; r.params["std"] = 0.5
+            t = copy.deepcopy(cfg.terminations["anchor_pos"]); t.func = bad_anchor_pos; t.params = {"command_name": "motion", "threshold": 0.6}
+            cfg.terminations["anchor_xy"] = t
     cfg.observations["actor"] = ObservationGroupCfg(terms=terms, concatenate_terms=True, enable_corruption=True)
     if play:
         cfg.episode_length_s = int(1e9); cfg.observations["actor"].enable_corruption = False; cfg.events.pop("push_robot", None)
@@ -72,6 +134,26 @@ def register(motion_file=""):
     # little lower is fine, so allow 0.4 m on the feet (balance is still guarded by the anchor height/orientation terms)
     register_mjlab_task(task_id="R1-Track-KungFu-Relaxed2", env_cfg=env_cfg(motion_file=motion_file, relaxed_hands=True, feet=0.4, hands=0.6),
                         play_env_cfg=env_cfg(True, motion_file, relaxed_hands=True, feet=0.4, hands=0.6), rl_cfg=rl, runner_cls=MotionTrackingOnPolicyRunner)
+    register_mjlab_task(task_id="R1-Track-KungFu-Steer", env_cfg=env_cfg(motion_file=motion_file, relaxed_hands=True, feet=0.4, hands=0.6, steer=True),
+                        play_env_cfg=env_cfg(True, motion_file, relaxed_hands=True, feet=0.4, hands=0.6, steer=True), rl_cfg=rl, runner_cls=MotionTrackingOnPolicyRunner)
+    register_mjlab_task(task_id="R1-Track-KungFu-Steer2", env_cfg=env_cfg(motion_file=motion_file, relaxed_hands=True, feet=0.4, hands=0.6, steer=True, strict=True),
+                        play_env_cfg=env_cfg(True, motion_file, relaxed_hands=True, feet=0.4, hands=0.6, steer=True, strict=True), rl_cfg=rl, runner_cls=MotionTrackingOnPolicyRunner)
+
+def widen(src, dst, at=48, n=3):
+    """Checkpoint for the steer task from a no-position one: n new actor inputs at index `at` (after the 48-d command,
+    where motion_anchor_pos_b sits), with zero weights, normaliser mean 0 / std 1, and zero Adam moments. The widened
+    policy acts exactly like the old one until training starts using the new inputs."""
+    import torch
+    c = torch.load(src, map_location="cpu", weights_only=False); a = c["actor_state_dict"]; w = a["mlp.0.weight"]; old = w.shape[1]
+    def ins(x, val):   # insert n columns (last dim) at `at`
+        return torch.cat([x[..., :at], torch.full((*x.shape[:-1], n), float(val), dtype=x.dtype), x[..., at:]], dim=-1)
+    a["mlp.0.weight"] = ins(w, 0.0)
+    for k, val in (("obs_normalizer._mean", 0.0), ("obs_normalizer._var", 1.0), ("obs_normalizer._std", 1.0)): a[k] = ins(a[k], val)
+    for st in c["optimizer_state_dict"]["state"].values():
+        for k in ("exp_avg", "exp_avg_sq"):
+            if st[k].shape == (w.shape[0], old): st[k] = ins(st[k], 0.0)
+    assert sum(st["exp_avg"].shape == (w.shape[0], old + n) for st in c["optimizer_state_dict"]["state"].values()) == 1
+    torch.save(c, dst); print(f"actor input {old} -> {old + n} (new inputs at {at}:{at + n})")
 
 def convert(csv, out):
     """csv_to_npz for the R1: replay the CSV kinematically and log joint states and body poses/velocities at 50 fps."""
@@ -96,6 +178,8 @@ if __name__ == "__main__":
     sys.path.insert(0, str(Path.cwd())); sys.path.insert(0, str(Path.cwd() / "scripts"))
     if sys.argv[1] == "convert":
         convert(sys.argv[2], sys.argv[3]); sys.exit(0)
+    if sys.argv[1] == "widen":
+        widen(sys.argv[2], sys.argv[3]); sys.exit(0)
     import mjlab.tasks, src.tasks  # noqa: F401  (populate the registry first)
     register()
     import train

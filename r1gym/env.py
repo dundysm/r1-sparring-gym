@@ -13,7 +13,8 @@ from .sensors import DelayedNoisyObs
 OBS_DIM, ACT_DIM = 78, 24      # residual contract; the mjlab contract (configs/r1_mjlab.yaml) has 83-d obs
 MJLAB_OBS_DIM = 83
 # Clip splits. Train on TRAIN_CLIPS; pick checkpoints / candidates on VAL_CLIPS only; report on TEST_CLIPS
-# (kfab_202 is also the demo clip). Before this split, the v2 candidate was chosen partly on kfab_202 demo variants.
+# (kfab_202 was the demo clip until the demo moved to kfab_201, a training clip: new to the stepping policies, not to v1-v3).
+# Before this split, the v2 candidate was chosen partly on kfab_202 demo variants.
 TRAIN_CLIPS = ["kfab_200", "kfab_201", "kfab_203"]   # kfab_199 dropped: the opponent's tracker can't perform it (tracker_cuts.json)
 VAL_CLIPS = ["kfab_204"]
 TEST_CLIPS = ["kfab_202", "kfab_205"]
@@ -38,6 +39,8 @@ class R1HitEnv:
             self.noise = np.concatenate([np.full(3, n["ang_vel"]), np.full(3, n["gravity"]), np.full(24, n["joint_pos"]), np.full(24, n["joint_vel"] * 0.05), np.zeros(24)])
         self.hits = []; self.schedule_fn = None; self.opp = None; self.contact_log = None   # set by demo/eval
         self.command = np.zeros(3)   # mjlab contract only: velocity command (vx, vy, wz); zero = stand / spar in place
+        self.face = self.contract == "mjlab" and bool(self.cfg.get("face_opponent", False))   # turn toward the opponent (wz)
+        self.face_band = self.cfg.get("face_deadband")   # [start, stop] bearing error (rad): turn only when clearly off, or None
 
     def _raw_obs(self):
         # orientation from qpos, not d.xmat: after mj_step, xmat is from before the last integration (one 5 ms substep
@@ -71,7 +74,7 @@ class R1HitEnv:
         if self.opp is not None:
             self.opp.place(self.m, self.d, getattr(self, "opp_t0", 0.0)); mujoco.mj_forward(self.m, self.d)
             self.opp_state = {"last": np.zeros(24, np.float32)}   # tracker opponent: its last action
-        o = self._raw_obs(); self.sensor.reset(o); return self.sensor(o)
+        self.turning = False; self._face(); o = self._raw_obs(); self.sensor.reset(o); return self.sensor(o)
 
     def step(self, a):
         a = np.clip(a, -self.clip, self.clip).astype(np.float32); d = self.d
@@ -106,7 +109,21 @@ class R1HitEnv:
         if fallen: rew -= 50.0
         self.last_a = a
         done = fallen or self.t >= self.T
+        self._face()
         return self.sensor(self._raw_obs()), float(rew), bool(done), {"fallen": fallen, "timeout": self.t >= self.T and not fallen}
+
+    FACE_GAIN, FACE_MAX = 2.0, 0.8   # yaw-rate command per rad of bearing error; cap (rad/s) inside the +-1.0 it trained on
+    def _face(self):
+        """Stand-in for perception (phase 3): command the stepping policy's yaw rate toward the opponent's true bearing.
+        Any |command| >= 0.1 turns the gait phase on, so a command that never rests keeps the robot stepping (and drifting);
+        with face_deadband [start, stop] it turns only once the error passes `start` and stands still again below `stop`."""
+        if not self.face or self.opp is None: return
+        d, r = self.d, self.r; w, x, y, z = d.qpos[r.free_q + 3:r.free_q + 7]; v = d.xpos[min(self.opp.bodies)][:2] - d.qpos[r.free_q:r.free_q + 2]
+        err = np.angle(np.exp(1j * (np.arctan2(v[1], v[0]) - np.arctan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z)))))
+        if self.face_band is not None:
+            self.turning = abs(err) > self.face_band[1] if self.turning else abs(err) > self.face_band[0]
+            if not self.turning: self.command[2] = 0.0; return
+        self.command[2] = float(np.clip(self.FACE_GAIN * err, -self.FACE_MAX, self.FACE_MAX))
 
     # ---- domain randomisation (training only): mass, COM, foot friction, motor strength, armature, command latency
     def _dr_init(self):

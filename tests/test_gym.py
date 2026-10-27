@@ -153,8 +153,8 @@ def test_stepping_base_runs_in_this_gym():
         assert check((e.d.qpos[0] - x0) / 4.0), (cmd, e.d.qpos[0] - x0)
 
 
-def test_shipped_guard_policy_holds_its_guard():
-    """The shipped policy takes its default pose (a guard) from its ONNX metadata, stands, and keeps its fists up."""
+def test_guard_variant_holds_its_guard():
+    """The guard variant takes its default pose (a guard) from its ONNX metadata, stands, and keeps its fists up."""
     from r1gym.policy import load_controller, controller_cfg
     c = load_controller("guard=results/policy_mjlab_guard/policy.onnx"); cfg = controller_cfg(c)
     home = np.array(cfg["home"]); assert np.isclose(home[CTRL_JOINTS.index("left_elbow_joint")], -0.7, atol=1e-3)
@@ -164,3 +164,96 @@ def test_shipped_guard_policy_holds_its_guard():
         o, r, d, info = e.step(c.act(o[None])[0]); assert not info["fallen"]
     wrist = e.d.xpos[m.body("left_wrist_roll_link").id] - e.d.xpos[torso]
     assert wrist[2] > 0.1 and wrist[0] > 0.1   # fist up and in front of the torso, not hanging by the hip
+
+
+def _eval_opponent():
+    import importlib.util, pathlib
+    spec = importlib.util.spec_from_file_location("eval_opponent", pathlib.Path(__file__).resolve().parents[1] / "scripts" / "eval_opponent.py")
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod); return mod
+
+
+def test_eval_tiers_draw_paired_episodes():
+    """Hard tier: six strikes/pushes per 20 s bout at 8-14 N*s, deterministic, with the env/DR and hit-duration streams
+    separate from the hits; start times are drawn from the clean ones only. The standard tier still draws the hits and
+    delays it drew before the clean-start filter (only t0 moves)."""
+    eo = _eval_opponent(); n = int(round(eo.START_SPAN / eo.START_STEP))
+    good = {("kfab_202", d): np.ones(n, bool) for t in eo.TIERS.values() for d in t["distances"]}
+    eps = eo.episodes(["kfab_202"], 3, "hard", good)
+    assert len(eps) == 12 and all(len(e["hits"]) == 6 for e in eps) and len({e["seed"] for e in eps}) == 12
+    imps = [h[2] for e in eps for h in e["hits"]]; assert 8 <= min(imps) and max(imps) <= 14
+    assert eps == eo.episodes(["kfab_202"], 3, "hard", good) and len({e["env_seed"] for e in eps} | {e["hit_seed"] for e in eps}) == 24
+    assert all(h[3] < 9 for e in eo.episodes(["kfab_202"], 3, "hard", good, seconds=10.0) for h in e["hits"])   # --seconds keeps every hit
+    g = good[("kfab_202", 0.4)].copy(); g[:150] = False   # starts before 3 s overlap the R1 -> every bout starts at >= 3 s
+    t0s = [e["t0"] for e in eo.episodes(["kfab_202"], 40, "hard", {**good, ("kfab_202", 0.4): g}) if e["distance"] == 0.4]
+    assert min(t0s) >= 3.0 and len(set(t0s)) > 30   # spread over the clean starts, not piled on the first one
+    e0 = eo.episodes(["kfab_202"], 1, "standard", good)[0]; rng = np.random.default_rng(10_000); hits = []
+    for t in sorted(rng.uniform(1.0, 9.0, 2)):   # the generator as it was before the filter
+        yaw = rng.choice([np.pi / 2, -np.pi / 2, np.pi]) + rng.uniform(-0.3, 0.3)
+        hits.append(("push", str(rng.choice(["l_shoulder", "r_shoulder", "pelvis", "chest"])), float(rng.uniform(4, 6)), float(t), float(yaw)))
+    t0 = rng.uniform(0, 6); assert e0["hits"] == hits and e0["delay"] == int(rng.integers(0, 3)) and abs(e0["t0"] - t0) < eo.START_STEP
+
+
+def test_clean_starts_skip_an_opponent_inside_the_r1():
+    """At 0.40 m some clip start times put the opponent's limbs inside the R1; the mask marks exactly those."""
+    eo = _eval_opponent(); cfg = {**CFG, "opponent_mode": "policy"}
+    good = eo.clean_starts(cfg, ["kfab_202"], [0.4], {"home": eo.REF_POSES["home"]})[("kfab_202", 0.4)]; assert 0 < good.sum() < len(good)
+    m = build_spec(opponent=True, cfg=cfg).compile(); e = R1HitEnv(seed=0, cfg=cfg, model=m, episode_s=1, max_impulse=0, train=False)
+    e.opp = FightReplay(m, "kfab_202", distance=0.4, cfg=cfg)
+    for i in [int(np.flatnonzero(good)[0]), int(np.flatnonzero(~good)[0])]:
+        e.opp_t0 = i * eo.START_STEP; e.reset(hits=[], delay=0)
+        inside = any((m.geom_bodyid[c.geom1] in e.opp.bodies) != (m.geom_bodyid[c.geom2] in e.opp.bodies) and 0 not in (m.geom_bodyid[c.geom1], m.geom_bodyid[c.geom2])
+                     for c in [e.d.contact[j] for j in range(e.d.ncon)])
+        assert inside == (not good[i])
+
+
+def test_hard_tier_dr_runs_on_private_model_copies():
+    """Domain-randomised episodes step on per-thread model copies: the shared model is untouched, the DR cache is cleaned
+    up, and the results don't depend on the thread count."""
+    from r1gym.policy import PDStand
+    from r1gym.env import _DR_NOMINAL
+    eo = _eval_opponent(); cfg = {**CFG, "opponent_mode": "policy"}; m = build_spec(opponent=True, cfg=cfg).compile()
+    n = int(round(eo.START_SPAN / eo.START_STEP)); good = {("kfab_202", d): np.ones(n, bool) for d in eo.TIERS["hard"]["distances"]}
+    eps = eo.episodes(["kfab_202"], 1, "hard", good)
+    for e in eps: e["hits"] = [("strike", "chest", 30.0, 0.1, 0.0)] if e["distance"] == 0.4 else []   # one bout ends in a fall
+    mass, keys = m.body_mass.copy(), set(_DR_NOMINAL)
+    rows = eo.run(PDStand(), eps, m, cfg, T=1.0, threads=2, dr=True)
+    assert len(rows) == 4 and np.array_equal(m.body_mass, mass) and set(_DR_NOMINAL) == keys
+    assert rows == eo.run(PDStand(), eps, m, cfg, T=1.0, threads=3, dr=True)
+    assert rows[0]["fell_s"] is not None and rows[0]["distance"] == 0.4
+
+
+def test_steered_opponent_stays_in_front_and_the_r1_faces_it():
+    """The opponent (steerable tracker) is kept in front of the R1 along the bout's axis at the bout distance instead of
+    circling to its side, so the R1 faces it without turning (demo scenario, 6 s). Neither shipped policy uses the turn
+    command (results/face_opponent_ab.json): both gym.json files leave it off."""
+    from r1gym.policy import load_controller, controller_cfg
+    from r1gym.scenario import demo_env
+    assert controller_cfg(load_controller("step=results/policy_mjlab/policy.onnx"))["face_opponent"] is False
+    c = load_controller("guard=results/policy_mjlab_guard/policy.onnx"); cfg = {**controller_cfg(c), "opponent_mode": "policy"}
+    m = build_spec(opponent=True, cfg=cfg).compile(); e, o = demo_env(m, cfg, seconds=6.0); op = e.opp
+    assert op.tracker.steerable and not e.face
+    brg, dist, face = [], [], []
+    for _ in range(300):
+        o, r, d, info = e.step(c.act(o[None])[0]); assert not info["fallen"]
+        v = e.d.xpos[op.pel][:2] - e.d.xpos[e.r.pel][:2]; brg.append(np.degrees(np.arctan2(v[1], v[0]))); dist.append(np.linalg.norm(v))
+        R = e.d.xmat[e.r.pel].reshape(3, 3); face.append(abs(np.degrees(np.angle(np.exp(1j * (np.arctan2(v[1], v[0]) - np.arctan2(R[1, 0], R[0, 0])))))))
+    # the unsteered (stage-3) opponent ended up at the R1's side in this scenario; the 3 s side push moves the R1 and the
+    # opponent follows at <= 0.3 m/s, so the tail is wider than the median
+    assert np.median(np.abs(brg)) < 25 and abs(np.median(dist) - 0.65) < 0.15 and np.median(face) < 30, (np.median(np.abs(brg)), np.median(dist), np.median(face))
+
+
+def test_face_command_turns_toward_the_opponent():
+    """r1gym/env.py _face: opponent to the R1's left -> positive yaw-rate command, to its right -> negative, capped at the
+    policy's trained range; only for the mjlab contract."""
+    from r1gym import CONFIGS
+    c = {**load_cfg(CONFIGS / "r1_mjlab.yaml"), "face_opponent": True}; m = build_spec(cfg=c, opponent=True).compile()
+    e = R1HitEnv(seed=0, cfg=c, model=m, episode_s=1, max_impulse=0, train=False); e.opp = FightReplay(m, "kfab_200", distance=0.6, cfg={**c, "opponent_mode": "puppet"}); e.reset(hits=[], delay=0)
+    adr = m.jnt_qposadr[m.joint("opp_floating_base_joint").id]
+    for y, sign in [(1.0, 1), (-1.0, -1), (0.0, 0)]:
+        e.d.qpos[adr:adr + 2] = [0.6 if y == 0 else 0.0, y]; mujoco.mj_kinematics(m, e.d); e._face()
+        assert np.sign(round(e.command[2], 3)) == sign and abs(e.command[2]) <= e.FACE_MAX
+    e2 = R1HitEnv(seed=0, cfg=CFG, model=build_spec(cfg=CFG, opponent=True).compile(), episode_s=1, max_impulse=0, train=False); assert not e2.face
+    e.face_band = [0.35, 0.1]; e.turning = False   # deadband: stand still until 20 deg off, then turn until within 6 deg
+    for ang, turning in [(0.2, False), (0.5, True), (0.2, True), (0.05, False)]:
+        e.d.qpos[adr:adr + 2] = [0.6 * np.cos(ang), 0.6 * np.sin(ang)]; mujoco.mj_kinematics(m, e.d); e._face()
+        assert e.turning == turning and (e.command[2] != 0) == turning, (ang, e.turning, e.command[2])

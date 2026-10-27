@@ -1,5 +1,5 @@
 """Hit-robustness eval: fall rate vs impulse x hit location, and recovery time, PD stand vs RL policy.
-Single-hit sweep: one hit per episode at t=1.0 s, 4 directions, strikes and pushes, observation delay sampled 0-40 ms, sensor noise on.
+Single-hit sweep (2-60 N*s): one hit per episode at t=1.0 s, 4 directions, strikes and pushes, observation delay sampled 0-40 ms, sensor noise on.
 Multi-hit sweep (v3): 3 hits 0.5-1.0 s apart (random kind/location/direction, each at the given impulse), nominal model and
 domain-randomised model (mass/COM/friction/motor strength/armature/latency, same ranges as training)."""
 import sys, json, time, argparse, itertools, gc
@@ -14,6 +14,9 @@ from r1gym.policy import PDStand, load_controller, controller_cfg
 from r1gym.stats import wilson, paired_diff
 
 IMPULSES = [2, 4, 6, 8, 10, 12, 15, 20, 25, 30]
+# above 30 N*s: the stepping policies still stayed up at least half the time at 30 N*s, so their breaking point was off the
+# sweep. The extra levels are appended after the original scenarios, which keep their seeds.
+HIGH = [35, 40, 50, 60]; ALL = IMPULSES + HIGH
 MULTI = [4, 6, 8, 10, 12]   # N*s  (R1 = 28.9 kg)
 DIRS = {"front": 0.0, "left": np.pi / 2, "back": np.pi, "right": -np.pi / 2}   # where the hit comes FROM -> pushed away
 
@@ -72,6 +75,7 @@ def main():
     ap.add_argument("--out", default="results/eval"); a = ap.parse_args(); out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     models = {}
     sc = [(k, l, i, dn, 1000 * r + j) for j, (k, l, i, dn, r) in enumerate(itertools.product(["strike", "push"], LOCATIONS, IMPULSES, DIRS, range(a.reps)))]
+    sc += [(k, l, i, dn, 1000 * r + len(sc) + j) for j, (k, l, i, dn, r) in enumerate(itertools.product(["strike", "push"], LOCATIONS, HIGH, DIRS, range(a.reps)))]
     res = {}
     ctrls = [PDStand()]
     for lp in a.policy:
@@ -90,18 +94,21 @@ def main():
     summary = {}
     for name, rows in res.items():
         S = {"fall_rate_vs_impulse": {}, "fall_rate_vs_location": {}, "fall_rate_vs_location_impulse": {}, "recovery_s_median_vs_impulse": {}}
-        for i in IMPULSES:
+        for i in ALL:
             r = [x for x in rows if x["impulse"] == i]; S["fall_rate_vs_impulse"][i] = round(np.mean([x["fell"] for x in r]), 3)
             rc = [x["recovery_s"] for x in r if x["recovery_s"] is not None]; S["recovery_s_median_vs_impulse"][i] = round(float(np.median(rc)), 3) if rc else None
+        base = [x for x in rows if x["impulse"] in IMPULSES]   # overall and per-location rates stay over 2-30 N*s, as published before
         for l in LOCATIONS:
-            r = [x for x in rows if x["loc"] == l]; S["fall_rate_vs_location"][l] = round(np.mean([x["fell"] for x in r]), 3)
-            S["fall_rate_vs_location_impulse"][l] = {i: round(np.mean([x["fell"] for x in r if x["impulse"] == i]), 3) for i in IMPULSES}
-        f = [x["fell"] for x in rows]; S["overall_fall_rate"] = round(float(np.mean(f)), 3); S["episodes"] = len(rows)
+            r = [x for x in base if x["loc"] == l]; S["fall_rate_vs_location"][l] = round(np.mean([x["fell"] for x in r]), 3)
+            S["fall_rate_vs_location_impulse"][l] = {i: round(np.mean([x["fell"] for x in rows if x["loc"] == l and x["impulse"] == i]), 3) for i in ALL}
+        f = [x["fell"] for x in base]; S["overall_fall_rate"] = round(float(np.mean(f)), 3); S["episodes"] = len(base)
         S["overall_fall_rate_ci95"] = wilson(int(sum(f)), len(f))
-        S["fall_rate_vs_impulse_ci95"] = {i: wilson(int(sum(x["fell"] for x in rows if x["impulse"] == i)), sum(x["impulse"] == i for x in rows)) for i in IMPULSES}
+        fh = [x["fell"] for x in rows if x["impulse"] in HIGH]; S["high_fall_rate"] = round(float(np.mean(fh)), 3); S["high_fall_rate_ci95"] = wilson(int(sum(fh)), len(fh))
+        S["fall_rate_vs_impulse_ci95"] = {i: wilson(int(sum(x["fell"] for x in rows if x["impulse"] == i)), sum(x["impulse"] == i for x in rows)) for i in ALL}
         if name != "pd_stand":   # same scenarios for every controller -> paired difference
-            d, ci = paired_diff(f, [x["fell"] for x in res["pd_stand"]]); S["fall_rate_minus_pd"] = d; S["fall_rate_minus_pd_ci95"] = ci
-        S["max_impulse_50pct_survival"] = max([i for i in IMPULSES if S["fall_rate_vs_impulse"][i] <= 0.5], default=0)
+            d, ci = paired_diff(f, [x["fell"] for x in res["pd_stand"] if x["impulse"] in IMPULSES]); S["fall_rate_minus_pd"] = d; S["fall_rate_minus_pd_ci95"] = ci
+        # highest impulse up to which every level is survived at least half the time (stops at the first level above 50% falls)
+        S["max_impulse_50pct_survival"] = next((ALL[k - 1] if k else 0 for k, i in enumerate(ALL) if S["fall_rate_vs_impulse"][i] > 0.5), ALL[-1]); S["sweep_top_impulse"] = ALL[-1]
         S["three_hit_survival"] = multi[name]; summary[name] = S
     json.dump(summary, open(out / "summary.json", "w"), indent=1); print(json.dumps({k: {kk: v[kk] for kk in ["overall_fall_rate", "fall_rate_vs_impulse", "max_impulse_50pct_survival", "three_hit_survival"]} for k, v in summary.items()}, indent=1))
     plot(summary, out)
@@ -110,8 +117,8 @@ def plot(summary, out):
     import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
     fig, ax = plt.subplots(1, 4, figsize=(21, 4.5))
     for name, S in summary.items():
-        ax[0].plot(IMPULSES, [1 - S["fall_rate_vs_impulse"][i] for i in IMPULSES], "o-", label=name)
-        ax[2].plot(IMPULSES, [S["recovery_s_median_vs_impulse"][i] or np.nan for i in IMPULSES], "o-", label=name)
+        ax[0].plot(ALL, [1 - S["fall_rate_vs_impulse"][i] for i in ALL], "o-", label=name)
+        ax[2].plot(ALL, [S["recovery_s_median_vs_impulse"][i] or np.nan for i in ALL], "o-", label=name)
     ax[0].set(xlabel="hit impulse [N·s]", ylabel="survival rate", title="R1 survival vs impulse (strikes+pushes, all locations)", ylim=(-0.02, 1.02)); ax[0].legend(); ax[0].grid(alpha=.3)
     locs = list(LOCATIONS); w = 0.8 / len(summary)
     for name, S in summary.items():
@@ -120,7 +127,7 @@ def plot(summary, out):
     ax[3].set(xlabel="impulse of EACH of 3 hits [N·s]", ylabel="survival rate", title="3 hits 0.5-1 s apart", ylim=(-0.02, 1.02)); ax[3].legend(fontsize=7); ax[3].grid(alpha=.3)
     for k, (name, S) in enumerate(summary.items()):
         ax[1].bar(np.arange(len(locs)) + k * w, [1 - S["fall_rate_vs_location"][l] for l in locs], w, label=name)
-    ax[1].set_xticks(np.arange(len(locs)) + w * (len(summary) - 1) / 2, locs, rotation=30); ax[1].set(title="survival vs hit location (all impulses)", ylim=(0, 1)); ax[1].legend()
+    ax[1].set_xticks(np.arange(len(locs)) + w * (len(summary) - 1) / 2, locs, rotation=30); ax[1].set(title="survival vs hit location (2-30 N·s)", ylim=(0, 1)); ax[1].legend()
     ax[2].set(xlabel="hit impulse [N·s]", ylabel="median recovery time [s]", title="recovery time (survivors)"); ax[2].grid(alpha=.3); ax[2].legend()
     fig.tight_layout(); fig.savefig(out / "survival.png", dpi=120)
 

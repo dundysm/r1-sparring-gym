@@ -1,5 +1,5 @@
 """Headless check of the demo scenario (no rendering): fall time per controller for the demo run, plus N variants
-(hit durations re-sampled, obs delay 0-2, opponent distance 0.50-0.65 m) so the demo isn't a cherry-pick.
+(hit durations re-sampled, obs delay 0-2, opponent distance 0.55-0.70 m) so the demo isn't a cherry-pick.
 Also reports the opponent's real contacts on the R1 (count, peak force) so the demo's falls can be attributed."""
 import sys, json, argparse
 from pathlib import Path

@@ -73,17 +73,34 @@ def test_opponent_loop_is_seamless_and_retarget_has_no_flips():
 
 
 def test_puppet_opponent_is_a_capped_physical_r1():
-    m = build_spec(opponent=True, cfg=CFG).compile(); assert m.nu == 48
-    caps = torque_caps(CFG); opp = [m.actuator("opp_" + j.replace("_joint", "")).id for j in CTRL_JOINTS]
+    cfg = {**CFG, "opponent_mode": "puppet"}
+    m = build_spec(opponent=True, cfg=cfg).compile(); assert m.nu == 48
+    caps = torque_caps(cfg); opp = [m.actuator("opp_" + j.replace("_joint", "")).id for j in CTRL_JOINTS]
     assert np.allclose(m.actuator_forcerange[opp, 1], caps)
     from r1gym.scenario import demo_env
     from r1gym.contacts import per_body_force
-    e, o = demo_env(m, CFG); op = e.opp; peak = 0.0
+    e, o = demo_env(m, cfg); op = e.opp; peak = 0.0; assert op.puppet and op.tracker is None
     for _ in range(150):   # 3 s, PD stand
         e.step(np.zeros(ACT_DIM)); peak = max(peak, sum(per_body_force(m, e.d, e.r.r1_bodies).values()))
         assert np.linalg.norm(e.d.qpos[op.qadr:op.qadr + 3] - op.qpos_at(e.d.time)[:3]) < 0.25   # tracks its clip
     assert peak < 3000.0
 
+
+def test_tracked_opponent_stands_on_its_own_motors():
+    """Default opponent: an R1 driven by the tracking policy, Unitree's motors, no assist; it performs a clip it handles."""
+    m = build_spec(opponent=True, cfg=CFG).compile()
+    e = R1HitEnv(seed=0, cfg=CFG, model=m, episode_s=6, max_impulse=0, train=False)
+    e.opp = FightReplay(m, "kfab_200", distance=4.0, cfg=CFG); e.reset(hits=[], delay=0); op = e.opp
+    assert op.tracker is not None and not op.puppet and m.actuator_gainprm[op.act[0], 0] == 100
+    peak = [0.0]; orig = mujoco.mj_step
+    def spy(mm, dd, *a):   # inside the substeps: nothing may push on the opponent's pelvis
+        peak[0] = max(peak[0], float(np.abs(dd.xfrc_applied[op.pel]).max())); return orig(mm, dd, *a)
+    mujoco.mj_step = spy
+    try:
+        for _ in range(250):
+            e.step(np.zeros(ACT_DIM)); assert e.d.xmat[op.pel][8] > 0.5 and e.d.xpos[op.pel][2] > 0.25
+    finally: mujoco.mj_step = orig
+    assert peak[0] == 0.0
 
 
 def test_wilson_and_paired_diff():
@@ -91,6 +108,7 @@ def test_wilson_and_paired_diff():
     lo, hi = wilson(50, 100); assert lo < 0.5 < hi and 0.39 < lo < 0.41
     assert wilson(0, 10)[0] == 0.0 and wilson(10, 10)[1] == 1.0
     d, (a, b) = paired_diff([1, 1, 1, 0] * 25, [0, 1, 0, 0] * 25); assert d == 0.5 and a < 0.5 < b
+
 
 
 def test_deploy_loop_matches_env():

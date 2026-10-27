@@ -29,6 +29,21 @@ def _cfg(stage):
         return cfg
     return make
 
+# Guard: the stepping base's default arm pose (its action offset and the pose the posture reward holds) becomes a boxer's
+# guard: fists at cheek height, elbows down by the ribs. Found by FK/IK on the R1 (gpu/README.md), inside mjlab's soft
+# joint limits (90% of range). Fine-tuned from the shipped stepping base.
+GUARD_ARMS = {"left_shoulder_pitch_joint": -0.85, "left_shoulder_roll_joint": 0.15, "left_shoulder_yaw_joint": 0.2, "left_elbow_joint": -0.7,
+              "right_shoulder_pitch_joint": -0.85, "right_shoulder_roll_joint": -0.15, "right_shoulder_yaw_joint": -0.2, "right_elbow_joint": -0.7}
+
+def _guard(make):
+    def g(play=False):
+        cfg = make(play); robot = cfg.scene.entities["robot"]; jp = dict(robot.init_state.joint_pos)
+        jp = {k: v for k, v in jp.items() if not any(a in k for a in ("shoulder", "elbow"))}
+        jp.update(GUARD_ARMS); jp.update({".*_wrist_roll_joint": 0.0})
+        import dataclasses; robot.init_state = dataclasses.replace(robot.init_state, joint_pos=jp)   # HOME_KEYFRAME is shared: copy
+        return cfg
+    return g
+
 def register():
     from mjlab.tasks.registry import register_mjlab_task
     from src.tasks.velocity.rl import VelocityOnPolicyRunner
@@ -36,6 +51,8 @@ def register():
     for stage, tid in [(1, "R1-Spar-Stand"), (2, "R1-Spar-Stand-Push")]:
         make = _cfg(stage); rl = unitree_r1_ppo_runner_cfg(); rl.experiment_name = "r1_spar"
         register_mjlab_task(task_id=tid, env_cfg=make(), play_env_cfg=make(play=True), rl_cfg=rl, runner_cls=VelocityOnPolicyRunner)
+    make = _guard(_cfg(2)); rl = unitree_r1_ppo_runner_cfg(); rl.experiment_name = "r1_spar"
+    register_mjlab_task(task_id="R1-Spar-Guard", env_cfg=make(), play_env_cfg=make(play=True), rl_cfg=rl, runner_cls=VelocityOnPolicyRunner)
 
 if __name__ == "__main__":
     sys.path.insert(0, str(Path.cwd())); sys.path.insert(0, str(Path.cwd() / "scripts"))

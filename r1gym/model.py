@@ -67,6 +67,7 @@ def build_spec(opponent: bool = False, cfg=None, gains: str | None = None) -> mu
     caps = torque_caps(cfg)
     for i, j in enumerate(CTRL_JOINTS):
         grp = cfg[gains][_group(j)]; s.joint(j).armature = cfg.get("armature", 0.01)
+        if "joint_frictionloss" in cfg: s.joint(j).frictionloss = cfg["joint_frictionloss"]   # mjlab contract: 0
         s.add_actuator(name=j.replace("_joint", ""), target=j, trntype=mujoco.mjtTrn.mjTRN_JOINT,
                        gaintype=mujoco.mjtGain.mjGAIN_FIXED, gainprm=[grp["kp"]] + [0] * 9,
                        biastype=mujoco.mjtBias.mjBIAS_AFFINE, biasprm=[0, -grp["kp"], -grp["kd"]] + [0] * 7,
@@ -76,21 +77,32 @@ def build_spec(opponent: bool = False, cfg=None, gains: str | None = None) -> mu
         g = opponent_spec(kind)
         for a in list(g.actuators): g.delete(a)
         for se in list(g.sensors): g.delete(se)
-        for ge in g.geoms:                               # opponent hits the R1 but not itself
-            ge.contype, ge.conaffinity = (1, 0) if ge.contype or ge.conaffinity else (0, 0)
+        tracked = kind == "r1" and cfg.get("opponent_mode") == "policy"
+        for ge in g.geoms:
+            if not (ge.contype or ge.conaffinity): ge.contype, ge.conaffinity = 0, 0
+            elif tracked:   # as in unitree_rl_mjlab FULL_COLLISION, where the tracker trained: self-collision on (bit 2),
+                ge.contype, ge.conaffinity = 3, 2   # feet condim 3 / mu 0.6 / priority 1, other collision geoms condim 1
+                if "foot" in ge.name: ge.condim, ge.priority, ge.friction = 3, 1, [0.6, 0.005, 0.0001]
+                elif ge.name.endswith("_collision"): ge.condim, ge.priority = 1, 0
+            else: ge.contype, ge.conaffinity = 1, 0   # opponent hits the R1 but not itself
             ge.rgba = [0.85, 0.35, 0.25, 1]
-            ge.solref = OPP_SOLREF; ge.solimp = OPP_SOLIMP   # padded, compliant contact (sparring pads)
+            ge.solref = OPP_SOLREF; ge.solimp = OPP_SOLIMP
         f = s.worldbody.add_frame(); f.attach_body(g.body("pelvis"), "opp_", "")
         # "puppet" (default): the opponent is a second physical R1 with the same motors and torque caps, tracking the
         # fight clip (see FightReplay), so what it can do to the R1 is bounded by real actuator limits.
         # "kinematic": the original infinite-mass replay (qpos written every substep).
-        if kind == "r1" and cfg.get("opponent_mode", "puppet") == "puppet":
+        if kind == "r1" and cfg.get("opponent_mode", "puppet") in ("puppet", "policy"):
             # the opponent's own gains, caps and armature are independent of the protagonist's contract, so every
             # controller (residual or mjlab) faces the identical opponent
             og = cfg.get("opponent_gains", gains)
             ocaps = torque_caps({**cfg, "torque_cap_policy": cfg.get("opponent_cap_policy", cfg["torque_cap_policy"])})
+            oarm = cfg.get("opponent_armature", cfg.get("armature", 0.01))
+            ofl = None
+            if cfg.get("opponent_mode") == "policy":   # the tracker was trained on Unitree's contract; always actuate it that way
+                og, ocaps, oarm, ofl = "pd", torque_caps({**cfg, "torque_cap_policy": "mjlab"}), 0.01, 0.0   # mjlab zeroes frictionloss
             for i, j in enumerate(CTRL_JOINTS):
-                grp = cfg[og][_group(j)]; s.joint("opp_" + j).armature = cfg.get("opponent_armature", cfg.get("armature", 0.01))
+                grp = cfg[og][_group(j)]; s.joint("opp_" + j).armature = oarm
+                if ofl is not None: s.joint("opp_" + j).frictionloss = ofl
                 s.add_actuator(name="opp_" + j.replace("_joint", ""), target="opp_" + j, trntype=mujoco.mjtTrn.mjTRN_JOINT,
                                gaintype=mujoco.mjtGain.mjGAIN_FIXED, gainprm=[grp["kp"]] + [0] * 9,
                                biastype=mujoco.mjtBias.mjBIAS_AFFINE, biasprm=[0, -grp["kp"], -grp["kd"]] + [0] * 7,
@@ -127,7 +139,7 @@ class R1Robot:
     def reset(self, m, d, height=0.74):
         mujoco.mj_resetData(m, d)
         d.qpos[self.free_q:self.free_q + 3] = [0, 0, height]; d.qpos[self.free_q + 3:self.free_q + 7] = [1, 0, 0, 0]
-        d.qpos[self.qadr] = HOME; mujoco.mj_forward(m, d)
+        d.qpos[self.qadr] = self.cfg.get("home", HOME); mujoco.mj_forward(m, d)
 
     def pd(self, d, target):
         """Set joint position targets (rad) for the 24 actuated joints."""

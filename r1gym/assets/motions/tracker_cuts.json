@@ -1,0 +1,5 @@
+{
+ "about": "Moves the opponent's tracking policy can't perform on the R1's motors, measured in mjlab (the training sim) with the stage-2 tracker from 24 starts per clip: the frame (index into the cleaned clip) at which each run fell. Each cut starts ~0.8 s before the cluster of falls. kfab_199 failed everywhere (1/24 runs stayed up) and is dropped. scripts/eval_tracker.py re-measures after retraining.",
+ "fall_frames_stage2": {"kfab_202": "317-344 (16 of 24), 215-272 (5)", "kfab_203": "109-126 (19 of 24)", "kfab_204": "94-124 (19 of 24)", "kfab_199": "28-232, everywhere"},
+ "cuts": {"kfab_199": "all", "kfab_202": [[278, 100000]], "kfab_203": [[70, 131]], "kfab_204": [[55, 129]]}
+}

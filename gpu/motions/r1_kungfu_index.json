@@ -29,29 +29,29 @@
  "clips": {
   "kfab_200": {
    "start_frame": 0,
-   "frames": 329
+   "frames": 250
   },
   "kfab_201": {
-   "start_frame": 638,
-   "frames": 753
+   "start_frame": 480,
+   "frames": 722
   },
   "kfab_202": {
-   "start_frame": 2124,
-   "frames": 263
+   "start_frame": 1904,
+   "frames": 123
   },
   "kfab_203": {
-   "start_frame": 2630,
-   "frames": 490
+   "start_frame": 2130,
+   "frames": 276
   },
   "kfab_204": {
-   "start_frame": 3590,
-   "frames": 302
+   "start_frame": 2662,
+   "frames": 194
   },
   "kfab_205": {
-   "start_frame": 4174,
-   "frames": 148
+   "start_frame": 3030,
+   "frames": 102
   }
  },
- "frames": 4470,
+ "frames": 3234,
  "blend_frames": 20
 }

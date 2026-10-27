@@ -32,13 +32,15 @@ class MjlabPolicy:
     zero (stand / spar in place). Checks the ONNX metadata against this gym's contract before use."""
     name = "mjlab_policy"
     def __init__(self, path):
-        import onnx, onnxruntime as ort
+        import json, onnx, onnxruntime as ort
         from .model import CTRL_JOINTS, HOME, load_cfg, action_scale
         from . import CONFIGS
         self.cfg_path = CONFIGS / "r1_mjlab.yaml"; cfg = load_cfg(self.cfg_path)
         meta = {p.key: p.value for p in onnx.load(str(path)).metadata_props}
         assert meta["joint_names"].split(",") == CTRL_JOINTS, "joint order differs from the gym"
         self.cfg_overrides = {"home": [float(x) for x in meta["default_joint_pos"].split(",")]}   # e.g. a guard pose; HOME otherwise
+        g = Path(path).with_name("gym.json")   # per-policy gym settings measured for this policy (e.g. face_opponent)
+        if g.exists(): self.cfg_overrides.update({k: v for k, v in json.load(open(g)).items() if not k.startswith("_")})
         assert np.allclose([float(x) for x in meta["action_scale"].split(",")], action_scale(cfg), atol=2e-3)
         assert meta["observation_names"] == "base_ang_vel,projected_gravity,command,phase,joint_pos,joint_vel,actions"
         so = ort.SessionOptions(); so.intra_op_num_threads = 1

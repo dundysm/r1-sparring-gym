@@ -1,5 +1,6 @@
-"""Headless demo: Unitree R1 vs a second, physical R1 replaying a held-out KungFuAthleteBot clip (retargeted G1->R1),
-plus three scripted side/back pushes. PD stand (left) vs RL policy (right).
+"""Headless demo: Unitree R1 vs a second, physical R1 performing a KungFuAthleteBot clip (retargeted G1->R1) on its own
+motors, steered to stay in front of it, plus three scripted side/back pushes. Default: the two shipped stepping policies
+side by side (arms down, guard), each against its own copy of the opponent; --left none for one panel.
 What you see is what hits the robot: yellow spheres = real opponent contacts (size ~ force), orange arrows = scripted pushes.
 Writes media/demo.mp4, media/demo.gif, media/still_*.png and results/demo_contacts.json (per-body contact forces).
 Rendering needs OpenGL: MUJOCO_GL=egl on a headless Linux box, glfw (default) on a desktop."""
@@ -39,10 +40,10 @@ def overlay(scn, m, e):
             add_geom(scn, mujoco.mjtGeom.mjGEOM_ARROW, [1.0, 0.45, 0.1, 1.0], a=p - u * L, b=p, width=0.025)
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--left", default="none", help="label=PD | label=path (.pt/.onnx) | none (single panel)")
-    ap.add_argument("--right", default="Stepping base with guard=results/policy_mjlab_guard/policy.onnx"); ap.add_argument("--seconds", type=float, default=DEMO_SECONDS)
+    ap = argparse.ArgumentParser(); ap.add_argument("--left", default="Stepping base=results/policy_mjlab/policy.onnx", help="label=PD | label=path (.pt/.onnx) | none (single panel)")
+    ap.add_argument("--right", default="Stepping base + guard=results/policy_mjlab_guard/policy.onnx"); ap.add_argument("--seconds", type=float, default=DEMO_SECONDS)
     ap.add_argument("--clip", default=DEMO_CLIP); ap.add_argument("--distance", type=float, default=DEMO_DISTANCE)
-    ap.add_argument("--w", type=int, default=640); ap.add_argument("--h", type=int, default=480); ap.add_argument("--name", default="demo"); a = ap.parse_args()
+    ap.add_argument("--w", type=int, default=640); ap.add_argument("--h", type=int, default=400); ap.add_argument("--name", default="demo"); a = ap.parse_args()
     root = Path(__file__).resolve().parents[1]; (root / "media").mkdir(exist_ok=True)
     specs = [a.right] if a.left == "none" else [a.left, a.right]   # --left none: one panel (the right controller), larger
     if a.left == "none": a.w, a.h = 960, 540
@@ -79,7 +80,7 @@ def main():
                 if f > 1.0: dr.text((14, 40), f"OPPONENT CONTACT {f:.0f} N", font=Fs, fill=(255, 220, 40))
                 act = [h for h in e.hits if h.t0 <= e.d.time < h.t0 + h.duration + 0.25]
                 if act: h = act[0]; dr.text((14, 62), f"SCRIPTED {h.kind.upper()} {h.impulse:.0f} N·s → {h.body.replace('_link', '')}", font=Fs, fill=(255, 140, 50))
-                dr.text((14, a.h - 52), "silver: Unitree R1 (24-DoF, official MJCF)  |  orange: R1 opponent on its own motors (tracking policy, no assist)", font=Ft, fill=(200, 200, 210))
+                dr.text((14, a.h - 52), "silver: Unitree R1 (official MJCF)  |  orange: R1 opponent on its own motors, no assist", font=Ft, fill=(200, 200, 210))
                 dr.text((14, a.h - 30), f"t={e.d.time:4.1f}s  obs delay 40 ms  " + ("FELL at %.1fs" % x[2] if x[2] else "standing"), font=Fs,
                         fill=(255, 90, 90) if x[2] else (140, 255, 140))
                 row.append(np.asarray(img))
@@ -87,7 +88,8 @@ def main():
     out = root / "media" / f"{a.name}.mp4"; imageio.mimwrite(out, frames, fps=fps, codec="libx264", quality=7, macro_block_size=8)
     for s in [3.1, 5.0, 8.6]:
         i = min(len(frames) - 1, int(s * fps)); Image.fromarray(frames[i]).save(root / "media" / f"still_{s:.1f}s.png")
-    gw = 480; gh = int(round(gw * frames[0].shape[0] / frames[0].shape[1])) // 2 * 2   # README GIF: 480 px, 12 fps, 128 colours (~3 MB)
+    gw = 360 * len(specs) if len(specs) > 1 else 480   # README GIF: 360 px per panel (480 single), 12 fps, 128 colours (<5 MB)
+    gh = int(round(gw * frames[0].shape[0] / frames[0].shape[1])) // 2 * 2
     g = [Image.fromarray(f).resize((gw, gh), Image.LANCZOS).quantize(colors=128, method=Image.Quantize.MEDIANCUT) for f in frames[::2]]
     g[0].save(root / "media" / f"{a.name}.gif", save_all=True, append_images=g[1:], duration=int(2000 / fps), loop=0, optimize=True)
     json.dump({c.name if hasattr(c, "name") else labels[k]: {"fell_at_s": x[2], "contacts": x[0].contact_log} for k, (c, x) in enumerate(zip(ctrls, envs))},

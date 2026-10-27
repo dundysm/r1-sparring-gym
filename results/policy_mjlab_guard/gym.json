@@ -1,0 +1,4 @@
+{
+ "face_opponent": false,
+ "_why": "turns both ways (+-0.8 rad/s command -> 0.21 / -0.29) and the command improves facing (median 15.0 -> 9.5 deg), but validation survival doesn't improve (standard off/on/deadband 0.863/0.863/0.85, hard 0.609/0.609/0.484) and drift rises (0.27 -> 0.73 m; it steps while it turns). Off. results/face_opponent_ab.json (scripts/face_ab.py)"
+}

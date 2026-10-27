@@ -21,9 +21,9 @@ def _quat_mul(a, b):
 def _yaw(q):
     w, x, y, z = q; return np.arctan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z))
 
-def _cuts():
+def _cuts(name="tracker_cuts"):
     import json
-    p = ASSETS / "motions" / "tracker_cuts.json"; return json.load(open(p))["cuts"] if p.exists() else {}
+    p = ASSETS / "motions" / f"{name}.json"; return json.load(open(p))["cuts"] if p.exists() else {}
 
 def list_clips():
     """Clips the opponent performs (those the cut list drops entirely are excluded)."""
@@ -41,6 +41,8 @@ class FightReplay:
         q = self._retarget(q) if self.kind == "r1" else q
         q, self.clean_report = clean_clip(q, self.fps)   # source glitches and flips out, before placement
         q = apply_cuts(q, self.fps, _cuts().get(clip, []))  # moves the R1 can't perform (gpu/README.md: tracker cuts)
+        if (cfg or {}).get("opponent_style_cuts", True):   # idle stretches and posing (scripts/style_cuts.py); off = the stage-3 motion
+            q = apply_cuts(q, self.fps, _cuts("style_cuts").get(clip, []), STYLE_MIN_KEEP_S)
         if self.kind == "r1": q = ground(q, self.fps)      # feet on the floor (retarget only scaled root height)
         q = self._canon(q)
         self.q = _seamless(q, int(round(blend_s * self.fps))); self.T = len(self.q)
@@ -123,6 +125,7 @@ class FightReplay:
 # glitches by interpolation and cuts flips/inversions and long glitches out, cross-fading the pieces together.
 GLITCH_ROOT_SPEED, GLITCH_ANG_SPEED, GLITCH_JOINT_SPEED = 4.0, 15.0, 30.0   # m/s, rad/s, rad/s between consecutive frames
 MAX_TILT_DEG, REPAIR_MAX_S, MIN_KEEP_S, JOIN_BLEND_S = 60.0, 0.3, 1.0, 0.3
+STYLE_MIN_KEEP_S = 0.5   # style cuts keep shorter pieces: a 0.6 s strike between two pauses is what we want
 
 def _sign_continuous(q):
     q = q.copy(); q[:, 3:7] /= np.linalg.norm(q[:, 3:7], axis=1, keepdims=True)   # source quaternions are 0.91-1.12 long
@@ -169,12 +172,12 @@ def _join(q, keep, fps):
         out = _blend(out, seg, m)
     return out
 
-def apply_cuts(q, fps, ranges):
-    """Remove [a, b) frame ranges (indices into the cleaned clip) and join what is left."""
+def apply_cuts(q, fps, ranges, min_keep_s=None):
+    """Remove [a, b) frame ranges (indices into the clip as it is at this stage) and join what is left."""
     if not ranges: return q
     cut = np.zeros(len(q), bool)
     for a, b in ranges: cut[max(0, a):min(len(q), b)] = True
-    keep = [(a, b) for a, b in _runs(~cut) if b - a >= MIN_KEEP_S * fps]
+    keep = [(a, b) for a, b in _runs(~cut) if b - a >= (MIN_KEEP_S if min_keep_s is None else min_keep_s) * fps]
     return _join(q, keep, fps)
 
 def foot_lows(q):
@@ -209,8 +212,9 @@ def _blend(a, b, n):
 class Tracker:
     """Opponent driven by an R1 motion-tracking policy (gpu/r1_track_task.py): no root assist, only its own motors.
     The ONNX (mjlab export) bundles the reference motion: all clips, each twice, so frame start + (f mod frames) of a clip
-    is always inside the trained motion. Obs (129): reference joint pos/vel, motion anchor (torso) orientation in the robot
-    torso frame (first two rotation-matrix columns), gyro, joint pos - default, joint vel, last action."""
+    is always inside the trained motion. Obs: reference joint pos/vel, [steerable policies: the reference anchor (torso)
+    position in the robot torso frame,] the reference anchor orientation in the robot torso frame (first two
+    rotation-matrix columns), gyro, joint pos - default, joint vel, last action (129, or 132 when steerable)."""
     _cache = {}
     @classmethod
     def get(cls, path, replay):
@@ -224,16 +228,18 @@ class Tracker:
         from onnx import numpy_helper
         from pathlib import Path
         g = onnx.load(path); meta = {p.key: p.value for p in g.metadata_props}
-        init = {t.name.split(".")[0]: numpy_helper.to_array(t) for t in g.graph.initializer if t.name.split(".")[0] in ("joint_pos", "joint_vel", "body_quat_w")}
-        self.ref_q, self.ref_dq = init["joint_pos"], init["joint_vel"]
-        self.ref_anchor = init["body_quat_w"][:, meta["body_names"].split(",").index(meta["anchor_body_name"])]
+        init = {t.name.split(".")[0]: numpy_helper.to_array(t) for t in g.graph.initializer if t.name.split(".")[0] in ("joint_pos", "joint_vel", "body_pos_w", "body_quat_w")}
+        self.ref_q, self.ref_dq = init["joint_pos"], init["joint_vel"]; k = meta["body_names"].split(",").index(meta["anchor_body_name"])
+        self.ref_anchor, self.ref_anchor_pos = init["body_quat_w"][:, k], init["body_pos_w"][:, k]   # motion exported at distance 0
         self.default = np.array([float(x) for x in meta["default_joint_pos"].split(",")])
         from .model import torque_caps, load_cfg, CTRL_JOINTS
         assert meta["joint_names"].split(",") == list(CTRL_JOINTS)
         self.kp_meta = np.array([float(x) for x in meta["joint_stiffness"].split(",")])
         self.scale = 0.25 * torque_caps({**load_cfg(), "torque_cap_policy": "mjlab"}) / self.kp_meta   # exact (metadata has 3 decimals)
         assert np.allclose(self.scale, [float(x) for x in meta["action_scale"].split(",")], atol=1e-3)
-        assert meta["observation_names"] == "command,motion_anchor_ori_b,base_ang_vel,joint_pos,joint_vel,actions"
+        assert meta["observation_names"] in ("command,motion_anchor_ori_b,base_ang_vel,joint_pos,joint_vel,actions",
+                                             "command,motion_anchor_pos_b,motion_anchor_ori_b,base_ang_vel,joint_pos,joint_vel,actions")
+        self.steerable = "motion_anchor_pos_b" in meta["observation_names"]
         ix = json.load(open(Path(path).with_name("motion_index.json"))); self.index = ix["clips"]; self.blend = ix.get("blend_frames", 20)
         self.kp = np.array([float(x) for x in meta["joint_stiffness"].split(",")]); self.kd = np.array([float(x) for x in meta["joint_damping"].split(",")])
         so = ort.SessionOptions(); so.intra_op_num_threads = 1
@@ -251,22 +257,37 @@ class Tracker:
         for f in (0, self.blend - 1, self.blend, replay.T - 1):
             assert np.abs(self.ref_q[self.frame(replay.clip, f)] - replay.q[f, 7:]).max() < 1e-3, (replay.clip, f)
     FACE_TAU = 0.5   # s; how quickly the heading correction follows the bearing to the target
+    # Steering (steerable policies): the reference's spot (where the in-place clip is centred) follows the point `distance`
+    # m from the target along the bout's starting axis, at most 0.3 m/s with a 0.5 s lag. The shipped tracker's last stage
+    # (R1-Track-KungFu-Steer2) drifted the reference at up to 0.3 m/s (SteerMotionCommand), the same cap.
+    STEER_TAU, STEER_MAX = 0.5, 0.3
 
     def act(self, m, d, replay, state, t, dt=0.02):
-        """state: {"last": last action, "target": xy the opponent should face (or absent), "yaw": smoothed correction}.
-        Facing: the tracker reads the reference only relative to its own torso, so turning the whole reference about the
-        vertical axis is the same as turning the world, which the policy saw in training (random reset yaw). Turning it
-        toward the bearing to the target keeps the opponent facing the R1 instead of wandering off-axis."""
+        """state: {"last": last action, "target": xy the opponent should face (or absent), "yaw": smoothed correction,
+        "spot"/"axis": steering}. Facing: the tracker reads the reference orientation only relative to its own torso, so
+        turning the whole reference about the vertical axis is the same as turning the world, which the policy saw in
+        training (random reset yaw). Turning it toward the bearing to the target keeps the opponent facing the R1.
+        Steering: a steerable policy also reads where its reference is, so moving the reference walks the opponent; it is
+        kept in front of the R1 instead of wandering off to its side."""
         f = self.frame(replay.clip, int(round(t * replay.fps * replay.speed)))
         q, dq = d.qpos[replay.qadr + 7:replay.qadr + replay.nq], d.qvel[replay.vadr + 6:replay.vadr + replay.nq - 1]
-        ref = self.ref_anchor[f]
+        ref, yaw = self.ref_anchor[f], 0.0
         if state.get("target") is not None:
             to = np.asarray(state["target"]) - d.xpos[replay.pel][:2]; want = np.arctan2(to[1], to[0]) - np.pi   # reference faces -x
-            y0 = state.setdefault("yaw", want); state["yaw"] = y0 + np.angle(np.exp(1j * (want - y0))) * min(1.0, dt / self.FACE_TAU)
-            rz = np.array([np.cos(state["yaw"] / 2), 0, 0, np.sin(state["yaw"] / 2)]); ref = np.zeros(4); mujoco.mju_mulQuat(ref, rz, self.ref_anchor[f])
+            y0 = state.setdefault("yaw", want); state["yaw"] = yaw = y0 + np.angle(np.exp(1j * (want - y0))) * min(1.0, dt / self.FACE_TAU)
+            rz = np.array([np.cos(yaw / 2), 0, 0, np.sin(yaw / 2)]); ref = np.zeros(4); mujoco.mju_mulQuat(ref, rz, self.ref_anchor[f])
         inv, rel = np.zeros(4), np.zeros(4); mujoco.mju_negQuat(inv, d.xquat[replay.torso]); mujoco.mju_mulQuat(rel, inv, ref)
-        R = np.zeros(9); mujoco.mju_quat2Mat(R, rel); R = R.reshape(3, 3)
-        obs = np.concatenate([self.ref_q[f], self.ref_dq[f], R[:, :2].reshape(-1), d.qvel[replay.vadr + 3:replay.vadr + 6],
+        R = np.zeros(9); mujoco.mju_quat2Mat(R, rel); R = R.reshape(3, 3); pos = []
+        if self.steerable:
+            spot = state.setdefault("spot", np.array([replay.distance, 0.0]))   # where FightReplay placed the in-place clip
+            if state.get("target") is not None:
+                tgt = np.asarray(state["target"], float); axis = state.setdefault("axis", (spot - tgt) / (np.linalg.norm(spot - tgt) + 1e-9))
+                v = (tgt + replay.distance * axis - spot) / self.STEER_TAU; sp = np.linalg.norm(v)
+                state["spot"] = spot = spot + v * min(1.0, self.STEER_MAX / (sp + 1e-9)) * dt
+            c, s_ = np.cos(yaw), np.sin(yaw); a = self.ref_anchor_pos[f]
+            world = np.array([spot[0] + c * a[0] - s_ * a[1], spot[1] + s_ * a[0] + c * a[1], a[2]])
+            Rt = d.xmat[replay.torso].reshape(3, 3); pos = [Rt.T @ (world - d.xpos[replay.torso])]
+        obs = np.concatenate([self.ref_q[f], self.ref_dq[f], *pos, R[:, :2].reshape(-1), d.qvel[replay.vadr + 3:replay.vadr + 6],
                               q - self.default, dq, state["last"]]).astype(np.float32)
         a = self.s.run(["actions"], {"obs": obs[None], "time_step": np.array([[f]], np.float32)})[0][0]
         state["last"] = a.astype(np.float32); d.ctrl[replay.act] = self.default + self.scale * a

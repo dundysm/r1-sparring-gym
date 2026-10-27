@@ -11,3 +11,5 @@ action_filter: 0.0     # no EMA: q_target = q0 + (0.25 * effort / kp) * a
 action_clip: 1.0e+9    # unitree deploy.yaml: clip null
 sensors:
   noise: {ang_vel: 0.2, gravity: 0.05, joint_pos: 0.01, joint_vel: 1.5}   # uniform half-widths (mjlab corruption)
+face_opponent: false   # true: with an opponent, yaw-rate command toward its true bearing (r1gym/env.py _face), standing in for
+                       # perception; set per policy in gym.json next to its ONNX, only where it was measured to help

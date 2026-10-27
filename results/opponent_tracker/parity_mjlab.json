@@ -1,0 +1,131 @@
+{
+ "about": "The shipped opponent tracker run alone from the same 8 starts per clip (10 s each): inside mjlab 1.2.0, the training sim, with steering drift off (gpu/parity_mjlab.py), and in this repo (scripts/eval_tracker.py). Fall times in s, null = stayed up.",
+ "mjlab": {
+  "kfab_200": [
+   null,
+   null,
+   null,
+   null,
+   0.56,
+   null,
+   null,
+   null
+  ],
+  "kfab_201": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "kfab_202": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "kfab_203": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "kfab_204": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "kfab_205": [
+   null,
+   null,
+   null,
+   null,
+   0.26,
+   null,
+   null,
+   0.74
+  ]
+ },
+ "this_repo": {
+  "kfab_200": [
+   null,
+   null,
+   null,
+   null,
+   0.52,
+   null,
+   null,
+   null
+  ],
+  "kfab_201": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "kfab_202": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "kfab_203": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "kfab_204": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "kfab_205": [
+   null,
+   null,
+   null,
+   null,
+   0.34,
+   null,
+   null,
+   null
+  ]
+ },
+ "stays_up": {
+  "mjlab": "45/48",
+  "this_repo": "46/48"
+ }
+}

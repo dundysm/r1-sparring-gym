@@ -5,7 +5,7 @@ Two policies are trained here: the **stepping base** our R1 runs (`r1_spar_task.
 ## Stepping base
 
 `r1_spar_task.py` registers two tasks on top of Unitree's official R1 velocity task (`unitree_rl_mjlab` @1425b15):
-- `R1-Spar-Stand`: 40% standing envs, footwork commands of vx −0.6…0.8, vy ±0.5, wz ±0.8. Unitree's pushes are unchanged (±0.5 m/s every 5–6 s).
+- `R1-Spar-Stand`: 40% standing envs. The task sets footwork commands of vx −0.6…0.8, vy ±0.5, wz ±0.8, but Unitree's `command_vel` curriculum, which it keeps, overrides them from the first reset: vx −0.5…1.0, vy ±0.5, wz ±1.0, widening to vx −1.0…2.0, vy ±1.0 after 5000 iterations (only the guard fine-tune, iterations 5000–5997, got there). The shipped policies were trained this way, so the code is left as it ran. Unitree's pushes are unchanged (±0.5 m/s every 5–6 s).
 - `R1-Spar-Stand-Push`: same as above, plus:
   - pushes every 1.5–3.5 s, up to ±0.8 m/s linear and ±0.6 rad/s roll/pitch
   - 0–2 steps (0–40 ms) of observation delay on every actor term
@@ -34,16 +34,21 @@ Choose candidates on `--split val`, report on `--split test`. `scripts/crosssim_
 and tracks velocity commands in this repo's CPU MuJoCo, which is the check that the obs/action contract (`configs/r1_mjlab.yaml`)
 is right.
 
-### Guard pose (shipped)
-`R1-Spar-Guard` is stage 2 with the default arm pose replaced by a boxer's guard: shoulder pitch -0.85, roll ±0.15, yaw ±0.2, elbow -0.7. Fists sit at cheek height and the elbows hang down by the ribs. The pose was found by rendering FK candidates on the R1 (its elbow flexes forward for *negative* angles). It is inside mjlab's soft joint limits (90% of range; the elbow's is -0.82). The default pose is the action offset and what the posture reward holds, so the policy keeps its guard up while it steps. The run fine-tuned 1500 iterations from the shipped stepping base (`--agent.load-run <dir> --agent.load-checkpoint model_4498.pt`), about 28 min. On validation it ties the arms-down base (0.975 vs 0.975 against the tracked opponent; 0.950 vs 0.963 against the puppet, within CI), and it was selected because it keeps the guard.
+### Guard pose (variant)
+`R1-Spar-Guard` is stage 2 with the default arm pose replaced by a boxer's guard: shoulder pitch -0.85, roll ±0.15, yaw ±0.2, elbow -0.7. Fists sit at cheek height and the elbows hang down by the ribs. The pose was found by rendering FK candidates on the R1 (its elbow flexes forward for *negative* angles). It is inside mjlab's soft joint limits (90% of range; the elbow's is -0.82). The default pose is the action offset and what the posture reward holds, so the policy keeps its guard up while it steps. The run fine-tuned 1500 iterations from the shipped stepping base (`--agent.load-run <dir> --agent.load-checkpoint model_4498.pt`), about 28 min. When it was chosen (stage-3 opponent, no turn command) it tied the arms-down base on validation (0.975 vs 0.975 tracked; 0.950 vs 0.963 puppet). Against the current steered opponent it is worse on validation (standard 0.863 vs 0.975, hard 0.609 vs 0.812) and ties on test (hard 0.883 vs 0.828). Both ship; see the README's "Arms down vs guard".
 
 ## Opponent tracker (`r1_track_task.py`)
-This is unitree_rl_mjlab's BeyondMimic-style tracking task on the R1: R1 robot and action scale, R1 body names, and no anchor position or linear velocity in the actor (IMU + encoders only). The motion is `export_motion.py`'s concatenation of the cleaned clips (each twice, cross-faded), exactly what `FightReplay` replays.
+This is unitree_rl_mjlab's BeyondMimic-style tracking task on the R1: R1 robot and action scale, R1 body names, and no linear velocity in the actor. Stages 1–3 below also had no anchor position (IMU + encoders only); the shipped steerable version adds it back (stage 4). The motion is `export_motion.py`'s concatenation of the cleaned clips (each twice, cross-faded), exactly what `FightReplay` replays.
 
 ```bash
 python export_motion.py                                         # in the repo -> gpu/motions/r1_kungfu.csv + index
 python r1_track_task.py convert r1_kungfu.csv motions/r1_kungfu.npz      # on the GPU box (unitree_rl_mjlab checkout)
 python r1_track_task.py R1-Track-KungFu-Relaxed2 --env.scene.num-envs 4096 --agent.max-iterations N   --agent.logger tensorboard --motion-file motions/r1_kungfu.npz [--agent.resume True --agent.load-run <dir> --agent.load-checkpoint model_<k>.pt]
+# stage 4 (shipped): steerable, warm-started from stage 3 (results/opponent_tracker/model_9748.pt). Stages 1-3 trained on the motion
+# before the style cuts (git show 5787b83:gpu/motions/r1_kungfu.csv); stage 4 on the current export.
+python r1_track_task.py widen model_9748.pt logs/rsl_rl/r1_tracking/widen/model_9748.pt
+python r1_track_task.py R1-Track-KungFu-Steer  --env.scene.num-envs 4096 --agent.max-iterations 1000 --agent.logger tensorboard --motion-file motions/r1_kungfu.npz --agent.resume True --agent.load-run widen
+python r1_track_task.py R1-Track-KungFu-Steer2 --env.scene.num-envs 4096 --agent.max-iterations 3000 --agent.logger tensorboard --motion-file motions/r1_kungfu.npz --agent.resume True --agent.load-run <Steer run dir>
 ```
 
 What it took (2026-10-26, about 3.3 h on one RTX 4090, ~$3):
@@ -55,12 +60,17 @@ What it took (2026-10-26, about 3.3 h on one RTX 4090, ~$3):
 2. **Relax the end-effector termination.** With 0.25 m on hands and feet, 91% of episodes ended on a hand: the R1's elbows and wrists are kp 20, so fast arm swings lag. Hands get 0.5 m (`-Relaxed`), then feet get 0.4 m and hands 0.6 m (`-Relaxed2`), since high kicks were the next limit. Balance stays guarded by the anchor height and orientation terms.
 3. **Cut the moves the R1 can't do.** After 5750 iterations the opponent stayed up in only 38% of runs, and the falls clustered on specific moves. Running the tracker inside mjlab from 24 starts per clip located them, and the sim parity was exact (mjlab 21/56 runs vs this repo 21/56). `r1gym/assets/motions/tracker_cuts.json` lists the cuts; kfab_199 failed everywhere and is dropped.
 4. **Ground the motion.** The retarget only scaled root height, so the supporting foot sat a few cm off the floor. `ground()` shifts root height on stance frames.
-5. **Resume on the trimmed, grounded motion** for 4000 iterations (9748 in total). Episodes went from ~1 s to ~8.4 s of 10. In this repo the opponent stays up in **47/48** 10 s runs (`scripts/eval_tracker.py`, `results/opponent_tracker/eval_tracker.json`).
+5. **Resume on the trimmed, grounded motion** for 4000 iterations (9748 in total). Episodes went from ~1 s to ~8.4 s of 10. In this repo that opponent stayed up in 47/48 10 s runs.
+6. **Make it a sparring partner (2026-10-27, about 1.2 h on one RTX 4090, $1.10).** In the demo the stage-3 opponent walked around to the R1's side within 1.5 s (2.7 m in 12 s) and spent long stretches standing or posing. Two changes:
+   - **Style cuts** (`scripts/style_cuts.py` → `r1gym/assets/motions/style_cuts.json`): drop idle stretches (≥ 0.4 s with every hand and foot under 0.6 m/s) and posing (both hands ≥ 0.25 m above the torso for ≥ 0.3 s). kfab_202 lost a 2 s standstill; the motion went from 89 s to 65 s.
+   - **Steerable tracker** (`R1-Track-KungFu-Steer`, then `-Steer2`): the actor gets the reference anchor's position back (3 inputs, warm-started at zero weight with `widen`, so it starts as the stage-3 policy), and the reference drifts in xy during training (`SteerMotionCommand`) so the policy learns to walk after it. With BeyondMimic's anchor-position reward (std 0.3 m, weight 1) it kept the pose and let the position go: still 0.77 m from its reference after 1000 iterations. `-Steer2` makes position matter (std 0.5 m, weight 2, episode ends beyond 0.6 m, drift ≤ 0.3 m/s); over 3000 more iterations its error went from 0.33 to 0.22 m (13749 in total; not comparable with Steer's 0.77, since episodes now end past 0.6 m; `results/opponent_tracker/train_log.json`). In this repo it holds a median 5 cm from its distance (`selection.json`).
+   - **Parity:** from the same 48 starts, alone, it stays up 45/48 in mjlab and 46/48 here; the falls they share happen within 0.1 s of each other (`parity_mjlab.json`; mjlab side: `gpu/parity_mjlab.py`, this repo: `scripts/eval_tracker.py`). **Choice:** only iteration 11250 and the final one were exported. On 48 bouts on train + val clips (`scripts/select_opponent.py` → `selection.json`) the final one was better: opponent falls 1 vs 2, median bearing off-axis 3.3° vs 3.7°, worst bout 26.3° vs 69.9°. The unsteered stage 3 in the same bouts: 13.1°, worst 115.8°.
 
 In this repo (`r1gym/opponent.py` `Tracker`), these follow the training contract:
 - The opponent's motors always use Unitree's gains, the mjlab caps, armature 0.01 and zero joint friction, with feet μ 0.6 and self-collision on.
 - The reference shown is the frame to reach by the end of the control step, as mjlab's `MotionCommand` does after its increment.
 - Kinematics are refreshed before the observation.
-- The whole reference is turned about z, smoothed over 0.5 s, so the opponent keeps facing the R1. The tracker only sees the reference relative to its torso, so this equals turning the world, which training covers.
+- The whole reference is turned about z, smoothed over 0.5 s, so the opponent keeps facing the R1. The tracker sees the reference orientation only relative to its torso, so this equals turning the world, which training covers.
+- **Steering:** the reference's spot follows the point the bout distance in front of the R1 along the bout's starting axis, at ≤ 0.3 m/s with a 0.5 s lag (inside the trained drift), so the opponent stays in front and steps in when the R1 is pushed back.
 
 A test checks nothing pushes on its pelvis.

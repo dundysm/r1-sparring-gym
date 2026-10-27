@@ -1,0 +1,91 @@
+{
+ "stage4a_R1-Track-KungFu-Steer": {
+  "9750": {
+   "Mean episode length": 56.49,
+   "error_anchor_pos": 0.9124,
+   "error_joint_pos": 2.1897
+  },
+  "10000": {
+   "Mean episode length": 418.02,
+   "error_anchor_pos": 0.874,
+   "error_joint_pos": 1.2908
+  },
+  "10250": {
+   "Mean episode length": 426.47,
+   "error_anchor_pos": 0.8483,
+   "error_joint_pos": 1.3281
+  },
+  "10500": {
+   "Mean episode length": 406.73,
+   "error_anchor_pos": 0.839,
+   "error_joint_pos": 1.377
+  },
+  "10750": {
+   "Mean episode length": 431.21,
+   "error_anchor_pos": 0.7684,
+   "error_joint_pos": 1.3463
+  }
+ },
+ "stage4b_R1-Track-KungFu-Steer2": {
+  "10750": {
+   "Mean episode length": 21.66,
+   "error_anchor_pos": 0.2587,
+   "error_joint_pos": 1.5025
+  },
+  "11000": {
+   "Mean episode length": 350.82,
+   "error_anchor_pos": 0.329,
+   "error_joint_pos": 1.545
+  },
+  "11250": {
+   "Mean episode length": 322.7,
+   "error_anchor_pos": 0.3278,
+   "error_joint_pos": 1.5633
+  },
+  "11500": {
+   "Mean episode length": 357.79,
+   "error_anchor_pos": 0.2717,
+   "error_joint_pos": 1.5168
+  },
+  "11750": {
+   "Mean episode length": 388.79,
+   "error_anchor_pos": 0.2403,
+   "error_joint_pos": 1.4452
+  },
+  "12000": {
+   "Mean episode length": 366.96,
+   "error_anchor_pos": 0.2479,
+   "error_joint_pos": 1.5296
+  },
+  "12250": {
+   "Mean episode length": 375.32,
+   "error_anchor_pos": 0.2597,
+   "error_joint_pos": 1.4865
+  },
+  "12500": {
+   "Mean episode length": 406.12,
+   "error_anchor_pos": 0.2469,
+   "error_joint_pos": 1.4923
+  },
+  "12750": {
+   "Mean episode length": 374.66,
+   "error_anchor_pos": 0.2243,
+   "error_joint_pos": 1.4337
+  },
+  "13000": {
+   "Mean episode length": 427.4,
+   "error_anchor_pos": 0.2296,
+   "error_joint_pos": 1.4647
+  },
+  "13250": {
+   "Mean episode length": 426.07,
+   "error_anchor_pos": 0.2434,
+   "error_joint_pos": 1.4504
+  },
+  "13500": {
+   "Mean episode length": 401.52,
+   "error_anchor_pos": 0.2249,
+   "error_joint_pos": 1.507
+  }
+ }
+}

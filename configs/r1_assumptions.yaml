@@ -44,8 +44,14 @@ action_filter: 0.3           # EMA on policy actions (tau ~17 ms) to keep explor
                              # stand on R1's small feet falls from white 0.01 rad leg-target noise without it (sweep in docs/MODEL_AUDIT.md)
 
 opponent_model: r1   # r1 (fight clips retargeted onto an R1) | g1 (raw KungFuAthleteBot G1, kinematic only)
-# puppet: the opponent is a second physical R1 (same motors and torque caps, opponent_gains) tracking the clip, with a
-#         force-limited root assist (r1gym/opponent.py: horizontal <= 250 N, vertical <= 600 N, torque <= 150 N*m).
+# policy (default): the opponent is a second R1 on its own motors, driven by a motion-tracking policy (gpu/r1_track_task.py)
+#         that performs the cleaned fight clips; no assist. Its motors always use the tracker's training contract (Unitree
+#         gains kp 100/40, mjlab torque caps, armature 0.01), whatever the protagonist uses.
+# puppet: a second R1 (opponent_gains, opponent_cap_policy) whose pelvis gets a force-limited assist toward the clip
+#         (horizontal <= 250 N, vertical <= 600 N, torque <= 150 N*m). In the old demo that assist carried ~80% of its weight.
 # kinematic: the original infinite-mass replay; in range it pushes through the R1 with 4-12 kN peaks, so don't train on it.
-opponent_mode: puppet
-opponent_gains: stand_pd
+opponent_mode: policy
+opponent_policy: results/opponent_tracker/policy.onnx   # relative to the repo root; motion_index.json sits next to it
+opponent_gains: stand_pd      # puppet mode only
+opponent_cap_policy: min      # puppet mode only
+opponent_armature: 0.03       # puppet mode only

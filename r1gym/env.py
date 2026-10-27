@@ -14,7 +14,7 @@ OBS_DIM, ACT_DIM = 78, 24      # residual contract; the mjlab contract (configs/
 MJLAB_OBS_DIM = 83
 # Clip splits. Train on TRAIN_CLIPS; pick checkpoints / candidates on VAL_CLIPS only; report on TEST_CLIPS
 # (kfab_202 is also the demo clip). Before this split, the v2 candidate was chosen partly on kfab_202 demo variants.
-TRAIN_CLIPS = ["kfab_199", "kfab_200", "kfab_201", "kfab_203"]
+TRAIN_CLIPS = ["kfab_200", "kfab_201", "kfab_203"]   # kfab_199 dropped: the opponent's tracker can't perform it (tracker_cuts.json)
 VAL_CLIPS = ["kfab_204"]
 TEST_CLIPS = ["kfab_202", "kfab_205"]
 
@@ -30,6 +30,7 @@ class R1HitEnv:
         self.nsub = int(round(self.cfg["model"]["control_dt"] / self.cfg["model"]["timestep"])); self.dt = self.cfg["model"]["control_dt"]
         self.T = int(episode_s / self.dt); self.max_impulse = max_impulse; self.train = train
         n = self.cfg["sensors"]["noise"]; self.contract = self.cfg.get("contract", "residual")
+        self.home = np.array(self.cfg.get("home", HOME), float)   # default pose: HOME, or the policy's own (e.g. a guard)
         self.scale = action_scale(self.cfg); self.clip = float(self.cfg.get("action_clip", 4.0)); self.alpha = self.cfg.get("action_filter", 0.3)
         if self.contract == "mjlab":   # uniform half-widths, as unitree_rl_mjlab trains; command and phase are noise-free
             self.noise = np.concatenate([np.full(3, n["ang_vel"]), np.full(3, n["gravity"]), np.zeros(5), np.full(24, n["joint_pos"]), np.full(24, n["joint_vel"]), np.zeros(24)])
@@ -46,9 +47,9 @@ class R1HitEnv:
             c = self.command; ph = 2 * np.pi * ((self.t * self.dt) % 0.6) / 0.6   # mjlab phase(period=0.6), zero when standing
             phase = np.zeros(2) if np.linalg.norm(c) < 0.1 else np.array([np.sin(ph), np.cos(ph)])
             return np.concatenate([d.qvel[r.free_v + 3:r.free_v + 6], R.T @ np.array([0, 0, -1.0]), c, phase,
-                                   d.qpos[r.qadr] - HOME, d.qvel[r.vadr], self.last_a]).astype(np.float32)
+                                   d.qpos[r.qadr] - self.home, d.qvel[r.vadr], self.last_a]).astype(np.float32)
         return np.concatenate([d.qvel[r.free_v + 3:r.free_v + 6], R.T @ np.array([0, 0, -1.0]),
-                               d.qpos[r.qadr] - HOME, 0.05 * d.qvel[r.vadr], self.last_a]).astype(np.float32)
+                               d.qpos[r.qadr] - self.home, 0.05 * d.qvel[r.vadr], self.last_a]).astype(np.float32)
 
     def reset(self, hits=None, delay=None):
         self.r.reset(self.m, self.d)
@@ -65,10 +66,11 @@ class R1HitEnv:
             close = self.rng.random() < self.opp_prob; clip = self.opp_clips[self.rng.integers(len(self.opp_clips))]
             dist = round(float(self.rng.uniform(0.5, 0.7)), 2) if close else 5.0   # in-place opponent: strikes reach at 0.5-0.7 m
             key = (clip, dist)
-            if key not in self._opp_cache: self._opp_cache[key] = FightReplay(self.m, clip, distance=dist)
+            if key not in self._opp_cache: self._opp_cache[key] = FightReplay(self.m, clip, distance=dist, cfg=self.cfg)
             self.opp = self._opp_cache[key]; self.opp_t0 = float(self.rng.uniform(0, 5))
         if self.opp is not None:
             self.opp.place(self.m, self.d, getattr(self, "opp_t0", 0.0)); mujoco.mj_forward(self.m, self.d)
+            self.opp_state = {"last": np.zeros(24, np.float32)}   # tracker opponent: its last action
         o = self._raw_obs(); self.sensor.reset(o); return self.sensor(o)
 
     def step(self, a):
@@ -76,7 +78,13 @@ class R1HitEnv:
         if self.dr: self._dr_apply()
         if self.act_delay: a, self.a_prev = self.a_prev, a          # DR: one control step (20 ms) of motor-command latency
         self.filt = self.alpha * self.filt + (1 - self.alpha) * a   # EMA low-pass (mjlab contract: alpha 0, no filter)
-        self.r.pd(d, HOME + self.scale * self.filt)
+        self.r.pd(d, self.home + self.scale * self.filt)
+        if self.opp is not None and self.opp.tracker is not None:   # tracking-policy opponent acts at the control rate
+            # as in mjlab training: kinematics current (sim.forward before obs), and the reference shown is the frame to reach
+            # by the end of this control step (MotionCommand increments time_steps before the obs is computed)
+            mujoco.mj_kinematics(self.m, d)
+            if self.cfg.get("opponent_face", True): self.opp_state["target"] = d.xpos[self.r.pel][:2].copy()   # face the R1
+            self.opp.tracker.act(self.m, d, self.opp, self.opp_state, d.time + getattr(self, "opp_t0", 0.0) + self.dt, self.dt)
         for _ in range(self.nsub):
             self.hits_ap.apply(d, self.hits, d.time)   # clears xfrc_applied, then writes the scripted hits
             if self.opp is not None: self.opp.apply(self.m, d, d.time + getattr(self, "opp_t0", 0.0), self.m.opt.timestep)
@@ -88,7 +96,7 @@ class R1HitEnv:
         d.xfrc_applied[:] = 0; self.t += 1
         fallen = self.r.fallen(d)
         R = d.xmat[self.r.pel].reshape(3, 3); up = R[2, 2]; z = d.xpos[self.r.pel][2]
-        dq = d.qpos[self.r.qadr] - HOME
+        dq = d.qpos[self.r.qadr] - self.home
         if self.reward == "v3":   # stay up / recover: no penalty for leaving the stance, mild pull back to home legs
             w = d.qvel[self.r.free_v + 3:self.r.free_v + 6]
             rew = (1.0 + 1.0 * up - 2.0 * max(0.0, 0.64 - z) - 0.003 * np.sum(dq[:12] ** 2) - 0.01 * np.sum(dq[12:] ** 2)
@@ -105,7 +113,9 @@ class R1HitEnv:
         m = self.m   # nominal values cached per model object (later envs see a model already DR-modified by earlier ones)
         self._nom = _DR_NOMINAL.setdefault(id(m), dict(mass=m.body_mass.copy(), ipos=m.body_ipos.copy(), fric=m.geom_friction.copy(), gain=m.actuator_gainprm.copy(),
                          bias=m.actuator_biasprm.copy(), frc=m.actuator_forcerange.copy(), arm=m.dof_armature.copy()))
-        self._r1b = np.array(sorted(self.r.r1_bodies)); self._feet = np.array([g for g in range(m.ngeom) if "foot" in (m.geom(g).name or "")])
+        self._r1b = np.array(sorted(self.r.r1_bodies))   # DR touches the protagonist only, never the opponent
+        self._feet = np.array([g for g in range(m.ngeom) if "foot" in (m.geom(g).name or "") and m.geom_bodyid[g] in self.r.r1_bodies])
+        self._r1dof = np.flatnonzero(np.isin(m.dof_bodyid, list(self.r.r1_bodies)))
     # Envs in one process share one MjModel (a private copy per env costs ~200 MB): each env keeps its own sampled
     # parameters and writes them into the shared model right before it steps. Safe because envs step sequentially
     # within a worker process; do NOT step DR envs that share a model from multiple threads.
@@ -127,7 +137,7 @@ class R1HitEnv:
         m.actuator_gainprm[:] = n["gain"]; m.actuator_biasprm[:] = n["bias"]; m.actuator_forcerange[:] = n["frc"]
         m.actuator_gainprm[a, 0] *= k; m.actuator_biasprm[a, 1] *= k; m.actuator_biasprm[a, 2] *= kd
         m.actuator_forcerange[a] *= g.uniform(0.8, 1.05, 24)[:, None]
-        m.dof_armature[:] = n["arm"] * g.uniform(0.5, 1.5, m.nv)
+        m.dof_armature[:] = n["arm"]; m.dof_armature[self._r1dof] *= g.uniform(0.5, 1.5, len(self._r1dof))
         self.act_delay = int(g.random() < 0.5)
 
 class BatchEnv:

@@ -16,7 +16,7 @@ SCRIPTED = [("push", "l_shoulder", 5, 3.0, np.pi / 2), ("grab", "r_shoulder", 4,
 def demo_env(m, cfg, hit_seed=3, delay=2, distance=DEMO_DISTANCE, clip=DEMO_CLIP, seconds=DEMO_SECONDS):
     """Env with the opponent and the scripted pushes, reset and ready; returns (env, first obs)."""
     e = R1HitEnv(seed=1, cfg=cfg, model=m, episode_s=seconds + 1, max_impulse=0, train=False)
-    e.opp = FightReplay(m, clip, distance=distance)
+    e.opp = FightReplay(m, clip, distance=distance, cfg=cfg)
     rng = np.random.default_rng(hit_seed)   # one stream per run: each hit gets its own duration draw
     hits = [make_hit(k, loc, imp, t, yaw, rng) for k, loc, imp, t, yaw in SCRIPTED]
     return e, e.reset(hits=hits, delay=delay)

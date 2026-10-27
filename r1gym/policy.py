@@ -38,7 +38,7 @@ class MjlabPolicy:
         self.cfg_path = CONFIGS / "r1_mjlab.yaml"; cfg = load_cfg(self.cfg_path)
         meta = {p.key: p.value for p in onnx.load(str(path)).metadata_props}
         assert meta["joint_names"].split(",") == CTRL_JOINTS, "joint order differs from the gym"
-        assert np.allclose([float(x) for x in meta["default_joint_pos"].split(",")], HOME, atol=1e-3)
+        self.cfg_overrides = {"home": [float(x) for x in meta["default_joint_pos"].split(",")]}   # e.g. a guard pose; HOME otherwise
         assert np.allclose([float(x) for x in meta["action_scale"].split(",")], action_scale(cfg), atol=2e-3)
         assert meta["observation_names"] == "base_ang_vel,projected_gravity,command,phase,joint_pos,joint_vel,actions"
         so = ort.SessionOptions(); so.intra_op_num_threads = 1
@@ -57,4 +57,4 @@ def load_controller(spec):
 
 def controller_cfg(ctrl):
     from .model import load_cfg
-    return load_cfg(getattr(ctrl, "cfg_path", None))
+    return {**load_cfg(getattr(ctrl, "cfg_path", None)), **getattr(ctrl, "cfg_overrides", {})}

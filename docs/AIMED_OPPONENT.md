@@ -171,4 +171,112 @@ once, reported whatever the sign.
   contact on hardware means touch level and a foam head cover.
 
 ## Amendments
-None.
+**1. 2026-10-27, before any aimed run.** Written while implementing M1.2-M1.4, before the tracker tolerance runs and before
+anything aimed ran on any split. The text above left these open:
+- **Strike library** (`r1gym/strikes.py`): onset is the forward speed rising through 1.5 m/s; the apex is the most forward
+  point within 0.4 s and must be >= 0.25 m ahead of the spot; the end is the first frame from the apex with forward speed
+  <= 0. In this motion that is the apex or the frame after it, so a library window is [onset, apex] shifted by the lag. The
+  library has 55 strikes (51 hands). Test has 9 of them, one level with the head (the 10-16 and 1-2 above came from the
+  design probes' rules).
+- **Unaimed side of an aim comparison:** the scheduler runs without aiming (`opponent_aim: shadow`, bit-identical to
+  `none`), so both sides are scored on the same intent windows, [t_on, t_apex + 0.15 s].
+- **Zone:** every hand strike is aimed at the head (`aim.zone: head`). Feet are not aimed.
+- **Upright gate:** "after a landed hit" is read as any contact between a strike limb and the R1's head or torso shells,
+  checked at the control rate. The meter's episodes close only after the merge gap, too late for the gate.
+- **ArmWarp's pull toward the clip's arm angles:** 0.001. Design A's 0.02 left 1.3 cm (up to 2.7 cm) between the palm and
+  reachable targets, and M1.3 requires <= 1 cm.
+- **Splice tolerance:** 'select' is a candidate only if, with the opponent alone over 48 runs of 10 s on train and val clips,
+  it falls in at most one run more than without splices.
+- **aim_check grid:** per train or val clip, 3 start times that are clean at every distance in both reference poses; obs
+  delay 1 step; no scripted hits; nominal physics. The mannequin is the R1 welded at its pelvis and held at home by the
+  residual config's PD stand.
+- **Decision rules:**
+  - Rule 2 pools opponent falls over the whole grid at shell solref 0.01: all three targets and every distance.
+  - Rule 3's CI is the cluster bootstrap of the exposure-weighted paired difference, aimed minus shadow, on the arms-down
+    target.
+  - Rule 4's "top two" are the two largest differences among the candidates whose CI is above 0.
+
+## Results
+M1.2-M1.5, added after the runs. Everything between the markers is generated from the stored JSON by
+`python scripts/aim_tables.py --write`, which first checks that the text above this section is unchanged: it hashes to the
+`prereg_sha` every M1 result carries (the whole file at the time, which had no Results section). Later results hash the
+whole file, this section included.
+
+<!-- results:begin -->
+### Provenance and the test-once record
+
+- The 18 M1 result files (`M1_RESULTS` in `scripts/aim_tables.py`) carry `prereg_sha` 562834645ce51777; this file without this Results section hashes to 562834645ce51777 (the same). The definitions, rules and amendment 1 above are the text they were computed under.
+- They were run from the uncommitted working tree on adcd6cb (`git_dirty` true): the commit that adds this section is the code that produced them.
+- Order, from the files' write times and the run logs: amendment 1; the strike library; tolerance; aim check and `aim.json`; the hard tier on val (unaimed and aimed, with and without scripted hits); then the hard tier on test, each variant once; then the standard and puppet tiers, val before test. No test result was generated twice, and nothing was chosen after a test run. The standard-tier val `--aim` run was repeated once (val, after the test runs) because its first run recorded no commit (git failed during it): the bouts and summary came out identical, only `meta` changed.
+
+### M1.2 strike library
+
+- 55 strikes, 51 with a hand and 4 kicks. Train 38 (5 level with the head) in 25.0 s, val 8 (1) in 3.9 s, test 9 (1) in 4.5 s: test can say little about head-level strikes.
+- Audit against 106 labelled candidates (9 unsure, left out): precision 0.78 [0.58, 0.90], recall 0.79 [0.59, 0.91]; hands 0.76 / 0.81; val 1.00 / 0.78. One labeller, the agent that wrote the detector (`strike_labels.json`: `labeller`), no second rater.
+- The design probes counted 70 (A) and 107 (B) events; the rule variants on the same labels are in `strikes.json` `variants` (B-like trigger: 115 events, precision 0.52).
+
+### M1.4 tolerance (opponent alone, train + val)
+
+| reference change | palm within 5 cm of the apex | design B's probe |
+|---|---|---|
+| none | 69.8% of 43 | 72.7% |
+| apex 10 cm up | 67.4% of 43 | 65.2% |
+| apex 20 cm up | 53.5% of 43 | 42.4% |
+
+A 20 cm lunge at 1 m/s adds 3.5 cm of reach (median; B's probe 1.8 cm). Falls in 48 runs of 10 s: unchanged 2, retimed 0.7x 2, 0.5x 16, spliced ('select') 15. Lag 20 ms (train median, frozen in `aim.json`).
+
+### M1.4 decision rules (aim check, train + val; `results/opponent_aim/aim_check.json` → `results/opponent_tracker/aim.json`)
+
+1. **Candidates:** StandOff, ArmWarp, ArmWarp height and sideways only, StandOff + ArmWarp (height, sideways). The selector is out: spliced runs fell 13 more times than unchanged ones (amendment 1 allows 1).
+2. **Opponent falls,** pooled over the grid at solref 0.01 (unaimed 0.5%, limit +2 pp): StandOff 0.0%; ArmWarp 0.5%; ArmWarp, height and sideways only 0.0%; StandOff + ArmWarp (height, sideways) 0.9%. None rejected.
+3. **Paired Δ head clean strikes/min, arms-down target** (aimed minus shadow, cluster bootstrap): StandOff +1.00 [0.00, 2.08]; ArmWarp +2.08 [0.33, 3.75]; ArmWarp, height and sideways only +2.58 [0.75, 4.50]; StandOff + ArmWarp (height, sideways) +3.17 [1.08, 5.17].
+4. **Tie-break:** the top two with CIs above 0 differ by 0.584/min (not under 0.5), so the largest wins: **StandOff + ArmWarp (height, sideways)**.
+5. **Fallback:** not triggered.
+6. **Every hit rule:** the chosen Δ is clean +3.17, landed +6.00, A_peak20 +7.92, B_strike +3.08, impulse_only +6.00/min; the sign holds under every rule.
+7. **Written before any test run:** `aim.json` (`decided_on`: "train + val (results/opponent_aim/aim_check.json), before any aimed test run").
+
+The other targets, same operator: the welded mannequin +1.8 [-1.0, 4.4] (train clips +3.7 [1.2, 6.0], val clip -4.0 [-9.0, -1.0]), the guard +0.9 [-0.2, 2.0]. Neither CI is above 0 on its own; the rule is judged on the arms-down target only.
+
+### M1.5 hard `--aim` tier: Δ survival and Δ primary per controller (aimed minus unaimed, same episodes)
+
+| split | scripted hits | controller | Δ survival [95% CI] | Δ head clean strikes/min [95% CI] | Δ opponent falls [95% CI] | hit rules with the other sign |
+|---|---|---|---|---|---|---|
+| val | on | PD stand | +0.000 [0.000, 0.000] | -2.87 [-7.51, 1.84] | +0.031 [0.000, 0.081] | A_peak20 |
+| val | on | RL v1 (residual) | +0.000 [0.000, 0.000] | -5.32 [-8.85, -1.91] | +0.031 [0.000, 0.081] | A_peak20 |
+| val | on | RL v2 (residual) | +0.000 [0.000, 0.000] | -4.99 [-8.49, -1.20] | +0.016 [0.000, 0.051] | A_peak20 |
+| val | on | RL v3 cand. (residual) | +0.000 [0.000, 0.000] | -3.35 [-6.83, 0.29] | +0.031 [0.000, 0.081] | – |
+| val | on | Stepping base, stage 1 | +0.062 [-0.016, 0.149] | -1.39 [-3.39, 0.62] | -0.016 [-0.065, 0.034] | landed, A_peak20, impulse_only |
+| val | on | **Stepping base, arms down** | -0.016 [-0.081, 0.052] | +1.44 [-0.08, 2.92] | +0.062 [-0.017, 0.149] | – |
+| val | on | **Stepping base + guard** | -0.062 [-0.138, 0.000] | +2.31 [0.99, 3.66] | +0.109 [0.000, 0.215] | – |
+| val | off | PD stand | -0.156 [-0.274, -0.058] | -9.23 [-12.45, -6.02] | +0.000 [0.000, 0.000] | – |
+| val | off | RL v1 (residual) | -0.078 [-0.167, 0.000] | -1.80 [-5.44, 1.33] | +0.016 [0.000, 0.051] | A_peak20 |
+| val | off | RL v2 (residual) | -0.109 [-0.197, -0.030] | -6.05 [-8.89, -3.25] | +0.016 [0.000, 0.051] | landed, A_peak20, impulse_only |
+| val | off | RL v3 cand. (residual) | -0.062 [-0.143, 0.000] | -4.21 [-7.79, -0.83] | +0.000 [0.000, 0.000] | A_peak20 |
+| val | off | Stepping base, stage 1 | -0.031 [-0.106, 0.045] | -5.20 [-7.80, -2.56] | +0.000 [0.000, 0.000] | A_peak20 |
+| val | off | **Stepping base, arms down** | +0.000 [0.000, 0.000] | +1.79 [0.00, 3.48] | +0.047 [0.000, 0.104] | – |
+| val | off | **Stepping base + guard** | +0.000 [-0.048, 0.045] | +2.60 [1.08, 4.20] | +0.016 [-0.051, 0.085] | – |
+| test | on | PD stand | +0.000 [0.000, 0.000] | +5.49 [3.24, 7.88] | +0.000 [0.000, 0.000] | – |
+| test | on | RL v1 (residual) | +0.000 [0.000, 0.000] | +5.73 [3.78, 7.75] | +0.008 [0.000, 0.024] | – |
+| test | on | RL v2 (residual) | +0.000 [0.000, 0.000] | +3.51 [1.57, 5.68] | +0.016 [0.000, 0.040] | – |
+| test | on | RL v3 cand. (residual) | +0.000 [0.000, 0.000] | +3.25 [1.14, 5.42] | +0.023 [0.000, 0.054] | – |
+| test | on | Stepping base, stage 1 | -0.016 [-0.072, 0.047] | +5.23 [3.92, 6.65] | +0.000 [0.000, 0.000] | – |
+| test | on | **Stepping base, arms down** | -0.023 [-0.084, 0.033] | +2.45 [1.43, 3.49] | +0.141 [0.083, 0.205] | – |
+| test | on | **Stepping base + guard** | -0.062 [-0.116, -0.015] | +1.15 [0.51, 1.79] | +0.133 [0.077, 0.194] | – |
+| test | off | PD stand | -0.258 [-0.331, -0.189] | +8.11 [5.59, 10.65] | +0.000 [0.000, 0.000] | – |
+| test | off | RL v1 (residual) | -0.156 [-0.229, -0.083] | +4.99 [3.51, 6.51] | +0.000 [0.000, 0.000] | – |
+| test | off | RL v2 (residual) | -0.180 [-0.244, -0.118] | +5.36 [3.59, 7.29] | +0.008 [0.000, 0.024] | – |
+| test | off | RL v3 cand. (residual) | -0.141 [-0.205, -0.085] | +5.05 [2.89, 7.26] | +0.008 [0.000, 0.024] | – |
+| test | off | Stepping base, stage 1 | -0.086 [-0.156, -0.024] | +4.46 [2.93, 5.94] | +0.023 [0.000, 0.054] | – |
+| test | off | **Stepping base, arms down** | +0.000 [-0.024, 0.023] | +4.68 [3.58, 5.86] | +0.094 [0.047, 0.146] | – |
+| test | off | **Stepping base + guard** | +0.000 [-0.023, 0.024] | +1.69 [1.10, 2.30] | +0.109 [0.060, 0.161] | – |
+
+- **Stepping bases on test:** the aim adds head clean strikes against both (arms down +2.45 [1.43, 3.49], guard +1.15 [0.51, 1.79]/min), as on val for the guard (+2.31 [0.99, 3.66]); on val the arms-down CI touches 0 (+1.44 [-0.08, 2.92]). The guard's survival drops on test (-0.062 [-0.116, -0.015]).
+- **The opponent falls more** against the stepping bases on test: 10.9% → 25.0% (arms down), 10.9% → 24.2% (guard). M1.5 has no fall rule; rule 2 (aim check) passed, so this is reported, not a rejection.
+- **PD, the residual policies and stage 1**, which fall in most hard bouts, show the aim's effect with opposite signs on val and test; their bouts are short, so their rates rest on few minutes. They are reported, not interpreted.
+
+### What this doesn't show
+
+- The defenders are the stepping bases of this branch (`results/policy_mjlab*/`, with the hold-your-spot settings of d1990f9), not later footwork policies.
+- Most aimed windows can't reach the head from where the opponent stands: on the arms-down target 796 of 1056 windows' targets are 8 cm or more beyond the arm, and 48% of windows are not aimed (lean or touch gate). The effect is per minute of bout, not per strike.
+- Test holds 9 library strikes, 1 of them level with the head; the test result is one replication on two short clips.
+<!-- results:end -->

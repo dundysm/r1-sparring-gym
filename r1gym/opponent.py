@@ -59,6 +59,16 @@ class FightReplay:
         self.tracker = Tracker.get(cfg["opponent_policy"], self) if mode == "policy" else None
         self.puppet = motors and self.tracker is None
 
+    @property
+    def strikes(self):
+        """This clip's library strikes (r1gym/strikes.py). They were detected on this very motion, so the frame counts agree
+        (with the style cuts off, e.g., they don't and this refuses)."""
+        if not hasattr(self, "_strikes"):
+            from . import strikes as S
+            assert S.clip_frames(self.clip) == self.T, f"strike library was detected on {S.clip_frames(self.clip)} frames of {self.clip}, this replay has {self.T}"
+            self._strikes = S.load(clip=self.clip)
+        return self._strikes
+
     # root assist for the puppet: PD toward the clip's root pose, force-limited. Horizontal force is capped near the
     # friction limit of a 29 kg robot (mu*m*g ~ 280 N), so the opponent cannot bulldoze the R1 with the assist.
     ROOT_KP, ROOT_KD, ROOT_FXY, ROOT_FZ = 1500.0, 300.0, 250.0, 600.0
@@ -262,32 +272,40 @@ class Tracker:
     # (R1-Track-KungFu-Steer2) drifted the reference at up to 0.3 m/s (SteerMotionCommand), the same cap.
     STEER_TAU, STEER_MAX = 0.5, 0.3
 
+    def reference(self, replay, f, state):
+        """What the policy is shown at motion frame f: reference joint pos and vel, and the anchor (torso) position and
+        orientation of the motion at distance 0. An aim operator (r1gym/aim.py, per env in state['aim']) builds on it."""
+        return self.ref_q[f], self.ref_dq[f], self.ref_anchor_pos[f], self.ref_anchor[f]
+
     def act(self, m, d, replay, state, t, dt=0.02):
         """state: {"last": last action, "target": xy the opponent should face (or absent), "yaw": smoothed correction,
-        "spot"/"axis": steering}. Facing: the tracker reads the reference orientation only relative to its own torso, so
-        turning the whole reference about the vertical axis is the same as turning the world, which the policy saw in
-        training (random reset yaw). Turning it toward the bearing to the target keeps the opponent facing the R1.
-        Steering: a steerable policy also reads where its reference is, so moving the reference walks the opponent; it is
-        kept in front of the R1 instead of wandering off to its side."""
-        f = self.frame(replay.clip, int(round(t * replay.fps * replay.speed)))
+        "spot"/"axis": steering, optional "aim": the env's aim operator, "dist"/"steer_max"/"steer_tau": steering overrides}.
+        Facing: the tracker reads the reference orientation only relative to its own torso, so turning the whole reference
+        about the vertical axis is the same as turning the world, which the policy saw in training (random reset yaw). Turning
+        it toward the bearing to the target keeps the opponent facing the R1. Steering: a steerable policy also reads where
+        its reference is, so moving the reference walks the opponent; it is kept in front of the R1 instead of wandering off
+        to its side. Without "aim" and the overrides this is the shipped opponent, bit for bit (tests/test_aim.py)."""
+        aim = state.get("aim"); fi = int(round(t * replay.fps * replay.speed)) if aim is None else aim.clock(t, replay)
+        f = self.frame(replay.clip, fi)
+        rq, rdq, apos, aori = self.reference(replay, f, state) if aim is None else aim.reference(self, m, d, replay, fi, state, t, dt)
         q, dq = d.qpos[replay.qadr + 7:replay.qadr + replay.nq], d.qvel[replay.vadr + 6:replay.vadr + replay.nq - 1]
-        ref, yaw = self.ref_anchor[f], 0.0
+        ref, yaw = aori, 0.0
         if state.get("target") is not None:
             to = np.asarray(state["target"]) - d.xpos[replay.pel][:2]; want = np.arctan2(to[1], to[0]) - np.pi   # reference faces -x
             y0 = state.setdefault("yaw", want); state["yaw"] = yaw = y0 + np.angle(np.exp(1j * (want - y0))) * min(1.0, dt / self.FACE_TAU)
-            rz = np.array([np.cos(yaw / 2), 0, 0, np.sin(yaw / 2)]); ref = np.zeros(4); mujoco.mju_mulQuat(ref, rz, self.ref_anchor[f])
+            rz = np.array([np.cos(yaw / 2), 0, 0, np.sin(yaw / 2)]); ref = np.zeros(4); mujoco.mju_mulQuat(ref, rz, aori)
         inv, rel = np.zeros(4), np.zeros(4); mujoco.mju_negQuat(inv, d.xquat[replay.torso]); mujoco.mju_mulQuat(rel, inv, ref)
         R = np.zeros(9); mujoco.mju_quat2Mat(R, rel); R = R.reshape(3, 3); pos = []
         if self.steerable:
             spot = state.setdefault("spot", np.array([replay.distance, 0.0]))   # where FightReplay placed the in-place clip
-            if state.get("target") is not None:
+            if state.get("target") is not None:   # "dist": an aim's stand-off distance (per env: the replay is shared)
                 tgt = np.asarray(state["target"], float); axis = state.setdefault("axis", (spot - tgt) / (np.linalg.norm(spot - tgt) + 1e-9))
-                v = (tgt + replay.distance * axis - spot) / self.STEER_TAU; sp = np.linalg.norm(v)
-                state["spot"] = spot = spot + v * min(1.0, self.STEER_MAX / (sp + 1e-9)) * dt
-            c, s_ = np.cos(yaw), np.sin(yaw); a = self.ref_anchor_pos[f]
+                v = (tgt + state.get("dist", replay.distance) * axis - spot) / state.get("steer_tau", self.STEER_TAU); sp = np.linalg.norm(v)
+                state["spot"] = spot = spot + v * min(1.0, state.get("steer_max", self.STEER_MAX) / (sp + 1e-9)) * dt
+            c, s_ = np.cos(yaw), np.sin(yaw); a = apos
             world = np.array([spot[0] + c * a[0] - s_ * a[1], spot[1] + s_ * a[0] + c * a[1], a[2]])
             Rt = d.xmat[replay.torso].reshape(3, 3); pos = [Rt.T @ (world - d.xpos[replay.torso])]
-        obs = np.concatenate([self.ref_q[f], self.ref_dq[f], *pos, R[:, :2].reshape(-1), d.qvel[replay.vadr + 3:replay.vadr + 6],
+        obs = np.concatenate([rq, rdq, *pos, R[:, :2].reshape(-1), d.qvel[replay.vadr + 3:replay.vadr + 6],
                               q - self.default, dq, state["last"]]).astype(np.float32)
         a = self.s.run(["actions"], {"obs": obs[None], "time_step": np.array([[f]], np.float32)})[0][0]
         state["last"] = a.astype(np.float32); d.ctrl[replay.act] = self.default + self.scale * a

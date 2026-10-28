@@ -1,0 +1,83 @@
+{
+ "operator": "standoff+armwarp_vz",
+ "_why": "largest paired delta with its CI above 0 (rule 3), 3.167/min (1.083, 5.167); under the other hit rules its head delta is {'clean': 3.167, 'landed': 6.0, 'A_peak20': 7.917, 'B_strike': 3.083, 'impulse_only': 6.0} (same sign under every rule)",
+ "lag_s": 0.02,
+ "_why_lag": "median reference-to-tracked apex delay over train hand strikes, opponent alone (tolerance.json); shifts library windows",
+ "decided_on": "train + val (results/opponent_aim/aim_check.json), before any aimed test run",
+ "candidates": {
+  "standoff": {
+   "considered": true,
+   "opp_fell_pooled": 0.0,
+   "opp_fell_unaimed": 0.0046,
+   "rejected_falls": false,
+   "delta": 1.0,
+   "ci95": [
+    0.0,
+    2.083
+   ],
+   "ci_above_0": false,
+   "window_head_share_delta": 0.013
+  },
+  "armwarp": {
+   "considered": true,
+   "opp_fell_pooled": 0.0046,
+   "opp_fell_unaimed": 0.0046,
+   "rejected_falls": false,
+   "delta": 2.083,
+   "ci95": [
+    0.333,
+    3.75
+   ],
+   "ci_above_0": true,
+   "window_head_share_delta": 0.006
+  },
+  "armwarp_vz": {
+   "considered": true,
+   "opp_fell_pooled": 0.0,
+   "opp_fell_unaimed": 0.0046,
+   "rejected_falls": false,
+   "delta": 2.583,
+   "ci95": [
+    0.748,
+    4.5
+   ],
+   "ci_above_0": true,
+   "window_head_share_delta": 0.033
+  },
+  "standoff+armwarp_vz": {
+   "considered": true,
+   "opp_fell_pooled": 0.0093,
+   "opp_fell_unaimed": 0.0046,
+   "rejected_falls": false,
+   "delta": 3.167,
+   "ci95": [
+    1.083,
+    5.167
+   ],
+   "ci_above_0": true,
+   "window_head_share_delta": 0.03
+  },
+  "select": {
+   "considered": false,
+   "why": "splice tolerance failed (tolerance.json long_runs.select)"
+  }
+ },
+ "meta": {
+  "git_hash": "adcd6cb2362ab5f98c111f1402b616733517d7cd",
+  "git_dirty": true,
+  "mujoco": "3.17.0",
+  "config_hash": "01d4c93353b91b3e",
+  "prereg_sha": "562834645ce51777",
+  "shell_solref": [
+   0.01,
+   1.0
+  ],
+  "hit_metric": {
+   "merge_gap_s": 0.1,
+   "min_impulse_Ns": 0.5,
+   "min_peak_N": 5,
+   "v_close_min": 1.0,
+   "max_strike_s": 0.15
+  }
+ }
+}

@@ -1,0 +1,75 @@
+{
+ "about": "--headcam (phase 3, M1): one bout of the --right policy starting --offaxis deg off-axis, turning toward what its own head\n    camera sees (perception: camera, the colour key; filter and deadband as preregistered for M1). Fight view with rays on the\n    floor from the R1's pelvis (white: the opponent's true bearing, green: the camera estimate it acts on, grey: its heading),\n    a head-camera inset (the frame in use, the detector's mask tinted, crosses where the estimate and the truth put the\n    opponent's pelvis) and a strip chart of both bearings. Writes media/<name>.mp4/.gif (name camera_turn) and\n    results/perception/<name>.json (the bout's numbers, run metadata).",
+ "git": "cdddb9431b40261b118c051daef0048fe9b6230e",
+ "git_dirty": [
+  "configs/r1_camera.yaml",
+  "configs/r1_mjlab.yaml",
+  "media/camera_turn.gif",
+  "media/camera_turn.mp4",
+  "r1gym/env.py",
+  "r1gym/perception/detect_colorkey.py",
+  "r1gym/perception/hub.py",
+  "r1gym/perception/percept.py",
+  "r1gym/scenario.py",
+  "results/perception/camera_turn.json",
+  "results/perception/coverage.json",
+  "results/perception/m1_offaxis_test.json",
+  "results/perception/m1_offaxis_val.json",
+  "results/perception/preregistration_m1.json",
+  "scripts/camera_coverage.py",
+  "scripts/demo.py",
+  "scripts/face_ab.py",
+  "tests/test_perception_camera.py",
+  "tests/test_perception_percept.py",
+  "tests/test_perception_render.py"
+ ],
+ "mujoco": "3.17.0",
+ "numpy": "2.5.4",
+ "platform": "Windows-11-10.0.26300-SP0",
+ "cpu": "Intel64 Family 6 Model 189 Stepping 1, GenuineIntel",
+ "gl_vendor": "Intel",
+ "gl_renderer": "Intel(R) Arc(TM) 140V GPU (16GB)",
+ "gl_version": "4.6.0 - Build 32.0.101.8132",
+ "policy": "Stepping base + guard=results/policy_mjlab_guard/policy.onnx",
+ "clip": "kfab_201",
+ "distance": 0.65,
+ "offaxis_deg": 40.0,
+ "seconds": 12.0,
+ "seed": 0,
+ "tune": {
+  "percept_filter_s": 0.0,
+  "face_deadband": [
+   0.35,
+   0.1
+  ]
+ },
+ "tune_from": "results/perception/preregistration_m1.json",
+ "fell_s": null,
+ "facing_err_last6_med_deg": 7.1,
+ "ttf15_s": 3.08,
+ "percept": {
+  "captures": 360,
+  "dropped": 0.0139,
+  "estimated": 355,
+  "presence": 1.0,
+  "bearing_err_deg_median": 4.557,
+  "bearing_err_deg_p90": 13.99,
+  "range_err_m_median": 0.104,
+  "range_err_rel_median": 0.152,
+  "range_bias_m": 0.015,
+  "sigma1_coverage": 0.741,
+  "latency_ms_median": 29.743,
+  "latency_ms_max": 32.7,
+  "no_track": 0.0,
+  "stale_0p5s": 0.0
+ },
+ "hub": {
+  "frames": 355,
+  "render_ms": 58.56,
+  "detect_ms": 2.92
+ },
+ "media_bytes": {
+  "camera_turn.mp4": 4538570,
+  "camera_turn.gif": 4793359
+ }
+}

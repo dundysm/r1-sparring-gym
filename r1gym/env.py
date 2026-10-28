@@ -41,6 +41,8 @@ class R1HitEnv:
         self.substep_hooks = []   # read-only observers (r1gym/hits.py HitMeter): h.substep(m, d) after every mj_step, h.reset() in reset()
         self.command = np.zeros(3)   # mjlab contract only: velocity command (vx, vy, wz); zero = stand / spar in place
         self.face = self.contract == "mjlab" and bool(self.cfg.get("face_opponent", False))   # turn toward the opponent (wz)
+        self.perception = self.cfg.get("perception", "truth")   # what _face reads: the true state, or a PerceptStream (r1gym/perception/percept.py)
+        self.percepts = None   # perception != truth: the PerceptStream, attached by the runner (percept.attach; it also rides in substep_hooks)
         self.face_band = self.cfg.get("face_deadband")   # [start, stop] bearing error (rad): turn only when clearly off, or None
         self.hold = self.contract == "mjlab" and bool(self.cfg.get("hold_position", False))   # walk back to the bout's spot (vx, vy)
         self.hold_band, self.hold_gain = self.cfg.get("hold_deadband", [0.25, 0.08]), float(self.cfg.get("hold_gain", 1.5))
@@ -57,8 +59,11 @@ class R1HitEnv:
         return np.concatenate([d.qvel[r.free_v + 3:r.free_v + 6], R.T @ np.array([0, 0, -1.0]),
                                d.qpos[r.qadr] - self.home, 0.05 * d.qvel[r.vadr], self.last_a]).astype(np.float32)
 
-    def reset(self, hits=None, delay=None):
+    def reset(self, hits=None, delay=None, init_yaw=None):
+        """init_yaw [rad]: start the R1 turned by this yaw about its pelvis (off-axis bouts: the opponent is placed along +x)."""
         self.r.reset(self.m, self.d)
+        if init_yaw is not None:
+            self.d.qpos[self.r.free_q + 3:self.r.free_q + 7] = [np.cos(init_yaw / 2), 0, 0, np.sin(init_yaw / 2)]; mujoco.mj_forward(self.m, self.d)
         if self.train:   # small initial pose noise
             self.d.qpos[self.r.qadr] += self.rng.normal(0, 0.02, 24); mujoco.mj_forward(self.m, self.d)
         self.t = 0; self.last_a = np.zeros(24, np.float32); self.filt = np.zeros(24)
@@ -126,13 +131,23 @@ class R1HitEnv:
         return self.sensor(self._raw_obs()), float(rew), bool(done), info
 
     FACE_GAIN, FACE_MAX = 2.0, 0.8   # yaw-rate command per rad of bearing error; cap (rad/s) inside the +-1.0 it trained on
-    def _face(self):
-        """Stand-in for perception (phase 3): command the stepping policy's yaw rate toward the opponent's true bearing.
-        Any |command| >= 0.1 turns the gait phase on, so a command that never rests keeps the robot stepping (and drifting);
-        with face_deadband [start, stop] it turns only once the error passes `start` and stands still again below `stop`."""
-        if not self.face or self.opp is None: return
+    def true_bearing(self):
+        """The opponent's pelvis in the R1's pelvis heading frame, from the true state: (bearing [rad], pelvis-to-pelvis xy, world)."""
         d, r = self.d, self.r; w, x, y, z = d.qpos[r.free_q + 3:r.free_q + 7]; v = d.xpos[min(self.opp.bodies)][:2] - d.qpos[r.free_q:r.free_q + 2]
-        err = np.angle(np.exp(1j * (np.arctan2(v[1], v[0]) - np.arctan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z)))))
+        return np.angle(np.exp(1j * (np.arctan2(v[1], v[0]) - np.arctan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z))))), v
+
+    def _face(self):
+        """Command the stepping policy's yaw rate toward the opponent's bearing: the true one (perception: truth, the stand-in
+        until phase 3) or the PerceptStream's estimate (perception: truth_lag | camera | shuffled); with nothing seen for
+        percept_lost_s the R1 stands still. Any |command| >= 0.1 turns the gait phase on, so a command that never rests keeps
+        the robot stepping (and drifting); with face_deadband [start, stop] it turns only once the error passes `start` and
+        stands still again below `stop`."""
+        if not self.face or self.opp is None: return
+        if self.perception == "truth": err = self.true_bearing()[0]
+        else:
+            if self.percepts is None: raise RuntimeError(f"perception: {self.perception} needs a PerceptStream (r1gym.perception.percept.attach)")
+            err = self.percepts.bearing()
+            if err is None: self.turning = False; self.command[2] = 0.0; return
         if self.face_band is not None:
             self.turning = abs(err) > self.face_band[1] if self.turning else abs(err) > self.face_band[0]
             if not self.turning: self.command[2] = 0.0; return

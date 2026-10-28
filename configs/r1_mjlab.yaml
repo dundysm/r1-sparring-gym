@@ -14,3 +14,7 @@ sensors:
 hold_position: false   # true: with an opponent, walk back to the bout's starting spot (r1gym/env.py _hold); per policy in gym.json
 face_opponent: false   # true: with an opponent, yaw-rate command toward its true bearing (r1gym/env.py _face), standing in for
                        # perception; set per policy in gym.json next to its ONNX, only where it was measured to help
+perception: truth      # what _face reads: truth (the true state, as above) | truth_lag (exact values on the head camera's clock,
+                       # latency and drops) | camera (the head camera) | shuffled (a control); r1gym/perception/percept.py
+percept_filter_s: 0.0  # perception != truth: low-pass time constant of the bearing estimate [s] (results/perception/m1_offaxis_val.json)
+percept_lost_s: 1.0    # perception != truth: turn toward the last bearing seen (gyro-compensated) for at most this long, then stand still

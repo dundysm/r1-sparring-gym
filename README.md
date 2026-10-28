@@ -172,6 +172,22 @@ Each policy's settings were chosen on hard-tier validation (64 bouts): **the mos
   48 bouts of 12 s per row on train + val clips, with the demo's pushes and each policy's outer loops. The remaining overlap is the contact giving way for a few steps in hard impacts.
 - **Parity:** run alone from the same 48 starts, it stays up 45/48 in mjlab, where it trained, and 46/48 here; the falls they share happen within 0.1 s of each other (`parity_mjlab.json`). The observation matches mjlab's training loop: the reference one frame ahead, fresh kinematics, and the anchor position in the torso frame.
 
+## Head camera (sim, phase 3)
+![camera turn](media/camera_turn.gif)
+
+The R1 turning toward what its own head camera sees (M1, no learning).
+- **The chain:** a render twin of the sim draws the head camera's frame (160×120 at 30 Hz, pitched -50°). A colour-key detector finds the orange opponent. The estimate arrives after 20–60 ms of latency, with some frames dropped, and is carried to "now" by the gyro. It then feeds the same turn-to-face command as before.
+- **Test:** on the test clips (guard policy, 192 paired bouts per setting, starts ±30° / ±50° off-axis), all five preregistered criteria passed (`results/perception/m1_offaxis_test.json`):
+  - The camera faces as well as exact bearings on the camera's own clock: -1.0° [-2.3, 0.5].
+  - It beats no turning by 37.2° [34.1, 40.6].
+  - It is 0.20 s [0.09, 0.32] slower to face.
+  - A shuffled-estimates control does no better than no turning.
+  - With an empty ring it never commands a turn.
+- **What it doesn't show:** the colour key only works because the opponent is the only orange thing in the scene. So this checks the camera plumbing (mount, clocks, latency, compensation), not perception of a real opponent. A learned estimator comes next.
+
+Setup, controls, the integrity checks and every limitation are in [docs/HEAD_CAMERA.md](docs/HEAD_CAMERA.md).
+Reproduce: `python scripts/demo.py --headcam --offaxis 40`.
+
 ## Aimed opponent (M1: the shipped tracker, aimed)
 The opponent above performs fight forms in front of the R1. M1 makes those strikes go for the R1's head without retraining
 the tracker: `r1gym/aim.py` changes the reference the tracking policy is shown, per strike, and the hit metric scores what
@@ -248,7 +264,7 @@ On test (run once, after val): head clean strikes/min +3.3 [2.2, 4.4] against th
 ## Plan
 1. **Sim.** R1 model on the official Unitree MJCF, a fight-motion opponent, procedural hits, sensor delay and noise. Done.
 2. **Hit-robust balance against a physical opponent.** The residual PPO on a PD stand (v1–v3) can't step. It was replaced by the **stepping base**, arms down and with a guard, fine-tuned for footwork, with an outer loop that walks it back to its spot (`gpu/`, `results/policy_mjlab_footwork/`, `results/policy_mjlab_guard_footwork/`). The opponent is a tracked R1 on its own motors, steered to stay in front (`results/opponent_tracker/`). Done in sim.
-3. **Perception + block / counter / clinch** from the head camera. Roadmap: [ROADMAP.md](ROADMAP.md).
+3. **Perception + block / counter / clinch** from the head camera. Roadmap: [ROADMAP.md](ROADMAP.md). Head camera in sim (spec, mount, render twin) and M1, turning on a colour-key detector, are done ([docs/HEAD_CAMERA.md](docs/HEAD_CAMERA.md)).
 4. **Safety + sim-to-real** on the R1 EDU (system ID, e-stop, padded mode). Roadmap: [ROADMAP.md](ROADMAP.md).
 
 ## What's in the repo
@@ -276,6 +292,7 @@ On test (run once, after val): head clean strikes/min +3.3 [2.2, 4.4] against th
 | `results/eval/`, `results/eval_v1/` | hit eval for v2 / v1 (`summary.json`, `survival.png`) |
 | `results/policy_v3_candidate/`, `results/eval_v3/` | v3 attempt (DR + recovery reward + multi-hit curriculum): **not adopted**, see below |
 | `results/demo_check.json` | demo fall times + 8 variants, with opponent contact counts and peak forces |
+| `r1gym/perception/`, `configs/r1_camera.yaml` | head camera (sim): spec, mount and clocks (`camera.py`), render twin (`render_scene.py`), percept, sources and ego compensation (`percept.py`), main-thread renderer (`hub.py`), colour-key detector (`detect_colorkey.py`); results in `results/perception/`, write-up in `docs/HEAD_CAMERA.md` |
 | `docs/MODEL_AUDIT.md`, `docs/GPU.md`, `docs/DEPLOY.md` | model audit; GPU-batched (mjlab / MuJoCo Warp) path; deploy contract (`r1gym/deploy.py`, `deploy_contract.json` next to each ONNX) |
 
 ## Quickstart
@@ -387,7 +404,7 @@ New eval (`scripts/evaluate.py`): 1120 single hits per controller up to 30 N·s,
 - **ONNX:** 227 KB, p50 8.4 µs / p99 17 µs at batch 1 on one x86 thread; max error vs torch 2.4e-7.
 
 ## Limitations
-- Proprioceptive only. Neither upstream R1 MJCF has a head camera, so nothing here sees the opponent (that is phase 3). The opponent's steering and the R1's hold-your-spot and turn loops use true positions.
+- The shipped policies are proprioceptive only. Neither upstream R1 MJCF has a head camera. The sim head camera (`docs/HEAD_CAMERA.md`) so far only feeds the turn command, through a colour-key detector that relies on the opponent being orange. The opponent's steering and the R1's hold-your-spot loop use true positions.
 - Nothing has run on a real R1. Armature, friction and latency are assumptions until system ID (`docs/MODEL_AUDIT.md`, ROADMAP phase 4).
 - The robots' shells can still overlap by up to 2–3 cm for a few steps in hard impacts (contact can't be stiffer at this timestep).
 - The opponent performs fight *forms* (KungFuAthleteBot, trimmed to the strikes), not sparring aimed at the R1. It is kept in front and faces the R1, but it doesn't adapt its strikes to it. M1's aim (off by default; "Aimed opponent" above) bends the shipped tracker's strikes toward the head; this line stays until the whole-body aimed tracker (M2) passes on test.

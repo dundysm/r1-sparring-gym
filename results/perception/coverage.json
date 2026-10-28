@@ -1,0 +1,1996 @@
+{
+ "about": "Head-pitch coverage study (phase 3, M0.2) -> results/perception/coverage.json, which sets head_pitch_deg in configs/r1_camera.yaml.\n\nHow much of the opponent the R1's head camera sees, by head pitch about the assumed neck pivot, 0 to -70 deg (the design's\ncandidates 0 / -10 / -20 / -30, then every 5 deg from -40 to -70):\n- bouts: both shipped policies against the tracked opponent on the train + val clips (never test), as the headline eval\n  draws them (scripts/eval_opponent.py episodes, 1 per clip and distance): standard tier (0.50-0.70 m, 10 s, two pushes)\n  and hard tier (0.40-0.55 m, 20 s, six strikes and pushes, randomised physics); a state every 0.24 s while the R1 is up;\n- 11 opponent keypoints (r1gym/perception/render_scene.py KEYPOINTS), the opponent's head pitched like the R1's;\n- in_fov: inside the network image (virtual pinhole, 160x120, fovy 100 deg). in_fisheye: inside the physical lens image\n  (146 x 124 deg f-theta), FOV only, i.e. what the rectified crop gives up;\n- unoccluded: in_fov and not behind the R1's own body (depth render of the R1 alone, guard included, its head shell\n  hidden as on the robot). visible: also not behind another of the opponent's own links (segmentation render of the\n  opponent alone: the keypoint's pixel shows one of its own links; a pixel off the silhouette counts as visible);\n- own_body_px: the fraction of the image the R1's own body covers.\nRendered at the network size with the LOD render twin. Also reported (not in the rule): the opponent's bearing from the\nR1's heading (both shipped gym.json files leave the turn command off, and hard-tier hits spin the R1), and the same\nfractions over the states with the opponent within +-45 deg of the heading, where the pitch, not the yaw, decides.\n\nscore(pitch) = the mean over the four policy x tier cells (train + val pooled) of the mean `unoccluded` fraction over the\n11 keypoints. Pitching down trades the opponent's head (it nears the image's top edge) and more of the R1's own guard in\nview against its knees and feet, so the score can have an interior maximum.\nRule (revised 2026-10-27): head_pitch_deg = the best-scoring pitch over the whole sweep, which must be interior (both\nneighbours score lower; otherwise the sweep is extended, not the bound taken). The first rule (the smallest |pitch| among\nthe design's 0 to -30 candidates within 0.01 of the best) picked -30, the end of its range, while a -40 / -50 bracket\nstill rose (choice.rule_v1 keeps it). choice.bootstrap resamples whole bouts per cell: how often each pitch wins, and the\nbest's paired margin over its neighbours. The R1's real head-pitch range is unpublished (ASSUMPTION).",
+ "git": "cdddb9431b40261b118c051daef0048fe9b6230e",
+ "git_dirty": [
+  "configs/r1_camera.yaml",
+  "r1gym/env.py",
+  "r1gym/perception/detect_colorkey.py",
+  "r1gym/perception/hub.py",
+  "r1gym/perception/percept.py",
+  "r1gym/scenario.py",
+  "results/perception/coverage.json",
+  "scripts/camera_coverage.py"
+ ],
+ "mujoco": "3.17.0",
+ "numpy": "2.5.4",
+ "platform": "Windows-11-10.0.26300-SP0",
+ "cpu": "Intel64 Family 6 Model 189 Stepping 1, GenuineIntel",
+ "gl_vendor": "Intel",
+ "gl_renderer": "Intel(R) Arc(TM) 140V GPU (16GB)",
+ "gl_version": "4.6.0 - Build 32.0.101.8132",
+ "lod": true,
+ "pitches": [
+  0.0,
+  -10.0,
+  -20.0,
+  -30.0,
+  -40.0,
+  -45.0,
+  -50.0,
+  -55.0,
+  -60.0,
+  -65.0,
+  -70.0
+ ],
+ "candidates": [
+  0.0,
+  -10.0,
+  -20.0,
+  -30.0
+ ],
+ "keypoints": {
+  "head": {
+   "body": "torso_link",
+   "offset": [
+    0.01,
+    0.0,
+    0.357
+   ]
+  },
+  "chest": {
+   "body": "torso_link",
+   "offset": [
+    0.0,
+    0.0,
+    0.16
+   ]
+  },
+  "pelvis": {
+   "body": "pelvis",
+   "offset": [
+    0.02,
+    0.0,
+    -0.05
+   ]
+  },
+  "l_elbow": {
+   "body": "left_elbow_link",
+   "offset": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "r_elbow": {
+   "body": "right_elbow_link",
+   "offset": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "l_fist": {
+   "body": "left_wrist_roll_link",
+   "offset": [
+    0.08,
+    0.0,
+    0.0
+   ]
+  },
+  "r_fist": {
+   "body": "right_wrist_roll_link",
+   "offset": [
+    0.08,
+    0.0,
+    0.0
+   ]
+  },
+  "l_knee": {
+   "body": "left_knee_link",
+   "offset": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "r_knee": {
+   "body": "right_knee_link",
+   "offset": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "l_foot": {
+   "body": "left_ankle_roll_link",
+   "offset": [
+    0.04,
+    0.0,
+    -0.03
+   ]
+  },
+  "r_foot": {
+   "body": "right_ankle_roll_link",
+   "offset": [
+    0.04,
+    0.0,
+    -0.03
+   ]
+  }
+ },
+ "samples": {
+  "total": 4218,
+  "by_cell": {
+   "arms_down/standard": 820,
+   "arms_down/hard": 1328,
+   "guard/standard": 820,
+   "guard/hard": 1250
+  },
+  "by_split": {
+   "train": 3222,
+   "val": 996
+  }
+ },
+ "opponent_range_m_p5_p50_p95": {
+  "standard": [
+   0.48,
+   0.65,
+   0.84
+  ],
+  "hard": [
+   0.39,
+   0.59,
+   0.97
+  ]
+ },
+ "opponent_bearing": {
+  "arms_down/standard": {
+   "abs_deg_p50_p90": [
+    8.4,
+    44.2
+   ],
+   "beyond_57p8deg": 0.067,
+   "beyond_73deg": 0.026,
+   "within_45deg": 0.904
+  },
+  "arms_down/hard": {
+   "abs_deg_p50_p90": [
+    54.5,
+    145.6
+   ],
+   "beyond_57p8deg": 0.483,
+   "beyond_73deg": 0.413,
+   "within_45deg": 0.471
+  },
+  "guard/standard": {
+   "abs_deg_p50_p90": [
+    12.9,
+    46.6
+   ],
+   "beyond_57p8deg": 0.068,
+   "beyond_73deg": 0.026,
+   "within_45deg": 0.891
+  },
+  "guard/hard": {
+   "abs_deg_p50_p90": [
+    45.4,
+    117.8
+   ],
+   "beyond_57p8deg": 0.396,
+   "beyond_73deg": 0.293,
+   "within_45deg": 0.496
+  }
+ },
+ "keypoint_elevation_deg_p5_p50_p95": {
+  "head": [
+   -34.3,
+   -17.6,
+   -5.5
+  ],
+  "chest": [
+   -50.3,
+   -34.8,
+   -20.8
+  ],
+  "pelvis": [
+   -62.2,
+   -49.4,
+   -34.7
+  ],
+  "l_elbow": [
+   -51.5,
+   -30.9,
+   -13.7
+  ],
+  "r_elbow": [
+   -59.2,
+   -30.5,
+   -12.5
+  ],
+  "l_fist": [
+   -65.9,
+   -35.8,
+   -4.1
+  ],
+  "r_fist": [
+   -68.6,
+   -32.3,
+   -3.1
+  ],
+  "l_knee": [
+   -76.9,
+   -64.0,
+   -48.2
+  ],
+  "r_knee": [
+   -75.5,
+   -61.1,
+   -43.8
+  ],
+  "l_foot": [
+   -76.3,
+   -65.7,
+   -51.6
+  ],
+  "r_foot": [
+   -77.1,
+   -64.4,
+   -48.7
+  ]
+ },
+ "by_pitch": {
+  "0": {
+   "in_fov": {
+    "head": 0.633,
+    "chest": 0.549,
+    "pelvis": 0.214,
+    "l_elbow": 0.584,
+    "r_elbow": 0.376,
+    "l_fist": 0.393,
+    "r_fist": 0.288,
+    "l_knee": 0.011,
+    "r_knee": 0.014,
+    "l_foot": 0.006,
+    "r_foot": 0.006,
+    "mean": 0.279
+   },
+   "in_fisheye": {
+    "head": 0.727,
+    "chest": 0.755,
+    "pelvis": 0.644,
+    "l_elbow": 0.778,
+    "r_elbow": 0.606,
+    "l_fist": 0.651,
+    "r_fist": 0.5,
+    "l_knee": 0.171,
+    "r_knee": 0.169,
+    "l_foot": 0.106,
+    "r_foot": 0.095,
+    "mean": 0.473
+   },
+   "unoccluded": {
+    "head": 0.582,
+    "chest": 0.521,
+    "pelvis": 0.208,
+    "l_elbow": 0.55,
+    "r_elbow": 0.336,
+    "l_fist": 0.366,
+    "r_fist": 0.257,
+    "l_knee": 0.011,
+    "r_knee": 0.014,
+    "l_foot": 0.006,
+    "r_foot": 0.006,
+    "mean": 0.26
+   },
+   "visible": {
+    "head": 0.564,
+    "chest": 0.467,
+    "pelvis": 0.175,
+    "l_elbow": 0.514,
+    "r_elbow": 0.305,
+    "l_fist": 0.359,
+    "r_fist": 0.249,
+    "l_knee": 0.011,
+    "r_knee": 0.013,
+    "l_foot": 0.005,
+    "r_foot": 0.004,
+    "mean": 0.242
+   },
+   "unoccluded_by_cell": {
+    "arms_down/standard": {
+     "head": 0.89,
+     "chest": 0.846,
+     "pelvis": 0.437,
+     "l_elbow": 0.839,
+     "r_elbow": 0.574,
+     "l_fist": 0.523,
+     "r_fist": 0.415,
+     "l_knee": 0.005,
+     "r_knee": 0.013,
+     "l_foot": 0.001,
+     "r_foot": 0.009,
+     "mean": 0.414
+    },
+    "arms_down/hard": {
+     "head": 0.462,
+     "chest": 0.365,
+     "pelvis": 0.1,
+     "l_elbow": 0.428,
+     "r_elbow": 0.227,
+     "l_fist": 0.3,
+     "r_fist": 0.179,
+     "l_knee": 0.012,
+     "r_knee": 0.015,
+     "l_foot": 0.005,
+     "r_foot": 0.005,
+     "mean": 0.191
+    },
+    "guard/standard": {
+     "head": 0.771,
+     "chest": 0.751,
+     "pelvis": 0.302,
+     "l_elbow": 0.745,
+     "r_elbow": 0.445,
+     "l_fist": 0.461,
+     "r_fist": 0.337,
+     "l_knee": 0.002,
+     "r_knee": 0.006,
+     "l_foot": 0.0,
+     "r_foot": 0.001,
+     "mean": 0.347
+    },
+    "guard/hard": {
+     "head": 0.384,
+     "chest": 0.322,
+     "pelvis": 0.111,
+     "l_elbow": 0.362,
+     "r_elbow": 0.224,
+     "l_fist": 0.27,
+     "r_fist": 0.183,
+     "l_knee": 0.018,
+     "r_knee": 0.017,
+     "l_foot": 0.014,
+     "r_foot": 0.008,
+     "mean": 0.174
+    }
+   },
+   "unoccluded_mean_by_split": {
+    "train": 0.257,
+    "val": 0.269
+   },
+   "own_body_px_by_policy": {
+    "arms_down": 0.0,
+    "guard": 0.161
+   },
+   "unoccluded_within_45deg": {
+    "head": 0.89,
+    "chest": 0.805,
+    "pelvis": 0.322,
+    "l_elbow": 0.768,
+    "r_elbow": 0.496,
+    "l_fist": 0.49,
+    "r_fist": 0.369,
+    "l_knee": 0.016,
+    "r_knee": 0.02,
+    "l_foot": 0.008,
+    "r_foot": 0.009,
+    "mean": 0.381
+   },
+   "visible_within_45deg": {
+    "head": 0.862,
+    "chest": 0.722,
+    "pelvis": 0.271,
+    "l_elbow": 0.715,
+    "r_elbow": 0.449,
+    "l_fist": 0.48,
+    "r_fist": 0.357,
+    "l_knee": 0.016,
+    "r_knee": 0.02,
+    "l_foot": 0.007,
+    "r_foot": 0.007,
+    "mean": 0.355
+   },
+   "score_within_45deg": 0.3779,
+   "score": 0.2815
+  },
+  "-10": {
+   "in_fov": {
+    "head": 0.639,
+    "chest": 0.638,
+    "pelvis": 0.498,
+    "l_elbow": 0.663,
+    "r_elbow": 0.453,
+    "l_fist": 0.498,
+    "r_fist": 0.343,
+    "l_knee": 0.087,
+    "r_knee": 0.083,
+    "l_foot": 0.055,
+    "r_foot": 0.04,
+    "mean": 0.364
+   },
+   "in_fisheye": {
+    "head": 0.725,
+    "chest": 0.778,
+    "pelvis": 0.761,
+    "l_elbow": 0.795,
+    "r_elbow": 0.648,
+    "l_fist": 0.713,
+    "r_fist": 0.546,
+    "l_knee": 0.505,
+    "r_knee": 0.415,
+    "l_foot": 0.478,
+    "r_foot": 0.327,
+    "mean": 0.608
+   },
+   "unoccluded": {
+    "head": 0.589,
+    "chest": 0.599,
+    "pelvis": 0.482,
+    "l_elbow": 0.624,
+    "r_elbow": 0.409,
+    "l_fist": 0.462,
+    "r_fist": 0.305,
+    "l_knee": 0.085,
+    "r_knee": 0.081,
+    "l_foot": 0.054,
+    "r_foot": 0.039,
+    "mean": 0.339
+   },
+   "visible": {
+    "head": 0.569,
+    "chest": 0.53,
+    "pelvis": 0.379,
+    "l_elbow": 0.586,
+    "r_elbow": 0.371,
+    "l_fist": 0.455,
+    "r_fist": 0.298,
+    "l_knee": 0.081,
+    "r_knee": 0.078,
+    "l_foot": 0.023,
+    "r_foot": 0.021,
+    "mean": 0.308
+   },
+   "unoccluded_by_cell": {
+    "arms_down/standard": {
+     "head": 0.889,
+     "chest": 0.9,
+     "pelvis": 0.815,
+     "l_elbow": 0.921,
+     "r_elbow": 0.695,
+     "l_fist": 0.667,
+     "r_fist": 0.511,
+     "l_knee": 0.127,
+     "r_knee": 0.118,
+     "l_foot": 0.061,
+     "r_foot": 0.056,
+     "mean": 0.524
+    },
+    "arms_down/hard": {
+     "head": 0.468,
+     "chest": 0.459,
+     "pelvis": 0.3,
+     "l_elbow": 0.509,
+     "r_elbow": 0.278,
+     "l_fist": 0.375,
+     "r_fist": 0.203,
+     "l_knee": 0.056,
+     "r_knee": 0.052,
+     "l_foot": 0.043,
+     "r_foot": 0.036,
+     "mean": 0.253
+    },
+    "guard/standard": {
+     "head": 0.795,
+     "chest": 0.821,
+     "pelvis": 0.727,
+     "l_elbow": 0.812,
+     "r_elbow": 0.533,
+     "l_fist": 0.616,
+     "r_fist": 0.405,
+     "l_knee": 0.095,
+     "r_knee": 0.098,
+     "l_foot": 0.06,
+     "r_foot": 0.037,
+     "mean": 0.454
+    },
+    "guard/hard": {
+     "head": 0.386,
+     "chest": 0.406,
+     "pelvis": 0.295,
+     "l_elbow": 0.429,
+     "r_elbow": 0.279,
+     "l_fist": 0.319,
+     "r_fist": 0.214,
+     "l_knee": 0.082,
+     "r_knee": 0.075,
+     "l_foot": 0.056,
+     "r_foot": 0.034,
+     "mean": 0.234
+    }
+   },
+   "unoccluded_mean_by_split": {
+    "train": 0.337,
+    "val": 0.344
+   },
+   "own_body_px_by_policy": {
+    "arms_down": 0.0,
+    "guard": 0.212
+   },
+   "unoccluded_within_45deg": {
+    "head": 0.901,
+    "chest": 0.92,
+    "pelvis": 0.744,
+    "l_elbow": 0.844,
+    "r_elbow": 0.601,
+    "l_fist": 0.613,
+    "r_fist": 0.438,
+    "l_knee": 0.127,
+    "r_knee": 0.121,
+    "l_foot": 0.079,
+    "r_foot": 0.059,
+    "mean": 0.495
+   },
+   "visible_within_45deg": {
+    "head": 0.87,
+    "chest": 0.812,
+    "pelvis": 0.586,
+    "l_elbow": 0.79,
+    "r_elbow": 0.544,
+    "l_fist": 0.602,
+    "r_fist": 0.425,
+    "l_knee": 0.121,
+    "r_knee": 0.116,
+    "l_foot": 0.035,
+    "r_foot": 0.031,
+    "mean": 0.448
+   },
+   "score_within_45deg": 0.4914,
+   "score": 0.3662
+  },
+  "-20": {
+   "in_fov": {
+    "head": 0.637,
+    "chest": 0.668,
+    "pelvis": 0.65,
+    "l_elbow": 0.697,
+    "r_elbow": 0.502,
+    "l_fist": 0.566,
+    "r_fist": 0.394,
+    "l_knee": 0.365,
+    "r_knee": 0.276,
+    "l_foot": 0.334,
+    "r_foot": 0.215,
+    "mean": 0.482
+   },
+   "in_fisheye": {
+    "head": 0.721,
+    "chest": 0.795,
+    "pelvis": 0.812,
+    "l_elbow": 0.804,
+    "r_elbow": 0.672,
+    "l_fist": 0.751,
+    "r_fist": 0.59,
+    "l_knee": 0.744,
+    "r_knee": 0.604,
+    "l_foot": 0.755,
+    "r_foot": 0.574,
+    "mean": 0.711
+   },
+   "unoccluded": {
+    "head": 0.598,
+    "chest": 0.623,
+    "pelvis": 0.613,
+    "l_elbow": 0.656,
+    "r_elbow": 0.456,
+    "l_fist": 0.521,
+    "r_fist": 0.35,
+    "l_knee": 0.351,
+    "r_knee": 0.259,
+    "l_foot": 0.325,
+    "r_foot": 0.208,
+    "mean": 0.451
+   },
+   "visible": {
+    "head": 0.574,
+    "chest": 0.545,
+    "pelvis": 0.452,
+    "l_elbow": 0.612,
+    "r_elbow": 0.411,
+    "l_fist": 0.511,
+    "r_fist": 0.34,
+    "l_knee": 0.331,
+    "r_knee": 0.248,
+    "l_foot": 0.117,
+    "r_foot": 0.093,
+    "mean": 0.385
+   },
+   "unoccluded_by_cell": {
+    "arms_down/standard": {
+     "head": 0.887,
+     "chest": 0.912,
+     "pelvis": 0.905,
+     "l_elbow": 0.95,
+     "r_elbow": 0.741,
+     "l_fist": 0.762,
+     "r_fist": 0.579,
+     "l_knee": 0.596,
+     "r_knee": 0.462,
+     "l_foot": 0.574,
+     "r_foot": 0.366,
+     "mean": 0.703
+    },
+    "arms_down/hard": {
+     "head": 0.464,
+     "chest": 0.485,
+     "pelvis": 0.464,
+     "l_elbow": 0.55,
+     "r_elbow": 0.315,
+     "l_fist": 0.42,
+     "r_fist": 0.237,
+     "l_knee": 0.222,
+     "r_knee": 0.144,
+     "l_foot": 0.21,
+     "r_foot": 0.117,
+     "mean": 0.33
+    },
+    "guard/standard": {
+     "head": 0.816,
+     "chest": 0.844,
+     "pelvis": 0.851,
+     "l_elbow": 0.837,
+     "r_elbow": 0.6,
+     "l_fist": 0.679,
+     "r_fist": 0.462,
+     "l_knee": 0.482,
+     "r_knee": 0.373,
+     "l_foot": 0.399,
+     "r_foot": 0.3,
+     "mean": 0.604
+    },
+    "guard/hard": {
+     "head": 0.408,
+     "chest": 0.436,
+     "pelvis": 0.422,
+     "l_elbow": 0.458,
+     "r_elbow": 0.323,
+     "l_fist": 0.365,
+     "r_fist": 0.246,
+     "l_knee": 0.242,
+     "r_knee": 0.173,
+     "l_foot": 0.236,
+     "r_foot": 0.141,
+     "mean": 0.314
+    }
+   },
+   "unoccluded_mean_by_split": {
+    "train": 0.452,
+    "val": 0.448
+   },
+   "own_body_px_by_policy": {
+    "arms_down": 0.0,
+    "guard": 0.261
+   },
+   "unoccluded_within_45deg": {
+    "head": 0.914,
+    "chest": 0.948,
+    "pelvis": 0.936,
+    "l_elbow": 0.873,
+    "r_elbow": 0.667,
+    "l_fist": 0.679,
+    "r_fist": 0.5,
+    "l_knee": 0.513,
+    "r_knee": 0.389,
+    "l_foot": 0.476,
+    "r_foot": 0.313,
+    "mean": 0.655
+   },
+   "visible_within_45deg": {
+    "head": 0.877,
+    "chest": 0.828,
+    "pelvis": 0.69,
+    "l_elbow": 0.811,
+    "r_elbow": 0.6,
+    "l_fist": 0.666,
+    "r_fist": 0.484,
+    "l_knee": 0.484,
+    "r_knee": 0.373,
+    "l_foot": 0.168,
+    "r_foot": 0.138,
+    "mean": 0.556
+   },
+   "score_within_45deg": 0.65,
+   "score": 0.4877
+  },
+  "-30": {
+   "in_fov": {
+    "head": 0.63,
+    "chest": 0.684,
+    "pelvis": 0.708,
+    "l_elbow": 0.708,
+    "r_elbow": 0.525,
+    "l_fist": 0.602,
+    "r_fist": 0.429,
+    "l_knee": 0.647,
+    "r_knee": 0.48,
+    "l_foot": 0.669,
+    "r_foot": 0.454,
+    "mean": 0.594
+   },
+   "in_fisheye": {
+    "head": 0.72,
+    "chest": 0.803,
+    "pelvis": 0.845,
+    "l_elbow": 0.81,
+    "r_elbow": 0.684,
+    "l_fist": 0.768,
+    "r_fist": 0.625,
+    "l_knee": 0.841,
+    "r_knee": 0.725,
+    "l_foot": 0.848,
+    "r_foot": 0.713,
+    "mean": 0.762
+   },
+   "unoccluded": {
+    "head": 0.603,
+    "chest": 0.636,
+    "pelvis": 0.648,
+    "l_elbow": 0.67,
+    "r_elbow": 0.48,
+    "l_fist": 0.553,
+    "r_fist": 0.385,
+    "l_knee": 0.616,
+    "r_knee": 0.436,
+    "l_foot": 0.642,
+    "r_foot": 0.426,
+    "mean": 0.554
+   },
+   "visible": {
+    "head": 0.572,
+    "chest": 0.534,
+    "pelvis": 0.484,
+    "l_elbow": 0.625,
+    "r_elbow": 0.431,
+    "l_fist": 0.542,
+    "r_fist": 0.375,
+    "l_knee": 0.574,
+    "r_knee": 0.414,
+    "l_foot": 0.202,
+    "r_foot": 0.192,
+    "mean": 0.45
+   },
+   "unoccluded_by_cell": {
+    "arms_down/standard": {
+     "head": 0.884,
+     "chest": 0.916,
+     "pelvis": 0.943,
+     "l_elbow": 0.957,
+     "r_elbow": 0.767,
+     "l_fist": 0.791,
+     "r_fist": 0.63,
+     "l_knee": 0.915,
+     "r_knee": 0.759,
+     "l_foot": 0.948,
+     "r_foot": 0.726,
+     "mean": 0.84
+    },
+    "arms_down/hard": {
+     "head": 0.457,
+     "chest": 0.502,
+     "pelvis": 0.511,
+     "l_elbow": 0.564,
+     "r_elbow": 0.346,
+     "l_fist": 0.459,
+     "r_fist": 0.271,
+     "l_knee": 0.462,
+     "r_knee": 0.292,
+     "l_foot": 0.482,
+     "r_foot": 0.281,
+     "mean": 0.421
+    },
+    "guard/standard": {
+     "head": 0.829,
+     "chest": 0.861,
+     "pelvis": 0.87,
+     "l_elbow": 0.848,
+     "r_elbow": 0.617,
+     "l_fist": 0.71,
+     "r_fist": 0.502,
+     "l_knee": 0.823,
+     "r_knee": 0.596,
+     "l_foot": 0.843,
+     "r_foot": 0.577,
+     "mean": 0.734
+    },
+    "guard/hard": {
+     "head": 0.424,
+     "chest": 0.447,
+     "pelvis": 0.455,
+     "l_elbow": 0.479,
+     "r_elbow": 0.344,
+     "l_fist": 0.394,
+     "r_fist": 0.27,
+     "l_knee": 0.45,
+     "r_knee": 0.273,
+     "l_foot": 0.482,
+     "r_foot": 0.286,
+     "mean": 0.391
+    }
+   },
+   "unoccluded_mean_by_split": {
+    "train": 0.548,
+    "val": 0.573
+   },
+   "own_body_px_by_policy": {
+    "arms_down": 0.0,
+    "guard": 0.28
+   },
+   "unoccluded_within_45deg": {
+    "head": 0.921,
+    "chest": 0.959,
+    "pelvis": 0.967,
+    "l_elbow": 0.884,
+    "r_elbow": 0.7,
+    "l_fist": 0.709,
+    "r_fist": 0.549,
+    "l_knee": 0.841,
+    "r_knee": 0.648,
+    "l_foot": 0.875,
+    "r_foot": 0.635,
+    "mean": 0.79
+   },
+   "visible_within_45deg": {
+    "head": 0.874,
+    "chest": 0.804,
+    "pelvis": 0.719,
+    "l_elbow": 0.818,
+    "r_elbow": 0.627,
+    "l_fist": 0.693,
+    "r_fist": 0.533,
+    "l_knee": 0.784,
+    "r_knee": 0.614,
+    "l_foot": 0.268,
+    "r_foot": 0.283,
+    "mean": 0.638
+   },
+   "score_within_45deg": 0.7841,
+   "score": 0.5963
+  },
+  "-40": {
+   "in_fov": {
+    "head": 0.618,
+    "chest": 0.69,
+    "pelvis": 0.748,
+    "l_elbow": 0.703,
+    "r_elbow": 0.541,
+    "l_fist": 0.608,
+    "r_fist": 0.438,
+    "l_knee": 0.782,
+    "r_knee": 0.635,
+    "l_foot": 0.799,
+    "r_foot": 0.639,
+    "mean": 0.655
+   },
+   "in_fisheye": {
+    "head": 0.719,
+    "chest": 0.81,
+    "pelvis": 0.867,
+    "l_elbow": 0.81,
+    "r_elbow": 0.699,
+    "l_fist": 0.771,
+    "r_fist": 0.645,
+    "l_knee": 0.89,
+    "r_knee": 0.788,
+    "l_foot": 0.899,
+    "r_foot": 0.792,
+    "mean": 0.79
+   },
+   "unoccluded": {
+    "head": 0.596,
+    "chest": 0.642,
+    "pelvis": 0.677,
+    "l_elbow": 0.667,
+    "r_elbow": 0.495,
+    "l_fist": 0.557,
+    "r_fist": 0.393,
+    "l_knee": 0.735,
+    "r_knee": 0.58,
+    "l_foot": 0.761,
+    "r_foot": 0.597,
+    "mean": 0.609
+   },
+   "visible": {
+    "head": 0.561,
+    "chest": 0.52,
+    "pelvis": 0.515,
+    "l_elbow": 0.617,
+    "r_elbow": 0.441,
+    "l_fist": 0.542,
+    "r_fist": 0.385,
+    "l_knee": 0.683,
+    "r_knee": 0.54,
+    "l_foot": 0.241,
+    "r_foot": 0.258,
+    "mean": 0.482
+   },
+   "unoccluded_by_cell": {
+    "arms_down/standard": {
+     "head": 0.878,
+     "chest": 0.92,
+     "pelvis": 0.96,
+     "l_elbow": 0.943,
+     "r_elbow": 0.78,
+     "l_fist": 0.78,
+     "r_fist": 0.616,
+     "l_knee": 0.994,
+     "r_knee": 0.867,
+     "l_foot": 0.998,
+     "r_foot": 0.86,
+     "mean": 0.872
+    },
+    "arms_down/hard": {
+     "head": 0.446,
+     "chest": 0.511,
+     "pelvis": 0.569,
+     "l_elbow": 0.556,
+     "r_elbow": 0.363,
+     "l_fist": 0.474,
+     "r_fist": 0.29,
+     "l_knee": 0.636,
+     "r_knee": 0.449,
+     "l_foot": 0.649,
+     "r_foot": 0.464,
+     "mean": 0.492
+    },
+    "guard/standard": {
+     "head": 0.824,
+     "chest": 0.866,
+     "pelvis": 0.877,
+     "l_elbow": 0.851,
+     "r_elbow": 0.633,
+     "l_fist": 0.706,
+     "r_fist": 0.504,
+     "l_knee": 0.91,
+     "r_knee": 0.734,
+     "l_foot": 0.938,
+     "r_foot": 0.779,
+     "mean": 0.784
+    },
+    "guard/hard": {
+     "head": 0.421,
+     "chest": 0.453,
+     "pelvis": 0.477,
+     "l_elbow": 0.482,
+     "r_elbow": 0.358,
+     "l_fist": 0.4,
+     "r_fist": 0.285,
+     "l_knee": 0.556,
+     "r_knee": 0.43,
+     "l_foot": 0.608,
+     "r_foot": 0.447,
+     "mean": 0.447
+    }
+   },
+   "unoccluded_mean_by_split": {
+    "train": 0.597,
+    "val": 0.647
+   },
+   "own_body_px_by_policy": {
+    "arms_down": 0.0,
+    "guard": 0.281
+   },
+   "unoccluded_within_45deg": {
+    "head": 0.91,
+    "chest": 0.963,
+    "pelvis": 0.977,
+    "l_elbow": 0.877,
+    "r_elbow": 0.722,
+    "l_fist": 0.704,
+    "r_fist": 0.556,
+    "l_knee": 0.946,
+    "r_knee": 0.842,
+    "l_foot": 0.97,
+    "r_foot": 0.861,
+    "mean": 0.848
+   },
+   "visible_within_45deg": {
+    "head": 0.856,
+    "chest": 0.78,
+    "pelvis": 0.743,
+    "l_elbow": 0.805,
+    "r_elbow": 0.642,
+    "l_fist": 0.683,
+    "r_fist": 0.544,
+    "l_knee": 0.877,
+    "r_knee": 0.782,
+    "l_foot": 0.293,
+    "r_foot": 0.37,
+    "mean": 0.67
+   },
+   "score_within_45deg": 0.8444,
+   "score": 0.6486
+  },
+  "-45": {
+   "in_fov": {
+    "head": 0.607,
+    "chest": 0.692,
+    "pelvis": 0.765,
+    "l_elbow": 0.694,
+    "r_elbow": 0.541,
+    "l_fist": 0.6,
+    "r_fist": 0.441,
+    "l_knee": 0.817,
+    "r_knee": 0.68,
+    "l_foot": 0.828,
+    "r_foot": 0.69,
+    "mean": 0.669
+   },
+   "in_fisheye": {
+    "head": 0.719,
+    "chest": 0.815,
+    "pelvis": 0.879,
+    "l_elbow": 0.809,
+    "r_elbow": 0.705,
+    "l_fist": 0.768,
+    "r_fist": 0.644,
+    "l_knee": 0.909,
+    "r_knee": 0.813,
+    "l_foot": 0.919,
+    "r_foot": 0.823,
+    "mean": 0.8
+   },
+   "unoccluded": {
+    "head": 0.585,
+    "chest": 0.642,
+    "pelvis": 0.689,
+    "l_elbow": 0.659,
+    "r_elbow": 0.498,
+    "l_fist": 0.548,
+    "r_fist": 0.395,
+    "l_knee": 0.769,
+    "r_knee": 0.622,
+    "l_foot": 0.792,
+    "r_foot": 0.648,
+    "mean": 0.623
+   },
+   "visible": {
+    "head": 0.55,
+    "chest": 0.502,
+    "pelvis": 0.533,
+    "l_elbow": 0.606,
+    "r_elbow": 0.441,
+    "l_fist": 0.533,
+    "r_fist": 0.387,
+    "l_knee": 0.713,
+    "r_knee": 0.577,
+    "l_foot": 0.264,
+    "r_foot": 0.289,
+    "mean": 0.49
+   },
+   "unoccluded_by_cell": {
+    "arms_down/standard": {
+     "head": 0.868,
+     "chest": 0.918,
+     "pelvis": 0.968,
+     "l_elbow": 0.93,
+     "r_elbow": 0.766,
+     "l_fist": 0.755,
+     "r_fist": 0.606,
+     "l_knee": 0.999,
+     "r_knee": 0.899,
+     "l_foot": 0.999,
+     "r_foot": 0.898,
+     "mean": 0.873
+    },
+    "arms_down/hard": {
+     "head": 0.433,
+     "chest": 0.514,
+     "pelvis": 0.595,
+     "l_elbow": 0.548,
+     "r_elbow": 0.371,
+     "l_fist": 0.472,
+     "r_fist": 0.298,
+     "l_knee": 0.678,
+     "r_knee": 0.499,
+     "l_foot": 0.686,
+     "r_foot": 0.511,
+     "mean": 0.51
+    },
+    "guard/standard": {
+     "head": 0.818,
+     "chest": 0.865,
+     "pelvis": 0.879,
+     "l_elbow": 0.843,
+     "r_elbow": 0.635,
+     "l_fist": 0.69,
+     "r_fist": 0.493,
+     "l_knee": 0.934,
+     "r_knee": 0.771,
+     "l_foot": 0.952,
+     "r_foot": 0.82,
+     "mean": 0.791
+    },
+    "guard/hard": {
+     "head": 0.409,
+     "chest": 0.452,
+     "pelvis": 0.482,
+     "l_elbow": 0.478,
+     "r_elbow": 0.368,
+     "l_fist": 0.399,
+     "r_fist": 0.297,
+     "l_knee": 0.606,
+     "r_knee": 0.472,
+     "l_foot": 0.665,
+     "r_foot": 0.518,
+     "mean": 0.468
+    }
+   },
+   "unoccluded_mean_by_split": {
+    "train": 0.61,
+    "val": 0.663
+   },
+   "own_body_px_by_policy": {
+    "arms_down": 0.002,
+    "guard": 0.292
+   },
+   "unoccluded_within_45deg": {
+    "head": 0.894,
+    "chest": 0.962,
+    "pelvis": 0.979,
+    "l_elbow": 0.865,
+    "r_elbow": 0.726,
+    "l_fist": 0.689,
+    "r_fist": 0.558,
+    "l_knee": 0.967,
+    "r_knee": 0.892,
+    "l_foot": 0.982,
+    "r_foot": 0.909,
+    "mean": 0.856
+   },
+   "visible_within_45deg": {
+    "head": 0.838,
+    "chest": 0.754,
+    "pelvis": 0.757,
+    "l_elbow": 0.787,
+    "r_elbow": 0.642,
+    "l_fist": 0.667,
+    "r_fist": 0.545,
+    "l_knee": 0.895,
+    "r_knee": 0.825,
+    "l_foot": 0.308,
+    "r_foot": 0.4,
+    "mean": 0.674
+   },
+   "score_within_45deg": 0.8534,
+   "score": 0.6604
+  },
+  "-50": {
+   "in_fov": {
+    "head": 0.571,
+    "chest": 0.691,
+    "pelvis": 0.78,
+    "l_elbow": 0.68,
+    "r_elbow": 0.531,
+    "l_fist": 0.589,
+    "r_fist": 0.437,
+    "l_knee": 0.843,
+    "r_knee": 0.717,
+    "l_foot": 0.858,
+    "r_foot": 0.728,
+    "mean": 0.675
+   },
+   "in_fisheye": {
+    "head": 0.719,
+    "chest": 0.821,
+    "pelvis": 0.887,
+    "l_elbow": 0.807,
+    "r_elbow": 0.706,
+    "l_fist": 0.761,
+    "r_fist": 0.641,
+    "l_knee": 0.925,
+    "r_knee": 0.843,
+    "l_foot": 0.936,
+    "r_foot": 0.86,
+    "mean": 0.81
+   },
+   "unoccluded": {
+    "head": 0.552,
+    "chest": 0.643,
+    "pelvis": 0.704,
+    "l_elbow": 0.647,
+    "r_elbow": 0.488,
+    "l_fist": 0.536,
+    "r_fist": 0.393,
+    "l_knee": 0.795,
+    "r_knee": 0.656,
+    "l_foot": 0.823,
+    "r_foot": 0.689,
+    "mean": 0.63
+   },
+   "visible": {
+    "head": 0.517,
+    "chest": 0.482,
+    "pelvis": 0.553,
+    "l_elbow": 0.594,
+    "r_elbow": 0.431,
+    "l_fist": 0.521,
+    "r_fist": 0.384,
+    "l_knee": 0.74,
+    "r_knee": 0.609,
+    "l_foot": 0.284,
+    "r_foot": 0.315,
+    "mean": 0.493
+   },
+   "unoccluded_by_cell": {
+    "arms_down/standard": {
+     "head": 0.793,
+     "chest": 0.917,
+     "pelvis": 0.978,
+     "l_elbow": 0.913,
+     "r_elbow": 0.745,
+     "l_fist": 0.744,
+     "r_fist": 0.593,
+     "l_knee": 1.0,
+     "r_knee": 0.923,
+     "l_foot": 1.0,
+     "r_foot": 0.92,
+     "mean": 0.866
+    },
+    "arms_down/hard": {
+     "head": 0.406,
+     "chest": 0.517,
+     "pelvis": 0.62,
+     "l_elbow": 0.539,
+     "r_elbow": 0.37,
+     "l_fist": 0.472,
+     "r_fist": 0.303,
+     "l_knee": 0.707,
+     "r_knee": 0.531,
+     "l_foot": 0.721,
+     "r_foot": 0.551,
+     "mean": 0.522
+    },
+    "guard/standard": {
+     "head": 0.796,
+     "chest": 0.865,
+     "pelvis": 0.884,
+     "l_elbow": 0.826,
+     "r_elbow": 0.623,
+     "l_fist": 0.656,
+     "r_fist": 0.484,
+     "l_knee": 0.941,
+     "r_knee": 0.8,
+     "l_foot": 0.963,
+     "r_foot": 0.867,
+     "mean": 0.791
+    },
+    "guard/hard": {
+     "head": 0.39,
+     "chest": 0.453,
+     "pelvis": 0.494,
+     "l_elbow": 0.47,
+     "r_elbow": 0.355,
+     "l_fist": 0.387,
+     "r_fist": 0.296,
+     "l_knee": 0.658,
+     "r_knee": 0.518,
+     "l_foot": 0.724,
+     "r_foot": 0.566,
+     "mean": 0.483
+    }
+   },
+   "unoccluded_mean_by_split": {
+    "train": 0.618,
+    "val": 0.667
+   },
+   "own_body_px_by_policy": {
+    "arms_down": 0.012,
+    "guard": 0.308
+   },
+   "unoccluded_within_45deg": {
+    "head": 0.844,
+    "chest": 0.963,
+    "pelvis": 0.982,
+    "l_elbow": 0.846,
+    "r_elbow": 0.711,
+    "l_fist": 0.667,
+    "r_fist": 0.551,
+    "l_knee": 0.971,
+    "r_knee": 0.922,
+    "l_foot": 0.987,
+    "r_foot": 0.939,
+    "mean": 0.853
+   },
+   "visible_within_45deg": {
+    "head": 0.789,
+    "chest": 0.725,
+    "pelvis": 0.77,
+    "l_elbow": 0.77,
+    "r_elbow": 0.626,
+    "l_fist": 0.646,
+    "r_fist": 0.538,
+    "l_knee": 0.901,
+    "r_knee": 0.854,
+    "l_foot": 0.317,
+    "r_foot": 0.419,
+    "mean": 0.668
+   },
+   "score_within_45deg": 0.8504,
+   "score": 0.6655
+  },
+  "-55": {
+   "in_fov": {
+    "head": 0.503,
+    "chest": 0.688,
+    "pelvis": 0.792,
+    "l_elbow": 0.649,
+    "r_elbow": 0.51,
+    "l_fist": 0.574,
+    "r_fist": 0.418,
+    "l_knee": 0.865,
+    "r_knee": 0.748,
+    "l_foot": 0.883,
+    "r_foot": 0.771,
+    "mean": 0.673
+   },
+   "in_fisheye": {
+    "head": 0.718,
+    "chest": 0.828,
+    "pelvis": 0.896,
+    "l_elbow": 0.804,
+    "r_elbow": 0.71,
+    "l_fist": 0.744,
+    "r_fist": 0.639,
+    "l_knee": 0.94,
+    "r_knee": 0.866,
+    "l_foot": 0.947,
+    "r_foot": 0.887,
+    "mean": 0.816
+   },
+   "unoccluded": {
+    "head": 0.484,
+    "chest": 0.642,
+    "pelvis": 0.715,
+    "l_elbow": 0.618,
+    "r_elbow": 0.468,
+    "l_fist": 0.522,
+    "r_fist": 0.375,
+    "l_knee": 0.817,
+    "r_knee": 0.685,
+    "l_foot": 0.849,
+    "r_foot": 0.726,
+    "mean": 0.627
+   },
+   "visible": {
+    "head": 0.451,
+    "chest": 0.466,
+    "pelvis": 0.574,
+    "l_elbow": 0.565,
+    "r_elbow": 0.412,
+    "l_fist": 0.508,
+    "r_fist": 0.367,
+    "l_knee": 0.762,
+    "r_knee": 0.636,
+    "l_foot": 0.306,
+    "r_foot": 0.339,
+    "mean": 0.489
+   },
+   "unoccluded_by_cell": {
+    "arms_down/standard": {
+     "head": 0.656,
+     "chest": 0.916,
+     "pelvis": 0.983,
+     "l_elbow": 0.861,
+     "r_elbow": 0.71,
+     "l_fist": 0.72,
+     "r_fist": 0.565,
+     "l_knee": 1.0,
+     "r_knee": 0.941,
+     "l_foot": 1.0,
+     "r_foot": 0.939,
+     "mean": 0.845
+    },
+    "arms_down/hard": {
+     "head": 0.361,
+     "chest": 0.518,
+     "pelvis": 0.645,
+     "l_elbow": 0.514,
+     "r_elbow": 0.358,
+     "l_fist": 0.469,
+     "r_fist": 0.291,
+     "l_knee": 0.729,
+     "r_knee": 0.569,
+     "l_foot": 0.751,
+     "r_foot": 0.593,
+     "mean": 0.527
+    },
+    "guard/standard": {
+     "head": 0.721,
+     "chest": 0.862,
+     "pelvis": 0.887,
+     "l_elbow": 0.796,
+     "r_elbow": 0.6,
+     "l_fist": 0.635,
+     "r_fist": 0.461,
+     "l_knee": 0.955,
+     "r_knee": 0.828,
+     "l_foot": 0.968,
+     "r_foot": 0.893,
+     "mean": 0.782
+    },
+    "guard/hard": {
+     "head": 0.347,
+     "chest": 0.449,
+     "pelvis": 0.501,
+     "l_elbow": 0.453,
+     "r_elbow": 0.339,
+     "l_fist": 0.375,
+     "r_fist": 0.282,
+     "l_knee": 0.698,
+     "r_knee": 0.546,
+     "l_foot": 0.774,
+     "r_foot": 0.618,
+     "mean": 0.489
+    }
+   },
+   "unoccluded_mean_by_split": {
+    "train": 0.617,
+    "val": 0.659
+   },
+   "own_body_px_by_policy": {
+    "arms_down": 0.035,
+    "guard": 0.325
+   },
+   "unoccluded_within_45deg": {
+    "head": 0.74,
+    "chest": 0.961,
+    "pelvis": 0.982,
+    "l_elbow": 0.808,
+    "r_elbow": 0.68,
+    "l_fist": 0.645,
+    "r_fist": 0.523,
+    "l_knee": 0.975,
+    "r_knee": 0.938,
+    "l_foot": 0.989,
+    "r_foot": 0.947,
+    "mean": 0.835
+   },
+   "visible_within_45deg": {
+    "head": 0.689,
+    "chest": 0.701,
+    "pelvis": 0.787,
+    "l_elbow": 0.73,
+    "r_elbow": 0.596,
+    "l_fist": 0.624,
+    "r_fist": 0.511,
+    "l_knee": 0.905,
+    "r_knee": 0.868,
+    "l_foot": 0.326,
+    "r_foot": 0.43,
+    "mean": 0.651
+   },
+   "score_within_45deg": 0.8327,
+   "score": 0.6609
+  },
+  "-60": {
+   "in_fov": {
+    "head": 0.414,
+    "chest": 0.677,
+    "pelvis": 0.803,
+    "l_elbow": 0.592,
+    "r_elbow": 0.467,
+    "l_fist": 0.546,
+    "r_fist": 0.39,
+    "l_knee": 0.889,
+    "r_knee": 0.78,
+    "l_foot": 0.91,
+    "r_foot": 0.808,
+    "mean": 0.662
+   },
+   "in_fisheye": {
+    "head": 0.704,
+    "chest": 0.833,
+    "pelvis": 0.907,
+    "l_elbow": 0.795,
+    "r_elbow": 0.713,
+    "l_fist": 0.732,
+    "r_fist": 0.636,
+    "l_knee": 0.954,
+    "r_knee": 0.894,
+    "l_foot": 0.963,
+    "r_foot": 0.919,
+    "mean": 0.823
+   },
+   "unoccluded": {
+    "head": 0.395,
+    "chest": 0.634,
+    "pelvis": 0.725,
+    "l_elbow": 0.564,
+    "r_elbow": 0.425,
+    "l_fist": 0.498,
+    "r_fist": 0.348,
+    "l_knee": 0.839,
+    "r_knee": 0.712,
+    "l_foot": 0.867,
+    "r_foot": 0.752,
+    "mean": 0.614
+   },
+   "visible": {
+    "head": 0.368,
+    "chest": 0.441,
+    "pelvis": 0.592,
+    "l_elbow": 0.511,
+    "r_elbow": 0.375,
+    "l_fist": 0.483,
+    "r_fist": 0.343,
+    "l_knee": 0.788,
+    "r_knee": 0.665,
+    "l_foot": 0.332,
+    "r_foot": 0.361,
+    "mean": 0.478
+   },
+   "unoccluded_by_cell": {
+    "arms_down/standard": {
+     "head": 0.518,
+     "chest": 0.906,
+     "pelvis": 0.983,
+     "l_elbow": 0.76,
+     "r_elbow": 0.635,
+     "l_fist": 0.672,
+     "r_fist": 0.516,
+     "l_knee": 1.0,
+     "r_knee": 0.957,
+     "l_foot": 1.0,
+     "r_foot": 0.951,
+     "mean": 0.809
+    },
+    "arms_down/hard": {
+     "head": 0.312,
+     "chest": 0.513,
+     "pelvis": 0.664,
+     "l_elbow": 0.473,
+     "r_elbow": 0.332,
+     "l_fist": 0.455,
+     "r_fist": 0.282,
+     "l_knee": 0.758,
+     "r_knee": 0.588,
+     "l_foot": 0.773,
+     "r_foot": 0.614,
+     "mean": 0.524
+    },
+    "guard/standard": {
+     "head": 0.566,
+     "chest": 0.851,
+     "pelvis": 0.89,
+     "l_elbow": 0.741,
+     "r_elbow": 0.541,
+     "l_fist": 0.609,
+     "r_fist": 0.407,
+     "l_knee": 0.959,
+     "r_knee": 0.854,
+     "l_foot": 0.972,
+     "r_foot": 0.917,
+     "mean": 0.755
+    },
+    "guard/hard": {
+     "head": 0.29,
+     "chest": 0.441,
+     "pelvis": 0.513,
+     "l_elbow": 0.415,
+     "r_elbow": 0.31,
+     "l_fist": 0.357,
+     "r_fist": 0.269,
+     "l_knee": 0.743,
+     "r_knee": 0.591,
+     "l_foot": 0.81,
+     "r_foot": 0.66,
+     "mean": 0.491
+    }
+   },
+   "unoccluded_mean_by_split": {
+    "train": 0.607,
+    "val": 0.638
+   },
+   "own_body_px_by_policy": {
+    "arms_down": 0.063,
+    "guard": 0.337
+   },
+   "unoccluded_within_45deg": {
+    "head": 0.601,
+    "chest": 0.951,
+    "pelvis": 0.983,
+    "l_elbow": 0.735,
+    "r_elbow": 0.615,
+    "l_fist": 0.611,
+    "r_fist": 0.481,
+    "l_knee": 0.978,
+    "r_knee": 0.944,
+    "l_foot": 0.99,
+    "r_foot": 0.955,
+    "mean": 0.804
+   },
+   "visible_within_45deg": {
+    "head": 0.561,
+    "chest": 0.668,
+    "pelvis": 0.801,
+    "l_elbow": 0.658,
+    "r_elbow": 0.54,
+    "l_fist": 0.59,
+    "r_fist": 0.473,
+    "l_knee": 0.912,
+    "r_knee": 0.878,
+    "l_foot": 0.344,
+    "r_foot": 0.437,
+    "mean": 0.624
+   },
+   "score_within_45deg": 0.8023,
+   "score": 0.6447
+  },
+  "-65": {
+   "in_fov": {
+    "head": 0.313,
+    "chest": 0.63,
+    "pelvis": 0.812,
+    "l_elbow": 0.505,
+    "r_elbow": 0.399,
+    "l_fist": 0.499,
+    "r_fist": 0.351,
+    "l_knee": 0.914,
+    "r_knee": 0.813,
+    "l_foot": 0.929,
+    "r_foot": 0.848,
+    "mean": 0.638
+   },
+   "in_fisheye": {
+    "head": 0.667,
+    "chest": 0.836,
+    "pelvis": 0.917,
+    "l_elbow": 0.778,
+    "r_elbow": 0.704,
+    "l_fist": 0.72,
+    "r_fist": 0.622,
+    "l_knee": 0.968,
+    "r_knee": 0.92,
+    "l_foot": 0.977,
+    "r_foot": 0.95,
+    "mean": 0.824
+   },
+   "unoccluded": {
+    "head": 0.297,
+    "chest": 0.592,
+    "pelvis": 0.732,
+    "l_elbow": 0.478,
+    "r_elbow": 0.359,
+    "l_fist": 0.454,
+    "r_fist": 0.314,
+    "l_knee": 0.862,
+    "r_knee": 0.744,
+    "l_foot": 0.883,
+    "r_foot": 0.778,
+    "mean": 0.59
+   },
+   "visible": {
+    "head": 0.278,
+    "chest": 0.385,
+    "pelvis": 0.605,
+    "l_elbow": 0.433,
+    "r_elbow": 0.32,
+    "l_fist": 0.44,
+    "r_fist": 0.309,
+    "l_knee": 0.814,
+    "r_knee": 0.698,
+    "l_foot": 0.346,
+    "r_foot": 0.394,
+    "mean": 0.456
+   },
+   "unoccluded_by_cell": {
+    "arms_down/standard": {
+     "head": 0.361,
+     "chest": 0.81,
+     "pelvis": 0.984,
+     "l_elbow": 0.633,
+     "r_elbow": 0.533,
+     "l_fist": 0.62,
+     "r_fist": 0.463,
+     "l_knee": 1.0,
+     "r_knee": 0.967,
+     "l_foot": 1.0,
+     "r_foot": 0.962,
+     "mean": 0.758
+    },
+    "arms_down/hard": {
+     "head": 0.248,
+     "chest": 0.488,
+     "pelvis": 0.68,
+     "l_elbow": 0.404,
+     "r_elbow": 0.282,
+     "l_fist": 0.417,
+     "r_fist": 0.261,
+     "l_knee": 0.782,
+     "r_knee": 0.62,
+     "l_foot": 0.79,
+     "r_foot": 0.634,
+     "mean": 0.51
+    },
+    "guard/standard": {
+     "head": 0.415,
+     "chest": 0.822,
+     "pelvis": 0.888,
+     "l_elbow": 0.639,
+     "r_elbow": 0.457,
+     "l_fist": 0.559,
+     "r_fist": 0.372,
+     "l_knee": 0.966,
+     "r_knee": 0.887,
+     "l_foot": 0.974,
+     "r_foot": 0.937,
+     "mean": 0.72
+    },
+    "guard/hard": {
+     "head": 0.23,
+     "chest": 0.408,
+     "pelvis": 0.521,
+     "l_elbow": 0.349,
+     "r_elbow": 0.262,
+     "l_fist": 0.315,
+     "r_fist": 0.234,
+     "l_knee": 0.788,
+     "r_knee": 0.636,
+     "l_foot": 0.844,
+     "r_foot": 0.707,
+     "mean": 0.481
+    }
+   },
+   "unoccluded_mean_by_split": {
+    "train": 0.585,
+    "val": 0.608
+   },
+   "own_body_px_by_policy": {
+    "arms_down": 0.089,
+    "guard": 0.337
+   },
+   "unoccluded_within_45deg": {
+    "head": 0.451,
+    "chest": 0.89,
+    "pelvis": 0.98,
+    "l_elbow": 0.62,
+    "r_elbow": 0.516,
+    "l_fist": 0.553,
+    "r_fist": 0.432,
+    "l_knee": 0.98,
+    "r_knee": 0.954,
+    "l_foot": 0.992,
+    "r_foot": 0.965,
+    "mean": 0.758
+   },
+   "visible_within_45deg": {
+    "head": 0.422,
+    "chest": 0.583,
+    "pelvis": 0.808,
+    "l_elbow": 0.554,
+    "r_elbow": 0.459,
+    "l_fist": 0.533,
+    "r_fist": 0.424,
+    "l_knee": 0.918,
+    "r_knee": 0.891,
+    "l_foot": 0.35,
+    "r_foot": 0.468,
+    "mean": 0.583
+   },
+   "score_within_45deg": 0.7561,
+   "score": 0.6171
+  },
+  "-70": {
+   "in_fov": {
+    "head": 0.212,
+    "chest": 0.5,
+    "pelvis": 0.818,
+    "l_elbow": 0.376,
+    "r_elbow": 0.321,
+    "l_fist": 0.44,
+    "r_fist": 0.308,
+    "l_knee": 0.931,
+    "r_knee": 0.844,
+    "l_foot": 0.948,
+    "r_foot": 0.881,
+    "mean": 0.598
+   },
+   "in_fisheye": {
+    "head": 0.611,
+    "chest": 0.837,
+    "pelvis": 0.931,
+    "l_elbow": 0.743,
+    "r_elbow": 0.686,
+    "l_fist": 0.698,
+    "r_fist": 0.606,
+    "l_knee": 0.977,
+    "r_knee": 0.947,
+    "l_foot": 0.987,
+    "r_foot": 0.971,
+    "mean": 0.818
+   },
+   "unoccluded": {
+    "head": 0.196,
+    "chest": 0.465,
+    "pelvis": 0.742,
+    "l_elbow": 0.352,
+    "r_elbow": 0.286,
+    "l_fist": 0.398,
+    "r_fist": 0.272,
+    "l_knee": 0.871,
+    "r_knee": 0.764,
+    "l_foot": 0.895,
+    "r_foot": 0.791,
+    "mean": 0.548
+   },
+   "visible": {
+    "head": 0.184,
+    "chest": 0.25,
+    "pelvis": 0.624,
+    "l_elbow": 0.321,
+    "r_elbow": 0.264,
+    "l_fist": 0.386,
+    "r_fist": 0.268,
+    "l_knee": 0.827,
+    "r_knee": 0.719,
+    "l_foot": 0.366,
+    "r_foot": 0.414,
+    "mean": 0.42
+   },
+   "unoccluded_by_cell": {
+    "arms_down/standard": {
+     "head": 0.195,
+     "chest": 0.557,
+     "pelvis": 0.985,
+     "l_elbow": 0.422,
+     "r_elbow": 0.427,
+     "l_fist": 0.554,
+     "r_fist": 0.394,
+     "l_knee": 1.0,
+     "r_knee": 0.971,
+     "l_foot": 1.0,
+     "r_foot": 0.963,
+     "mean": 0.679
+    },
+    "arms_down/hard": {
+     "head": 0.181,
+     "chest": 0.417,
+     "pelvis": 0.69,
+     "l_elbow": 0.319,
+     "r_elbow": 0.23,
+     "l_fist": 0.367,
+     "r_fist": 0.239,
+     "l_knee": 0.785,
+     "r_knee": 0.633,
+     "l_foot": 0.794,
+     "r_foot": 0.64,
+     "mean": 0.481
+    },
+    "guard/standard": {
+     "head": 0.265,
+     "chest": 0.629,
+     "pelvis": 0.889,
+     "l_elbow": 0.467,
+     "r_elbow": 0.357,
+     "l_fist": 0.493,
+     "r_fist": 0.318,
+     "l_knee": 0.967,
+     "r_knee": 0.905,
+     "l_foot": 0.978,
+     "r_foot": 0.949,
+     "mean": 0.656
+    },
+    "guard/hard": {
+     "head": 0.168,
+     "chest": 0.348,
+     "pelvis": 0.541,
+     "l_elbow": 0.264,
+     "r_elbow": 0.206,
+     "l_fist": 0.267,
+     "r_fist": 0.198,
+     "l_knee": 0.814,
+     "r_knee": 0.674,
+     "l_foot": 0.878,
+     "r_foot": 0.736,
+     "mean": 0.463
+    }
+   },
+   "unoccluded_mean_by_split": {
+    "train": 0.543,
+    "val": 0.564
+   },
+   "own_body_px_by_policy": {
+    "arms_down": 0.124,
+    "guard": 0.338
+   },
+   "unoccluded_within_45deg": {
+    "head": 0.296,
+    "chest": 0.696,
+    "pelvis": 0.98,
+    "l_elbow": 0.441,
+    "r_elbow": 0.408,
+    "l_fist": 0.481,
+    "r_fist": 0.366,
+    "l_knee": 0.984,
+    "r_knee": 0.961,
+    "l_foot": 0.994,
+    "r_foot": 0.969,
+    "mean": 0.689
+   },
+   "visible_within_45deg": {
+    "head": 0.278,
+    "chest": 0.38,
+    "pelvis": 0.821,
+    "l_elbow": 0.398,
+    "r_elbow": 0.375,
+    "l_fist": 0.463,
+    "r_fist": 0.36,
+    "l_knee": 0.928,
+    "r_knee": 0.9,
+    "l_foot": 0.365,
+    "r_foot": 0.488,
+    "mean": 0.523
+   },
+   "score_within_45deg": 0.6881,
+   "score": 0.5699
+  }
+ },
+ "choice": {
+  "rule": "the best-scoring pitch over the whole sweep, interior (both neighbours lower); revised 2026-10-27, see about",
+  "scores": {
+   "0": 0.2815,
+   "-10": 0.3662,
+   "-20": 0.4877,
+   "-30": 0.5963,
+   "-40": 0.6486,
+   "-45": 0.6604,
+   "-50": 0.6655,
+   "-55": 0.6609,
+   "-60": 0.6447,
+   "-65": 0.6171,
+   "-70": 0.5699
+  },
+  "head_pitch_deg": -50.0,
+  "interior": true,
+  "bootstrap": {
+   "resamples": 2000,
+   "unit": "bout, within each policy x tier cell",
+   "win_rate": {
+    "-50": 0.997,
+    "-55": 0.003
+   },
+   "best_minus_neighbour": {
+    "-45": {
+     "diff": 0.0051,
+     "ci95": [
+      0.0024,
+      0.0081
+     ]
+    },
+    "-55": {
+     "diff": 0.0046,
+     "ci95": [
+      0.0013,
+      0.0078
+     ]
+    }
+   }
+  },
+  "rule_v1": {
+   "rule": "smallest |pitch| among the candidates [0.0, -10.0, -20.0, -30.0] with score within 0.01 of the best candidate",
+   "head_pitch_deg": -30.0,
+   "at_bound": true
+  },
+  "_why": "results/perception/coverage.json (scripts/camera_coverage.py): mean unoccluded opponent-keypoint fraction (score) by pitch 0: 0.281, -10: 0.366, -20: 0.488, -30: 0.596, -40: 0.649, -45: 0.660, -50: 0.665, -55: 0.661, -60: 0.645, -65: 0.617, -70: 0.570; -50 scores best over 0 to -70 and is an interior optimum (-45 lower by 0.005 [0.002, 0.008], -55 lower by 0.005 [0.001, 0.008]); it wins 99.7% of 2000 bout resamples. At -50: pelvis 0.704, head 0.552, fists 0.536/0.393, feet 0.823/0.689 unoccluded (train + val, both policies, both tiers); the R1's own body covers 0.31 of the image in guard (0 deg: 0.16). The real R1's head-pitch range is unpublished (ASSUMPTION)."
+ },
+ "wall_s": 424.8
+}

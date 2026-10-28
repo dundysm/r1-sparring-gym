@@ -56,3 +56,24 @@ opponent_policy: results/opponent_tracker/policy.onnx   # relative to the repo r
 opponent_gains: stand_pd      # puppet mode only
 opponent_cap_policy: min      # puppet mode only
 opponent_armature: 0.03       # puppet mode only
+# Landed-hit metric (r1gym/hits.py HitMeter; definitions preregistered in docs/AIMED_OPPONENT.md). It only reads the sim.
+hit_metric:
+  merge_gap_s: 0.1       # contact substeps of one (opponent limb group, R1 zone) at most this far apart are one episode: a contact-free gap of up to 95 ms (a bounce is one hit)
+  min_impulse_Ns: 0.5    # landed: impulse over the episode (median physical head hit ~2.2 N*s in the review probe)
+  min_peak_N: 5          # landed: peak normal force; below it a touch, not a hit
+  v_close_min: 1.0       # clean strike: closing speed along the contact normal at first touch [m/s]
+  max_strike_s: 0.15     # clean strike: episode duration; longer is a press
+# Aimed opponent (r1gym/aim.py; docs/AIMED_OPPONENT.md). none: the shipped opponent, untouched. Else one of shadow (intents
+# logged, reference untouched), standoff, armwarp, armwarp_vz, standoff+armwarp_vz, select; M1's pick is in
+# results/opponent_tracker/aim.json (chosen on train + val by the preregistered rule). The aim reads the R1's true pose.
+opponent_aim: none
+aim:
+  zone: head             # every hand strike goes for the head (torso | band: the zone the strike is level with)
+  targets: {head: [0.057, 0.0, 0.36], torso: [0.04, 0.0, 0.15]}   # R1 torso frame: 3 cm behind the face / the chest front
+  lead_s: 0.8            # intents are made this long before onset (StandOff starts closing then)
+  commit_s: 0.15         # the target follows the R1 until t_apex - commit_s, then stays put in the world
+  arm: {lead_s: 0.15, hold_s: 0.05, tail_s: 0.1, max_dq: 0.8, range_frac: 0.95, iters: 12, prior: 0.001}   # prior 0.02 (design A) left 1.3 cm (up to 2.7) on reachable targets
+  standoff: {min_m: 0.35, depth_m: 0.03}
+  upright_gate_deg: 15   # no aimed intent while the opponent's torso tilts more, or within gate_after_touch_s of touching the R1
+  gate_after_touch_s: 0.3
+  select: {fade_s: 0.35, min_z_m: 1.02, next_within_s: 0.6}

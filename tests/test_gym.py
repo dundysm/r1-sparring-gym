@@ -298,6 +298,7 @@ def test_hold_command_walks_back_to_the_spot():
     assert e.command[0] < 0 and abs(e.command[1]) < 1e-6 and e.command[0] >= e.HOLD_VX[0]
     e.opp = None; e.command[:] = 0; e._hold(); assert not e.command.any()
 
+
 def test_shipped_policies_run_their_outer_loops():
     """Each shipped footwork policy's gym.json (chosen on validation: results/hold_ab.json, results/face_opponent_ab.json)
     reaches the env: both hold their spot, the guard also turns to face, and a bout with the opponent steps without falling."""
@@ -308,3 +309,32 @@ def test_shipped_policies_run_their_outer_loops():
         m = build_spec(opponent=True, cfg=cfg).compile(); e, o = demo_env(m, cfg, seconds=2.0)
         assert e.hold and e.face == face and e.hold_band == [0.25, 0.08]
         for _ in range(100): o, r, d, info = e.step(c.act(o[None])[0]); assert not info["fallen"]
+
+
+def test_cluster_paired_diff_matches_paired_diff():
+    """With one episode per cluster the clustered bootstrap is paired_diff exactly; repeating each episode inside its
+    cluster leaves it unchanged, where the unclustered bootstrap would narrow."""
+    from r1gym.stats import paired_diff, cluster_paired_diff
+    rng = np.random.default_rng(0); a, b = rng.normal(1.0, 2.0, 50), rng.normal(0.5, 2.0, 50)
+    assert cluster_paired_diff(a, b, list(range(50))) == paired_diff(a, b) and cluster_paired_diff(a, b, [("kfab_200", i) for i in range(50)]) == paired_diff(a, b)
+    a3, b3, c3 = np.repeat(a, 3), np.repeat(b, 3), np.repeat(np.arange(50), 3); d, (lo, hi) = cluster_paired_diff(a3, b3, c3)
+    assert np.isclose(d, paired_diff(a, b)[0], atol=1.5e-3) and np.allclose((lo, hi), paired_diff(a, b)[1], atol=2e-3)
+    assert np.diff(paired_diff(a3, b3)[1])[0] < hi - lo
+    wa, wb = rng.uniform(0.02, 1 / 6, 50), rng.uniform(0.02, 1 / 6, 50); d, (lo, hi) = cluster_paired_diff(a, b, list(range(50)), wa=wa, wb=wb)   # minutes as weights
+    assert d == round(float(a @ wa / wa.sum() - b @ wb / wb.sum()), 3) and lo < d < hi
+
+
+def test_aim_tier_pairs_episodes():
+    """--aim runs the tier's own episodes: with the scheduler in shadow the bouts (and hits) are those of the shipped opponent;
+    aimed bouts pair with them bout by bout (vs_unaimed), and library windows are scored in every bout."""
+    from r1gym.policy import load_controller, controller_cfg
+    eo = _eval_opponent(); n = int(round(eo.START_SPAN / eo.START_STEP)); good = {("kfab_204", d): np.ones(n, bool) for d in eo.TIERS["hard"]["distances"]}
+    eps = eo.episodes(["kfab_204"], 1, "hard", good, seconds=2.0)[:2]; c = load_controller("step=results/policy_mjlab/policy.onnx")
+    cfg = {**controller_cfg(c), "opponent_mode": "policy"}; m = build_spec(opponent=True, cfg=cfg).compile(); rows = {}
+    for mode in ("none", "shadow", "armwarp"):
+        rows[mode] = eo.run(c, eps, m, {**cfg, "opponent_aim": mode}, T=2.0, threads=2, dr=True, meter=True, lag=0.02)
+    strip = lambda r: {**r, "hit_meter": {k: v for k, v in r["hit_meter"].items() if not k.startswith("intent")}}
+    assert [strip(r) for r in rows["none"]] == [strip(r) for r in rows["shadow"]] and "intent_windows" in rows["shadow"][0]["hit_meter"]
+    assert all(sum(r["hit_meter"]["windows"].values()) > 0 for r in rows["none"])   # library windows, lag-shifted
+    v = eo.vs_unaimed(rows["armwarp"], rows["shadow"], [(e["clip"], e["t0"]) for e in eps]); z = eo.vs_unaimed(rows["shadow"], rows["none"], [(e["clip"], e["t0"]) for e in eps])
+    assert {"survival", "head_clean_pm", "rules", "intent_window_head_share"} <= set(v) and z["survival"]["diff"] == 0 and z["head_clean_pm"]["diff"] == 0

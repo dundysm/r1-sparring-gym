@@ -42,8 +42,10 @@ def _group(j):
     if re.search(r"shoulder_(pitch|roll)", j): return "shoulder"
     return "arm"
 
-def build_spec(opponent: bool = False, cfg=None, gains: str | None = None) -> mujoco.MjSpec:
-    """R1 from unitree_rl_mjlab (the MJCF Unitree trains its own R1 policies on) + PD servos + floor [+ G1 opponent]."""
+def build_spec(opponent: bool = False, cfg=None, gains: str | None = None, mannequin: bool = False) -> mujoco.MjSpec:
+    """R1 from unitree_rl_mjlab (the MJCF Unitree trains its own R1 policies on) + PD servos + floor [+ G1 opponent].
+    mannequin: the R1's pelvis is welded where R1Robot.reset puts it (the MJCF's pelvis pose), so it can't fall or be pushed
+    away: a target that isolates the opponent's aim (scripts/aim_check.py)."""
     cfg = cfg or load_cfg(); gains = gains or cfg.get("gains", "stand_pd")
     s = mujoco.MjSpec.from_file(str(ASSETS / "r1" / "r1.xml"))
     s.meshdir = str(ASSETS / "r1" / "assets")
@@ -53,6 +55,8 @@ def build_spec(opponent: bool = False, cfg=None, gains: str | None = None) -> mu
     for e in list(s.excludes):
         if e.bodyname1 not in names or e.bodyname2 not in names: s.delete(e)
     s.option.timestep = cfg["model"]["timestep"]
+    if mannequin:   # weld to the world at qpos0 (pelvis at 0, 0, 0.74, upright): R1Robot.reset's pose
+        eq = s.add_equality(); eq.type = mujoco.mjtEq.mjEQ_WELD; eq.objtype = mujoco.mjtObj.mjOBJ_BODY; eq.name1 = "pelvis"; eq.solref = [0.01, 1.0]   # stiffest at 5 ms
     s.option.integrator = mujoco.mjtIntegrator.mjINT_IMPLICITFAST   # PD damping implicit: explicit Euler is unstable for kd>~4 on light links
     s.worldbody.add_light(pos=[1, 0, 3.5], dir=[0, 0, -1], type=mujoco.mjtLightType.mjLIGHT_DIRECTIONAL)
     s.worldbody.add_light(pos=[-2, -2, 3], dir=[1, 1, -1.2], castshadow=False)

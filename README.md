@@ -172,6 +172,79 @@ Each policy's settings were chosen on hard-tier validation (64 bouts): **the mos
   48 bouts of 12 s per row on train + val clips, with the demo's pushes and each policy's outer loops. The remaining overlap is the contact giving way for a few steps in hard impacts.
 - **Parity:** run alone from the same 48 starts, it stays up 45/48 in mjlab, where it trained, and 46/48 here; the falls they share happen within 0.1 s of each other (`parity_mjlab.json`). The observation matches mjlab's training loop: the reference one frame ahead, fresh kinematics, and the anchor position in the torso frame.
 
+## Aimed opponent (M1: the shipped tracker, aimed)
+The opponent above performs fight forms in front of the R1. M1 makes those strikes go for the R1's head without retraining
+the tracker: `r1gym/aim.py` changes the reference the tracking policy is shown, per strike, and the hit metric scores what
+lands. The definitions, the primary metric (head clean strikes per minute), the splits and the rule that picks the operator
+were fixed before anything aimed ran (`docs/AIMED_OPPONENT.md`, its amendment 1 included). Everything below is generated from
+the stored JSON by `python scripts/aim_tables.py --write`; the aim reads the R1's true pose (privileged, like the steering).
+- **Operators:** StandOff steers in so a strike's apex reaches 3 cm into its target; ArmWarp re-solves the striking arm every
+  control step so the palm meets the target from where the opponent's torso is now (or only in height and sideways); the
+  strike selector splices the clip to its head-level strikes. A strike's target follows the R1 until 0.15 s before its apex,
+  then stays put; no strike is aimed while the opponent leans more than 15 degrees or right after it touched the R1.
+- **Off by default:** `opponent_aim: none` is the shipped opponent bit for bit (`tests/test_aim.py`).
+
+<!-- aim:begin -->
+**Strike library** (`r1gym/strikes.py`, `scripts/strike_library.py`): 55 strikes (51 with a hand) in the motion the tracker performs; 5 train, 1 val and 1 test strikes are level with the head. Against 106 hand-labelled candidates (9 unsure; `strike_labels.json` says how they were labelled): precision 0.78 [0.58, 0.90], recall 0.79 [0.59, 0.91]. Sheet: [`media/strikes_sheet.png`](media/strikes_sheet.png).
+
+**What the shipped tracker tolerates** (`scripts/tracker_tolerance.py`, opponent alone, 43 train + val hand strikes): its palm comes within 5 cm of the reference apex in 70% of strikes unwarped, 67% / 54% when the apex is moved 10 / 20 cm up, 47% for 20 cm in any of three directions; no warp up to 25 cm made it fall. A 20 cm lunge at 1 m/s adds 3.5 cm of reach (median). Slowing strikes to 0.5x: 16/48 falls (unchanged: 2/48). Splicing to head-level strikes: 15/48 falls, so the selector fails its preregistered tolerance and is out. Its lag: 20 ms (median, train).
+
+**Paired aim check** (`scripts/aim_check.py`, train + val, 72 bouts of 10 s per operator and target at 0.40-0.65 m; against PR #13's arms-down base; the unaimed opponent lands 5.3 head clean strikes/min):
+
+| operator | Δ head clean strikes/min [95% CI] | Δ head-landed share per strike window | opponent falls, pooled (unaimed 0.5%) | sign under the other hit rules |
+|---|---|---|---|---|
+| StandOff | +1.0 [0.0, 2.1] | +0.013 [0.002, 0.025] | 0.0% | landed +1.4 A_peak20 +3.4 B_strike +0.9 impulse_only +1.4 |
+| ArmWarp | +2.1 [0.3, 3.8] | +0.006 [-0.010, 0.019] | 0.5% | landed +1.3 A_peak20 +0.7 B_strike +2.0 impulse_only +1.3 |
+| ArmWarp, height and sideways only | +2.6 [0.7, 4.5] | +0.033 [0.011, 0.056] | 0.0% | landed +3.5 A_peak20 +4.8 B_strike +2.5 impulse_only +3.5 |
+| StandOff + ArmWarp (height, sideways) **(chosen)** | +3.2 [1.1, 5.2] | +0.030 [0.014, 0.049] | 0.9% | landed +6.0 A_peak20 +7.9 B_strike +3.1 impulse_only +6.0 |
+| StrikeSelector | not run: failed its splice tolerance | | | |
+
+Chosen by the preregistered rule (`results/opponent_tracker/aim.json`, before any aimed test run): **StandOff + ArmWarp (height, sideways)**, the largest paired difference whose CI is above 0. The next best, ArmWarp, height and sideways only, is 0.6/min behind (the tie margin is 0.5). Opponent falls: 0.9% of bouts against 0.5% unaimed (the rule allows +2 pp). Its sign is the same under every hit rule. StandOff alone misses the bar: its CI starts at 0.0.
+
+The chosen operator on every target (same episodes; peak forces at the shell solref named):
+
+| target | head clean strikes/min, unaimed → aimed | Δ [95% CI] | Δ on train clips (9 start times) / on the val clip (3) | Δ head-landed/min | Δ head impulse, N·s/min | strike windows ending on the head, unaimed → aimed | windows not aimed (lean / touch gate) | windows whose target is >= 8 cm beyond the arm's reach | head-hit peak force, median / p95 |
+|---|---|---|---|---|---|---|---|---|---|
+| mannequin (welded R1: the aim alone) | 6.5 → 8.2 | +1.8 [-1.0, 4.4] | +3.7 [1.2, 6.0] / -4.0 [-9.0, -1.0] | +4.2 [1.9, 6.5] | +25.8 [15.3, 38.4] | 5.1% → 8.9% | 30% / 23% | 72% | 220 / 1027 N at 0.01 |
+| arms-down base (PR #13) | 5.3 → 8.5 | +3.2 [1.1, 5.2] | +3.4 [0.9, 5.6] / +2.3 [-1.0, 7.0] | +6.0 [3.3, 8.8] | +23.7 [11.6, 35.3] | 3.3% → 6.3% | 27% / 21% | 75% | 215 / 808 N at 0.01 |
+| guard (PR #13) | 2.4 → 3.3 | +0.9 [-0.2, 2.0] | +0.3 [-0.8, 1.6] / +2.7 [2.0, 4.0] | +3.2 [1.2, 5.4] | +10.5 [3.2, 18.6] | 1.7% → 3.0% | 30% / 10% | 85% | 205 / 903 N at 0.01 |
+| arms-down (PR #13), shell solref 0.02 | 4.9 → 9.7 | +4.8 [2.7, 7.3] | +3.8 [2.1, 5.4] / +7.7 [0.0, 15.0] | +6.2 [3.4, 9.0] | +24.6 [13.3, 36.2] | 3.7% → 5.9% | 28% / 22% | 76% | 113 / 419 N at 0.02 |
+
+![unaimed vs aimed](media/aim_frames.png)
+
+*Left unaimed, right aimed (standoff+armwarp_vz): the same kfab_204 bout at 0.6 m, at the apex of each aimed strike that ended on the head (`scripts/aim_frames.py`; the bout where the aim added the most head windows, so the best case, not a typical one).*
+
+Reach is the limit, as the design predicted: on the arms-down base, strikes whose target the arm can reach from where the opponent stands (IK residual < 3 cm, 125 windows) end on the head 18% of the time, those 3-8 cm short 18%, and the 796 that are 8 cm or more short 3%. The actual pelvis spacing stays near 0.56 m (median) at nominal 0.40-0.65 m. Whole-body aiming (M2, GPU) is what can change that.
+
+**Hard tier with the aimed opponent** (`--aim chosen`: standoff+armwarp_vz, chosen before the footwork policies existed and not re-chosen; `results/eval_opponent/aim/`: the same episodes as the unaimed tier, the scheduler in shadow there, paired; nominal distance 0.40-0.55 m):
+
+| split | controller | survival, unaimed → aimed | Δ survival [95% CI] | head clean strikes/min, unaimed → aimed | Δ [95% CI] | Δ opponent falls [95% CI] | actual spacing (median, unaimed) |
+|---|---|---|---|---|---|---|---|
+| val | Stepping base, stage 1 | 0.406 → 0.469 | +0.062 [-0.016, 0.149] | 10.4 → 9.0 | -1.4 [-3.4, 0.6] | -0.016 [-0.065, 0.034] | 0.547 m |
+| val | Stepping base, arms down (PR #13) | 0.938 → 0.922 | -0.016 [-0.081, 0.052] | 7.3 → 8.8 | +1.4 [-0.1, 2.9] | +0.062 [-0.017, 0.149] | 0.536 m |
+| val | Stepping base + guard (PR #13) | 0.922 → 0.859 | -0.062 [-0.138, 0.000] | 3.2 → 5.5 | +2.3 [1.0, 3.7] | +0.109 [0.000, 0.215] | 0.588 m |
+| val | **Footwork, arms down (shipped)** | 0.969 → 0.891 | -0.078 [-0.161, -0.015] | 7.5 → 8.7 | +1.2 [-0.4, 2.8] | +0.016 [-0.101, 0.117] | 0.536 m |
+| val | **Footwork + guard (shipped)** | 0.969 → 0.953 | -0.016 [-0.065, 0.034] | 4.6 → 5.9 | +1.4 [0.2, 2.5] | +0.094 [0.000, 0.197] | 0.54 m |
+| val, no scripted hits | Stepping base, stage 1 | 0.453 → 0.422 | -0.031 [-0.106, 0.045] | 14.5 → 9.3 | -5.2 [-7.8, -2.6] | +0.000 [0.000, 0.000] | 0.537 m |
+| val, no scripted hits | Stepping base, arms down (PR #13) | 0.969 → 0.969 | +0.000 [0.000, 0.000] | 9.8 → 11.6 | +1.8 [0.0, 3.5] | +0.047 [0.000, 0.104] | 0.51 m |
+| val, no scripted hits | Stepping base + guard (PR #13) | 0.969 → 0.969 | +0.000 [-0.048, 0.045] | 5.0 → 7.6 | +2.6 [1.1, 4.2] | +0.016 [-0.051, 0.085] | 0.546 m |
+| val, no scripted hits | **Footwork, arms down (shipped)** | 0.938 → 0.922 | -0.016 [-0.067, 0.034] | 9.8 → 11.4 | +1.5 [-0.3, 3.4] | +0.031 [0.000, 0.078] | 0.516 m |
+| val, no scripted hits | **Footwork + guard (shipped)** | 0.953 → 0.969 | +0.016 [0.000, 0.051] | 5.0 → 7.7 | +2.7 [1.5, 3.7] | +0.047 [0.000, 0.102] | 0.525 m |
+| test | Stepping base, stage 1 | 0.422 → 0.406 | -0.016 [-0.072, 0.047] | 3.7 → 8.9 | +5.2 [3.9, 6.7] | +0.000 [0.000, 0.000] | 0.568 m |
+| test | Stepping base, arms down (PR #13) | 0.898 → 0.875 | -0.023 [-0.084, 0.033] | 5.4 → 7.9 | +2.5 [1.4, 3.5] | +0.141 [0.083, 0.205] | 0.56 m |
+| test | Stepping base + guard (PR #13) | 0.945 → 0.883 | -0.062 [-0.116, -0.015] | 1.1 → 2.3 | +1.1 [0.5, 1.8] | +0.133 [0.077, 0.194] | 0.618 m |
+| test | **Footwork, arms down (shipped)** | 0.906 → 0.922 | +0.016 [-0.038, 0.071] | 5.4 → 8.7 | +3.3 [2.2, 4.4] | +0.133 [0.061, 0.211] | 0.55 m |
+| test | **Footwork + guard (shipped)** | 0.992 → 0.969 | -0.023 [-0.060, 0.008] | 2.1 → 4.2 | +2.2 [1.2, 3.2] | +0.133 [0.074, 0.197] | 0.582 m |
+| test, no scripted hits | Stepping base, stage 1 | 0.500 → 0.414 | -0.086 [-0.156, -0.024] | 4.0 → 8.5 | +4.5 [2.9, 5.9] | +0.023 [0.000, 0.054] | 0.57 m |
+| test, no scripted hits | Stepping base, arms down (PR #13) | 0.992 → 0.992 | +0.000 [-0.024, 0.023] | 5.7 → 10.4 | +4.7 [3.6, 5.9] | +0.094 [0.047, 0.146] | 0.54 m |
+| test, no scripted hits | Stepping base + guard (PR #13) | 0.992 → 0.992 | +0.000 [-0.023, 0.024] | 0.8 → 2.5 | +1.7 [1.1, 2.3] | +0.109 [0.060, 0.161] | 0.564 m |
+| test, no scripted hits | **Footwork, arms down (shipped)** | 0.984 → 0.977 | -0.008 [-0.024, 0.000] | 5.5 → 10.3 | +4.9 [3.7, 6.1] | +0.070 [0.031, 0.116] | 0.536 m |
+| test, no scripted hits | **Footwork + guard (shipped)** | 1.000 → 0.977 | -0.023 [-0.063, 0.000] | 2.2 → 4.8 | +2.6 [1.7, 3.6] | +0.086 [0.029, 0.150] | 0.554 m |
+
+On test (run once, after val): head clean strikes/min +3.3 [2.2, 4.4] against the footwork arms-down policy and +2.2 [1.2, 3.2] against the footwork guard; survival +0.016 [-0.038, 0.071] and -0.023 [-0.060, 0.008]. PD, the residual policies and PR #13's bases are in the JSON and in `docs/AIMED_OPPONENT.md`, as is the first run against PR #13's bases (`results/eval_opponent/aim_pre14/`). **The aimed opponent falls more in the hard tier:** in 12.5% → 25.8% (footwork arms down), 11.7% → 25.0% (footwork guard) of test bouts (6.2% → 13.3%, 7.8% → 16.4% without the scripted hits). The preregistered fall rule is judged on the aim-check grid (10 s, nominal physics, 0.40-0.65 m), where it stayed within +2 pp; in the hard tier (20 s, randomised R1, 0.40-0.55 m) it doesn't, with or without the scripted hits, so M1's operator is not fit to be the default opponent.
+
+<!-- aim:end -->
+
 ## Plan
 1. **Sim.** R1 model on the official Unitree MJCF, a fight-motion opponent, procedural hits, sensor delay and noise. Done.
 2. **Hit-robust balance against a physical opponent.** The residual PPO on a PD stand (v1–v3) can't step. It was replaced by the **stepping base**, arms down and with a guard, fine-tuned for footwork, with an outer loop that walks it back to its spot (`gpu/`, `results/policy_mjlab_footwork/`, `results/policy_mjlab_guard_footwork/`). The opponent is a tracked R1 on its own motors, steered to stay in front (`results/opponent_tracker/`). Done in sim.
@@ -182,6 +255,8 @@ Each policy's settings were chosen on hard-tier validation (64 bouts): **the mos
 | path | what |
 |---|---|
 | `r1gym/model.py` | R1 from `unitree_rl_mjlab` r1.xml (24 actuated DoF, 28.93 kg), PD servos, torque caps; the opponent R1 with its own capped motors |
+| `r1gym/strikes.py`, `r1gym/aim.py`, `r1gym/hits.py` | the strike library (`assets/motions/strikes.json`, audited against `strike_labels.json`); the aimed opponent's scheduler and operators (M1); the landed-hit metric |
+| `results/opponent_aim/`, `results/opponent_tracker/{tolerance,aim}.json`, `results/eval_opponent/aim/`, `results/eval_opponent/aim_pre14/` | the paired aim check on train + val, the tracker's tolerance, the M1 operator with its `_why`; the aimed hard tier against the shipped footwork policies, and the archived as-run one against PR #13's bases |
 | `r1gym/opponent.py` | the opponent: clip retarget, cleaning, cuts and grounding (`FightReplay`); the tracking-policy performer with facing and steering (`Tracker`); puppet and kinematic modes |
 | `results/opponent_tracker/` | the opponent's tracking policy (`policy.onnx` with the motion bundled, `motion_index.json`, `model_13749.pt`, `params/`, `train_log.json`, `eval_tracker.json`, `parity_mjlab.json`, `selection.json`) |
 | `results/policy_mjlab_footwork/` | **shipped** footwork policy, arms down (`policy.onnx`, `model_5997.pt`, `params/`, `crosssim.json`, `gym.json`) |
@@ -195,7 +270,7 @@ Each policy's settings were chosen on hard-tier validation (64 bouts): **the mos
 | `r1gym/perturb.py` | strikes / pushes / grabs by impulse, body and direction; peak force capped at 400 N |
 | `r1gym/env.py` | env (78-dim obs, 24-dim residual action), 0–40 ms obs delay, noise, optional opponent in training, thread/process batching; the hold-your-spot and turn-to-face outer loops for the stepping policies |
 | `r1gym/policy.py` | PD baseline, torch policy, ONNX policy |
-| `scripts/` | `eval_opponent.py` (headline, both tiers), `evaluate.py` (hit sweeps), `eval_tracker.py`, `style_cuts.py`, `clip_check.py`, `face_ab.py`, `paired_vs_ref.py`, `turn_select.py`, `select_opponent.py`, `crosssim_mjlab.py`, `verify_r1.py`, `train.py`, `demo_check.py`, `demo.py`, `export_onnx.py` |
+| `scripts/` | `eval_opponent.py` (headline, both tiers), `evaluate.py` (hit sweeps), `eval_tracker.py`, `style_cuts.py`, `clip_check.py`, `face_ab.py`, `paired_vs_ref.py`, `turn_select.py`, `select_opponent.py`, `crosssim_mjlab.py`, `verify_r1.py`, `train.py`, `demo_check.py`, `demo.py`, `export_onnx.py`; aimed opponent: `strike_library.py`, `strike_sheet.py`, `tracker_tolerance.py`, `aim_check.py`, `aim_frames.py`, `aim_tables.py` |
 | `configs/r1_assumptions.yaml` | every parameter not taken from Unitree (armature, foot friction, PD gains) |
 | `results/policy/` | v2 policy (`policy.pt`, `policy.onnx`, `train_log.json`, `latency.json`); `results/policy_v1/` = v1 |
 | `results/eval/`, `results/eval_v1/` | hit eval for v2 / v1 (`summary.json`, `survival.png`) |
@@ -220,6 +295,10 @@ python scripts/face_ab.py --no_hold --policy $S2 && python scripts/face_ab.py --
 python scripts/paired_vs_ref.py --ref 3fcbb3b --pair "RL step_fw=RL step" "RL guard_fw=RL guard" "RL step=RL step" "RL guard=RL guard" --out results/eval_opponent/vs_3fcbb3b.json   # vs PR #13, same episodes
 python scripts/clip_check.py                                     # how far the robots' shells overlap, capsule vs shell contact -> results/clip_check.json
 git show 97a22e2:results/eval_opponent/raw_val_hard.json > old_val_hard.json && python scripts/clip_check.py --crosscheck old_val_hard.json results/eval_opponent/raw_val_hard.json   # its crosscheck_val_hard rows (stage-2 bases, no hold loop)
+python scripts/strike_library.py && python scripts/strike_sheet.py   # strike library + audit -> r1gym/assets/motions/strikes.json, media/strikes_sheet.png
+python scripts/tracker_tolerance.py && python scripts/aim_check.py   # tolerance, paired aim check (train + val) and the M1 operator -> results/opponent_tracker/aim.json
+python scripts/eval_opponent.py --tier hard --split val --policy $P --out results/eval_opponent/aim && python scripts/eval_opponent.py --tier hard --split val --policy $P --out results/eval_opponent/aim --aim chosen   # aimed hard tier, paired with the unaimed (shadow) run; then once on test; also --no_pushes
+python scripts/aim_tables.py --write                             # README aim block + docs/AIMED_OPPONENT.md results, from the stored JSON
 python scripts/eval_tracker.py                                   # how well the opponent performs its clips on its own
 python scripts/crosssim_mjlab.py results/policy_mjlab_footwork/policy.onnx --out results/policy_mjlab_footwork/crosssim.json   # mjlab-trained policy stands and tracks commands in this sim
 python scripts/evaluate.py --out results/eval_hits --policy $P   # single hits to 60 N·s, 3-hit survival, CIs
@@ -311,7 +390,7 @@ New eval (`scripts/evaluate.py`): 1120 single hits per controller up to 30 N·s,
 - Proprioceptive only. Neither upstream R1 MJCF has a head camera, so nothing here sees the opponent (that is phase 3). The opponent's steering and the R1's hold-your-spot and turn loops use true positions.
 - Nothing has run on a real R1. Armature, friction and latency are assumptions until system ID (`docs/MODEL_AUDIT.md`, ROADMAP phase 4).
 - The robots' shells can still overlap by up to 2–3 cm for a few steps in hard impacts (contact can't be stiffer at this timestep).
-- The opponent performs fight *forms* (KungFuAthleteBot, trimmed to the strikes), not sparring aimed at the R1. It is kept in front and faces the R1, but it doesn't adapt its strikes to it.
+- The opponent performs fight *forms* (KungFuAthleteBot, trimmed to the strikes), not sparring aimed at the R1. It is kept in front and faces the R1, but it doesn't adapt its strikes to it. M1's aim (off by default; "Aimed opponent" above) bends the shipped tracker's strikes toward the head; this line stays until the whole-body aimed tracker (M2) passes on test.
 - Turning is weak: a +0.8 rad/s command turns the footwork policies at 0.09–0.18 rad/s here (0.08–0.19 in mjlab, where they trained); right turns are slower still for the guard (0.08 rad/s here, 0.11 in mjlab) but not for the arms-down one (0.12 / 0.15), which also tracks sideways commands poorly. A turning pass (stage 4) didn't fix it.
 - Holding the spot is an outer loop, not learned: in the hard tier about one surviving bout in five still leaves the 1 m circle at some point.
 - The arms-down footwork policy, with its hold loop, falls more against the puppet stress test than PR #13's base without one (test -0.025 [-0.05, -0.01]; up and within 1 m -0.037 [-0.07, -0.01]); the loop and the fine-tune each account for part of it, neither significantly.

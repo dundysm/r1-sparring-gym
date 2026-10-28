@@ -1,0 +1,249 @@
+{
+ "about": "Head-camera spec check (phase 3, M0.1) -> results/perception/mount.json. CPU, seconds; renders nothing, changes nothing.\n\n1. Sources: configs/r1_camera.yaml's URLs. This script downloads nothing: rbtx_pdf_md5_checked_manually is a check done by\n   hand on 2026-10-27 (the PDF at sources.rbtx vs the design's copy, byte-identical); --rbtx-pdf hashes a local copy here.\n2. Lens fit: what 146 deg H over 1280 px implies for the vertical FOV with an f-theta (equidistant) lens vs a pinhole,\n   against the datasheet's 124 deg; the same for mybotshop's 150 deg / 1088 rows.\n3. Network camera and crop: the 160 x 120, fovy 100 virtual pinhole; where its border lands in the fisheye image (it must\n   lie inside, so rectification never reads outside the lens) and how much of the lens image it keeps.\n4. Rectifier: the lookup table's worst deviation from the analytic remap, its size and its cost.\n5. Mount: the lens at home; mount_fk against the MuJoCo camera over random states (any base pose, joints in range) with\n   noise-free encoders and gravity; then upright (tilt 0-30 deg) with one sample of the gym's obs noise (configs/r1_mjlab.yaml\n   uniform half-widths: joint_pos 0.01 rad, gravity 0.05 per component; an upper bound, a real IMU filters gravity), head\n   pitch 0 and -20 deg.\n6. Clocks: 20 episodes x 60 s of capture + latency at 5 ms substeps: realised rate, stamp lag, latency, drops, early deliveries.",
+ "git": "d1990f9c355308d1d67ac22a41fc34ad292ba316",
+ "git_dirty": [
+  "configs/r1_camera.yaml",
+  "pyproject.toml",
+  "r1gym/perception/__init__.py",
+  "r1gym/perception/camera.py",
+  "r1gym/perception/render_scene.py",
+  "results/perception/lod_report.json",
+  "results/perception/mount.json",
+  "scripts/build_render_lod.py",
+  "scripts/camera_mount.py",
+  "tests/test_perception_camera.py"
+ ],
+ "mujoco": "3.17.0",
+ "numpy": "2.5.4",
+ "platform": "Windows-11-10.0.26300-SP0",
+ "cpu": "Intel64 Family 6 Model 189 Stepping 1, GenuineIntel",
+ "gl_renderer": null,
+ "gl_note": "M0.1 renders nothing (no GL context); render results record the renderer string",
+ "config": "configs/r1_camera.yaml",
+ "sources": {
+  "rbtx": "https://a.storyblok.com/f/298593/x/fc2d98cfaa/rbtx_unitree_r1_variants_technical_datasheets_en-1.pdf",
+  "mybotshop": "https://docs.mybotshop.de/r1.html",
+  "unitree": "https://www.unitree.com/R1",
+  "r1_xml": "r1gym/assets/r1/r1.xml"
+ },
+ "rbtx_pdf_md5_checked_manually": {
+  "file": "rbtx_unitree_r1_variants_technical_datasheets_en-1.pdf",
+  "md5": "a0fdbe4441328a4e35cb7e61e392170d",
+  "bytes": 696747,
+  "date": "2026-10-27",
+  "by": "by hand: the PDF at sources.rbtx vs the design's copy dl_datasheet/r1.pdf"
+ },
+ "rbtx_pdf_hashed_here": {
+  "file": "r1.pdf",
+  "md5": "a0fdbe4441328a4e35cb7e61e392170d",
+  "bytes": 696747,
+  "matches_manual_check": true
+ },
+ "lens_fit": {
+  "rbtx": {
+   "width": 1280,
+   "height": 1080,
+   "datasheet_hfov_deg": 146,
+   "datasheet_vfov_deg": 124,
+   "ftheta_f_px_per_rad": 502.3,
+   "ftheta_vfov_deg": 123.2,
+   "pinhole_f_px": 195.7,
+   "pinhole_vfov_deg": 140.2
+  },
+  "mybotshop": {
+   "width": 1280,
+   "height": 1088,
+   "datasheet_hfov_deg": 150,
+   "datasheet_vfov_deg": 124,
+   "ftheta_f_px_per_rad": 488.9,
+   "ftheta_vfov_deg": 127.5,
+   "pinhole_f_px": 171.5,
+   "pinhole_vfov_deg": 145.0
+  },
+  "used": {
+   "model": "equidistant",
+   "f_px_per_rad": 502.3,
+   "half_fov_edges_deg": {
+    "horizontal": 73.0,
+    "vertical": 61.6
+   }
+  }
+ },
+ "net_camera": {
+  "wh": [
+   160,
+   120
+  ],
+  "render_wh": [
+   320,
+   240
+  ],
+  "fovy_deg": 100.0,
+  "fx_px": 50.35,
+  "hfov_deg": 115.6,
+  "deg_per_px_centre": 1.138,
+  "lens_px_per_net_px_centre": 9.98
+ },
+ "crop": {
+  "edge_ray_deg": 57.8,
+  "edge_radius_px": 506.9,
+  "top_ray_deg": 50.0,
+  "top_radius_px": 438.3,
+  "corner_ray_deg": 63.3,
+  "corner_radius_px": 554.7,
+  "lens_half_extent_px": [
+   640.0,
+   540.0
+  ],
+  "lens_half_diagonal_px": 837.4,
+  "border_bbox_in_lens_px": [
+   133.1,
+   101.7,
+   1146.9,
+   978.3
+  ],
+  "margin_to_lens_edge_px": 101.7,
+  "inside": true,
+  "lens_pixels_kept_frac": 0.56
+ },
+ "rectifier": {
+  "out_wh": [
+   320,
+   240
+  ],
+  "sub_samples": 5,
+  "taps": 1665472,
+  "taps_per_pixel_mean": 21.7,
+  "max_centroid_err_px": 0.0018,
+  "build_s": 0.98,
+  "apply_ms_rgb_numpy": 42.5
+ },
+ "mount_torso_link": {
+  "pitch_0": {
+   "lens_m": [
+    0.088,
+    0.0,
+    0.355
+   ],
+   "optical_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  "pitch_-20": {
+   "lens_m": [
+    0.1165,
+    0.0,
+    0.3168
+   ],
+   "optical_axis": [
+    0.9397,
+    0.0,
+    -0.342
+   ]
+  }
+ },
+ "mount_fk_vs_sim": {
+  "pitch_0": {
+   "home": {
+    "world_m": [
+     0.1205,
+     0.0,
+     1.144
+    ],
+    "heading_frame_m": [
+     0.1205,
+     0.0,
+     0.404
+    ],
+    "optical_axis_elevation_deg": 0.0
+   },
+   "states": 1000,
+   "clean": {
+    "pos_err_mm": {
+     "median": 1.42e-13,
+     "p95": 2.93e-13,
+     "max": 5.67e-13
+    },
+    "rot_err_deg": {
+     "median": 0.0,
+     "p95": 2.09e-06,
+     "max": 2.41e-06
+    }
+   },
+   "noisy": {
+    "pos_err_mm": {
+     "median": 15.9,
+     "p95": 25.6,
+     "max": 32.7
+    },
+    "rot_err_deg": {
+     "median": 2.31,
+     "p95": 3.63,
+     "max": 4.82
+    }
+   }
+  },
+  "pitch_-20": {
+   "home": {
+    "world_m": [
+     0.149,
+     0.0,
+     1.1058
+    ],
+    "heading_frame_m": [
+     0.149,
+     0.0,
+     0.3658
+    ],
+    "optical_axis_elevation_deg": -20.0
+   },
+   "states": 1000,
+   "clean": {
+    "pos_err_mm": {
+     "median": 1.32e-13,
+     "p95": 2.84e-13,
+     "max": 4.72e-13
+    },
+    "rot_err_deg": {
+     "median": 0.0,
+     "p95": 2.09e-06,
+     "max": 2.96e-06
+    }
+   },
+   "noisy": {
+    "pos_err_mm": {
+     "median": 14.6,
+     "p95": 23.6,
+     "max": 29.4
+    },
+    "rot_err_deg": {
+     "median": 2.31,
+     "p95": 3.63,
+     "max": 4.82
+    }
+   }
+  }
+ },
+ "clocks": {
+  "episodes": 20,
+  "seconds": 60.0,
+  "rate_hz": [
+   30.0,
+   30.0
+  ],
+  "stamp_lag_ms": [
+   0.08,
+   4.98
+  ],
+  "latency_ms": [
+   20.0,
+   62.96
+  ],
+  "latency_median_ms": 34.9,
+  "drop_frac": 0.0147,
+  "early_deliveries": 0,
+  "latency_min_ge_control_dt": true
+ }
+}

@@ -7,8 +7,11 @@ license = {text = "Apache-2.0"}
 dependencies = ["mujoco>=3.3", "numpy", "pyyaml", "imageio[ffmpeg]", "pillow", "matplotlib", "torch", "onnx", "onnxruntime"]
 [project.optional-dependencies]
 dev = ["pytest"]
+# phase 3 perception: quadric LOD meshes for the render twin (M0.2; MIT). opencv-python-headless and torchvision stay out
+# until a milestone needs them (owner's approval: weights downloads)
+perception = ["fast-simplification"]
 [tool.setuptools]
-packages = ["r1gym"]
+packages = ["r1gym", "r1gym.perception"]
 [tool.setuptools.package-data]
 r1gym = ["assets/**/*"]
 [tool.pytest.ini_options]

@@ -1,0 +1,1081 @@
+{
+ "about": "Render LODs for the render twin (phase 3, M0.2) -> r1gym/assets/r1/render_lod/*.stl + SOURCE, results/perception/lod_report.json.\n\nUnitree's R1 visual meshes are ~435k drawn faces per robot, and offscreen rendering on this iGPU is triangle-bound\n(results/perception/render_bench.json). Each mesh the R1 draws is welded (exact duplicate vertices merged) and\nquadric-decimated (fast-simplification, MIT) to a share of a per-robot face budget proportional to its surface area (at\nleast 100 faces, never more than it has). The decimator's aggressiveness `agg` trades quality against reaching the target:\nat agg 2-3 it stops early on the CAD meshes' open borders and non-manifold edges, so a candidate can end above its budget.\nCandidates (budget x agg) are decimated first and gated in order of the faces they actually reach, smallest first; the\nfirst that passes ships. The opponent R1 draws the same files. Physics never sees them (r1gym/perception/render_scene.py).\n\nGate (silhouette IoU of LOD vs full meshes, segmentation renders at 320x240, the render size):\n- 200 poses from bouts of both shipped policies against the tracked opponent (train + val clips, 10 s, the demo's pushes,\n  a pose every 0.4 s);\n- x 4 views: the R1's head camera at -20 deg pitch, and 3 external views around the pair (side, behind, high);\n- x both robots; silhouettes under 400 px in the full-mesh render are left out (and counted).\nPass: mean >= 0.98 and min >= 0.95. (Vertex clustering at 6-12 mm missed this gate, min IoU 0.80-0.90, in the design's\nprobe; so does the design's ~25k-face quadric target, below.)",
+ "git": "d1990f9c355308d1d67ac22a41fc34ad292ba316",
+ "git_dirty": [
+  "CREDITS.md",
+  "configs/r1_camera.yaml",
+  "pyproject.toml",
+  "r1gym/assets/r1/render_lod/SOURCE",
+  "r1gym/assets/r1/render_lod/head_pitch_link.stl",
+  "r1gym/assets/r1/render_lod/head_yaw_link.stl",
+  "r1gym/assets/r1/render_lod/imu_in_pelvis_link.stl",
+  "r1gym/assets/r1/render_lod/left_ankle_constraint_A_link.stl",
+  "r1gym/assets/r1/render_lod/left_ankle_constraint_B_link.stl",
+  "r1gym/assets/r1/render_lod/left_ankle_pitch_link.stl",
+  "r1gym/assets/r1/render_lod/left_ankle_roll_link.stl",
+  "r1gym/assets/r1/render_lod/left_elbow_link.stl",
+  "r1gym/assets/r1/render_lod/left_hip_pitch_link.stl",
+  "r1gym/assets/r1/render_lod/left_hip_roll_link.stl",
+  "r1gym/assets/r1/render_lod/left_hip_yaw_link.stl",
+  "r1gym/assets/r1/render_lod/left_knee_link.stl",
+  "r1gym/assets/r1/render_lod/left_shoulder_pitch_link.stl",
+  "r1gym/assets/r1/render_lod/left_shoulder_roll_link.stl",
+  "r1gym/assets/r1/render_lod/left_shoulder_yaw_link.stl",
+  "r1gym/assets/r1/render_lod/left_wrist_roll_link.stl",
+  "r1gym/assets/r1/render_lod/pelvis_link.stl",
+  "r1gym/assets/r1/render_lod/right_ankle_constraint_A_link.stl",
+  "r1gym/assets/r1/render_lod/right_ankle_constraint_B_link.stl",
+  "r1gym/assets/r1/render_lod/right_ankle_pitch_link.stl",
+  "r1gym/assets/r1/render_lod/right_ankle_roll_link.stl",
+  "r1gym/assets/r1/render_lod/right_elbow_link.stl",
+  "r1gym/assets/r1/render_lod/right_hip_pitch_link.stl",
+  "r1gym/assets/r1/render_lod/right_hip_roll_link.stl",
+  "r1gym/assets/r1/render_lod/right_hip_yaw_link.stl",
+  "r1gym/assets/r1/render_lod/right_knee_link.stl",
+  "r1gym/assets/r1/render_lod/right_shoulder_pitch_link.stl",
+  "r1gym/assets/r1/render_lod/right_shoulder_roll_link.stl",
+  "r1gym/assets/r1/render_lod/right_shoulder_yaw_link.stl",
+  "r1gym/assets/r1/render_lod/right_wrist_roll_link.stl",
+  "r1gym/assets/r1/render_lod/waist_roll_link.stl",
+  "r1gym/assets/r1/render_lod/waist_yaw_link.stl",
+  "r1gym/perception/__init__.py",
+  "r1gym/perception/camera.py",
+  "r1gym/perception/render_scene.py",
+  "results/perception/coverage.json",
+  "results/perception/lod_report.json",
+  "results/perception/mount.json",
+  "results/perception/render_bench.json",
+  "scripts/build_render_lod.py",
+  "scripts/camera_coverage.py",
+  "scripts/camera_mount.py",
+  "scripts/render_bench.py",
+  "tests/test_perception_camera.py",
+  "tests/test_perception_render.py"
+ ],
+ "mujoco": "3.17.0",
+ "numpy": "2.5.4",
+ "platform": "Windows-11-10.0.26300-SP0",
+ "cpu": "Intel64 Family 6 Model 189 Stepping 1, GenuineIntel",
+ "gl_vendor": "Intel",
+ "gl_renderer": "Intel(R) Arc(TM) 140V GPU (16GB)",
+ "gl_version": "4.6.0 - Build 32.0.101.8132",
+ "fast_simplification": "0.2.0",
+ "gate": {
+  "mean": 0.98,
+  "min": 0.95,
+  "min_px": 400,
+  "size": [
+   320,
+   240
+  ],
+  "head_pitch_deg": -20.0,
+  "poses": 200
+ },
+ "views": {
+  "head": null,
+  "ext_side": [
+   90,
+   -10
+  ],
+  "ext_behind": [
+   200,
+   -20
+  ],
+  "ext_high": [
+   320,
+   -45
+  ]
+ },
+ "poses": {
+  "n": 200,
+  "policies": [
+   "arms_down",
+   "guard"
+  ],
+  "clips": [
+   "kfab_200",
+   "kfab_201",
+   "kfab_203",
+   "kfab_204"
+  ],
+  "per_policy": {
+   "arms_down": 100,
+   "guard": 100
+  }
+ },
+ "full": {
+  "faces_per_robot": 435351,
+  "meshes_per_robot": 32,
+  "rgb_ms_320x240_head": 42.26
+ },
+ "candidates": {
+  "25000_agg7": {
+   "budget": 25000,
+   "agg": 7.0,
+   "faces_per_robot": 28912,
+   "rgb_ms_320x240_head": 5.09,
+   "iou": {
+    "n": 1483,
+    "mean": 0.9306,
+    "min": 0.7874,
+    "p1": 0.836
+   },
+   "iou_by_view": {
+    "head": {
+     "n": 283,
+     "mean": 0.959,
+     "min": 0.8526,
+     "p1": 0.9113
+    },
+    "ext_side": {
+     "n": 400,
+     "mean": 0.9158,
+     "min": 0.8719,
+     "p1": 0.8843
+    },
+    "ext_behind": {
+     "n": 400,
+     "mean": 0.9142,
+     "min": 0.7874,
+     "p1": 0.8001
+    },
+    "ext_high": {
+     "n": 400,
+     "mean": 0.9418,
+     "min": 0.85,
+     "p1": 0.8817
+    }
+   },
+   "iou_by_robot": {
+    "r1": {
+     "n": 700,
+     "mean": 0.9297,
+     "min": 0.7874,
+     "p1": 0.8265
+    },
+    "opponent": {
+     "n": 783,
+     "mean": 0.9315,
+     "min": 0.85,
+     "p1": 0.8859
+    }
+   },
+   "excluded_under_min_px": 117,
+   "worst": [
+    {
+     "pose": 45,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 857,
+     "iou": 0.787350054525627
+    },
+    {
+     "pose": 46,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 848,
+     "iou": 0.7891832229580574
+    },
+    {
+     "pose": 10,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 1150,
+     "iou": 0.7930756843800322
+    },
+    {
+     "pose": 15,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 852,
+     "iou": 0.7962555066079295
+    },
+    {
+     "pose": 48,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 1006,
+     "iou": 0.8001885014137606
+    }
+   ],
+   "passed": false
+  },
+  "25000_agg3": {
+   "budget": 25000,
+   "agg": 3.0,
+   "faces_per_robot": 30501,
+   "rgb_ms_320x240_head": 12.36,
+   "iou": {
+    "n": 1483,
+    "mean": 0.9842,
+    "min": 0.9294,
+    "p1": 0.9637
+   },
+   "iou_by_view": {
+    "head": {
+     "n": 283,
+     "mean": 0.9875,
+     "min": 0.9536,
+     "p1": 0.9668
+    },
+    "ext_side": {
+     "n": 400,
+     "mean": 0.9824,
+     "min": 0.9602,
+     "p1": 0.9719
+    },
+    "ext_behind": {
+     "n": 400,
+     "mean": 0.9819,
+     "min": 0.9294,
+     "p1": 0.9497
+    },
+    "ext_high": {
+     "n": 400,
+     "mean": 0.9861,
+     "min": 0.9639,
+     "p1": 0.9718
+    }
+   },
+   "iou_by_robot": {
+    "r1": {
+     "n": 700,
+     "mean": 0.9841,
+     "min": 0.9294,
+     "p1": 0.9591
+    },
+    "opponent": {
+     "n": 783,
+     "mean": 0.9844,
+     "min": 0.9536,
+     "p1": 0.9718
+    }
+   },
+   "excluded_under_min_px": 117,
+   "worst": [
+    {
+     "pose": 13,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 899,
+     "iou": 0.9294117647058824
+    },
+    {
+     "pose": 45,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 857,
+     "iou": 0.936562860438293
+    },
+    {
+     "pose": 48,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 1006,
+     "iou": 0.9389763779527559
+    },
+    {
+     "pose": 46,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 848,
+     "iou": 0.9476744186046512
+    },
+    {
+     "pose": 24,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 1049,
+     "iou": 0.9496738117427772
+    }
+   ],
+   "passed": false
+  },
+  "35000_agg7": {
+   "budget": 35000,
+   "agg": 7.0,
+   "faces_per_robot": 36454,
+   "rgb_ms_320x240_head": 5.58,
+   "iou": {
+    "n": 1483,
+    "mean": 0.9518,
+    "min": 0.8202,
+    "p1": 0.8808
+   },
+   "iou_by_view": {
+    "head": {
+     "n": 283,
+     "mean": 0.9674,
+     "min": 0.8626,
+     "p1": 0.9218
+    },
+    "ext_side": {
+     "n": 400,
+     "mean": 0.9473,
+     "min": 0.9054,
+     "p1": 0.925
+    },
+    "ext_behind": {
+     "n": 400,
+     "mean": 0.9405,
+     "min": 0.8202,
+     "p1": 0.8506
+    },
+    "ext_high": {
+     "n": 400,
+     "mean": 0.9564,
+     "min": 0.8781,
+     "p1": 0.9099
+    }
+   },
+   "iou_by_robot": {
+    "r1": {
+     "n": 700,
+     "mean": 0.9497,
+     "min": 0.8202,
+     "p1": 0.8662
+    },
+    "opponent": {
+     "n": 783,
+     "mean": 0.9536,
+     "min": 0.8626,
+     "p1": 0.916
+    }
+   },
+   "excluded_under_min_px": 117,
+   "worst": [
+    {
+     "pose": 45,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 857,
+     "iou": 0.8201754385964912
+    },
+    {
+     "pose": 46,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 848,
+     "iou": 0.8257993384785005
+    },
+    {
+     "pose": 24,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 1049,
+     "iou": 0.8397150489759573
+    },
+    {
+     "pose": 13,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 899,
+     "iou": 0.8452868852459017
+    },
+    {
+     "pose": 15,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 852,
+     "iou": 0.850613154960981
+    }
+   ],
+   "passed": false
+  },
+  "35000_agg3": {
+   "budget": 35000,
+   "agg": 3.0,
+   "faces_per_robot": 37677,
+   "rgb_ms_320x240_head": 4.87,
+   "iou": {
+    "n": 1483,
+    "mean": 0.9873,
+    "min": 0.9345,
+    "p1": 0.9695
+   },
+   "iou_by_view": {
+    "head": {
+     "n": 283,
+     "mean": 0.9905,
+     "min": 0.9695,
+     "p1": 0.9753
+    },
+    "ext_side": {
+     "n": 400,
+     "mean": 0.9854,
+     "min": 0.9639,
+     "p1": 0.9746
+    },
+    "ext_behind": {
+     "n": 400,
+     "mean": 0.9853,
+     "min": 0.9345,
+     "p1": 0.9552
+    },
+    "ext_high": {
+     "n": 400,
+     "mean": 0.989,
+     "min": 0.9712,
+     "p1": 0.9751
+    }
+   },
+   "iou_by_robot": {
+    "r1": {
+     "n": 700,
+     "mean": 0.987,
+     "min": 0.9345,
+     "p1": 0.9627
+    },
+    "opponent": {
+     "n": 783,
+     "mean": 0.9876,
+     "min": 0.9695,
+     "p1": 0.9752
+    }
+   },
+   "excluded_under_min_px": 117,
+   "worst": [
+    {
+     "pose": 13,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 899,
+     "iou": 0.9344790547798066
+    },
+    {
+     "pose": 45,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 857,
+     "iou": 0.9421965317919075
+    },
+    {
+     "pose": 48,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 1006,
+     "iou": 0.9466929911154985
+    },
+    {
+     "pose": 46,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 848,
+     "iou": 0.9522144522144522
+    },
+    {
+     "pose": 24,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 1049,
+     "iou": 0.9551820728291317
+    }
+   ],
+   "passed": false
+  },
+  "50000_agg7": {
+   "budget": 50000,
+   "agg": 7.0,
+   "faces_per_robot": 50721,
+   "rgb_ms_320x240_head": 6.51,
+   "iou": {
+    "n": 1483,
+    "mean": 0.9806,
+    "min": 0.9146,
+    "p1": 0.9545
+   },
+   "iou_by_view": {
+    "head": {
+     "n": 283,
+     "mean": 0.9846,
+     "min": 0.9146,
+     "p1": 0.9562
+    },
+    "ext_side": {
+     "n": 400,
+     "mean": 0.9786,
+     "min": 0.9572,
+     "p1": 0.9672
+    },
+    "ext_behind": {
+     "n": 400,
+     "mean": 0.9772,
+     "min": 0.9203,
+     "p1": 0.9337
+    },
+    "ext_high": {
+     "n": 400,
+     "mean": 0.983,
+     "min": 0.9554,
+     "p1": 0.9619
+    }
+   },
+   "iou_by_robot": {
+    "r1": {
+     "n": 700,
+     "mean": 0.98,
+     "min": 0.9203,
+     "p1": 0.948
+    },
+    "opponent": {
+     "n": 783,
+     "mean": 0.9811,
+     "min": 0.9146,
+     "p1": 0.9606
+    }
+   },
+   "excluded_under_min_px": 117,
+   "worst": [
+    {
+     "pose": 108,
+     "view": "head",
+     "robot": "opponent",
+     "px": 640,
+     "iou": 0.914616497829233
+    },
+    {
+     "pose": 45,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 857,
+     "iou": 0.9202733485193622
+    },
+    {
+     "pose": 46,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 848,
+     "iou": 0.9210526315789473
+    },
+    {
+     "pose": 13,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 899,
+     "iou": 0.9283422459893048
+    },
+    {
+     "pose": 24,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 1049,
+     "iou": 0.9314179796107507
+    }
+   ],
+   "passed": false
+  },
+  "50000_agg3": {
+   "budget": 50000,
+   "agg": 3.0,
+   "faces_per_robot": 50826,
+   "rgb_ms_320x240_head": 5.62,
+   "iou": {
+    "n": 1483,
+    "mean": 0.991,
+    "min": 0.945,
+    "p1": 0.9761
+   },
+   "iou_by_view": {
+    "head": {
+     "n": 283,
+     "mean": 0.9936,
+     "min": 0.9758,
+     "p1": 0.9822
+    },
+    "ext_side": {
+     "n": 400,
+     "mean": 0.9892,
+     "min": 0.9718,
+     "p1": 0.9796
+    },
+    "ext_behind": {
+     "n": 400,
+     "mean": 0.9892,
+     "min": 0.945,
+     "p1": 0.9615
+    },
+    "ext_high": {
+     "n": 400,
+     "mean": 0.9927,
+     "min": 0.9793,
+     "p1": 0.9827
+    }
+   },
+   "iou_by_robot": {
+    "r1": {
+     "n": 700,
+     "mean": 0.9906,
+     "min": 0.945,
+     "p1": 0.9684
+    },
+    "opponent": {
+     "n": 783,
+     "mean": 0.9914,
+     "min": 0.9758,
+     "p1": 0.9822
+    }
+   },
+   "excluded_under_min_px": 117,
+   "worst": [
+    {
+     "pose": 13,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 899,
+     "iou": 0.9450431034482759
+    },
+    {
+     "pose": 45,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 857,
+     "iou": 0.9513888888888888
+    },
+    {
+     "pose": 24,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 1049,
+     "iou": 0.9534883720930233
+    },
+    {
+     "pose": 48,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 1006,
+     "iou": 0.9592850049652433
+    },
+    {
+     "pose": 46,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 848,
+     "iou": 0.9614935822637106
+    }
+   ],
+   "passed": false
+  },
+  "25000_agg2": {
+   "budget": 25000,
+   "agg": 2.0,
+   "faces_per_robot": 55144,
+   "rgb_ms_320x240_head": 12.48,
+   "iou": {
+    "n": 1483,
+    "mean": 0.9938,
+    "min": 0.964,
+    "p1": 0.9811
+   },
+   "iou_by_view": {
+    "head": {
+     "n": 283,
+     "mean": 0.9951,
+     "min": 0.9805,
+     "p1": 0.986
+    },
+    "ext_side": {
+     "n": 400,
+     "mean": 0.9929,
+     "min": 0.9777,
+     "p1": 0.9843
+    },
+    "ext_behind": {
+     "n": 400,
+     "mean": 0.9924,
+     "min": 0.964,
+     "p1": 0.9741
+    },
+    "ext_high": {
+     "n": 400,
+     "mean": 0.9952,
+     "min": 0.9858,
+     "p1": 0.9888
+    }
+   },
+   "iou_by_robot": {
+    "r1": {
+     "n": 700,
+     "mean": 0.9935,
+     "min": 0.964,
+     "p1": 0.9777
+    },
+    "opponent": {
+     "n": 783,
+     "mean": 0.994,
+     "min": 0.9805,
+     "p1": 0.987
+    }
+   },
+   "excluded_under_min_px": 117,
+   "worst": [
+    {
+     "pose": 13,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 899,
+     "iou": 0.9639737991266376
+    },
+    {
+     "pose": 24,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 1049,
+     "iou": 0.9672591206735267
+    },
+    {
+     "pose": 45,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 857,
+     "iou": 0.9709302325581395
+    },
+    {
+     "pose": 48,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 1006,
+     "iou": 0.9722222222222222
+    },
+    {
+     "pose": 46,
+     "view": "ext_behind",
+     "robot": "r1",
+     "px": 848,
+     "iou": 0.9741480611045829
+    }
+   ],
+   "passed": true
+  },
+  "35000_agg2": {
+   "budget": 35000,
+   "agg": 2.0,
+   "faces_per_robot": 55536,
+   "gated": false
+  },
+  "50000_agg2": {
+   "budget": 50000,
+   "agg": 2.0,
+   "faces_per_robot": 60529,
+   "gated": false
+  }
+ },
+ "chosen": "25000_agg2",
+ "shipped": {
+  "budget": 25000,
+  "agg": 2.0,
+  "faces_per_robot": 55144,
+  "rgb_ms_320x240_head": 12.48,
+  "iou": {
+   "n": 1483,
+   "mean": 0.9938,
+   "min": 0.964,
+   "p1": 0.9811
+  },
+  "iou_by_view": {
+   "head": {
+    "n": 283,
+    "mean": 0.9951,
+    "min": 0.9805,
+    "p1": 0.986
+   },
+   "ext_side": {
+    "n": 400,
+    "mean": 0.9929,
+    "min": 0.9777,
+    "p1": 0.9843
+   },
+   "ext_behind": {
+    "n": 400,
+    "mean": 0.9924,
+    "min": 0.964,
+    "p1": 0.9741
+   },
+   "ext_high": {
+    "n": 400,
+    "mean": 0.9952,
+    "min": 0.9858,
+    "p1": 0.9888
+   }
+  },
+  "iou_by_robot": {
+   "r1": {
+    "n": 700,
+    "mean": 0.9935,
+    "min": 0.964,
+    "p1": 0.9777
+   },
+   "opponent": {
+    "n": 783,
+    "mean": 0.994,
+    "min": 0.9805,
+    "p1": 0.987
+   }
+  },
+  "excluded_under_min_px": 117,
+  "worst": [
+   {
+    "pose": 13,
+    "view": "ext_behind",
+    "robot": "r1",
+    "px": 899,
+    "iou": 0.9639737991266376
+   },
+   {
+    "pose": 24,
+    "view": "ext_behind",
+    "robot": "r1",
+    "px": 1049,
+    "iou": 0.9672591206735267
+   },
+   {
+    "pose": 45,
+    "view": "ext_behind",
+    "robot": "r1",
+    "px": 857,
+    "iou": 0.9709302325581395
+   },
+   {
+    "pose": 48,
+    "view": "ext_behind",
+    "robot": "r1",
+    "px": 1006,
+    "iou": 0.9722222222222222
+   },
+   {
+    "pose": 46,
+    "view": "ext_behind",
+    "robot": "r1",
+    "px": 848,
+    "iou": 0.9741480611045829
+   }
+  ],
+  "passed": true,
+  "meshes": [
+   {
+    "file": "head_pitch_link.STL",
+    "faces_in": 5579,
+    "target": 630,
+    "faces_out": 630,
+    "area_cm2": 631.9
+   },
+   {
+    "file": "head_yaw_link.STL",
+    "faces_in": 68969,
+    "target": 1076,
+    "faces_out": 3535,
+    "area_cm2": 1079.4
+   },
+   {
+    "file": "imu_in_pelvis_link.STL",
+    "faces_in": 2108,
+    "target": 100,
+    "faces_out": 438,
+    "area_cm2": 40.3
+   },
+   {
+    "file": "left_ankle_constraint_A_link.STL",
+    "faces_in": 2218,
+    "target": 100,
+    "faces_out": 100,
+    "area_cm2": 3.4
+   },
+   {
+    "file": "left_ankle_constraint_B_link.STL",
+    "faces_in": 2218,
+    "target": 100,
+    "faces_out": 100,
+    "area_cm2": 3.4
+   },
+   {
+    "file": "left_ankle_pitch_link.STL",
+    "faces_in": 600,
+    "target": 100,
+    "faces_out": 158,
+    "area_cm2": 31.7
+   },
+   {
+    "file": "left_ankle_roll_link.STL",
+    "faces_in": 17520,
+    "target": 734,
+    "faces_out": 3012,
+    "area_cm2": 736.1
+   },
+   {
+    "file": "left_elbow_link.STL",
+    "faces_in": 7466,
+    "target": 676,
+    "faces_out": 861,
+    "area_cm2": 677.9
+   },
+   {
+    "file": "left_hip_pitch_link.STL",
+    "faces_in": 10755,
+    "target": 705,
+    "faces_out": 1145,
+    "area_cm2": 707.9
+   },
+   {
+    "file": "left_hip_roll_link.STL",
+    "faces_in": 9930,
+    "target": 487,
+    "faces_out": 1436,
+    "area_cm2": 488.6
+   },
+   {
+    "file": "left_hip_yaw_link.STL",
+    "faces_in": 17460,
+    "target": 1468,
+    "faces_out": 2537,
+    "area_cm2": 1473.4
+   },
+   {
+    "file": "left_knee_link.STL",
+    "faces_in": 17972,
+    "target": 1892,
+    "faces_out": 3586,
+    "area_cm2": 1898.3
+   },
+   {
+    "file": "left_shoulder_pitch_link.STL",
+    "faces_in": 8399,
+    "target": 594,
+    "faces_out": 901,
+    "area_cm2": 596.3
+   },
+   {
+    "file": "left_shoulder_roll_link.STL",
+    "faces_in": 10856,
+    "target": 780,
+    "faces_out": 1170,
+    "area_cm2": 783.1
+   },
+   {
+    "file": "left_shoulder_yaw_link.STL",
+    "faces_in": 12990,
+    "target": 779,
+    "faces_out": 1388,
+    "area_cm2": 781.4
+   },
+   {
+    "file": "left_wrist_roll_link.STL",
+    "faces_in": 17618,
+    "target": 514,
+    "faces_out": 1321,
+    "area_cm2": 515.4
+   },
+   {
+    "file": "pelvis_link.STL",
+    "faces_in": 37878,
+    "target": 2162,
+    "faces_out": 6812,
+    "area_cm2": 2169.3
+   },
+   {
+    "file": "right_ankle_constraint_A_link.STL",
+    "faces_in": 2218,
+    "target": 100,
+    "faces_out": 100,
+    "area_cm2": 3.4
+   },
+   {
+    "file": "right_ankle_constraint_B_link.STL",
+    "faces_in": 2218,
+    "target": 100,
+    "faces_out": 100,
+    "area_cm2": 3.4
+   },
+   {
+    "file": "right_ankle_pitch_link.STL",
+    "faces_in": 600,
+    "target": 100,
+    "faces_out": 156,
+    "area_cm2": 31.7
+   },
+   {
+    "file": "right_ankle_roll_link.STL",
+    "faces_in": 17490,
+    "target": 734,
+    "faces_out": 2938,
+    "area_cm2": 736.1
+   },
+   {
+    "file": "right_elbow_link.STL",
+    "faces_in": 7216,
+    "target": 658,
+    "faces_out": 863,
+    "area_cm2": 660.2
+   },
+   {
+    "file": "right_hip_pitch_link.STL",
+    "faces_in": 10785,
+    "target": 705,
+    "faces_out": 1157,
+    "area_cm2": 707.9
+   },
+   {
+    "file": "right_hip_roll_link.STL",
+    "faces_in": 9976,
+    "target": 487,
+    "faces_out": 1330,
+    "area_cm2": 488.7
+   },
+   {
+    "file": "right_hip_yaw_link.STL",
+    "faces_in": 17286,
+    "target": 1424,
+    "faces_out": 2326,
+    "area_cm2": 1428.8
+   },
+   {
+    "file": "right_knee_link.STL",
+    "faces_in": 17998,
+    "target": 1892,
+    "faces_out": 3238,
+    "area_cm2": 1898.3
+   },
+   {
+    "file": "right_shoulder_pitch_link.STL",
+    "faces_in": 8389,
+    "target": 594,
+    "faces_out": 889,
+    "area_cm2": 596.3
+   },
+   {
+    "file": "right_shoulder_roll_link.STL",
+    "faces_in": 10699,
+    "target": 775,
+    "faces_out": 1188,
+    "area_cm2": 777.9
+   },
+   {
+    "file": "right_shoulder_yaw_link.STL",
+    "faces_in": 12954,
+    "target": 779,
+    "faces_out": 1667,
+    "area_cm2": 781.3
+   },
+   {
+    "file": "right_wrist_roll_link.STL",
+    "faces_in": 17634,
+    "target": 514,
+    "faces_out": 1263,
+    "area_cm2": 515.4
+   },
+   {
+    "file": "waist_roll_link.STL",
+    "faces_in": 7330,
+    "target": 572,
+    "faces_out": 1021,
+    "area_cm2": 573.7
+   },
+   {
+    "file": "waist_yaw_link.STL",
+    "faces_in": 41653,
+    "target": 3254,
+    "faces_out": 7778,
+    "area_cm2": 3265.7
+   }
+  ]
+ },
+ "wall_s": 584.6
+}

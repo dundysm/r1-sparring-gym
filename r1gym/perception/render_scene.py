@@ -264,8 +264,15 @@ def gl_info(rn: mujoco.Renderer):
         return {k: GL.glGetString(e).decode() for k, e in (("gl_vendor", GL.GL_VENDOR), ("gl_renderer", GL.GL_RENDERER), ("gl_version", GL.GL_VERSION))}
     except Exception as ex: return dict(gl_renderer=f"unavailable ({type(ex).__name__}: {ex})")
 
+_GL_PROBE = ("import mujoco; s = mujoco.MjSpec(); s.worldbody.add_geom(type=mujoco.mjtGeom.mjGEOM_SPHERE, size=[0.1, 0, 0]); "
+             "r = mujoco.Renderer(s.compile(), 8, 8); r.render(); r.close()")
+_GL = []
+
 def gl_available():
-    """True if an offscreen GL context can be made here (CI runners have none: render tests skip)."""
-    try:
-        s = mujoco.MjSpec(); s.worldbody.add_geom(type=mujoco.mjtGeom.mjGEOM_SPHERE, size=[0.1, 0, 0]); r = mujoco.Renderer(s.compile(), 8, 8); r.render(); r.close(); return True
-    except Exception: return False
+    """True if an offscreen GL context can be made here (CI runners have none: render tests skip). Probed in a child process:
+    without a display, GLFW / EGL can abort the interpreter instead of raising."""
+    if not _GL:
+        import subprocess, sys
+        try: _GL.append(subprocess.run([sys.executable, "-c", _GL_PROBE], capture_output=True, timeout=120).returncode == 0)
+        except Exception: _GL.append(False)
+    return _GL[0]

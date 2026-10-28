@@ -1,0 +1,385 @@
+{
+ "about": "gpu/turn_check_mjlab.py on the RunPod RTX 4090 (mjlab 1.2.0, mujoco 3.5.0, warp 1.12.1), 2026-10-27, its printed output copied here (the script now writes this file itself): each command held for 300 control steps in mjlab, mean measured base rates over steps 100-300 (wz world frame rad/s, vx/vy body frame m/s), one env per command, no seeds, no pushes; falls were not checked in that run.",
+ "policies": {
+  "arms_down": {
+   "policy": "results/policy_mjlab/policy.onnx",
+   "rows": [
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.8
+     ],
+     "measured_wz": -0.33,
+     "measured_vx": -0.01,
+     "measured_vy": 0.05
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.4
+     ],
+     "measured_wz": -0.27,
+     "measured_vx": 0.0,
+     "measured_vy": 0.02
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "measured_wz": 0.0,
+     "measured_vx": -0.0,
+     "measured_vy": -0.0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.4
+     ],
+     "measured_wz": -0.14,
+     "measured_vx": 0.02,
+     "measured_vy": 0.03
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.8
+     ],
+     "measured_wz": -0.07,
+     "measured_vx": 0.01,
+     "measured_vy": 0.03
+    },
+    {
+     "command_vx_vy_wz": [
+      0.5,
+      0.0,
+      0.0
+     ],
+     "measured_wz": -0.08,
+     "measured_vx": 0.37,
+     "measured_vy": 0.05
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.3,
+      0.0
+     ],
+     "measured_wz": -0.28,
+     "measured_vx": -0.01,
+     "measured_vy": 0.16
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      -0.3,
+      0.0
+     ],
+     "measured_wz": -0.11,
+     "measured_vx": 0.04,
+     "measured_vy": -0.11
+    },
+    {
+     "command_vx_vy_wz": [
+      -0.3,
+      0.0,
+      0.0
+     ],
+     "measured_wz": -0.04,
+     "measured_vx": -0.13,
+     "measured_vy": -0.01
+    }
+   ]
+  },
+  "guard": {
+   "policy": "results/policy_mjlab_guard/policy.onnx (guard)",
+   "rows": [
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.8
+     ],
+     "measured_wz": -0.31,
+     "measured_vx": 0.14,
+     "measured_vy": 0.1
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.4
+     ],
+     "measured_wz": -0.21,
+     "measured_vx": 0.02,
+     "measured_vy": 0.19
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "measured_wz": -0.0,
+     "measured_vx": -0.0,
+     "measured_vy": 0.0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.4
+     ],
+     "measured_wz": 0.06,
+     "measured_vx": 0.1,
+     "measured_vy": 0.1
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.8
+     ],
+     "measured_wz": 0.22,
+     "measured_vx": 0.25,
+     "measured_vy": 0.03
+    },
+    {
+     "command_vx_vy_wz": [
+      0.5,
+      0.0,
+      0.0
+     ],
+     "measured_wz": -0.11,
+     "measured_vx": 0.34,
+     "measured_vy": 0.03
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.3,
+      0.0
+     ],
+     "measured_wz": -0.12,
+     "measured_vx": -0.04,
+     "measured_vy": 0.32
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      -0.3,
+      0.0
+     ],
+     "measured_wz": -0.1,
+     "measured_vx": 0.01,
+     "measured_vy": -0.08
+    },
+    {
+     "command_vx_vy_wz": [
+      -0.3,
+      0.0,
+      0.0
+     ],
+     "measured_wz": -0.04,
+     "measured_vx": -0.13,
+     "measured_vy": 0.13
+    }
+   ]
+  },
+  "footwork_arms_down": {
+   "policy": "results/policy_mjlab_footwork/policy.onnx (run 2026-10-27_22-12-47)",
+   "rows": [
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.8
+     ],
+     "measured_wz": -0.18,
+     "measured_vx": 0.0,
+     "measured_vy": -0.01
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.4
+     ],
+     "measured_wz": -0.11,
+     "measured_vx": 0.06,
+     "measured_vy": -0.01
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "measured_wz": 0.0,
+     "measured_vx": -0.0,
+     "measured_vy": -0.0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.4
+     ],
+     "measured_wz": 0.06,
+     "measured_vx": 0.05,
+     "measured_vy": -0.05
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.8
+     ],
+     "measured_wz": 0.09,
+     "measured_vx": 0.05,
+     "measured_vy": -0.04
+    },
+    {
+     "command_vx_vy_wz": [
+      0.5,
+      0.0,
+      0.0
+     ],
+     "measured_wz": -0.05,
+     "measured_vx": 0.37,
+     "measured_vy": -0.1
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.3,
+      0.0
+     ],
+     "measured_wz": -0.06,
+     "measured_vx": 0.07,
+     "measured_vy": 0.05
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      -0.3,
+      0.0
+     ],
+     "measured_wz": 0.05,
+     "measured_vx": 0.06,
+     "measured_vy": -0.16
+    },
+    {
+     "command_vx_vy_wz": [
+      -0.3,
+      0.0,
+      0.0
+     ],
+     "measured_wz": -0.12,
+     "measured_vx": -0.02,
+     "measured_vy": -0.01
+    }
+   ]
+  },
+  "footwork_guard": {
+   "policy": "results/policy_mjlab_guard_footwork/policy.onnx (guard; run 2026-10-27_22-49-48)",
+   "rows": [
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.8
+     ],
+     "measured_wz": -0.1,
+     "measured_vx": 0.01,
+     "measured_vy": 0.11
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.4
+     ],
+     "measured_wz": -0.16,
+     "measured_vx": 0.04,
+     "measured_vy": 0.14
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "measured_wz": -0.0,
+     "measured_vx": -0.01,
+     "measured_vy": 0.0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.4
+     ],
+     "measured_wz": 0.11,
+     "measured_vx": 0.06,
+     "measured_vy": 0.01
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.8
+     ],
+     "measured_wz": 0.32,
+     "measured_vx": 0.03,
+     "measured_vy": 0.05
+    },
+    {
+     "command_vx_vy_wz": [
+      0.5,
+      0.0,
+      0.0
+     ],
+     "measured_wz": 0.0,
+     "measured_vx": 0.32,
+     "measured_vy": -0.02
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.3,
+      0.0
+     ],
+     "measured_wz": -0.12,
+     "measured_vx": -0.02,
+     "measured_vy": 0.26
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      -0.3,
+      0.0
+     ],
+     "measured_wz": 0.05,
+     "measured_vx": 0.05,
+     "measured_vy": -0.21
+    },
+    {
+     "command_vx_vy_wz": [
+      -0.3,
+      0.0,
+      0.0
+     ],
+     "measured_wz": 0.01,
+     "measured_vx": -0.23,
+     "measured_vy": 0.1
+    }
+   ]
+  }
+ }
+}

@@ -53,7 +53,7 @@ metadata: `joint_names`, `joint_stiffness`, `joint_damping`, `default_joint_pos`
   | shoulder pitch/roll | 0.375 |
   | shoulder yaw, elbow, wrist | 0.412 |
 - **PD:** Unitree's deploy gains (kp 100 legs/waist, 40 ankles/shoulders, 20 arms), with torque caps 60/50/60/60/33 N·m.
-- **Default pose:** `default_joint_pos` in the metadata, which is not always Unitree's home pose. The shipped arms-down base (`results/policy_mjlab/`) uses Unitree's; the guard variant (`results/policy_mjlab_guard/`) uses a guard: shoulder pitch -0.85, roll ±0.15, yaw ±0.2, elbow -0.7. It is both the action offset and the observation's `q - default`. `MjlabPolicy` reads it from the metadata, and the robot-side loop must too.
+- **Default pose:** `default_joint_pos` in the metadata, which is not always Unitree's home pose. The arms-down policies (`results/policy_mjlab/` and the shipped `results/policy_mjlab_footwork/`) use Unitree's; the guard ones (`results/policy_mjlab_guard/`, the shipped `results/policy_mjlab_guard_footwork/`) use a guard: shoulder pitch -0.85, roll ±0.15, yaw ±0.2, elbow -0.7. It is both the action offset and the observation's `q - default`. `MjlabPolicy` reads it from the metadata, and the robot-side loop must too.
 
 **Check before deploying with Unitree's C++ stack.** `unitree_rl_mjlab`'s `deploy/robots/r1/config/policy/velocity/v0/params/deploy.yaml`
 (@1425b15) lists `scale: 0.25` for every joint. The policy that the same repo trains and exports uses the per-joint

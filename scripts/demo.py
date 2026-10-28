@@ -40,8 +40,8 @@ def overlay(scn, m, e):
             add_geom(scn, mujoco.mjtGeom.mjGEOM_ARROW, [1.0, 0.45, 0.1, 1.0], a=p - u * L, b=p, width=0.025)
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--left", default="Stepping base=results/policy_mjlab/policy.onnx", help="label=PD | label=path (.pt/.onnx) | none (single panel)")
-    ap.add_argument("--right", default="Stepping base + guard=results/policy_mjlab_guard/policy.onnx"); ap.add_argument("--seconds", type=float, default=DEMO_SECONDS)
+    ap = argparse.ArgumentParser(); ap.add_argument("--left", default="Stepping base=results/policy_mjlab_footwork/policy.onnx", help="label=PD | label=path (.pt/.onnx) | none (single panel)")
+    ap.add_argument("--right", default="Stepping base + guard=results/policy_mjlab_guard_footwork/policy.onnx"); ap.add_argument("--seconds", type=float, default=DEMO_SECONDS)
     ap.add_argument("--clip", default=DEMO_CLIP); ap.add_argument("--distance", type=float, default=DEMO_DISTANCE)
     ap.add_argument("--w", type=int, default=640); ap.add_argument("--h", type=int, default=400); ap.add_argument("--name", default="demo"); a = ap.parse_args()
     root = Path(__file__).resolve().parents[1]; (root / "media").mkdir(exist_ok=True)

@@ -31,7 +31,7 @@ def _cfg(stage):
 
 # Guard: the stepping base's default arm pose (its action offset and the pose the posture reward holds) becomes a boxer's
 # guard: fists at cheek height, elbows down by the ribs. Found by FK/IK on the R1 (gpu/README.md), inside mjlab's soft
-# joint limits (90% of range). Fine-tuned from the shipped stepping base.
+# joint limits (90% of range). Fine-tuned from the stage-2 base.
 GUARD_ARMS = {"left_shoulder_pitch_joint": -0.85, "left_shoulder_roll_joint": 0.15, "left_shoulder_yaw_joint": 0.2, "left_elbow_joint": -0.7,
               "right_shoulder_pitch_joint": -0.85, "right_shoulder_roll_joint": -0.15, "right_shoulder_yaw_joint": -0.2, "right_elbow_joint": -0.7}
 
@@ -44,8 +44,8 @@ def _guard(make):
         return cfg
     return g
 
-# Stage 3, footwork (fine-tuned from the shipped bases): the outer loops in this repo (hold your spot, turn to face;
-# r1gym/env.py) drive the policy through its velocity command, and the shipped bases track it poorly (0.5 m/s -> 0.2-0.3,
+# Stage 3, footwork (shipped; fine-tuned from the stage-2 bases): the outer loops in this repo (hold your spot, turn to face;
+# r1gym/env.py) drive the policy through its velocity command, and the stage-2 bases track it poorly (0.5 m/s -> 0.2-0.3,
 # 0.3 sideways -> 0.2) and the arms-down one doesn't turn left in CPU MuJoCo (results/face_opponent_ab.json).
 #  * Unitree's command_vel curriculum is removed, so the ranges below are the ones trained (it overrode the task's
 #    ranges before; gpu/README.md); 30% standing; velocity and yaw tracking weighted 1.5x.

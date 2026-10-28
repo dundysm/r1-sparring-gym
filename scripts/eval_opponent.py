@@ -97,6 +97,15 @@ def summarise(rows, T):
                 survivors_back_over_0p3m=round(float(np.mean([x["back_m"] > 0.3 for x in surv])), 3) if surv else None,
                 opponent_fell=round(float(np.mean([x["opp_fell"] for x in rows])), 3))
 
+def pairs(raw, summ):
+    """Paired differences on the same episodes between every two controllers (and vs PD): survival, and up and in the ring."""
+    up = {n: [x["fell_s"] is None for x in r] for n, r in raw.items()}
+    ring = {n: [x["fell_s"] is None and not x["ring_out"] for x in r] for n, r in raw.items()}
+    for name in raw:
+        summ[name]["survival_minus"] = {o: dict(zip(["diff", "ci95"], paired_diff(up[name], up[o]))) for o in raw if o != name}
+        summ[name]["survival_in_ring_minus"] = {o: dict(zip(["diff", "ci95"], paired_diff(ring[name], ring[o]))) for o in raw if o != name}
+        if name != "pd_stand": summ[name]["survival_minus_pd"], summ[name]["survival_minus_pd_ci95"] = paired_diff(up[name], up["pd_stand"])
+
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--policy", nargs="*", default=["v1=results/policy_v1/policy.pt", "v2=results/policy/policy.pt", "v3=results/policy_v3_candidate/policy.pt"],
                     help="label=path (.pt residual policy, .onnx unitree_rl_mjlab policy)")
@@ -105,8 +114,12 @@ def main():
     ap.add_argument("--opponent", choices=["tracked", "puppet"], default="tracked",
                     help="tracked: the R1 on its own motors (default, realistic); puppet: assisted replay (stress test, up to 250 N horizontal assist)")
     ap.add_argument("--no_pushes", action="store_true"); ap.add_argument("--seconds", type=float, default=None); ap.add_argument("--out", default="results/eval_opponent")
+    ap.add_argument("--from_raw", action="store_true", help="recompute summary_*.json from the stored raw_*.json (no simulation)")
     a = ap.parse_args(); out = Path(a.out); out.mkdir(parents=True, exist_ok=True); tier = TIERS[a.tier]; T = a.seconds or tier["seconds"]
     cfg = load_cfg(); models = {}; tag = ("" if a.tier == "standard" else f"_{a.tier}") + ("" if a.opponent == "tracked" else "_puppet") + ("_nohits" if a.no_pushes else "")
+    if a.from_raw:
+        st = json.load(open(out / f"raw_{a.split}{tag}.json")); raw = st["raw"]; summ = {n: summarise(r, st["meta"]["seconds"]) for n, r in raw.items()}; pairs(raw, summ)
+        json.dump(dict(meta=st["meta"], summary=summ), open(out / f"summary_{a.split}{tag}.json", "w"), indent=1); return
     if a.opponent == "puppet": cfg["opponent_mode"] = "puppet"
     clips = TEST_CLIPS if a.split == "test" else VAL_CLIPS
     ctrls = [PDStand()]
@@ -127,10 +140,7 @@ def main():
         if key not in models: models[key] = build_spec(opponent=True, cfg=cc).compile()
         t0 = time.time(); raw[c.name] = run(c, eps, models[key], cc, T, dr=tier["dr"]); summ[c.name] = summarise(raw[c.name], T)
         print(c.name, json.dumps(summ[c.name]), f"({time.time() - t0:.0f} s)", flush=True)
-    for name in raw:   # paired differences: vs PD, and between every two controllers (same episodes)
-        up = [x["fell_s"] is None for x in raw[name]]
-        summ[name]["survival_minus"] = {o: dict(zip(["diff", "ci95"], paired_diff(up, [x["fell_s"] is None for x in raw[o]]))) for o in raw if o != name}
-        if name != "pd_stand": summ[name]["survival_minus_pd"], summ[name]["survival_minus_pd_ci95"] = paired_diff(up, [x["fell_s"] is None for x in raw["pd_stand"]])
+    pairs(raw, summ)
     skipped = {f"{c}@{d}": round(1 - float(np.mean(g)), 3) for (c, d), g in good.items()}
     meta = dict(tier=a.tier, tier_cfg=tier, opponent=a.opponent, split=a.split, clips=clips, reps=a.reps, pushes=not a.no_pushes, seconds=T,
                 opponent_mode=cfg.get("opponent_mode", "puppet"), ring_m=RING_M, start_poses=list(poses), start_times_skipped=skipped)

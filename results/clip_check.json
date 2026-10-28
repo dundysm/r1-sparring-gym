@@ -1,89 +1,5 @@
 {
- "about": "Clipping check -> results/clip_check.json: how far the two robots' visible shells pass into each other.\n\nEach step, the bout's state is copied into a model where the shells (each link's visual mesh, as MuJoCo's convex hull)\ncollide robot-vs-robot, and the deepest shell-shell penetration is read from MuJoCo's collision check. The hull holds the\nmesh, so this is an upper bound on how far the visible robots overlap. Run for robot_contact: capsule (Unitree's capsules\ncarry the contact, as before) and shell (the shells do), with both shipped stepping policies, on the demo and on 48 bouts on\ntrain + val clips (2 distances x 6 clean starts per clip, 12 s, the demo's scripted pushes).\n\n--crosscheck OLD_RAW NEW_RAW: the clean-start filter also uses the shells, so a shell run starts its bouts at other clip\ntimes than a capsule run. This runs the hard-tier validation bouts of two stored runs (OLD_RAW from capsule contact:\ngit show 97a22e2:results/eval_opponent/raw_val_hard.json; NEW_RAW the current one) under both contact models, so the\ncontact model and the start times can be told apart.",
- "arms_down": {
-  "capsule": {
-   "demo": {
-    "bouts": 1,
-    "falls": 0,
-    "max_overlap_cm_median": 4.75,
-    "max_overlap_cm_p95": 4.75,
-    "max_overlap_cm_worst": 4.75,
-    "steps_over_1cm": 0.0317,
-    "steps_over_3cm": 0.0083
-   },
-   "bouts": {
-    "bouts": 48,
-    "falls": 1,
-    "max_overlap_cm_median": 5.59,
-    "max_overlap_cm_p95": 7.59,
-    "max_overlap_cm_worst": 8.46,
-    "steps_over_1cm": 0.0867,
-    "steps_over_3cm": 0.0287
-   }
-  },
-  "shell": {
-   "demo": {
-    "bouts": 1,
-    "falls": 0,
-    "max_overlap_cm_median": 0.36,
-    "max_overlap_cm_p95": 0.36,
-    "max_overlap_cm_worst": 0.36,
-    "steps_over_1cm": 0.0,
-    "steps_over_3cm": 0.0
-   },
-   "bouts": {
-    "bouts": 48,
-    "falls": 1,
-    "max_overlap_cm_median": 0.75,
-    "max_overlap_cm_p95": 1.69,
-    "max_overlap_cm_worst": 2.67,
-    "steps_over_1cm": 0.0006,
-    "steps_over_3cm": 0.0
-   }
-  }
- },
- "guard": {
-  "capsule": {
-   "demo": {
-    "bouts": 1,
-    "falls": 0,
-    "max_overlap_cm_median": 3.69,
-    "max_overlap_cm_p95": 3.69,
-    "max_overlap_cm_worst": 3.69,
-    "steps_over_1cm": 0.135,
-    "steps_over_3cm": 0.0183
-   },
-   "bouts": {
-    "bouts": 48,
-    "falls": 0,
-    "max_overlap_cm_median": 5.27,
-    "max_overlap_cm_p95": 7.12,
-    "max_overlap_cm_worst": 7.7,
-    "steps_over_1cm": 0.239,
-    "steps_over_3cm": 0.0737
-   }
-  },
-  "shell": {
-   "demo": {
-    "bouts": 1,
-    "falls": 0,
-    "max_overlap_cm_median": 1.04,
-    "max_overlap_cm_p95": 1.04,
-    "max_overlap_cm_worst": 1.04,
-    "steps_over_1cm": 0.0017,
-    "steps_over_3cm": 0.0
-   },
-   "bouts": {
-    "bouts": 48,
-    "falls": 0,
-    "max_overlap_cm_median": 0.96,
-    "max_overlap_cm_p95": 1.45,
-    "max_overlap_cm_worst": 2.2,
-    "steps_over_1cm": 0.001,
-    "steps_over_3cm": 0.0
-   }
-  }
- },
+ "about": "Clipping check -> results/clip_check.json: how far the two robots' visible shells pass into each other.\n\nEach step, the bout's state is copied into a model where the shells (each link's visual mesh, as MuJoCo's convex hull)\ncollide robot-vs-robot, and the deepest shell-shell penetration is read from MuJoCo's collision check. The hull holds the\nmesh, so this is an upper bound on how far the visible robots overlap. Run for robot_contact: capsule (Unitree's capsules\ncarry the contact, as before) and shell (the shells do), with both shipped stepping policies (default: the footwork ones,\neach with its gym.json outer loops), on the demo and on 48 bouts on train + val clips (2 distances x 6 clean starts per clip,\n12 s, the demo's scripted pushes).\n\n--crosscheck OLD_RAW NEW_RAW: the clean-start filter also uses the shells, so a shell run starts its bouts at other clip\ntimes than a capsule run. This runs the hard-tier validation bouts of two stored runs (OLD_RAW from capsule contact:\ngit show 97a22e2:results/eval_opponent/raw_val_hard.json; NEW_RAW the current one) under both contact models, so the\ncontact model and the start times can be told apart. Its default policies are PR #13's stage-2 bases, run with\nhold-your-spot off as PR #13 ran them; rows merge per policy into crosscheck_val_hard.",
  "crosscheck_val_hard": {
   "arms_down": {
    "capsule_contact_capsule_starts": {
@@ -119,6 +35,90 @@
    "shell_contact_shell_starts": {
     "survival": 0.891,
     "opponent_fell": 0.047
+   }
+  }
+ },
+ "footwork_arms_down": {
+  "capsule": {
+   "demo": {
+    "bouts": 1,
+    "falls": 0,
+    "max_overlap_cm_median": 5.1,
+    "max_overlap_cm_p95": 5.1,
+    "max_overlap_cm_worst": 5.1,
+    "steps_over_1cm": 0.045,
+    "steps_over_3cm": 0.015
+   },
+   "bouts": {
+    "bouts": 48,
+    "falls": 1,
+    "max_overlap_cm_median": 6.14,
+    "max_overlap_cm_p95": 7.78,
+    "max_overlap_cm_worst": 8.22,
+    "steps_over_1cm": 0.0986,
+    "steps_over_3cm": 0.0376
+   }
+  },
+  "shell": {
+   "demo": {
+    "bouts": 1,
+    "falls": 0,
+    "max_overlap_cm_median": 0.39,
+    "max_overlap_cm_p95": 0.39,
+    "max_overlap_cm_worst": 0.39,
+    "steps_over_1cm": 0.0,
+    "steps_over_3cm": 0.0
+   },
+   "bouts": {
+    "bouts": 48,
+    "falls": 0,
+    "max_overlap_cm_median": 0.72,
+    "max_overlap_cm_p95": 1.45,
+    "max_overlap_cm_worst": 1.97,
+    "steps_over_1cm": 0.0007,
+    "steps_over_3cm": 0.0
+   }
+  }
+ },
+ "footwork_guard": {
+  "capsule": {
+   "demo": {
+    "bouts": 1,
+    "falls": 0,
+    "max_overlap_cm_median": 4.31,
+    "max_overlap_cm_p95": 4.31,
+    "max_overlap_cm_worst": 4.31,
+    "steps_over_1cm": 0.2117,
+    "steps_over_3cm": 0.0567
+   },
+   "bouts": {
+    "bouts": 48,
+    "falls": 3,
+    "max_overlap_cm_median": 5.38,
+    "max_overlap_cm_p95": 7.83,
+    "max_overlap_cm_worst": 8.29,
+    "steps_over_1cm": 0.2512,
+    "steps_over_3cm": 0.0775
+   }
+  },
+  "shell": {
+   "demo": {
+    "bouts": 1,
+    "falls": 0,
+    "max_overlap_cm_median": 0.93,
+    "max_overlap_cm_p95": 0.93,
+    "max_overlap_cm_worst": 0.93,
+    "steps_over_1cm": 0.0,
+    "steps_over_3cm": 0.0
+   },
+   "bouts": {
+    "bouts": 48,
+    "falls": 0,
+    "max_overlap_cm_median": 0.89,
+    "max_overlap_cm_p95": 2.2,
+    "max_overlap_cm_worst": 2.6,
+    "steps_over_1cm": 0.0008,
+    "steps_over_3cm": 0.0
    }
   }
  }

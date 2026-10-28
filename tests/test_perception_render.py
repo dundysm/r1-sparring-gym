@@ -55,14 +55,16 @@ def test_set_head_pitch_leaves_the_callers_spec_alone():
 
 def test_m02_results_share_run_meta_and_their_stated_rules():
     """lod_report, render_bench and coverage carry r1gym.perception.run_meta's block at the top level (as mount.json does),
-    rendered ones with the GL strings; the bench gates on its median block, coverage picks inside its candidate range."""
+    rendered ones with the GL strings; the bench gates on its median block; coverage picks the best-scoring pitch, an
+    interior one (not the end of its sweep), and configs/r1_camera.yaml uses it."""
     R = {f: json.loads((ROOT.parent / "results" / "perception" / f"{f}.json").read_text()) for f in ("lod_report", "render_bench", "coverage")}
     for f, r in R.items():
         assert set(run_meta()) <= set(r) and "meta" not in r and isinstance(r["git_dirty"], list) and len(r["git"]) == 40, f
         assert r["gl_renderer"] and not r["gl_renderer"].startswith("unavailable") and r["gl_version"], f
     b = R["render_bench"]; g = b["gate"]; ms = b["single_process_ms"]["lod 320x240 shadows_off rgb"]
     assert g["ms_median_block"] == ms == round(float(np.median(b["single_process_block_ms"]["lod 320x240 shadows_off rgb"])), 2) and g["passed"] == (1e3 / ms >= 120)
-    c = R["coverage"]["choice"]; assert c["head_pitch_deg"] in R["coverage"]["candidates"] and c["at_bound"] == (c["rule_over_all_measured"] != c["head_pitch_deg"])
+    c, P = R["coverage"]["choice"], R["coverage"]["pitches"]; best = max(P, key=lambda p: c["scores"][f"{p:g}"])
+    assert c["head_pitch_deg"] == best == HeadCameraSpec().pitch_deg and c["interior"] and P[0] != best != P[-1]
 
 def test_rendering_leaves_physics_bit_identical():
     """A 10 s tracked bout (guard policy, demo pushes) gives bit-identical qpos with the twin syncing (and, given GL,

@@ -1,0 +1,126 @@
+{
+ "about": "M1 preregistration (design: the R1 turns toward what its own camera sees). Written after the val run and before the test run; the test run loads it, refuses to run if any file hashed below changed or its result exists, and evaluates the criteria below once.",
+ "written_utc": "2026-10-28T01:52:11+00:00",
+ "git": "cdddb9431b40261b118c051daef0048fe9b6230e",
+ "git_dirty": [
+  "configs/r1_camera.yaml",
+  "configs/r1_mjlab.yaml",
+  "r1gym/env.py",
+  "r1gym/perception/detect_colorkey.py",
+  "r1gym/perception/hub.py",
+  "r1gym/perception/percept.py",
+  "r1gym/scenario.py",
+  "results/perception/coverage.json",
+  "results/perception/m1_offaxis_val.json",
+  "scripts/camera_coverage.py",
+  "scripts/demo.py",
+  "scripts/face_ab.py",
+  "tests/test_perception_camera.py",
+  "tests/test_perception_percept.py",
+  "tests/test_perception_render.py"
+ ],
+ "mujoco": "3.17.0",
+ "numpy": "2.5.4",
+ "platform": "Windows-11-10.0.26300-SP0",
+ "cpu": "Intel64 Family 6 Model 189 Stepping 1, GenuineIntel",
+ "gl_renderer": null,
+ "criteria": {
+  "a": "median facing error over the last 6 s, paired camera - truth_lag: 95% CI within [-3, +3] deg",
+  "b": "camera and truth_lag both beat blind on it: blind - camera and blind - truth_lag have 95% CIs above 0",
+  "c": "time to face within 15 deg, paired camera - truth_lag: 95% CI upper bound <= 0.5 s",
+  "d": "shuffled is no better than blind: blind - shuffled (facing error) has a 95% CI lower bound <= 0",
+  "e": "empty ring (camera): a turn command on <= 2% of control ticks, pooled over bouts"
+ },
+ "statistics": "per bout: facing error = |true bearing of the opponent's pelvis from the R1's pelvis heading| (env.true_bearing) at every 20 ms tick; its median over t > 6 s; time to face = the first tick with facing error <= 15 deg (never: 12 s). Paired differences: r1gym/stats.py cluster_paired_diff, clusters (clip, start draw), 4000 resamples, seed 0, over the bouts both settings survived; empty ring: ticks with |wz command| > 0 / all ticks.",
+ "choice": {
+  "rule": "lowest camera objective; within 0.5 deg of it, the widest deadband, then the shortest filter",
+  "percept_filter_s": 0.0,
+  "face_deadband": [
+   0.35,
+   0.1
+  ]
+ },
+ "policy": "guard=results/policy_mjlab_guard/policy.onnx",
+ "arms_policy": "arms_down=results/policy_mjlab/policy.onnx",
+ "val_file_sha": "4b61ad235c0dc11d",
+ "val_criteria": {
+  "a": false,
+  "b": true,
+  "c": true,
+  "d": true,
+  "e": true
+ },
+ "power": {
+  "val_clusters": 6,
+  "val_ci_half_width_deg": 2.906,
+  "test_clusters": 24,
+  "expected_test_ci_half_width_deg": 1.45,
+  "note": "criterion (a)'s camera - truth_lag CI half-width on val, scaled by sqrt(clusters): why test draws 12 starts per clip and distance, not the design's 6"
+ },
+ "test": {
+  "clips": [
+   "kfab_202",
+   "kfab_205"
+  ],
+  "distances": [
+   0.55,
+   0.65
+  ],
+  "bearings_deg": [
+   30.0,
+   -30.0,
+   50.0,
+   -50.0
+  ],
+  "starts": 12,
+  "seconds": 12.0,
+  "seed": 30000,
+  "ladder": [
+   "blind",
+   "truth",
+   "truth_lag",
+   "truth_lag_nocomp",
+   "camera",
+   "shuffled"
+  ],
+  "arms": {
+   "settings": [
+    "blind",
+    "truth",
+    "truth_lag",
+    "camera",
+    "shuffled"
+   ],
+   "bearings_deg": [
+    -30.0,
+    -50.0
+   ]
+  },
+  "ring": {
+   "distance_m": 5.0,
+   "bearing_deg": 180.0
+  }
+ },
+ "code_sha256": {
+  "r1gym/env.py": "0e608110e1d65392",
+  "r1gym/scenario.py": "a646cc90e4e2a452",
+  "r1gym/hits.py": "fd80fbf010121754",
+  "r1gym/stats.py": "3b2ee8fe75c14738",
+  "r1gym/opponent.py": "31dd7dfce3fff4aa",
+  "r1gym/model.py": "35d1baf80bd1a832",
+  "r1gym/perception/camera.py": "680c3723710c3549",
+  "r1gym/perception/render_scene.py": "9531d0d757d4e8af",
+  "r1gym/perception/percept.py": "8b2309d0bdd84627",
+  "r1gym/perception/hub.py": "5345bc22cf4d15b5",
+  "r1gym/perception/detect_colorkey.py": "d2cbfd4bf7f0f334",
+  "scripts/face_ab.py": "b9222a7d2794c34a",
+  "configs/r1_camera.yaml": "2f34cf106d03aea3",
+  "configs/r1_mjlab.yaml": "20d37540e308cd29",
+  "configs/r1_assumptions.yaml": "dc487757ef122c29",
+  "results/opponent_tracker/policy.onnx": "c551d63338cb906f",
+  "results/policy_mjlab_guard/policy.onnx": "aea1a5bb12a3c451",
+  "results\\policy_mjlab_guard\\gym.json": "f1af6b221e444a4b",
+  "results/policy_mjlab/policy.onnx": "10ea49c3c7314ba8",
+  "results\\policy_mjlab\\gym.json": "be6f8f8cf5fe67a4"
+ }
+}

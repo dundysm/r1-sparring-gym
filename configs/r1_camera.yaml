@@ -29,7 +29,8 @@ mount:
   body: torso_link       # r1_xml: the head is rigid on torso_link, which follows waist roll + yaw (the pelvis would be wrong)
   pos: [0.088, 0.0, 0.355]   # INFERENCE: lens at the visor front (head_yaw_link mesh front x 0.0864 at z 0.354), in torso_link [m]
   lateral_offset_m: 0.0  # ASSUMPTION, +-0.03: which eye feeds the network and the stereo baseline are unpublished
-  head_pitch_deg: -40.0  # optical-axis elevation in torso_link, + up / - down. results/perception/coverage.json: mean unoccluded opponent-keypoint fraction 0.28 / 0.37 / 0.49 / 0.60 / 0.65 / 0.67 at 0 / -10 / -20 / -30 / -40 / -50 deg; -40 keeps 98% of -50 while the real head pitch range is unpublished (ASSUMPTION, revisit with Unitree specs)
+  head_pitch_deg: -50.0  # optical-axis elevation in torso_link, + up / - down: the best-scoring pitch of results/perception/coverage.json (_why_head_pitch)
+  _why_head_pitch: "results/perception/coverage.json (scripts/camera_coverage.py): mean unoccluded opponent-keypoint fraction (score) by pitch 0: 0.281, -10: 0.366, -20: 0.488, -30: 0.596, -40: 0.649, -45: 0.660, -50: 0.665, -55: 0.661, -60: 0.645, -65: 0.617, -70: 0.570; -50 scores best over 0 to -70 and is an interior optimum (-45 lower by 0.005 [0.002, 0.008], -55 lower by 0.005 [0.001, 0.008]); it wins 99.7% of 2000 bout resamples. At -50: pelvis 0.704, head 0.552, fists 0.536/0.393, feet 0.823/0.689 unoccluded (train + val, both policies, both tiers); the R1's own body covers 0.31 of the image in guard (0 deg: 0.16). The real R1's head-pitch range is unpublished (ASSUMPTION)."
   pitch_pivot: [-0.006, 0.0, 0.255]   # ASSUMPTION: head_pitch_link mesh origin (neck base; its y offset lies along the pitch axis).
                          # The head_yaw_link origin (z 0.3715) as pivot moves the lens 2-4 cm; extrinsics randomisation covers it
   hide_own: [head_pitch_link, head_yaw_link]   # head-shell meshes hidden from the robot's own camera (the lens sits at the visor)

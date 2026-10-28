@@ -80,8 +80,8 @@ def _fk_vs_sim(spec, n=200, seed=0):
 def test_mount_fk_matches_the_sim_camera():
     for spec in (SPEC, HeadCameraSpec(head_pitch_deg=-20, lateral_offset_m=0.03)):
         ep, er, m = _fk_vs_sim(spec); assert ep < 1e-3 and er < 0.05, (ep, er)
-    s = build_spec(cfg=CFG); add_head_camera(s, SPEC); m = s.compile(); d = mujoco.MjData(m); R1Robot(m, CFG).reset(m, d)
-    assert np.allclose(d.cam_xpos[0], [0.0325 + 0.088, 0, 0.789 + 0.355], atol=1e-3)     # lens 1.144 m up at home, head level
+    s = build_spec(cfg=CFG); add_head_camera(s, HeadCameraSpec(head_pitch_deg=0.0)); m = s.compile(); d = mujoco.MjData(m); R1Robot(m, CFG).reset(m, d)
+    assert np.allclose(d.cam_xpos[0], [0.0325 + 0.088, 0, 0.789 + 0.355], atol=1e-3)     # lens 1.144 m up at home, head level (not the config's pitch)
     assert tuple(m.cam_resolution[0]) == (320, 240) and m.cam_fovy[0] == 100
 
 def test_own_head_geoms():

@@ -1,7 +1,7 @@
 """Head-pitch coverage study (phase 3, M0.2) -> results/perception/coverage.json, which sets head_pitch_deg in configs/r1_camera.yaml.
 
-How much of the opponent the R1's head camera sees, by head pitch about the assumed neck pivot: the design's candidates
-0 / -10 / -20 / -30 deg, plus -40 / -50 deg as a bracket (measured, never chosen):
+How much of the opponent the R1's head camera sees, by head pitch about the assumed neck pivot, 0 to -70 deg (the design's
+candidates 0 / -10 / -20 / -30, then every 5 deg from -40 to -70):
 - bouts: both shipped policies against the tracked opponent on the train + val clips (never test), as the headline eval
   draws them (scripts/eval_opponent.py episodes, 1 per clip and distance): standard tier (0.50-0.70 m, 10 s, two pushes)
   and hard tier (0.40-0.55 m, 20 s, six strikes and pushes, randomised physics); a state every 0.24 s while the R1 is up;
@@ -16,12 +16,14 @@ Rendered at the network size with the LOD render twin. Also reported (not in the
 R1's heading (both shipped gym.json files leave the turn command off, and hard-tier hits spin the R1), and the same
 fractions over the states with the opponent within +-45 deg of the heading, where the pitch, not the yaw, decides.
 
-Rule, fixed before the first run: score(pitch) = the mean over the four policy x tier cells (train + val pooled) of the
-mean `unoccluded` fraction over the 11 keypoints; head_pitch_deg = the smallest |pitch| among the candidates whose score is
-within 0.01 of the best candidate's. The score has no cost for pitching further (own-body pixels, the head nearing the
-image's top edge), so it can rise to the end of the range: the bracket, added after review and outside the rule, shows
-whether the choice is an interior optimum or the bound of the candidate range (choice.at_bound). The R1's head-pitch range
-is unpublished; the design allows 0 to -30."""
+score(pitch) = the mean over the four policy x tier cells (train + val pooled) of the mean `unoccluded` fraction over the
+11 keypoints. Pitching down trades the opponent's head (it nears the image's top edge) and more of the R1's own guard in
+view against its knees and feet, so the score can have an interior maximum.
+Rule (revised 2026-10-27): head_pitch_deg = the best-scoring pitch over the whole sweep, which must be interior (both
+neighbours score lower; otherwise the sweep is extended, not the bound taken). The first rule (the smallest |pitch| among
+the design's 0 to -30 candidates within 0.01 of the best) picked -30, the end of its range, while a -40 / -50 bracket
+still rose (choice.rule_v1 keeps it). choice.bootstrap resamples whole bouts per cell: how often each pitch wins, and the
+best's paired margin over its neighbours. The R1's real head-pitch range is unpublished (ASSUMPTION)."""
 import sys, json, time, copy, argparse
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -39,7 +41,8 @@ from r1gym.perception import run_meta
 from r1gym.perception.render_scene import RenderTwin, KEYPOINTS, G_R1, G_OPP, G_OPPHEAD
 
 POLICIES = ["arms_down=results/policy_mjlab/policy.onnx", "guard=results/policy_mjlab_guard/policy.onnx"]
-PITCHES = [0.0, -10.0, -20.0, -30.0, -40.0, -50.0]; CANDIDATES = PITCHES[:4]; EVERY = 12; MARGIN = 0.01; NET = (160, 120)
+PITCHES = [0.0, -10.0, -20.0, -30.0, -40.0, -45.0, -50.0, -55.0, -60.0, -65.0, -70.0]; CANDIDATES = PITCHES[:4]; EVERY = 12; MARGIN = 0.01; NET = (160, 120)
+BOOT = 2000
 KP = list(KEYPOINTS); METRICS = ("in_fov", "in_fisheye", "unoccluded", "visible")
 
 def bouts(c, cfg, m, eps, T, dr, threads=4):
@@ -90,11 +93,11 @@ if __name__ == "__main__":
         lab = spec.split("=")[0]; c = load_controller(spec); cfg = {**controller_cfg(c), "opponent_mode": "policy"}; m = build_spec(opponent=True, cfg=cfg).compile()
         for tier, T in eo.TIERS.items():
             eps = eo.episodes(clips, 1, tier, good); Qs = bouts(c, cfg, m, eps, T["seconds"], T["dr"])
-            rows += [(lab, tier, ep["clip"], ep["distance"], q) for ep, Q in zip(eps, Qs) for q in Q]
+            rows += [(lab, tier, ep["clip"], ep["distance"], q, f"{lab}/{tier}/{i}") for i, (ep, Q) in enumerate(zip(eps, Qs)) for q in Q]
             print(lab, tier, len(eps), "bouts", sum(map(len, Qs)), "states", f"{time.time() - t0:.0f}s", flush=True)
     tw = RenderTwin(base, physics=m); kg = tw.keypoint_geoms("opp_")
     B, OWN, EL = [], [], []
-    for i, (lab, tier, clip, dist, q) in enumerate(rows):
+    for i, (lab, tier, clip, dist, q, _) in enumerate(rows):
         b, own, el = measure(tw, q, kg); B.append(b); OWN.append(own); EL.append(el)
         if i % 500 == 0: print(i, len(rows), f"{time.time() - t0:.0f}s", flush=True)
     B, OWN, EL = np.array(B), np.array(OWN), np.array(EL)   # (N, metric, pitch, kp), (N, pitch), (N, kp)
@@ -119,16 +122,25 @@ if __name__ == "__main__":
         r["score_within_45deg"] = round(float(np.mean([B[(pol == a) & (tie == t) & front, 2, j].mean() for a, t in cells])), 4)
         r["score"] = round(float(np.mean([B[(pol == a) & (tie == t), 2, j].mean() for a, t in cells])), 4)
     sc = {p: res["by_pitch"][f"{p:g}"]["score"] for p in PITCHES}; own = lambda p: res["by_pitch"][f"{p:g}"]["own_body_px_by_policy"]
-    rule = lambda ps: min((p for p in ps if sc[p] >= max(sc[x] for x in ps) - MARGIN), key=abs)
-    pick, ext = rule(CANDIDATES), rule(PITCHES); u = res["by_pitch"][f"{pick:g}"]["unoccluded"]; br = ", ".join(f"{p:g}: {sc[p]:.3f}" for p in PITCHES if p not in CANDIDATES)
-    res["choice"] = dict(rule=f"smallest |pitch| among the candidates {CANDIDATES} with score within {MARGIN} of the best candidate", scores={f"{p:g}": sc[p] for p in CANDIDATES},
-        bracket_scores={f"{p:g}": sc[p] for p in PITCHES if p not in CANDIDATES}, head_pitch_deg=pick, rule_over_all_measured=ext, at_bound=bool(ext != pick),
-        _why=f"results/perception/coverage.json (scripts/camera_coverage.py): mean unoccluded keypoint fraction (score) by pitch "
-             + ", ".join(f"{p:g}: {sc[p]:.3f}" for p in CANDIDATES) + f"; {pick:g} is the smallest candidate within {MARGIN} of the best"
-             + (f", and the same rule over the bracket beyond the design's range ({br}) picks it too, so it is an interior optimum of 0 to {min(PITCHES):g}" if ext == pick else
-                f", but it is the bound of the design's range (0 to {min(CANDIDATES):g}), not an optimum: over the bracket ({br}) the same rule picks {ext:g}")
-             + f". At {pick:g}: pelvis {u['pelvis']:.3f}, head {u['head']:.3f}, fists {u['l_fist']:.3f}/{u['r_fist']:.3f}, feet {u['l_foot']:.3f}/{u['r_foot']:.3f} unoccluded "
-             f"(train + val, both policies, both tiers); the R1's own body covers {own(pick)['guard']:.2f} of the image in guard (0 deg: {own(0.0)['guard']:.2f}).")
+    v1 = min((p for p in CANDIDATES if sc[p] >= max(sc[x] for x in CANDIDATES) - MARGIN), key=abs)   # the first rule, for the record
+    j = int(np.argmax([sc[p] for p in PITCHES])); pick = PITCHES[j]; interior = 0 < j < len(PITCHES) - 1; u = res["by_pitch"][f"{pick:g}"]["unoccluded"]
+    # bootstrap over whole bouts, per cell: a cell's score is (sum of per-state keypoint means) / states in each resample
+    bid = np.array([r[5] for r in rows]); per = B[:, 2].mean(-1); rng = np.random.default_rng(0); boot = np.zeros((BOOT, len(PITCHES)))
+    for a_, t_ in cells:
+        sel = (pol == a_) & (tie == t_); ub, ix = np.unique(bid[sel], return_inverse=True); S = np.zeros((len(ub), len(PITCHES))); np.add.at(S, ix, per[sel])
+        N = np.bincount(ix, minlength=len(ub)).astype(float); k = rng.integers(0, len(ub), (BOOT, len(ub))); boot += S[k].sum(1) / N[k].sum(1)[:, None] / len(cells)
+    win = np.bincount(boot.argmax(1), minlength=len(PITCHES)) / BOOT; nb = [i for i in (j - 1, j + 1) if 0 <= i < len(PITCHES)]
+    margin = {f"{PITCHES[i]:g}": dict(diff=round(sc[pick] - sc[PITCHES[i]], 4), ci95=[round(float(x), 4) for x in np.percentile(boot[:, j] - boot[:, i], [2.5, 97.5])]) for i in nb}
+    res["choice"] = dict(rule="the best-scoring pitch over the whole sweep, interior (both neighbours lower); revised 2026-10-27, see about",
+        scores={f"{p:g}": sc[p] for p in PITCHES}, head_pitch_deg=pick, interior=bool(interior),
+        bootstrap=dict(resamples=BOOT, unit="bout, within each policy x tier cell", win_rate={f"{p:g}": round(float(w), 3) for p, w in zip(PITCHES, win) if w > 0}, best_minus_neighbour=margin),
+        rule_v1=dict(rule=f"smallest |pitch| among the candidates {CANDIDATES} with score within {MARGIN} of the best candidate", head_pitch_deg=v1, at_bound=bool(v1 == min(CANDIDATES))),
+        _why=f"results/perception/coverage.json (scripts/camera_coverage.py): mean unoccluded opponent-keypoint fraction (score) by pitch "
+             + ", ".join(f"{p:g}: {sc[p]:.3f}" for p in PITCHES) + f"; {pick:g} scores best over 0 to {min(PITCHES):g} and "
+             + ("is an interior optimum (" + ", ".join(f"{k} lower by {v['diff']:.3f} [{v['ci95'][0]:.3f}, {v['ci95'][1]:.3f}]" for k, v in margin.items()) + ")" if interior else "is the end of the sweep: extend it")
+             + f"; it wins {win[j]:.1%} of {BOOT} bout resamples. At {pick:g}: pelvis {u['pelvis']:.3f}, head {u['head']:.3f}, fists {u['l_fist']:.3f}/{u['r_fist']:.3f}, "
+             f"feet {u['l_foot']:.3f}/{u['r_foot']:.3f} unoccluded (train + val, both policies, both tiers); the R1's own body covers {own(pick)['guard']:.2f} of the image "
+             f"in guard (0 deg: {own(0.0)['guard']:.2f}). The real R1's head-pitch range is unpublished (ASSUMPTION).")
     tw.close(); res["wall_s"] = round(time.time() - t0, 1)
     Path(a.out).parent.mkdir(parents=True, exist_ok=True); json.dump(res, open(a.out, "w"), indent=1)
     print(json.dumps({p: [res["by_pitch"][p]["unoccluded"], res["by_pitch"][p]["unoccluded_within_45deg"]] for p in res["by_pitch"]}, indent=1)); print(json.dumps(res["opponent_bearing"])); print(json.dumps(res["choice"], indent=1), f"{res['wall_s']} s")

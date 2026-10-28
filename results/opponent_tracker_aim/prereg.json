@@ -1,0 +1,28 @@
+{
+ "about": "M2 run 1 (docs/AIMED_OPPONENT.md, 'M2 gates'): fixed and committed before the run trains and before any evaluation of what it produces. The gates are the doc's; this file pins how each is measured, the run, the one candidate, and the order.",
+ "written": "2026-10-28, before the pod was created",
+ "run": {
+  "task": "R1-Track-KungFu-Aim (gpu/r1_track_task.py)",
+  "motion": "gpu/export_warps.py --copies 24 --seed 0 -> gpu/motions/r1_kungfu_aim.csv (31746 frames: export_motion.py's motion, then 24 warped copies of each train clip; 185 warped strikes over 22 of the 37 train hand strikes). Val and test strikes are never warped and get no apex reward.",
+  "warm_start": "results/opponent_tracker/model_13749.pt (the shipped Steer2 tracker)",
+  "iterations": 1500,
+  "envs": 4096,
+  "hardware": "1x RTX 4090, RunPod secure cloud, about $0.89/h; RunPod balance $1.18 at the start, so the pod is deleted by a watchdog at 75 min whatever its state",
+  "deviations_from_the_design": [
+   "Warps are capped at 0.25 m of apex movement toward the target (0.20 / 0.15 / 0.10 m on redraws): a strike far from the R1's head is bent toward it, not onto it. The design asked for the target itself.",
+   "Hand reaction impulses are random in time (both wrists, every 1-3 s), not at the strike apex: mjlab's apply_body_impulse has no apex trigger.",
+   "The spot lunge is trained mainly through the steering (AimMotionCommand: 0.10-0.30 m at 0.5-1.2 m/s every 1-3 s). In the warped motion the IK uses it little (median 3 cm, max 14 cm), because the 0.25 m warp cap is mostly reachable with the arm and waist.",
+   "parity_mjlab runs on the unwarped motion (gpu/parity_mjlab.py has no warped-reference mode).",
+   "One candidate (no fallback run): the balance doesn't allow a second run."
+  ]
+ },
+ "candidate": "the final checkpoint (iteration 15249) and its exported ONNX; no other checkpoint is evaluated",
+ "gates_on_train_and_val": {
+  "alone": "scripts/eval_tracker.py (48 runs of 10 s, opponent alone, 8 starts per clip): stays up in >= 45/48 (shipped 46/48), and the mean of per-clip joint RMSE within the shipped value + 0.02 rad",
+  "parity": "gpu/parity_mjlab.py vs scripts/eval_tracker.py from the same 48 starts: every fall they share happens within 0.1 s of each other",
+  "tolerance": "scripts/tracker_tolerance.py restricted to VAL hand strikes (train strikes were warped in training): 20 cm arm warps (up, in, forward pooled) within 5 cm of the warped apex in >= 65% of runs (shipped 42.4% at 20 cm up on train + val); a 20 cm lunge at 1 m/s adds >= 12 cm of median reach (shipped 3.5 cm on train + val)",
+  "aim_check": "scripts/aim_check.py on train + val against the arms-down and guard targets: the M2 tracker with its operator vs the shipped tracker with M1's chosen operator (standoff+armwarp_vz), same episodes: Δ head clean strikes/min and Δ head-landed share per window both with paired cluster-bootstrap CIs above 0 on both targets, and opponent falls in bouts at most the shipped tracker's + 2 pp. The M2 operator is chosen before this comparison, on train + val, by M1's rule 3 among standoff+armwarp_vz and standoff+armwarp (the arm may add reach), on the M2 tracker alone."
+ },
+ "then": "Only if every gate passes: the hard --aim tier on val, then once on test, against the footwork policies, reported whatever the sign; tolerance on test strikes, once. If a gate fails, the M2 tracker doesn't ship; the results are still stored and reported.",
+ "reporting": "Every number in the README or doc comes from a stored JSON with the script that wrote it."
+}

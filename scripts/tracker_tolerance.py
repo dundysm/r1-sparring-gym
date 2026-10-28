@@ -15,6 +15,9 @@ retiming   the clip clock runs at rate s inside every hand strike (+-0.1 s, 0.1 
            uncompensated (the loop gets longer): falls in 48 runs of 10 s (12 starts per train / val clip), against s = 1.
 select     r1gym/aim.py 'select' (splices to head-level strikes) on the same 48 runs: falls. It is a candidate for the M1 operator
            only if it falls in at most one run more than the unspliced runs (docs/AIMED_OPPONENT.md, amendment 1).
+--policy / --split / --skip_long (M2, results/opponent_tracker_aim/prereg.json): another tracker ONNX, only the val (or test)
+clip's strikes (the M2 tracker trained on warped train strikes, so its tolerance is measured where it never saw a warp), and no
+48-run long runs.
 B's design probe measured (rg/p4_warp.py, p5_lunge.py): within 5 cm 72.7 / 65.2 / 42.4% at 0 / 10 / 20 cm up; a 20 cm lunge at
 1 m/s added 1.8 cm of reach."""
 import sys, json, time, argparse
@@ -87,10 +90,11 @@ def warp_dq(a, tr, rep, s, vec):
     q = rq.copy(); q[ARM[s.limb]] = qa; return qa - rq[ARM[s.limb]], a._palm_b(q, s.limb)[0], res
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--threads", type=int, default=4); ap.add_argument("--out", default="results/opponent_tracker/tolerance.json"); a = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument("--threads", type=int, default=4); ap.add_argument("--out", default="results/opponent_tracker/tolerance.json")
+    ap.add_argument("--policy", default=""); ap.add_argument("--split", choices=["train+val", "val", "test"], default="train+val"); ap.add_argument("--skip_long", action="store_true"); a = ap.parse_args()
     import eval_opponent as eo
-    cfg = {**load_cfg(), "opponent_mode": "policy"}; m = build_spec(opponent=True, cfg=cfg).compile(); t0 = time.time(); pool = ThreadPoolExecutor(a.threads)
-    lib = [s for s in S.load() if s.hand and s.split in ("train", "val")]
+    cfg = {**load_cfg(), "opponent_mode": "policy", **({"opponent_policy": a.policy} if a.policy else {})}; m = build_spec(opponent=True, cfg=cfg).compile(); t0 = time.time(); pool = ThreadPoolExecutor(a.threads)
+    lib = [s for s in S.load() if s.hand and s.split in a.split.split("+")]
     ik = Aim(m, FightReplay(m, lib[0].clip, distance=AWAY, cfg=cfg), "armwarp", {"arm": {"max_dq": 3.2}}); tr = FightReplay(m, lib[0].clip, distance=AWAY, cfg=cfg).tracker
     jobs = []
     for s in lib:
@@ -103,7 +107,7 @@ def main():
     rows = list(pool.map(lambda j: dict(clip=j[0].clip, split=j[0].split, onset=j[0].onset, limb=j[0].limb, cond=j[1], mag=j[2], ik_res_m=round(j[5], 4),
                                         **strike_run(m, cfg, j[0], j[3], j[4])), jobs)); print(f"strike runs: {len(rows)} ({time.time() - t0:.0f} s)", flush=True)
     key = lambda r: (r["clip"], r["onset"], r["limb"]); base = {key(r): r for r in rows if r["cond"] == "0"}
-    tr_lag = [r["lag_s"] for r in rows if r["cond"] == "0" and r["split"] == "train" and not r["fell"]]; va_lag = [r["lag_s"] for r in rows if r["cond"] == "0" and r["split"] == "val" and not r["fell"]]
+    tr_lag = [r["lag_s"] for r in rows if r["cond"] == "0" and r["split"] == ("train" if "train" in a.split else a.split) and not r["fell"]]; va_lag = [r["lag_s"] for r in rows if r["cond"] == "0" and r["split"] == "val" and not r["fell"]]
     q = lambda x, p: round(float(np.percentile(x, p)), 3)
     lag = dict(train_median_s=float(np.median(tr_lag)), train_p10_p90_s=[q(tr_lag, 10), q(tr_lag, 90)], val_median_s=float(np.median(va_lag)) if va_lag else None, n_train=len(tr_lag), n_val=len(va_lag))
     def warp(sel):
@@ -130,12 +134,14 @@ def main():
             if fell(e.d, rep): return dict(clip=c, t0=round(t0_, 3), fell_s=round((k + 1) * e.dt, 2), splices=getattr(e.opp_state.get("aim"), "splices", None))
         return dict(clip=c, t0=round(t0_, 3), fell_s=None, splices=getattr(e.opp_state.get("aim"), "splices", None))
     runs = {}
-    for name, mode, rt in [("unchanged", "none", None)] + [(f"retime_{r}", "none", r) for r in RATES] + [("select", "select", None)]:
+    for name, mode, rt in ([] if a.skip_long else [("unchanged", "none", None)] + [(f"retime_{r}", "none", r) for r in RATES] + [("select", "select", None)]):
         runs[name] = list(pool.map(lambda x: long_run(*x, mode, rt), starts)); print(name, sum(r["fell_s"] is not None for r in runs[name]), "falls", f"({time.time() - t0:.0f} s)", flush=True)
-    nf = lambda n: sum(r["fell_s"] is not None for r in runs[n]); f0 = nf("unchanged")
-    long = {n: dict(runs=len(v), fell=nf(n), extra_vs_unchanged=nf(n) - f0, fell_unchanged_same=sum(r["fell_s"] is not None for r, b in zip(v, runs["unchanged"]) if b["fell_s"] is not None)) for n, v in runs.items()}
-    long["select"].update(splices_per_run_median=float(np.median([r["splices"] for r in runs["select"]])), passes=nf("select") <= f0 + 1)
-    out = dict(about=__doc__, meta=dict(eo.provenance(m, cfg), threads=a.threads, wall_s=round(time.time() - t0, 1)), strikes=len(lib), lag=lag, arm_warps=curves, lunges=lunges, long_runs=long,
+    nf = lambda n: sum(r["fell_s"] is not None for r in runs[n]); long = {}
+    if runs:
+        f0 = nf("unchanged")
+        long = {n: dict(runs=len(v), fell=nf(n), extra_vs_unchanged=nf(n) - f0, fell_unchanged_same=sum(r["fell_s"] is not None for r, b in zip(v, runs["unchanged"]) if b["fell_s"] is not None)) for n, v in runs.items()}
+        long["select"].update(splices_per_run_median=float(np.median([r["splices"] for r in runs["select"]])), passes=nf("select") <= f0 + 1)
+    out = dict(about=__doc__, meta=dict(eo.provenance(m, cfg), threads=a.threads, wall_s=round(time.time() - t0, 1), policy=cfg["opponent_policy"], split=a.split), strikes=len(lib), lag=lag, arm_warps=curves, lunges=lunges, long_runs=long,
                design_B_probe=dict(within_5cm={"0": 0.727, "up10": 0.652, "up20": 0.424}, lunge_20cm_1mps_extra_reach_cm=1.8), rows=rows, long_run_rows=runs)
     json.dump(out, open(a.out, "w"), indent=1); print(json.dumps({k: v for k, v in out.items() if k not in ("rows", "long_run_rows", "about", "meta")}, indent=1))
 

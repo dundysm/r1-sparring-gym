@@ -17,6 +17,20 @@ weight 1) the policy kept tracking the pose and let the position go (0.77 m off 
 R1-Track-KungFu-Steer2 (the shipped opponent) makes position count: reward std 0.5 m, weight 2, an episode ends when the
 anchor is more than 0.6 m from its reference, and the drift is at most 0.3 m/s.
 
+R1-Track-KungFu-Aim (M2 run 1, docs/AIMED_OPPONENT.md) is Steer2 fine-tuned on export_warps.py's motion (the same clips plus
+warped copies of the train clips, whose hand strikes are bent toward an R1's head or torso with the arm, waist, stance and a
+short spot lunge), with three additions:
+  - strike_apex: at every train-clip strike apex (+-2 frames, from the motion's _apex.json) the striking wrist's distance to
+    its reference, in the world (so the lunge counts), exp(-d^2 / 0.1^2), weight 1.5. BeyondMimic's body-position term
+    averages 14 bodies with std 0.3 m and barely sees a 20 cm hand error.
+  - lunges in the steering (AimMotionCommand): 1-3 s after the last one, the reference jumps 0.10-0.30 m ahead along its own
+    heading at a 0.5-1.2 m/s cap (0.1 s lag), holds 0.25-0.6 s, and goes back at 0.4 m/s, on top of Steer2's drift. This is
+    what the sim's StandOff and the tolerance probe's lunge (scripts/tracker_tolerance.py) ask of it, and the drift
+    (<= 0.3 m/s) never showed it.
+  - hand reaction impulses: random wrenches on both wrists, each component +-25 N for 0.05-0.12 s, every 1-3 s (up to about
+    3 N*s, the landed range), so it learns to absorb what its strikes meet.
+The actor's inputs are unchanged (the shipped 132-d contract), so it drops into r1gym/opponent.py's Tracker as is.
+
 On the GPU box, from a unitree_rl_mjlab checkout:
   python r1_track_task.py convert r1_kungfu.csv motions/r1_kungfu.npz
   python r1_track_task.py R1-Track-KungFu --env.scene.num-envs 4096 --agent.max-iterations N --agent.logger tensorboard
@@ -73,10 +87,65 @@ def _steer_cfg(mc, speed=STEER_SPEED):
         class SteerMotionCommandCfg(MotionCommandCfg):
             steer_speed: float = STEER_SPEED
             def build(self, env): return SteerMotionCommand(self, env)
-        _STEER["cfg"] = SteerMotionCommandCfg
+        _STEER["cfg"], _STEER["cls"] = SteerMotionCommandCfg, SteerMotionCommand
     return _STEER["cfg"](**{f.name: getattr(mc, f.name) for f in dataclasses.fields(mc)}, steer_speed=speed)
 
-def env_cfg(play=False, motion_file="", relaxed_hands=False, feet=0.25, hands=0.5, steer=False, strict=False):
+LUNGE_M, LUNGE_MPS, LUNGE_HOLD_S, LUNGE_EVERY_S, LUNGE_TAU, LUNGE_BACK_MPS = (0.10, 0.30), (0.5, 1.2), (0.25, 0.6), (1.0, 3.0), 0.1, 0.4
+_AIM = {}
+
+def _aim_cfg(mc):
+    """A Steer2 command config -> the same config building an AimMotionCommand: Steer2's drift plus lunges (module
+    docstring), a second xy offset `lo` chasing its target `lt` at a capped speed."""
+    import dataclasses, torch
+    if not _AIM:
+        class AimMotionCommand(_STEER["cls"]):
+            def __init__(self, cfg, env):
+                super().__init__(cfg, env); n, dev = self.num_envs, self.device; z = lambda: torch.zeros(n, 3, device=dev)
+                self.lo, self.lv, self.lt = z(), z(), z(); self.cap = torch.full((n,), LUNGE_BACK_MPS, device=dev)
+                self.l_next = torch.rand(n, device=dev) * LUNGE_EVERY_S[1]; self.l_left = torch.zeros(n, device=dev)
+            @property
+            def body_pos_w(self): return super().body_pos_w + self.lo[:, None, :]
+            @property
+            def anchor_pos_w(self): return super().anchor_pos_w + self.lo
+            @property
+            def body_lin_vel_w(self): return super().body_lin_vel_w + self.lv[:, None, :]
+            @property
+            def anchor_lin_vel_w(self): return super().anchor_lin_vel_w + self.lv
+            def _resample_command(self, env_ids):   # new episode: no lunge under way
+                self.lo[env_ids] = 0; self.lv[env_ids] = 0; self.lt[env_ids] = 0; self.cap[env_ids] = LUNGE_BACK_MPS; self.l_left[env_ids] = 0
+                self.l_next[env_ids] = torch.rand(len(env_ids), device=self.device) * LUNGE_EVERY_S[1]; super()._resample_command(env_ids)
+            def _update_command(self):
+                dt, dev = self._env.step_dt, self.device; self.l_next -= dt
+                was = self.l_left > 0; self.l_left -= dt; back = was & (self.l_left <= 0); self.lt[back] = 0; self.cap[back] = LUNGE_BACK_MPS
+                ids = torch.where((self.l_next <= 0) & (self.l_left <= 0))[0]
+                if len(ids):
+                    u = lambda r: r[0] + torch.rand(len(ids), device=dev) * (r[1] - r[0])
+                    w, x, y, z = self.anchor_quat_w[ids].unbind(-1); yaw = torch.atan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z))
+                    L, v = u(LUNGE_M), u(LUNGE_MPS); self.lt[ids, 0] = L * torch.cos(yaw); self.lt[ids, 1] = L * torch.sin(yaw)
+                    self.cap[ids] = v; self.l_left[ids] = u(LUNGE_HOLD_S) + L / v; self.l_next[ids] = self.l_left[ids] + u(LUNGE_EVERY_S)
+                want = (self.lt - self.lo) / LUNGE_TAU; sp = torch.linalg.norm(want, dim=-1, keepdim=True)
+                self.lv = want * torch.clamp(self.cap[:, None] / sp.clamp_min(1e-9), max=1.0); self.lo += self.lv * dt
+                super()._update_command()
+        @dataclasses.dataclass(kw_only=True)
+        class AimMotionCommandCfg(_STEER["cfg"]):
+            def build(self, env): return AimMotionCommand(self, env)
+        _AIM["cfg"] = AimMotionCommandCfg
+    return _AIM["cfg"](**{f.name: getattr(mc, f.name) for f in dataclasses.fields(mc)})
+
+WRISTS = (BODIES.index("left_wrist_roll_link"), BODIES.index("right_wrist_roll_link"))
+
+def strike_apex_exp(env, command_name, std):
+    """At a train-clip strike apex (the motion's _apex.json: -1 none, 0 left, 1 right per frame), exp(-d^2 / std^2) with d the
+    striking wrist's world distance to its reference (drift and lunge included); 0 elsewhere."""
+    import json, torch
+    cmd = env.command_manager.get_term(command_name)
+    if not hasattr(cmd, "_apex_hand"):
+        f = Path(cmd.cfg.motion_file); cmd._apex_hand = torch.tensor(json.load(open(f.with_name(f.stem + "_apex.json")))["hand"], dtype=torch.long, device=cmd.device)
+    h = cmd._apex_hand[cmd.time_steps.clamp(max=len(cmd._apex_hand) - 1)]; i = torch.where(h == 1, WRISTS[1], WRISTS[0]); n = torch.arange(len(h), device=cmd.device)
+    d2 = torch.sum(torch.square(cmd.body_pos_w[n, i] - cmd.robot_body_pos_w[n, i]), dim=-1)
+    return torch.exp(-d2 / std ** 2) * (h >= 0)
+
+def env_cfg(play=False, motion_file="", relaxed_hands=False, feet=0.25, hands=0.5, steer=False, strict=False, aim=False):
     from src.assets.robots import R1_ACTION_SCALE, get_r1_robot_cfg
     from mjlab.envs.mdp.actions import JointPositionActionCfg
     from mjlab.managers.observation_manager import ObservationGroupCfg
@@ -115,6 +184,17 @@ def env_cfg(play=False, motion_file="", relaxed_hands=False, feet=0.25, hands=0.
             r = cfg.rewards["motion_global_root_pos"]; r.weight = 2.0; r.params["std"] = 0.5
             t = copy.deepcopy(cfg.terminations["anchor_pos"]); t.func = bad_anchor_pos; t.params = {"command_name": "motion", "threshold": 0.6}
             cfg.terminations["anchor_xy"] = t
+    if aim:   # M2 run 1 (module docstring)
+        from mjlab.managers.reward_manager import RewardTermCfg
+        cfg.commands["motion"] = mc = _aim_cfg(mc)
+        cfg.rewards["strike_apex"] = RewardTermCfg(func=strike_apex_exp, weight=1.5, params={"command_name": "motion", "std": 0.1})
+        if not play:
+            from mjlab.envs import mdp as envs_mdp
+            from mjlab.managers.event_manager import EventTermCfg
+            from mjlab.managers.scene_entity_config import SceneEntityCfg
+            cfg.events["hand_impulse"] = EventTermCfg(func=envs_mdp.apply_body_impulse, mode="step", params={
+                "force_range": (-25.0, 25.0), "torque_range": (0.0, 0.0), "duration_s": (0.05, 0.12), "cooldown_s": (1.0, 3.0),
+                "asset_cfg": SceneEntityCfg("robot", body_names=("left_wrist_roll_link", "right_wrist_roll_link"))})
     cfg.observations["actor"] = ObservationGroupCfg(terms=terms, concatenate_terms=True, enable_corruption=True)
     if play:
         cfg.episode_length_s = int(1e9); cfg.observations["actor"].enable_corruption = False; cfg.events.pop("push_robot", None)
@@ -138,6 +218,9 @@ def register(motion_file=""):
                         play_env_cfg=env_cfg(True, motion_file, relaxed_hands=True, feet=0.4, hands=0.6, steer=True), rl_cfg=rl, runner_cls=MotionTrackingOnPolicyRunner)
     register_mjlab_task(task_id="R1-Track-KungFu-Steer2", env_cfg=env_cfg(motion_file=motion_file, relaxed_hands=True, feet=0.4, hands=0.6, steer=True, strict=True),
                         play_env_cfg=env_cfg(True, motion_file, relaxed_hands=True, feet=0.4, hands=0.6, steer=True, strict=True), rl_cfg=rl, runner_cls=MotionTrackingOnPolicyRunner)
+
+    register_mjlab_task(task_id="R1-Track-KungFu-Aim", env_cfg=env_cfg(motion_file=motion_file, relaxed_hands=True, feet=0.4, hands=0.6, steer=True, strict=True, aim=True),
+                        play_env_cfg=env_cfg(True, motion_file, relaxed_hands=True, feet=0.4, hands=0.6, steer=True, strict=True, aim=True), rl_cfg=rl, runner_cls=MotionTrackingOnPolicyRunner)
 
 def widen(src, dst, at=48, n=3):
     """Checkpoint for the steer task from a no-position one: n new actor inputs at index `at` (after the 48-d command,

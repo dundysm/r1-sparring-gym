@@ -1,0 +1,1087 @@
+{
+ "about": "M2 gates on train + val (results/opponent_tracker_aim/prereg.json) -> results/opponent_tracker_aim/gates.json (+ aim_check_raw.json).\n\n  alone      scripts/eval_tracker.py's 48 runs for the M2 tracker (eval_tracker.json, run first) against the shipped\n             results/opponent_tracker/eval_tracker.json: stays up >= 45/48, mean per-clip joint RMSE <= shipped + 0.02 rad.\n  parity     the pod's gpu/parity_mjlab.py fall times (parity_mjlab_side.json) against eval_tracker.json, same 48 starts: every\n             fall both have happens within 0.1 s.\n  tolerance  scripts/tracker_tolerance.py --split val --skip_long (tolerance_val.json): 'any20' within 5 cm >= 0.65, and the\n             20 cm / 1 m/s lunge adds >= 12 cm median reach.\n  aim_check  scripts/aim_check.py's grid (train + val clips, 0.40-0.65 m, 3 clean starts, 10 s, no scripted hits) on the\n             arms-down and guard targets (the stepping bases aim_check used, with their gym.json as in this tree). The M2\n             operator is picked on the M2 tracker alone by aim_check's rule 3 (largest paired delta, aimed minus shadow, arms\n             down, CI above 0; falls <= shadow + 2 pp) among standoff+armwarp_vz and standoff+armwarp. Then, same episodes:\n             M2 + its operator minus the shipped tracker + M1's operator (standoff+armwarp_vz), re-run here on this tree:\n             head clean strikes/min and head-landed share per window, both CIs above 0 on both targets, and opponent falls at\n             most the shipped tracker's (with M1's operator) + 2 pp. The shipped runs are also checked against the stored\n             results/opponent_aim/aim_check_raw.json (same tree state as M1 or not: reported, not assumed).",
+ "prereg": "results/opponent_tracker_aim/prereg.json",
+ "meta": {
+  "git_hash": "7ad9862b10987ea101e32a89aa0613d6fc3e1e41",
+  "git_dirty": true,
+  "mujoco": "3.17.0",
+  "config_hash": "c8c2365ed65c1f4a",
+  "controller_config_hashes": {},
+  "prereg_sha": "fd3bb895d18c27ef",
+  "prereg_rules_sha": "562834645ce51777",
+  "shell_solref": [
+   0.01,
+   1.0
+  ],
+  "opponent_caps": {
+   "policy": "mjlab",
+   "Nm": {
+    "left_hip_pitch": 60.0,
+    "left_hip_roll": 60.0,
+    "left_hip_yaw": 60.0,
+    "left_knee": 60.0,
+    "left_ankle_pitch": 50.0,
+    "left_ankle_roll": 50.0,
+    "right_hip_pitch": 60.0,
+    "right_hip_roll": 60.0,
+    "right_hip_yaw": 60.0,
+    "right_knee": 60.0,
+    "right_ankle_pitch": 50.0,
+    "right_ankle_roll": 50.0,
+    "waist_roll": 60.0,
+    "waist_yaw": 60.0,
+    "left_shoulder_pitch": 60.0,
+    "left_shoulder_roll": 60.0,
+    "left_shoulder_yaw": 33.0,
+    "left_elbow": 33.0,
+    "left_wrist_roll": 33.0,
+    "right_shoulder_pitch": 60.0,
+    "right_shoulder_roll": 60.0,
+    "right_shoulder_yaw": 33.0,
+    "right_elbow": 33.0,
+    "right_wrist_roll": 33.0
+   }
+  },
+  "hit_metric": {
+   "merge_gap_s": 0.1,
+   "min_impulse_Ns": 0.5,
+   "min_peak_N": 5,
+   "v_close_min": 1.0,
+   "max_strike_s": 0.15
+  },
+  "threads": 7,
+  "episodes": 72
+ },
+ "gates": {
+  "alone": {
+   "stays_up": "45/48",
+   "shipped": "46/48",
+   "joint_rmse_rad": 0.258,
+   "shipped_joint_rmse_rad": 0.2483,
+   "passes": true
+  },
+  "parity": {
+   "mjlab_stays_up": 44,
+   "this_repo_stays_up": 45,
+   "shared_falls": 2,
+   "max_gap_s": 0.12,
+   "passes": false
+  },
+  "tolerance": {
+   "any20_within_5cm": 0.333,
+   "shipped_any20_within_5cm": 0.389,
+   "n": 18,
+   "lunge_20cm_1mps_extra_reach_cm": -0.1,
+   "shipped_lunge_cm": 2.6,
+   "falls": 0,
+   "passes": false
+  },
+  "aim_check": {
+   "operator": "standoff+armwarp_vz",
+   "operator_rule3": {
+    "standoff+armwarp_vz": {
+     "delta": 1.833,
+     "ci95": [
+      0.167,
+      4.0
+     ],
+     "opp_fell": 0.0069,
+     "opp_fell_shadow": 0.0,
+     "eligible": true
+    },
+    "standoff+armwarp": {
+     "delta": 1.0,
+     "ci95": [
+      -1.5,
+      3.25
+     ],
+     "opp_fell": 0.0069,
+     "opp_fell_shadow": 0.0,
+     "eligible": false
+    }
+   },
+   "vs_shipped_m1": {
+    "arms_down": {
+     "head_clean_pm": {
+      "diff": -0.167,
+      "ci95": [
+       -2.25,
+       2.25
+      ]
+     },
+     "window_head_share": {
+      "diff": 0.042,
+      "ci95": [
+       0.011,
+       0.079
+      ]
+     },
+     "head_landed_pm": {
+      "diff": 1.167,
+      "ci95": [
+       -2.917,
+       5.833
+      ]
+     },
+     "opp_fell": 0.0,
+     "shipped_opp_fell": 0.0,
+     "shipped_unaimed_opp_fell": 0.0,
+     "rules": {
+      "clean": {
+       "diff": -0.167,
+       "ci95": [
+        -2.25,
+        2.25
+       ]
+      },
+      "landed": {
+       "diff": 1.167,
+       "ci95": [
+        -2.917,
+        5.833
+       ]
+      },
+      "A_peak20": {
+       "diff": 2.917,
+       "ci95": [
+        -2.5,
+        8.752
+       ]
+      },
+      "B_strike": {
+       "diff": -0.167,
+       "ci95": [
+        -2.25,
+        2.167
+       ]
+      },
+      "impulse_only": {
+       "diff": 1.167,
+       "ci95": [
+        -2.917,
+        5.833
+       ]
+      }
+     },
+     "m2": {
+      "bouts": 72,
+      "r1_fell": 0,
+      "opp_fell": 0,
+      "opp_fell_rate": 0.0,
+      "landed": {
+       "primary": "head_clean_pm",
+       "rates": "rate: total count / total minutes until the R1 fell; bout_mean: mean of per-bout rates",
+       "head_clean_pm": {
+        "rate": 8.333,
+        "ci95": [
+         5.917,
+         11.0
+        ],
+        "bout_mean": 8.333
+       },
+       "head_landed_pm": {
+        "rate": 19.583,
+        "ci95": [
+         13.5,
+         27.583
+        ],
+        "bout_mean": 19.583
+       },
+       "torso_clean_pm": {
+        "rate": 13.417,
+        "ci95": [
+         9.0,
+         17.5
+        ],
+        "bout_mean": 13.417
+       },
+       "torso_landed_pm": {
+        "rate": 34.25,
+        "ci95": [
+         24.0,
+         44.417
+        ],
+        "bout_mean": 34.25
+       },
+       "head_impulse_pm": {
+        "rate": 56.512,
+        "ci95": [
+         35.819,
+         80.549
+        ],
+        "bout_mean": 56.512
+       },
+       "arm_clean_pm": {
+        "rate": 15.5,
+        "ci95": [
+         13.167,
+         18.0
+        ],
+        "bout_mean": 15.5
+       },
+       "counts": {
+        "head_clean": 100,
+        "head_landed": 235,
+        "torso_clean": 161,
+        "torso_landed": 411,
+        "arm_clean": 186
+       },
+       "impulse_per_head_hit_Ns": {
+        "n": 235,
+        "median": 2.293,
+        "p90": 5.867
+       },
+       "peak_force_N": {
+        "n": 646,
+        "median": 194.9,
+        "p95": 631.825,
+        "max": 1300.1,
+        "shell_solref": null
+       },
+       "arm_share_of_clean": 0.416,
+       "spacing_m": {
+        "p10": 0.434,
+        "median": 0.544,
+        "p90": 0.677
+       },
+       "windows": {
+        "head": 111,
+        "torso": 156,
+        "blocked": 189,
+        "miss": 600,
+        "blocked_share": 0.179
+       }
+      },
+      "sensitivity": {
+       "clean": {
+        "head": {
+         "rate": 8.333,
+         "ci95": [
+          5.917,
+          11.0
+         ],
+         "bout_mean": 8.333
+        },
+        "torso": {
+         "rate": 13.417,
+         "ci95": [
+          9.0,
+          17.5
+         ],
+         "bout_mean": 13.417
+        }
+       },
+       "landed": {
+        "head": {
+         "rate": 19.583,
+         "ci95": [
+          13.5,
+          27.583
+         ],
+         "bout_mean": 19.583
+        },
+        "torso": {
+         "rate": 34.25,
+         "ci95": [
+          24.0,
+          44.417
+         ],
+         "bout_mean": 34.25
+        }
+       },
+       "A_peak20": {
+        "head": {
+         "rate": 27.167,
+         "ci95": [
+          16.0,
+          40.833
+         ],
+         "bout_mean": 27.167
+        },
+        "torso": {
+         "rate": 58.417,
+         "ci95": [
+          44.75,
+          72.417
+         ],
+         "bout_mean": 58.417
+        }
+       },
+       "B_strike": {
+        "head": {
+         "rate": 8.417,
+         "ci95": [
+          6.0,
+          11.0
+         ],
+         "bout_mean": 8.417
+        },
+        "torso": {
+         "rate": 13.583,
+         "ci95": [
+          9.083,
+          17.75
+         ],
+         "bout_mean": 13.583
+        }
+       },
+       "impulse_only": {
+        "head": {
+         "rate": 19.583,
+         "ci95": [
+          13.5,
+          27.583
+         ],
+         "bout_mean": 19.583
+        },
+        "torso": {
+         "rate": 34.25,
+         "ci95": [
+          24.0,
+          44.417
+         ],
+         "bout_mean": 34.25
+        }
+       }
+      },
+      "windows": {
+       "n": 1056,
+       "head": 111,
+       "torso": 156,
+       "blocked": 189,
+       "miss": 600,
+       "head_share": 0.105,
+       "gated_share": 0.458,
+       "head_share_aimed": 0.164
+      },
+      "closest_cm_median": 23.2,
+      "closest_cm_median_aimed": 20.3,
+      "ik_res_cm_median": 16.8,
+      "by_ik_residual": {
+       "<3cm": {
+        "n": 175,
+        "head_share": 0.291
+       },
+       "3-8cm": {
+        "n": 139,
+        "head_share": 0.201
+       },
+       ">=8cm": {
+        "n": 742,
+        "head_share": 0.043
+       }
+      },
+      "arm_rmse_median": 0.32,
+      "splices_per_bout": 0.0
+     },
+     "shipped": {
+      "bouts": 72,
+      "r1_fell": 0,
+      "opp_fell": 0,
+      "opp_fell_rate": 0.0,
+      "landed": {
+       "primary": "head_clean_pm",
+       "rates": "rate: total count / total minutes until the R1 fell; bout_mean: mean of per-bout rates",
+       "head_clean_pm": {
+        "rate": 8.5,
+        "ci95": [
+         6.0,
+         11.417
+        ],
+        "bout_mean": 8.5
+       },
+       "head_landed_pm": {
+        "rate": 18.417,
+        "ci95": [
+         12.417,
+         24.583
+        ],
+        "bout_mean": 18.417
+       },
+       "torso_clean_pm": {
+        "rate": 15.167,
+        "ci95": [
+         12.917,
+         17.417
+        ],
+        "bout_mean": 15.167
+       },
+       "torso_landed_pm": {
+        "rate": 35.0,
+        "ci95": [
+         29.333,
+         40.669
+        ],
+        "bout_mean": 35.0
+       },
+       "head_impulse_pm": {
+        "rate": 62.025,
+        "ci95": [
+         37.819,
+         87.666
+        ],
+        "bout_mean": 62.025
+       },
+       "arm_clean_pm": {
+        "rate": 19.167,
+        "ci95": [
+         15.248,
+         23.5
+        ],
+        "bout_mean": 19.167
+       },
+       "counts": {
+        "head_clean": 102,
+        "head_landed": 221,
+        "torso_clean": 182,
+        "torso_landed": 420,
+        "arm_clean": 230
+       },
+       "impulse_per_head_hit_Ns": {
+        "n": 221,
+        "median": 2.658,
+        "p90": 6.669
+       },
+       "peak_force_N": {
+        "n": 641,
+        "median": 214.6,
+        "p95": 808.4,
+        "max": 1476.8,
+        "shell_solref": null
+       },
+       "arm_share_of_clean": 0.447,
+       "spacing_m": {
+        "p10": 0.464,
+        "median": 0.563,
+        "p90": 0.702
+       },
+       "windows": {
+        "head": 67,
+        "torso": 157,
+        "blocked": 204,
+        "miss": 628,
+        "blocked_share": 0.193
+       }
+      },
+      "sensitivity": {
+       "clean": {
+        "head": {
+         "rate": 8.5,
+         "ci95": [
+          6.0,
+          11.417
+         ],
+         "bout_mean": 8.5
+        },
+        "torso": {
+         "rate": 15.167,
+         "ci95": [
+          12.917,
+          17.417
+         ],
+         "bout_mean": 15.167
+        }
+       },
+       "landed": {
+        "head": {
+         "rate": 18.417,
+         "ci95": [
+          12.417,
+          24.583
+         ],
+         "bout_mean": 18.417
+        },
+        "torso": {
+         "rate": 35.0,
+         "ci95": [
+          29.333,
+          40.669
+         ],
+         "bout_mean": 35.0
+        }
+       },
+       "A_peak20": {
+        "head": {
+         "rate": 24.25,
+         "ci95": [
+          15.25,
+          34.083
+         ],
+         "bout_mean": 24.25
+        },
+        "torso": {
+         "rate": 53.25,
+         "ci95": [
+          46.333,
+          60.667
+         ],
+         "bout_mean": 53.25
+        }
+       },
+       "B_strike": {
+        "head": {
+         "rate": 8.583,
+         "ci95": [
+          6.083,
+          11.5
+         ],
+         "bout_mean": 8.583
+        },
+        "torso": {
+         "rate": 15.667,
+         "ci95": [
+          13.581,
+          17.833
+         ],
+         "bout_mean": 15.667
+        }
+       },
+       "impulse_only": {
+        "head": {
+         "rate": 18.417,
+         "ci95": [
+          12.417,
+          24.583
+         ],
+         "bout_mean": 18.417
+        },
+        "torso": {
+         "rate": 35.0,
+         "ci95": [
+          29.333,
+          40.669
+         ],
+         "bout_mean": 35.0
+        }
+       }
+      },
+      "windows": {
+       "n": 1056,
+       "head": 67,
+       "torso": 157,
+       "blocked": 204,
+       "miss": 628,
+       "head_share": 0.063,
+       "gated_share": 0.478,
+       "head_share_aimed": 0.107
+      },
+      "closest_cm_median": 24.45,
+      "closest_cm_median_aimed": 21.8,
+      "ik_res_cm_median": 17.15,
+      "by_ik_residual": {
+       "<3cm": {
+        "n": 125,
+        "head_share": 0.176
+       },
+       "3-8cm": {
+        "n": 135,
+        "head_share": 0.178
+       },
+       ">=8cm": {
+        "n": 796,
+        "head_share": 0.026
+       }
+      },
+      "arm_rmse_median": 0.28,
+      "splices_per_bout": 0.0
+     },
+     "passes": false
+    },
+    "guard": {
+     "head_clean_pm": {
+      "diff": 0.417,
+      "ci95": [
+       -0.25,
+       1.083
+      ]
+     },
+     "window_head_share": {
+      "diff": 0.016,
+      "ci95": [
+       0.002,
+       0.029
+      ]
+     },
+     "head_landed_pm": {
+      "diff": -0.75,
+      "ci95": [
+       -3.583,
+       1.417
+      ]
+     },
+     "opp_fell": 0.0139,
+     "shipped_opp_fell": 0.0139,
+     "shipped_unaimed_opp_fell": 0.0,
+     "rules": {
+      "clean": {
+       "diff": 0.417,
+       "ci95": [
+        -0.25,
+        1.083
+       ]
+      },
+      "landed": {
+       "diff": -0.75,
+       "ci95": [
+        -3.583,
+        1.417
+       ]
+      },
+      "A_peak20": {
+       "diff": -1.333,
+       "ci95": [
+        -4.917,
+        1.417
+       ]
+      },
+      "B_strike": {
+       "diff": 0.25,
+       "ci95": [
+        -0.417,
+        0.833
+       ]
+      },
+      "impulse_only": {
+       "diff": -0.75,
+       "ci95": [
+        -3.583,
+        1.417
+       ]
+      }
+     },
+     "m2": {
+      "bouts": 72,
+      "r1_fell": 0,
+      "opp_fell": 1,
+      "opp_fell_rate": 0.014,
+      "landed": {
+       "primary": "head_clean_pm",
+       "rates": "rate: total count / total minutes until the R1 fell; bout_mean: mean of per-bout rates",
+       "head_clean_pm": {
+        "rate": 3.75,
+        "ci95": [
+         2.167,
+         5.5
+        ],
+        "bout_mean": 3.75
+       },
+       "head_landed_pm": {
+        "rate": 7.833,
+        "ci95": [
+         5.167,
+         11.0
+        ],
+        "bout_mean": 7.833
+       },
+       "torso_clean_pm": {
+        "rate": 10.333,
+        "ci95": [
+         6.415,
+         14.25
+        ],
+        "bout_mean": 10.333
+       },
+       "torso_landed_pm": {
+        "rate": 25.417,
+        "ci95": [
+         17.5,
+         33.083
+        ],
+        "bout_mean": 25.417
+       },
+       "head_impulse_pm": {
+        "rate": 19.303,
+        "ci95": [
+         13.377,
+         25.917
+        ],
+        "bout_mean": 19.303
+       },
+       "arm_clean_pm": {
+        "rate": 30.0,
+        "ci95": [
+         26.833,
+         33.083
+        ],
+        "bout_mean": 30.0
+       },
+       "counts": {
+        "head_clean": 45,
+        "head_landed": 94,
+        "torso_clean": 124,
+        "torso_landed": 305,
+        "arm_clean": 360
+       },
+       "impulse_per_head_hit_Ns": {
+        "n": 94,
+        "median": 2.131,
+        "p90": 4.633
+       },
+       "peak_force_N": {
+        "n": 399,
+        "median": 208.7,
+        "p95": 683.03,
+        "max": 1392.6,
+        "shell_solref": null
+       },
+       "arm_share_of_clean": 0.681,
+       "spacing_m": {
+        "p10": 0.46,
+        "median": 0.574,
+        "p90": 0.725
+       },
+       "windows": {
+        "head": 49,
+        "torso": 116,
+        "blocked": 391,
+        "miss": 500,
+        "blocked_share": 0.37
+       }
+      },
+      "sensitivity": {
+       "clean": {
+        "head": {
+         "rate": 3.75,
+         "ci95": [
+          2.167,
+          5.5
+         ],
+         "bout_mean": 3.75
+        },
+        "torso": {
+         "rate": 10.333,
+         "ci95": [
+          6.415,
+          14.25
+         ],
+         "bout_mean": 10.333
+        }
+       },
+       "landed": {
+        "head": {
+         "rate": 7.833,
+         "ci95": [
+          5.167,
+          11.0
+         ],
+         "bout_mean": 7.833
+        },
+        "torso": {
+         "rate": 25.417,
+         "ci95": [
+          17.5,
+          33.083
+         ],
+         "bout_mean": 25.417
+        }
+       },
+       "A_peak20": {
+        "head": {
+         "rate": 10.75,
+         "ci95": [
+          6.75,
+          15.667
+         ],
+         "bout_mean": 10.75
+        },
+        "torso": {
+         "rate": 43.083,
+         "ci95": [
+          31.5,
+          55.0
+         ],
+         "bout_mean": 43.083
+        }
+       },
+       "B_strike": {
+        "head": {
+         "rate": 3.75,
+         "ci95": [
+          2.167,
+          5.5
+         ],
+         "bout_mean": 3.75
+        },
+        "torso": {
+         "rate": 10.583,
+         "ci95": [
+          6.5,
+          14.667
+         ],
+         "bout_mean": 10.583
+        }
+       },
+       "impulse_only": {
+        "head": {
+         "rate": 7.833,
+         "ci95": [
+          5.167,
+          11.0
+         ],
+         "bout_mean": 7.833
+        },
+        "torso": {
+         "rate": 25.417,
+         "ci95": [
+          17.5,
+          33.083
+         ],
+         "bout_mean": 25.417
+        }
+       }
+      },
+      "windows": {
+       "n": 1056,
+       "head": 49,
+       "torso": 116,
+       "blocked": 391,
+       "miss": 500,
+       "head_share": 0.046,
+       "gated_share": 0.395,
+       "head_share_aimed": 0.066
+      },
+      "closest_cm_median": 27.3,
+      "closest_cm_median_aimed": 26.1,
+      "ik_res_cm_median": 20.75,
+      "by_ik_residual": {
+       "<3cm": {
+        "n": 89,
+        "head_share": 0.236
+       },
+       "3-8cm": {
+        "n": 99,
+        "head_share": 0.091
+       },
+       ">=8cm": {
+        "n": 868,
+        "head_share": 0.022
+       }
+      },
+      "arm_rmse_median": 0.35,
+      "splices_per_bout": 0.0
+     },
+     "shipped": {
+      "bouts": 72,
+      "r1_fell": 0,
+      "opp_fell": 1,
+      "opp_fell_rate": 0.014,
+      "landed": {
+       "primary": "head_clean_pm",
+       "rates": "rate: total count / total minutes until the R1 fell; bout_mean: mean of per-bout rates",
+       "head_clean_pm": {
+        "rate": 3.333,
+        "ci95": [
+         1.75,
+         5.167
+        ],
+        "bout_mean": 3.333
+       },
+       "head_landed_pm": {
+        "rate": 8.583,
+        "ci95": [
+         4.833,
+         12.917
+        ],
+        "bout_mean": 8.583
+       },
+       "torso_clean_pm": {
+        "rate": 9.833,
+        "ci95": [
+         7.5,
+         11.833
+        ],
+        "bout_mean": 9.833
+       },
+       "torso_landed_pm": {
+        "rate": 24.667,
+        "ci95": [
+         18.833,
+         29.919
+        ],
+        "bout_mean": 24.667
+       },
+       "head_impulse_pm": {
+        "rate": 24.249,
+        "ci95": [
+         12.495,
+         37.562
+        ],
+        "bout_mean": 24.249
+       },
+       "arm_clean_pm": {
+        "rate": 29.333,
+        "ci95": [
+         25.917,
+         32.917
+        ],
+        "bout_mean": 29.333
+       },
+       "counts": {
+        "head_clean": 40,
+        "head_landed": 103,
+        "torso_clean": 118,
+        "torso_landed": 296,
+        "arm_clean": 352
+       },
+       "impulse_per_head_hit_Ns": {
+        "n": 103,
+        "median": 2.183,
+        "p90": 5.549
+       },
+       "peak_force_N": {
+        "n": 399,
+        "median": 205.4,
+        "p95": 902.76,
+        "max": 1644.1,
+        "shell_solref": null
+       },
+       "arm_share_of_clean": 0.69,
+       "spacing_m": {
+        "p10": 0.469,
+        "median": 0.606,
+        "p90": 0.776
+       },
+       "windows": {
+        "head": 32,
+        "torso": 87,
+        "blocked": 437,
+        "miss": 500,
+        "blocked_share": 0.414
+       }
+      },
+      "sensitivity": {
+       "clean": {
+        "head": {
+         "rate": 3.333,
+         "ci95": [
+          1.75,
+          5.167
+         ],
+         "bout_mean": 3.333
+        },
+        "torso": {
+         "rate": 9.833,
+         "ci95": [
+          7.5,
+          11.833
+         ],
+         "bout_mean": 9.833
+        }
+       },
+       "landed": {
+        "head": {
+         "rate": 8.583,
+         "ci95": [
+          4.833,
+          12.917
+         ],
+         "bout_mean": 8.583
+        },
+        "torso": {
+         "rate": 24.667,
+         "ci95": [
+          18.833,
+          29.919
+         ],
+         "bout_mean": 24.667
+        }
+       },
+       "A_peak20": {
+        "head": {
+         "rate": 12.083,
+         "ci95": [
+          6.581,
+          18.502
+         ],
+         "bout_mean": 12.083
+        },
+        "torso": {
+         "rate": 44.333,
+         "ci95": [
+          35.917,
+          52.5
+         ],
+         "bout_mean": 44.333
+        }
+       },
+       "B_strike": {
+        "head": {
+         "rate": 3.5,
+         "ci95": [
+          1.917,
+          5.417
+         ],
+         "bout_mean": 3.5
+        },
+        "torso": {
+         "rate": 10.083,
+         "ci95": [
+          7.833,
+          12.0
+         ],
+         "bout_mean": 10.083
+        }
+       },
+       "impulse_only": {
+        "head": {
+         "rate": 8.583,
+         "ci95": [
+          4.833,
+          12.917
+         ],
+         "bout_mean": 8.583
+        },
+        "torso": {
+         "rate": 25.0,
+         "ci95": [
+          19.331,
+          30.083
+         ],
+         "bout_mean": 25.0
+        }
+       }
+      },
+      "windows": {
+       "n": 1056,
+       "head": 32,
+       "torso": 87,
+       "blocked": 437,
+       "miss": 500,
+       "head_share": 0.03,
+       "gated_share": 0.399,
+       "head_share_aimed": 0.044
+      },
+      "closest_cm_median": 28.0,
+      "closest_cm_median_aimed": 26.3,
+      "ik_res_cm_median": 22.1,
+      "by_ik_residual": {
+       "<3cm": {
+        "n": 70,
+        "head_share": 0.1
+       },
+       "3-8cm": {
+        "n": 89,
+        "head_share": 0.135
+       },
+       ">=8cm": {
+        "n": 897,
+        "head_share": 0.014
+       }
+      },
+      "arm_rmse_median": 0.3,
+      "splices_per_bout": 0.0
+     },
+     "passes": false
+    }
+   },
+   "passes": false,
+   "shipped_reproduces_stored": {
+    "arms_down/shadow": true,
+    "arms_down/standoff+armwarp_vz": true,
+    "guard/shadow": true,
+    "guard/standoff+armwarp_vz": true
+   }
+  }
+ },
+ "all_pass": false
+}

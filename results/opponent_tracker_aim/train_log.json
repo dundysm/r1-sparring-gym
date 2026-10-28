@@ -1,0 +1,54 @@
+{
+ "about": "R1-Track-KungFu-Aim (M2 run 1), every 250 iterations, from the pod's train.log; RTX 4090 secure, 2026-10-28, about 28 min of training, pod 33 min, about $0.43",
+ "R1-Track-KungFu-Aim": {
+  "13750": {
+   "Mean episode length": 38.43,
+   "Episode_Reward/strike_apex": 0.0012,
+   "Metrics/motion/error_anchor_pos": 0.5125,
+   "Metrics/motion/error_joint_pos": 2.4068,
+   "Mean reward": 0.43
+  },
+  "14000": {
+   "Mean episode length": 447.9,
+   "Episode_Reward/strike_apex": 0.0239,
+   "Metrics/motion/error_anchor_pos": 0.2052,
+   "Metrics/motion/error_joint_pos": 1.5815,
+   "Mean reward": 27.73
+  },
+  "14250": {
+   "Mean episode length": 440.83,
+   "Episode_Reward/strike_apex": 0.0233,
+   "Metrics/motion/error_anchor_pos": 0.2118,
+   "Metrics/motion/error_joint_pos": 1.5913,
+   "Mean reward": 27.35
+  },
+  "14500": {
+   "Mean episode length": 416.97,
+   "Episode_Reward/strike_apex": 0.0235,
+   "Metrics/motion/error_anchor_pos": 0.2107,
+   "Metrics/motion/error_joint_pos": 1.6605,
+   "Mean reward": 25.69
+  },
+  "14750": {
+   "Mean episode length": 417.74,
+   "Episode_Reward/strike_apex": 0.0232,
+   "Metrics/motion/error_anchor_pos": 0.1994,
+   "Metrics/motion/error_joint_pos": 1.7123,
+   "Mean reward": 26.69
+  },
+  "15000": {
+   "Mean episode length": 402.71,
+   "Episode_Reward/strike_apex": 0.0243,
+   "Metrics/motion/error_anchor_pos": 0.2212,
+   "Metrics/motion/error_joint_pos": 1.7845,
+   "Mean reward": 25.25
+  },
+  "15248": {
+   "Mean episode length": 394.41,
+   "Episode_Reward/strike_apex": 0.0226,
+   "Metrics/motion/error_anchor_pos": 0.2099,
+   "Metrics/motion/error_joint_pos": 1.7066,
+   "Mean reward": 24.88
+  }
+ }
+}

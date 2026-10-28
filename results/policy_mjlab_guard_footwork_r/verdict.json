@@ -1,0 +1,22 @@
+{
+ "rule": "scripts/eval_opponent.py --split val, hard tier: survival >= 0.939 and up-and-within-1 m (survival_in_ring) >= 0.736, i.e. within 3 pp of the shipped guard_fw's 0.969 / 0.766 (results/eval_opponent/summary_val_hard.json). If it passes, it becomes the warm start for the defender (guard_fw'); the shipped ONNX stays the shipped policy. If it fails, the result is reported and the defender warm-starts from it anyway, with its own baseline row, so every comparison stays paired against the same starting point.",
+ "recovered": {
+  "survival": 0.906,
+  "survival_ci95": [
+   0.81,
+   0.956
+  ],
+  "up_within_1m": 0.703,
+  "up_within_1m_ci95": [
+   0.582,
+   0.801
+  ]
+ },
+ "shipped_rerun": {
+  "survival": 0.969,
+  "up_within_1m": 0.766
+ },
+ "passes": false,
+ "note": "64 val hard bouts, same episodes (labels in summary_val_hard.json carry a doubled 'RL ' prefix: the run passed labels that already started with 'RL'). The shipped ONNX re-run reproduces its stored 0.969 / 0.766. The recovered run is 4 bouts lower on survival and 4 on up-and-within-1 m: inside each other's CIs, but below the preregistered 3 pp margin, so it fails the rule. As fixed beforehand, the defender work still warm-starts from it, and every comparison uses its own baseline row.",
+ "cost": "1x RTX 4090 secure, 2026-10-28, about 25 min of pod, about $0.35"
+}

@@ -1,0 +1,11 @@
+{
+ "about": "Shot list for the showcase video (showcase/STORYBOARD.md). Times are simulation seconds of the recorded bout. 'time' is a piecewise speed map: [[t_sim_start, speed], ..., [t_sim_end, null]]; speed 0.2 = 5x slow motion. Rendered at 'fps'; 'res' per shot (split halves are portrait). Camera types are implemented in showcase/blender/bake.py. Optional per shot: 'lights' {light name: energy gain}, 'backdrop' {dist, radius, z, strength}: a soft light pool on the cyc behind the subjects.",
+ "fps": 30,
+ "res": [1920, 1080],
+ "shots": [
+  {"name": "hook", "rec": "showcase/rec/ep16_guard_fw.npz", "time": [[16.55, 1.0], [17.22, 0.2], [17.72, 1.0], [18.55, null]], "res": [1920, 1080], "camera": {"type": "hero", "lens_mm": 50, "dist_m": 2.3, "height_m": 0.58, "side_deg": 75, "push_in": 0.12, "focus": "torso_link", "look_dz": 0.2, "look_mix": 0.3, "fstop": 2.8}, "ring": false, "trail": false, "fx": true, "lights": {"Rim_L": 1.62}, "backdrop": {"dist": 5.0, "radius": 3.2, "z": 1.1, "strength": 0.05}},
+  {"name": "split_pd", "rec": "showcase/rec/ep16_pd.npz", "time": [[0.0, 1.0], [7.5, null]], "res": [960, 1080], "camera": {"type": "fixed_side", "lens_mm": 32, "dist_m": 4.0, "height_m": 1.0, "focus": "torso_link", "same_as": "split_guard", "aim_z": 0.62, "fill": 0.92, "yaw_deg": -28, "flip": true}, "ring": true, "trail": false, "fx": true},
+  {"name": "split_guard", "rec": "showcase/rec/ep16_guard_fw.npz", "time": [[0.0, 1.0], [7.5, null]], "res": [960, 1080], "camera": {"type": "fixed_side", "lens_mm": 32, "dist_m": 4.0, "height_m": 1.0, "focus": "torso_link", "aim_z": 0.62, "fill": 0.92, "yaw_deg": -28, "flip": true}, "ring": true, "trail": false, "fx": true},
+  {"name": "hold", "rec": "showcase/rec/ep16_guard_fw.npz", "time": [[12.4, 1.0], [20.0, null]], "res": [1920, 1080], "camera": {"type": "orbit", "lens_mm": 40, "radius_m": 3.9, "height_m": 1.7, "az0_deg": 10, "az1_deg": 40, "center": "spot", "focus": "torso_link", "look_z": 0.47}, "ring": true, "trail": true, "fx": true}
+ ]
+}

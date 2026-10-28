@@ -1,3 +1,11 @@
 __pycache__/
 *.pyc
 *.egg-info/
+
+# showcase render intermediates (regenerate with showcase/README.md)
+showcase/rec/
+showcase/build/
+showcase/frames/
+showcase/frames_dl/
+showcase/preview/
+*.blend1

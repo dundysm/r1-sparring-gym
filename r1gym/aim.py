@@ -34,7 +34,8 @@ from .hits import opp_limb, r1_zone, STRIKE_LIMBS
 AIM = dict(zone="head", targets=dict(head=[0.057, 0.0, 0.36], torso=[0.04, 0.0, 0.15]), lead_s=0.8, commit_s=0.15, window_tail_s=0.15,
            arm=dict(lead_s=0.15, hold_s=0.05, tail_s=0.1, min_end_s=0.1, max_dq=0.8, range_frac=0.95, iters=12, prior=1e-3, damp=1e-3),
            standoff=dict(min_m=0.35, depth_m=0.03), upright_gate_deg=15.0, gate_after_touch_s=0.3, select=dict(fade_s=0.35, min_z_m=1.02, next_within_s=0.6))
-OPERATORS = {"shadow": (), "standoff": ("standoff",), "armwarp": ("arm",), "armwarp_vz": ("arm", "vz"), "standoff+armwarp_vz": ("standoff", "arm", "vz"), "select": ("select",)}
+OPERATORS = {"shadow": (), "standoff": ("standoff",), "armwarp": ("arm",), "armwarp_vz": ("arm", "vz"), "standoff+armwarp_vz": ("standoff", "arm", "vz"), "select": ("select",),
+             "standoff+armwarp": ("standoff", "arm")}   # the last: M2 (results/opponent_tracker_aim/prereg.json), the arm may add reach
 ARM = {k: [CTRL_JOINTS.index(f"{side}_{j}_joint") for j in ("shoulder_pitch", "shoulder_roll", "shoulder_yaw", "elbow", "wrist_roll")] for k, side in (("l_hand", "left"), ("r_hand", "right"))}
 PALM = {"l_hand": "left_palm", "r_hand": "right_palm"}
 

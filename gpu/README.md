@@ -124,3 +124,31 @@ In this repo (`r1gym/opponent.py` `Tracker`), these follow the training contract
 - **Steering:** the reference's spot follows the point the bout distance in front of the R1 along the bout's starting axis, at ≤ 0.3 m/s with a 0.5 s lag (inside the trained drift), so the opponent stays in front and steps in when the R1 is pushed back.
 
 A test checks nothing pushes on its pelvis.
+
+### M2 run 1: aim-capable tracker (not shipped)
+`R1-Track-KungFu-Aim` (`r1_track_task.py`) fine-tunes the shipped tracker on `export_warps.py`'s motion: the clips plus 24 warped copies of the train clips. In the copies, hand strikes are bent up to 25 cm toward an R1's head or torso with the arm, waist, stance and a short spot lunge. The task adds three things:
+- a world-frame strike-apex reward;
+- 0.10–0.30 m lunges in the steering;
+- random hand impulses.
+
+The gates, the single candidate and the order were preregistered (`results/opponent_tracker_aim/prereg.json`) before the pod was created.
+```bash
+python export_warps.py                                         # in the repo -> gpu/motions/r1_kungfu_aim.csv, _apex.json, _index.json
+python r1_track_task.py convert r1_kungfu_aim.csv motions/r1_kungfu_aim.npz && cp r1_kungfu_aim_apex.json motions/   # on the GPU box
+python r1_track_task.py R1-Track-KungFu-Aim --env.scene.num-envs 4096 --agent.max-iterations 1500 --agent.logger tensorboard \
+  --motion-file motions/r1_kungfu_aim.npz --agent.resume True --agent.load-run <dir with model_13749.pt> --agent.load-checkpoint model_13749.pt
+```
+**Run:** 2026-10-28, one RTX 4090 (secure, $0.89/h), about 28 min of training and 33 min of pod, about $0.43.
+
+**Result:** it fails 3 of 4 gates (`results/opponent_tracker_aim/README.md`, `gates.json`):
+- it stays up 45/48 alone (passes);
+- its falls in mjlab and here are up to 0.12 s apart (the limit is 0.1 s);
+- on val strikes, 20 cm warps land within 5 cm in 33% of runs, against 39% shipped and the 65% needed;
+- a 20 cm lunge adds no reach;
+- against the shipped tracker with M1's operator, it lands no more head clean strikes per minute, though a slightly larger share of aimed windows on the head.
+
+**Likely causes:**
+- The anchor reward's 0.5 m std makes a 20 cm lunge nearly free to ignore.
+- The apex reward and the lunges were never timed together.
+
+**Next run:** strike-timed lunges with an apex-scored reach term, or the goal-conditioned variant. The RunPod balance needs a top-up first.

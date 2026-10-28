@@ -1,0 +1,42 @@
+# The R1 head camera (phase 3 perception): every camera number the code uses, each with its source, or tagged
+# ASSUMPTION (chosen here) / INFERENCE (derived here from published numbers). r1gym/perception/camera.py reads this file;
+# scripts/camera_mount.py checks it -> results/perception/mount.json. Unitree publishes no intrinsics, lens model, mount
+# pose, stereo baseline or head-pitch range: phase-4 calibration replaces the lens and mount numbers, and until then the
+# perception stack randomises them.
+sources:
+  # rbtx: RBTX datasheet, R1 base + EDU U1-U4: binocular depth camera, 146 H / 124 V deg, RGB 1,280 x 1,080 @ 30 Hz, depth 544 x 448 @ 10 Hz
+  rbtx: https://a.storyblok.com/f/298593/x/fc2d98cfaa/rbtx_unitree_r1_variants_technical_datasheets_en-1.pdf
+  mybotshop: https://docs.mybotshop.de/r1.html   # Basic and EDU: binocular depth camera, up to 150 / 124 deg, RGB 1280 x 1088, depth 544 x 448, HDR, global shutter, no frame rate
+  unitree: https://www.unitree.com/R1            # binocular camera, head 2 DoF, waist 2 DoF, 26 body DoF; no FOV or resolution numbers
+  r1_xml: r1gym/assets/r1/r1.xml                 # unitree_rl_mjlab @1425b15: no camera, no head joints; both head meshes are fixed visual geoms on torso_link
+lens:                    # the physical RGB camera, one eye
+  width: 1280            # rbtx (mybotshop: 1280)
+  height: 1080           # rbtx (mybotshop: 1088)
+  hfov_deg: 146          # rbtx (mybotshop: up to 150)
+  vfov_deg: 124          # rbtx, mybotshop
+  fps: 30                # rbtx
+  model: equidistant     # INFERENCE: image radius = f * angle off axis fits both FOV numbers (123.2 deg V at 1080 rows);
+                         # a pinhole fitted to 146 H would give 140.2 V. Square pixels and a centred principal point: ASSUMPTION
+  f_px_per_rad: 502.3    # INFERENCE: (width / 2) / rad(hfov_deg / 2)
+  alt: {width: 1280, height: 1088, hfov_deg: 150, vfov_deg: 124}   # mybotshop's numbers, for the record
+depth: {width: 544, height: 448, fps: 10}   # rbtx, mybotshop; unused until the blocking interface (M7)
+net:                     # what the network sees: a rectified virtual pinhole on the lens axis, inside the fisheye image
+  width: 160             # mjlab CameraSensorCfg default 160 x 120
+  height: 120
+  fovy_deg: 100          # ASSUMPTION: 115.6 deg H, fx = fy = 50.3 px (1.14 deg/px at the centre); drops the lens's 58-73 deg periphery
+  render_scale: 2        # rendered (sim) or rectified (robot, Cycles) at 320 x 240, then area-downsampled 2 x 2
+mount:
+  body: torso_link       # r1_xml: the head is rigid on torso_link, which follows waist roll + yaw (the pelvis would be wrong)
+  pos: [0.088, 0.0, 0.355]   # INFERENCE: lens at the visor front (head_yaw_link mesh front x 0.0864 at z 0.354), in torso_link [m]
+  lateral_offset_m: 0.0  # ASSUMPTION, +-0.03: which eye feeds the network and the stereo baseline are unpublished
+  head_pitch_deg: -50.0  # optical-axis elevation in torso_link, + up / - down: the best-scoring pitch of results/perception/coverage.json (_why_head_pitch)
+  _why_head_pitch: "results/perception/coverage.json (scripts/camera_coverage.py): mean unoccluded opponent-keypoint fraction (score) by pitch 0: 0.281, -10: 0.366, -20: 0.488, -30: 0.596, -40: 0.649, -45: 0.660, -50: 0.665, -55: 0.661, -60: 0.645, -65: 0.617, -70: 0.570; -50 scores best over 0 to -70 and is an interior optimum (-45 lower by 0.005 [0.002, 0.008], -55 lower by 0.005 [0.001, 0.008]); it wins 99.7% of 2000 bout resamples. At -50: pelvis 0.704, head 0.552, fists 0.536/0.393, feet 0.823/0.689 unoccluded (train + val, both policies, both tiers); the R1's own body covers 0.31 of the image in guard (0 deg: 0.16). The real R1's head-pitch range is unpublished (ASSUMPTION)."
+  pitch_pivot: [-0.006, 0.0, 0.255]   # ASSUMPTION: head_pitch_link mesh origin (neck base; its y offset lies along the pitch axis).
+                         # The head_yaw_link origin (z 0.3715) as pivot moves the lens 2-4 cm; extrinsics randomisation covers it
+  hide_own: [head_pitch_link, head_yaw_link]   # head-shell meshes hidden from the robot's own camera (the lens sits at the visor)
+timing:
+  rate_hz: 30            # rbtx; random phase per episode, stamped at the 5 ms physics substep
+  exposure_ms: [2, 20]   # ASSUMPTION: per-episode exposure (HDR auto-exposure, indoor light)
+  latency_ms: [20, 60]   # ASSUMPTION (ROADMAP phase 3): per-episode capture -> estimate latency; the minimum must be >= control_dt
+  jitter_ms: 3           # ASSUMPTION: per-frame +-, never below latency_ms[0]
+  drop: [0.01, 0.02]     # ASSUMPTION: per-episode dropped-frame probability

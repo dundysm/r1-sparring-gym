@@ -14,7 +14,9 @@ Definitions are preregistered in docs/AIMED_OPPONENT.md, numbers in configs/r1_a
   window outcome   head | torso | blocked (the limb touched the R1's arms before its head or torso) | miss
   rate             count per minute until the R1 fell; over bouts, total count / total minutes (exposure-weighted)
 RULES re-score the same contacts with the design and review probes' other definitions (docs/AIMED_OPPONENT.md,
-Sensitivity): the sign of an aim effect depended on which one was used, so every summary carries all of them."""
+Sensitivity): the sign of an aim effect depended on which one was used, so every summary carries all of them.
+HitMeter(reverse=True) scores the other direction with the same rules: the R1's limbs (side, group by opp_limb) landing on
+the opponent's zones (r1_zone on the opponent's names): the defender's own strikes. Off by default (bit-identical)."""
 from __future__ import annotations
 import numpy as np, mujoco
 
@@ -58,15 +60,18 @@ def _landed(e, p): return e["zone"] in ("head", "torso") and _struck(e, p)
 def _clean(e, p): return bool((e["v_close"] or 0.0) >= p["v_close_min"] and e["dur_s"] <= p["max_strike_s"] + 1e-9)
 
 class HitMeter:
-    def __init__(self, m, params=None):
-        self.dt = float(m.opt.timestep); self.p = {**DEFAULTS, **(params or {})}; self.v6 = np.zeros(6); self.f6 = np.zeros(6)
+    def __init__(self, m, params=None, reverse=False):
+        """reverse: the R1 strikes the opponent (attacker and target swap; is_opp / keys / limb_of then hold the R1's geoms,
+        is_r1 / zone_of the opponent's)."""
+        self.dt = float(m.opt.timestep); self.p = {**DEFAULTS, **(params or {})}; self.v6 = np.zeros(6); self.f6 = np.zeros(6); self.reverse = bool(reverse)
         self.zone_of, self.limb_of, self.keys = {}, {}, {}; self.is_r1, self.is_opp = np.zeros(m.ngeom, bool), np.zeros(m.ngeom, bool)
         for g in range(m.ngeom):
             b = m.geom_bodyid[g]; bn = m.body(b).name
             if b == 0 or not (m.geom_contype[g] or m.geom_conaffinity[g]): continue
-            if bn.startswith("opp_"): self.keys[g] = opp_limb(bn[4:]); self.limb_of[g] = self.keys[g][1]; self.is_opp[g] = True
+            if bn.startswith("opp_") != self.reverse: n = bn if self.reverse else bn[4:]; self.keys[g] = opp_limb(n); self.limb_of[g] = self.keys[g][1]; self.is_opp[g] = True
             else:
-                z = r1_zone(bn, m.mesh(m.geom_dataid[g]).name if m.geom_type[g] == mujoco.mjtGeom.mjGEOM_MESH else m.geom(g).name)
+                gn = m.mesh(m.geom_dataid[g]).name if m.geom_type[g] == mujoco.mjtGeom.mjGEOM_MESH else m.geom(g).name
+                z = r1_zone(bn[4:], gn[4:] if gn.startswith("opp_") else gn) if self.reverse else r1_zone(bn, gn)
                 if z: self.zone_of[g] = z; self.is_r1[g] = True
         self.reset()
 
@@ -138,8 +143,10 @@ class HitMeter:
             out.append("blocked" if arm and (hit is None or arm["t0"] < hit["t0"]) else hit["zone"] if hit else "miss")
         return out
 
-    def summary(self, secs, spacing=None, wins=None):
-        """Per-bout fields for scripts/eval_opponent.py: rates per minute of bout (until the R1 fell), per-hit lists, every rule."""
+    def summary(self, secs, spacing=None, wins=None, both_up=None):
+        """Per-bout fields for scripts/eval_opponent.py: rates per minute of bout (until the R1 fell), per-hit lists, every rule.
+        both_up (given: added keys only): the (t_a, t_b] intervals both robots were up (a number x: (0, x]); clean strikes whose
+        onset falls inside them, per minute of their total (both_up_s), so a floored opponent's minutes don't dilute the rate."""
         mins = max(secs, 1e-9) / 60; ev = self.events(); pm = lambda x: round(x / mins, 3)
         landed = [e for e in ev if self.landed(e)]; clean = [e for e in landed if self.clean(e)]
         n = dict(head_landed=sum(e["zone"] == "head" for e in landed), head_clean=sum(e["zone"] == "head" for e in clean),
@@ -152,17 +159,21 @@ class HitMeter:
         if spacing is not None and len(spacing): out["spacing_m"] = [round(float(x), 3) for x in np.percentile(spacing, [10, 50, 90])]
         if wins is not None:
             o = self.windows(wins); out["windows"] = {k: o.count(k) for k in ("head", "torso", "blocked", "miss")}
+        if both_up is not None:
+            iv = [(0.0, float(both_up))] if np.isscalar(both_up) else [(float(a), float(c)) for a, c in both_up]; bs = sum(c - a for a, c in iv)
+            b = [e for e in clean if any(a + 1e-9 < e["t0"] <= c + 1e-9 for a, c in iv)]; nb = {f"{z}_clean": sum(e["zone"] == z for e in b) for z in ("head", "torso")}
+            out.update(both_up_s=round(bs, 3), n_both_up=nb, **{f"{k}_pm_both_up": round(nb[k] / (max(bs, 1e-9) / 60), 3) for k in nb})
         return out
 
 def _q(x, ps):
     return {f"p{p}" if p != 50 else "median": round(float(np.percentile(x, p)), 3) for p in ps} if len(x) else None
 
-def _rate(hits, clusters, x):
-    """Total count / total minutes over bouts (per-bout rates weighted by their minutes until the R1 fell) with a cluster-
-    bootstrap 95% CI, and the plain mean of the per-bout rates (secondary: a bout the R1 fell early in weighs as much as a
-    full one, so one hit in its 1.5 s reads as 40/min)."""
+def _rate(hits, clusters, x, wkey="secs"):
+    """Total count / total minutes over bouts (per-bout rates weighted by their minutes until the R1 fell, or of wkey) with a
+    cluster-bootstrap 95% CI, and the plain mean of the per-bout rates (secondary: a bout the R1 fell early in weighs as much
+    as a full one, so one hit in its 1.5 s reads as 40/min)."""
     from .stats import rate_ci
-    r, ci = rate_ci(x, clusters, w=[h["secs"] / 60 for h in hits]); return dict(rate=r, ci95=ci, bout_mean=round(float(np.mean(x)), 3) if len(x) else None)
+    r, ci = rate_ci(x, clusters, w=[h[wkey] / 60 for h in hits]); return dict(rate=r, ci95=ci, bout_mean=round(float(np.mean(x)), 3) if len(x) else None)
 
 def landed_block(hits, clusters, shell_solref=None):
     """Over bouts ('landed' in eval_opponent summaries): exposure-weighted rates with a cluster-bootstrap 95% CI (_rate),
@@ -182,6 +193,9 @@ def landed_block(hits, clusters, shell_solref=None):
     if w:
         W = {k: sum(x[k] for x in w) for k in w[0]}; tot = sum(W.values())
         out["windows"] = dict(W, blocked_share=round(W["blocked"] / tot, 3) if tot else None)
+    if hits and all("both_up_s" in h for h in hits):   # exposure over minutes both robots were up (eval_opponent's newer rows)
+        out["minutes"] = dict(r1_up=round(sum(h["secs"] for h in hits) / 60, 3), both_up=round(sum(h["both_up_s"] for h in hits) / 60, 3))
+        if out["minutes"]["both_up"] > 0: out.update({f"{k}_pm_both_up": _rate(hits, clusters, [h[f"{k}_pm_both_up"] for h in hits], "both_up_s") for k in ("head_clean", "torso_clean")})
     return out
 
 def sensitivity_block(hits, clusters):

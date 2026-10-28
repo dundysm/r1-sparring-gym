@@ -1,0 +1,2962 @@
+{
+ "meta": {
+  "made_by": "python scripts/scorecard.py --write",
+  "script": "scripts/scorecard.py",
+  "script_sha256_16": "c7d84ba0013a3411",
+  "git_hash": "67929c8a818eccacdcdfe83b8c1c340d28f20403",
+  "git_dirty": true,
+  "sources_sha256_16": {
+   "results/eval_opponent/aim/summary_test_hard.json": "21e318b30dea3866",
+   "results/eval_opponent/aim/raw_test_hard.json": "564bf7b5f34115f9",
+   "results/eval_opponent/aim/summary_test_hard_aim.json": "e043410110c3dbbf",
+   "results/eval_opponent/aim/raw_test_hard_aim.json": "ba2a623c56071df2",
+   "results/eval_opponent/aim/summary_test_hard_nohits.json": "11aa1a9e74aa52ac",
+   "results/eval_opponent/aim/raw_test_hard_nohits.json": "43ad7e2f8137a94f",
+   "results/eval_opponent/aim/summary_test_hard_nohits_aim.json": "c0cd25d9cdf9c177",
+   "results/eval_opponent/aim/raw_test_hard_nohits_aim.json": "62c6ef0cb0f7c517",
+   "results/eval_opponent/aim/summary_val_hard.json": "3fe9e27eff79ee98",
+   "results/eval_opponent/aim/raw_val_hard.json": "3e989bafb224c270",
+   "results/eval_opponent/aim/summary_val_hard_aim.json": "7726c89db030a108",
+   "results/eval_opponent/aim/raw_val_hard_aim.json": "5ee075d5fd3132bd",
+   "results/eval_opponent/aim/summary_val_hard_nohits.json": "532944e2b9470405",
+   "results/eval_opponent/aim/raw_val_hard_nohits.json": "b1250b57a885226d",
+   "results/eval_opponent/aim/summary_val_hard_nohits_aim.json": "106856e7ae85e016",
+   "results/eval_opponent/aim/raw_val_hard_nohits_aim.json": "cd5fd8e084fef1cb",
+   "results/eval_opponent/summary_test.json": "ae05ab0c2aa4d8fd",
+   "results/eval_opponent/raw_test.json": "406de173bc22d2ae",
+   "results/eval_opponent/summary_test_puppet.json": "e9f3f984fcf085d3",
+   "results/eval_opponent/raw_test_puppet.json": "9d2fe5ed375aa4c2",
+   "results/eval_opponent/summary_val.json": "65485038803c84b6",
+   "results/eval_opponent/raw_val.json": "4df0fb9fa9bd25f5",
+   "results/eval_opponent/summary_val_puppet.json": "c83374b7e09d028e",
+   "results/eval_opponent/raw_val_puppet.json": "3d807133f5c17255"
+  },
+  "primary": "head_clean_pm",
+  "definitions": {
+   "head_clean_pm": "clean head strikes received per minute until the R1 fell (r1gym/hits.py, preregistered in docs/AIMED_OPPONENT.md); ci95: (clip, start) cluster bootstrap",
+   "up_within_1m": "survival_in_ring: up at the end and the pelvis never more than 1 m from its start",
+   "opponent_fell_n": "bouts where the opponent fell (raw opp_fell)",
+   "blocked_share": "library strike windows where the limb touched the R1's arms before its head or torso (landed.windows)",
+   "intent_blocked_share": "aimed tiers: the same outcome over the aimed opponent's own strike windows (intent_windows.blocked / intent_windows.n)",
+   "intent_head_share": "aimed tiers: intent windows that landed on the head (intent_windows.head_share)"
+  }
+ },
+ "tiers": {
+  "test hard": {
+   "source": "results/eval_opponent/aim/summary_test_hard.json",
+   "raw": "results/eval_opponent/aim/raw_test_hard.json",
+   "hit_meter": true,
+   "seconds": 20.0,
+   "opponent_aim": "shadow",
+   "controllers": {
+    "pd_stand": {
+     "episodes": 128,
+     "head_clean_pm": 5.899,
+     "head_clean_pm_ci95": [
+      4.37,
+      7.532
+     ],
+     "torso_clean_pm": 8.006,
+     "torso_clean_pm_ci95": [
+      5.993,
+      10.376
+     ],
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.029
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.029
+     ],
+     "opponent_fell": 0.102,
+     "opponent_fell_n": 13,
+     "blocked_share": 0.134,
+     "head_clean_n": 56
+    },
+    "RL v1": {
+     "episodes": 128,
+     "head_clean_pm": 4.245,
+     "head_clean_pm_ci95": [
+      2.893,
+      5.757
+     ],
+     "torso_clean_pm": 5.458,
+     "torso_clean_pm_ci95": [
+      3.619,
+      7.538
+     ],
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.029
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.029
+     ],
+     "opponent_fell": 0.102,
+     "opponent_fell_n": 13,
+     "blocked_share": 0.109,
+     "head_clean_n": 42
+    },
+    "RL v2": {
+     "episodes": 128,
+     "head_clean_pm": 5.071,
+     "head_clean_pm_ci95": [
+      3.509,
+      6.833
+     ],
+     "torso_clean_pm": 4.754,
+     "torso_clean_pm_ci95": [
+      3.213,
+      6.481
+     ],
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.029
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.029
+     ],
+     "opponent_fell": 0.102,
+     "opponent_fell_n": 13,
+     "blocked_share": 0.105,
+     "head_clean_n": 48
+    },
+    "RL v3": {
+     "episodes": 128,
+     "head_clean_pm": 4.802,
+     "head_clean_pm_ci95": [
+      3.3,
+      6.451
+     ],
+     "torso_clean_pm": 4.802,
+     "torso_clean_pm_ci95": [
+      3.095,
+      6.719
+     ],
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.029
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.029
+     ],
+     "opponent_fell": 0.102,
+     "opponent_fell_n": 13,
+     "blocked_share": 0.1,
+     "head_clean_n": 45
+    },
+    "RL step_s1": {
+     "episodes": 128,
+     "head_clean_pm": 3.679,
+     "head_clean_pm_ci95": [
+      2.812,
+      4.577
+     ],
+     "torso_clean_pm": 6.232,
+     "torso_clean_pm_ci95": [
+      4.586,
+      8.107
+     ],
+     "survival": 0.422,
+     "survival_ci95": [
+      0.34,
+      0.508
+     ],
+     "up_within_1m": 0.273,
+     "up_within_1m_ci95": [
+      0.204,
+      0.356
+     ],
+     "opponent_fell": 0.102,
+     "opponent_fell_n": 13,
+     "blocked_share": 0.116,
+     "head_clean_n": 98
+    },
+    "RL step": {
+     "episodes": 128,
+     "head_clean_pm": 5.446,
+     "head_clean_pm_ci95": [
+      4.607,
+      6.339
+     ],
+     "torso_clean_pm": 8.033,
+     "torso_clean_pm_ci95": [
+      6.679,
+      9.456
+     ],
+     "survival": 0.898,
+     "survival_ci95": [
+      0.834,
+      0.94
+     ],
+     "up_within_1m": 0.648,
+     "up_within_1m_ci95": [
+      0.562,
+      0.726
+     ],
+     "opponent_fell": 0.109,
+     "opponent_fell_n": 14,
+     "blocked_share": 0.116,
+     "head_clean_n": 221
+    },
+    "RL guard": {
+     "episodes": 128,
+     "head_clean_pm": 1.109,
+     "head_clean_pm_ci95": [
+      0.715,
+      1.583
+     ],
+     "torso_clean_pm": 6.078,
+     "torso_clean_pm_ci95": [
+      4.769,
+      7.447
+     ],
+     "survival": 0.945,
+     "survival_ci95": [
+      0.891,
+      0.973
+     ],
+     "up_within_1m": 0.367,
+     "up_within_1m_ci95": [
+      0.289,
+      0.453
+     ],
+     "opponent_fell": 0.109,
+     "opponent_fell_n": 14,
+     "blocked_share": 0.139,
+     "head_clean_n": 46
+    },
+    "RL step_fw": {
+     "episodes": 128,
+     "head_clean_pm": 5.407,
+     "head_clean_pm_ci95": [
+      4.484,
+      6.283
+     ],
+     "torso_clean_pm": 8.443,
+     "torso_clean_pm_ci95": [
+      6.752,
+      10.197
+     ],
+     "survival": 0.906,
+     "survival_ci95": [
+      0.843,
+      0.946
+     ],
+     "up_within_1m": 0.727,
+     "up_within_1m_ci95": [
+      0.644,
+      0.796
+     ],
+     "opponent_fell": 0.125,
+     "opponent_fell_n": 16,
+     "blocked_share": 0.118,
+     "head_clean_n": 219
+    },
+    "RL guard_fw": {
+     "episodes": 128,
+     "head_clean_pm": 2.089,
+     "head_clean_pm_ci95": [
+      1.516,
+      2.705
+     ],
+     "torso_clean_pm": 6.501,
+     "torso_clean_pm_ci95": [
+      5.168,
+      7.965
+     ],
+     "survival": 0.992,
+     "survival_ci95": [
+      0.957,
+      0.999
+     ],
+     "up_within_1m": 0.812,
+     "up_within_1m_ci95": [
+      0.736,
+      0.871
+     ],
+     "opponent_fell": 0.117,
+     "opponent_fell_n": 15,
+     "blocked_share": 0.14,
+     "head_clean_n": 89
+    }
+   }
+  },
+  "test hard aimed": {
+   "source": "results/eval_opponent/aim/summary_test_hard_aim.json",
+   "raw": "results/eval_opponent/aim/raw_test_hard_aim.json",
+   "hit_meter": true,
+   "seconds": 20.0,
+   "opponent_aim": "standoff+armwarp_vz",
+   "controllers": {
+    "pd_stand": {
+     "episodes": 128,
+     "head_clean_pm": 11.388,
+     "head_clean_pm_ci95": [
+      9.182,
+      13.806
+     ],
+     "torso_clean_pm": 12.562,
+     "torso_clean_pm_ci95": [
+      9.808,
+      15.384
+     ],
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.029
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.029
+     ],
+     "opponent_fell": 0.102,
+     "opponent_fell_n": 13,
+     "blocked_share": 0.131,
+     "head_clean_n": 97,
+     "intent_n": 829,
+     "intent_head_share": 0.09,
+     "intent_blocked_share": 0.176
+    },
+    "RL v1": {
+     "episodes": 128,
+     "head_clean_pm": 9.97,
+     "head_clean_pm_ci95": [
+      7.862,
+      12.262
+     ],
+     "torso_clean_pm": 12.186,
+     "torso_clean_pm_ci95": [
+      9.345,
+      15.244
+     ],
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.029
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.029
+     ],
+     "opponent_fell": 0.109,
+     "opponent_fell_n": 14,
+     "blocked_share": 0.104,
+     "head_clean_n": 90,
+     "intent_n": 892,
+     "intent_head_share": 0.087,
+     "intent_blocked_share": 0.138
+    },
+    "RL v2": {
+     "episodes": 128,
+     "head_clean_pm": 8.583,
+     "head_clean_pm_ci95": [
+      6.164,
+      11.429
+     ],
+     "torso_clean_pm": 12.017,
+     "torso_clean_pm_ci95": [
+      8.93,
+      15.506
+     ],
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.029
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.029
+     ],
+     "opponent_fell": 0.117,
+     "opponent_fell_n": 15,
+     "blocked_share": 0.092,
+     "head_clean_n": 70,
+     "intent_n": 781,
+     "intent_head_share": 0.072,
+     "intent_blocked_share": 0.136
+    },
+    "RL v3": {
+     "episodes": 128,
+     "head_clean_pm": 8.051,
+     "head_clean_pm_ci95": [
+      5.932,
+      10.408
+     ],
+     "torso_clean_pm": 10.907,
+     "torso_clean_pm_ci95": [
+      7.981,
+      14.035
+     ],
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.029
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.029
+     ],
+     "opponent_fell": 0.125,
+     "opponent_fell_n": 16,
+     "blocked_share": 0.087,
+     "head_clean_n": 62,
+     "intent_n": 742,
+     "intent_head_share": 0.07,
+     "intent_blocked_share": 0.12
+    },
+    "RL step_s1": {
+     "episodes": 128,
+     "head_clean_pm": 8.908,
+     "head_clean_pm_ci95": [
+      7.333,
+      10.603
+     ],
+     "torso_clean_pm": 11.994,
+     "torso_clean_pm_ci95": [
+      9.493,
+      14.499
+     ],
+     "survival": 0.406,
+     "survival_ci95": [
+      0.325,
+      0.493
+     ],
+     "up_within_1m": 0.195,
+     "up_within_1m_ci95": [
+      0.136,
+      0.272
+     ],
+     "opponent_fell": 0.102,
+     "opponent_fell_n": 13,
+     "blocked_share": 0.1,
+     "head_clean_n": 228,
+     "intent_n": 2640,
+     "intent_head_share": 0.071,
+     "intent_blocked_share": 0.14
+    },
+    "RL step": {
+     "episodes": 128,
+     "head_clean_pm": 7.899,
+     "head_clean_pm_ci95": [
+      6.608,
+      9.307
+     ],
+     "torso_clean_pm": 12.225,
+     "torso_clean_pm_ci95": [
+      10.362,
+      14.159
+     ],
+     "survival": 0.875,
+     "survival_ci95": [
+      0.807,
+      0.922
+     ],
+     "up_within_1m": 0.617,
+     "up_within_1m_ci95": [
+      0.531,
+      0.697
+     ],
+     "opponent_fell": 0.25,
+     "opponent_fell_n": 32,
+     "blocked_share": 0.079,
+     "head_clean_n": 314,
+     "intent_n": 4159,
+     "intent_head_share": 0.068,
+     "intent_blocked_share": 0.111
+    },
+    "RL guard": {
+     "episodes": 128,
+     "head_clean_pm": 2.257,
+     "head_clean_pm_ci95": [
+      1.748,
+      2.846
+     ],
+     "torso_clean_pm": 8.856,
+     "torso_clean_pm_ci95": [
+      6.963,
+      10.79
+     ],
+     "survival": 0.883,
+     "survival_ci95": [
+      0.816,
+      0.928
+     ],
+     "up_within_1m": 0.234,
+     "up_within_1m_ci95": [
+      0.169,
+      0.315
+     ],
+     "opponent_fell": 0.242,
+     "opponent_fell_n": 31,
+     "blocked_share": 0.169,
+     "head_clean_n": 91,
+     "intent_n": 4219,
+     "intent_head_share": 0.019,
+     "intent_blocked_share": 0.237
+    },
+    "RL step_fw": {
+     "episodes": 128,
+     "head_clean_pm": 8.682,
+     "head_clean_pm_ci95": [
+      7.318,
+      10.145
+     ],
+     "torso_clean_pm": 11.96,
+     "torso_clean_pm_ci95": [
+      9.939,
+      14.024
+     ],
+     "survival": 0.922,
+     "survival_ci95": [
+      0.862,
+      0.957
+     ],
+     "up_within_1m": 0.68,
+     "up_within_1m_ci95": [
+      0.595,
+      0.754
+     ],
+     "opponent_fell": 0.258,
+     "opponent_fell_n": 33,
+     "blocked_share": 0.091,
+     "head_clean_n": 355,
+     "intent_n": 4282,
+     "intent_head_share": 0.075,
+     "intent_blocked_share": 0.129
+    },
+    "RL guard_fw": {
+     "episodes": 128,
+     "head_clean_pm": 4.241,
+     "head_clean_pm_ci95": [
+      3.244,
+      5.314
+     ],
+     "torso_clean_pm": 8.839,
+     "torso_clean_pm_ci95": [
+      7.326,
+      10.397
+     ],
+     "survival": 0.969,
+     "survival_ci95": [
+      0.922,
+      0.988
+     ],
+     "up_within_1m": 0.719,
+     "up_within_1m_ci95": [
+      0.635,
+      0.789
+     ],
+     "opponent_fell": 0.25,
+     "opponent_fell_n": 32,
+     "blocked_share": 0.176,
+     "head_clean_n": 178,
+     "intent_n": 4405,
+     "intent_head_share": 0.039,
+     "intent_blocked_share": 0.256
+    }
+   }
+  },
+  "test hard nohits": {
+   "source": "results/eval_opponent/aim/summary_test_hard_nohits.json",
+   "raw": "results/eval_opponent/aim/raw_test_hard_nohits.json",
+   "hit_meter": true,
+   "seconds": 20.0,
+   "opponent_aim": "shadow",
+   "controllers": {
+    "pd_stand": {
+     "episodes": 128,
+     "head_clean_pm": 5.542,
+     "head_clean_pm_ci95": [
+      4.288,
+      6.925
+     ],
+     "torso_clean_pm": 5.912,
+     "torso_clean_pm_ci95": [
+      4.325,
+      7.647
+     ],
+     "survival": 0.289,
+     "survival_ci95": [
+      0.218,
+      0.373
+     ],
+     "up_within_1m": 0.289,
+     "up_within_1m_ci95": [
+      0.218,
+      0.373
+     ],
+     "opponent_fell": 0.062,
+     "opponent_fell_n": 8,
+     "blocked_share": 0.157,
+     "head_clean_n": 120
+    },
+    "RL v1": {
+     "episodes": 128,
+     "head_clean_pm": 3.027,
+     "head_clean_pm_ci95": [
+      2.157,
+      4.004
+     ],
+     "torso_clean_pm": 5.735,
+     "torso_clean_pm_ci95": [
+      3.938,
+      7.752
+     ],
+     "survival": 0.227,
+     "survival_ci95": [
+      0.163,
+      0.306
+     ],
+     "up_within_1m": 0.227,
+     "up_within_1m_ci95": [
+      0.163,
+      0.306
+     ],
+     "opponent_fell": 0.062,
+     "opponent_fell_n": 8,
+     "blocked_share": 0.128,
+     "head_clean_n": 57
+    },
+    "RL v2": {
+     "episodes": 128,
+     "head_clean_pm": 3.193,
+     "head_clean_pm_ci95": [
+      2.23,
+      4.299
+     ],
+     "torso_clean_pm": 5.21,
+     "torso_clean_pm_ci95": [
+      3.54,
+      7.085
+     ],
+     "survival": 0.227,
+     "survival_ci95": [
+      0.163,
+      0.306
+     ],
+     "up_within_1m": 0.227,
+     "up_within_1m_ci95": [
+      0.163,
+      0.306
+     ],
+     "opponent_fell": 0.062,
+     "opponent_fell_n": 8,
+     "blocked_share": 0.113,
+     "head_clean_n": 57
+    },
+    "RL v3": {
+     "episodes": 128,
+     "head_clean_pm": 4.163,
+     "head_clean_pm_ci95": [
+      2.954,
+      5.522
+     ],
+     "torso_clean_pm": 4.605,
+     "torso_clean_pm_ci95": [
+      3.198,
+      6.16
+     ],
+     "survival": 0.188,
+     "survival_ci95": [
+      0.129,
+      0.264
+     ],
+     "up_within_1m": 0.188,
+     "up_within_1m_ci95": [
+      0.129,
+      0.264
+     ],
+     "opponent_fell": 0.062,
+     "opponent_fell_n": 8,
+     "blocked_share": 0.115,
+     "head_clean_n": 66
+    },
+    "RL step_s1": {
+     "episodes": 128,
+     "head_clean_pm": 4.038,
+     "head_clean_pm_ci95": [
+      3.182,
+      5.016
+     ],
+     "torso_clean_pm": 6.99,
+     "torso_clean_pm_ci95": [
+      5.625,
+      8.434
+     ],
+     "survival": 0.5,
+     "survival_ci95": [
+      0.415,
+      0.585
+     ],
+     "up_within_1m": 0.375,
+     "up_within_1m_ci95": [
+      0.296,
+      0.461
+     ],
+     "opponent_fell": 0.062,
+     "opponent_fell_n": 8,
+     "blocked_share": 0.126,
+     "head_clean_n": 119
+    },
+    "RL step": {
+     "episodes": 128,
+     "head_clean_pm": 5.726,
+     "head_clean_pm_ci95": [
+      4.741,
+      6.724
+     ],
+     "torso_clean_pm": 9.95,
+     "torso_clean_pm_ci95": [
+      8.46,
+      11.459
+     ],
+     "survival": 0.992,
+     "survival_ci95": [
+      0.957,
+      0.999
+     ],
+     "up_within_1m": 0.914,
+     "up_within_1m_ci95": [
+      0.853,
+      0.951
+     ],
+     "opponent_fell": 0.062,
+     "opponent_fell_n": 8,
+     "blocked_share": 0.135,
+     "head_clean_n": 244
+    },
+    "RL guard": {
+     "episodes": 128,
+     "head_clean_pm": 0.777,
+     "head_clean_pm_ci95": [
+      0.496,
+      1.083
+     ],
+     "torso_clean_pm": 6.196,
+     "torso_clean_pm_ci95": [
+      4.859,
+      7.697
+     ],
+     "survival": 0.992,
+     "survival_ci95": [
+      0.957,
+      0.999
+     ],
+     "up_within_1m": 0.656,
+     "up_within_1m_ci95": [
+      0.57,
+      0.733
+     ],
+     "opponent_fell": 0.07,
+     "opponent_fell_n": 9,
+     "blocked_share": 0.194,
+     "head_clean_n": 33
+    },
+    "RL step_fw": {
+     "episodes": 128,
+     "head_clean_pm": 5.487,
+     "head_clean_pm_ci95": [
+      4.602,
+      6.392
+     ],
+     "torso_clean_pm": 10.024,
+     "torso_clean_pm_ci95": [
+      8.24,
+      12.021
+     ],
+     "survival": 0.984,
+     "survival_ci95": [
+      0.945,
+      0.996
+     ],
+     "up_within_1m": 0.914,
+     "up_within_1m_ci95": [
+      0.853,
+      0.951
+     ],
+     "opponent_fell": 0.062,
+     "opponent_fell_n": 8,
+     "blocked_share": 0.122,
+     "head_clean_n": 231
+    },
+    "RL guard_fw": {
+     "episodes": 128,
+     "head_clean_pm": 2.203,
+     "head_clean_pm_ci95": [
+      1.605,
+      2.846
+     ],
+     "torso_clean_pm": 6.633,
+     "torso_clean_pm_ci95": [
+      5.226,
+      8.146
+     ],
+     "survival": 1.0,
+     "survival_ci95": [
+      0.971,
+      1.0
+     ],
+     "up_within_1m": 0.953,
+     "up_within_1m_ci95": [
+      0.902,
+      0.978
+     ],
+     "opponent_fell": 0.078,
+     "opponent_fell_n": 10,
+     "blocked_share": 0.174,
+     "head_clean_n": 94
+    }
+   }
+  },
+  "test hard nohits aimed": {
+   "source": "results/eval_opponent/aim/summary_test_hard_nohits_aim.json",
+   "raw": "results/eval_opponent/aim/raw_test_hard_nohits_aim.json",
+   "hit_meter": true,
+   "seconds": 20.0,
+   "opponent_aim": "standoff+armwarp_vz",
+   "controllers": {
+    "pd_stand": {
+     "episodes": 128,
+     "head_clean_pm": 13.656,
+     "head_clean_pm_ci95": [
+      11.145,
+      16.284
+     ],
+     "torso_clean_pm": 12.73,
+     "torso_clean_pm_ci95": [
+      9.696,
+      15.934
+     ],
+     "survival": 0.031,
+     "survival_ci95": [
+      0.012,
+      0.078
+     ],
+     "up_within_1m": 0.031,
+     "up_within_1m_ci95": [
+      0.012,
+      0.078
+     ],
+     "opponent_fell": 0.062,
+     "opponent_fell_n": 8,
+     "blocked_share": 0.145,
+     "head_clean_n": 177,
+     "intent_n": 1319,
+     "intent_head_share": 0.092,
+     "intent_blocked_share": 0.199
+    },
+    "RL v1": {
+     "episodes": 128,
+     "head_clean_pm": 8.015,
+     "head_clean_pm_ci95": [
+      6.286,
+      9.76
+     ],
+     "torso_clean_pm": 14.486,
+     "torso_clean_pm_ci95": [
+      11.504,
+      17.553
+     ],
+     "survival": 0.07,
+     "survival_ci95": [
+      0.037,
+      0.128
+     ],
+     "up_within_1m": 0.07,
+     "up_within_1m_ci95": [
+      0.037,
+      0.128
+     ],
+     "opponent_fell": 0.062,
+     "opponent_fell_n": 8,
+     "blocked_share": 0.11,
+     "head_clean_n": 109,
+     "intent_n": 1409,
+     "intent_head_share": 0.065,
+     "intent_blocked_share": 0.145
+    },
+    "RL v2": {
+     "episodes": 128,
+     "head_clean_pm": 8.552,
+     "head_clean_pm_ci95": [
+      6.471,
+      10.686
+     ],
+     "torso_clean_pm": 11.099,
+     "torso_clean_pm_ci95": [
+      8.129,
+      14.734
+     ],
+     "survival": 0.047,
+     "survival_ci95": [
+      0.022,
+      0.098
+     ],
+     "up_within_1m": 0.047,
+     "up_within_1m_ci95": [
+      0.022,
+      0.098
+     ],
+     "opponent_fell": 0.07,
+     "opponent_fell_n": 9,
+     "blocked_share": 0.089,
+     "head_clean_n": 94,
+     "intent_n": 1099,
+     "intent_head_share": 0.076,
+     "intent_blocked_share": 0.129
+    },
+    "RL v3": {
+     "episodes": 128,
+     "head_clean_pm": 9.215,
+     "head_clean_pm_ci95": [
+      6.798,
+      11.868
+     ],
+     "torso_clean_pm": 8.796,
+     "torso_clean_pm_ci95": [
+      6.378,
+      11.723
+     ],
+     "survival": 0.047,
+     "survival_ci95": [
+      0.022,
+      0.098
+     ],
+     "up_within_1m": 0.047,
+     "up_within_1m_ci95": [
+      0.022,
+      0.098
+     ],
+     "opponent_fell": 0.07,
+     "opponent_fell_n": 9,
+     "blocked_share": 0.089,
+     "head_clean_n": 88,
+     "intent_n": 944,
+     "intent_head_share": 0.074,
+     "intent_blocked_share": 0.123
+    },
+    "RL step_s1": {
+     "episodes": 128,
+     "head_clean_pm": 8.5,
+     "head_clean_pm_ci95": [
+      7.025,
+      10.024
+     ],
+     "torso_clean_pm": 14.961,
+     "torso_clean_pm_ci95": [
+      12.02,
+      18.017
+     ],
+     "survival": 0.414,
+     "survival_ci95": [
+      0.332,
+      0.501
+     ],
+     "up_within_1m": 0.312,
+     "up_within_1m_ci95": [
+      0.239,
+      0.397
+     ],
+     "opponent_fell": 0.086,
+     "opponent_fell_n": 11,
+     "blocked_share": 0.102,
+     "head_clean_n": 221,
+     "intent_n": 2707,
+     "intent_head_share": 0.069,
+     "intent_blocked_share": 0.149
+    },
+    "RL step": {
+     "episodes": 128,
+     "head_clean_pm": 10.409,
+     "head_clean_pm_ci95": [
+      8.823,
+      11.98
+     ],
+     "torso_clean_pm": 14.465,
+     "torso_clean_pm_ci95": [
+      12.706,
+      16.242
+     ],
+     "survival": 0.992,
+     "survival_ci95": [
+      0.957,
+      0.999
+     ],
+     "up_within_1m": 0.875,
+     "up_within_1m_ci95": [
+      0.807,
+      0.922
+     ],
+     "opponent_fell": 0.156,
+     "opponent_fell_n": 20,
+     "blocked_share": 0.096,
+     "head_clean_n": 444,
+     "intent_n": 4494,
+     "intent_head_share": 0.088,
+     "intent_blocked_share": 0.139
+    },
+    "RL guard": {
+     "episodes": 128,
+     "head_clean_pm": 2.468,
+     "head_clean_pm_ci95": [
+      1.865,
+      3.085
+     ],
+     "torso_clean_pm": 10.858,
+     "torso_clean_pm_ci95": [
+      9.025,
+      12.75
+     ],
+     "survival": 0.992,
+     "survival_ci95": [
+      0.957,
+      0.999
+     ],
+     "up_within_1m": 0.336,
+     "up_within_1m_ci95": [
+      0.26,
+      0.421
+     ],
+     "opponent_fell": 0.18,
+     "opponent_fell_n": 23,
+     "blocked_share": 0.208,
+     "head_clean_n": 105,
+     "intent_n": 4485,
+     "intent_head_share": 0.023,
+     "intent_blocked_share": 0.295
+    },
+    "RL step_fw": {
+     "episodes": 128,
+     "head_clean_pm": 10.341,
+     "head_clean_pm_ci95": [
+      8.847,
+      11.829
+     ],
+     "torso_clean_pm": 14.387,
+     "torso_clean_pm_ci95": [
+      12.039,
+      16.85
+     ],
+     "survival": 0.977,
+     "survival_ci95": [
+      0.933,
+      0.992
+     ],
+     "up_within_1m": 0.906,
+     "up_within_1m_ci95": [
+      0.843,
+      0.946
+     ],
+     "opponent_fell": 0.133,
+     "opponent_fell_n": 17,
+     "blocked_share": 0.117,
+     "head_clean_n": 437,
+     "intent_n": 4452,
+     "intent_head_share": 0.083,
+     "intent_blocked_share": 0.167
+    },
+    "RL guard_fw": {
+     "episodes": 128,
+     "head_clean_pm": 4.818,
+     "head_clean_pm_ci95": [
+      3.69,
+      5.938
+     ],
+     "torso_clean_pm": 10.96,
+     "torso_clean_pm_ci95": [
+      9.218,
+      12.856
+     ],
+     "survival": 0.977,
+     "survival_ci95": [
+      0.933,
+      0.992
+     ],
+     "up_within_1m": 0.883,
+     "up_within_1m_ci95": [
+      0.816,
+      0.928
+     ],
+     "opponent_fell": 0.164,
+     "opponent_fell_n": 21,
+     "blocked_share": 0.212,
+     "head_clean_n": 204,
+     "intent_n": 4458,
+     "intent_head_share": 0.05,
+     "intent_blocked_share": 0.314
+    }
+   }
+  },
+  "test standard": {
+   "source": "results/eval_opponent/summary_test.json",
+   "raw": "results/eval_opponent/raw_test.json",
+   "hit_meter": false,
+   "seconds": 10.0,
+   "opponent_aim": null,
+   "controllers": {
+    "pd_stand": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.375,
+     "survival_ci95": [
+      0.304,
+      0.452
+     ],
+     "up_within_1m": 0.375,
+     "up_within_1m_ci95": [
+      0.304,
+      0.452
+     ],
+     "opponent_fell": 0.044,
+     "opponent_fell_n": 7,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL v1": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.656,
+     "survival_ci95": [
+      0.58,
+      0.725
+     ],
+     "up_within_1m": 0.656,
+     "up_within_1m_ci95": [
+      0.58,
+      0.725
+     ],
+     "opponent_fell": 0.044,
+     "opponent_fell_n": 7,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL v2": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.65,
+     "survival_ci95": [
+      0.573,
+      0.72
+     ],
+     "up_within_1m": 0.65,
+     "up_within_1m_ci95": [
+      0.573,
+      0.72
+     ],
+     "opponent_fell": 0.044,
+     "opponent_fell_n": 7,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL v3": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.619,
+     "survival_ci95": [
+      0.542,
+      0.69
+     ],
+     "up_within_1m": 0.619,
+     "up_within_1m_ci95": [
+      0.542,
+      0.69
+     ],
+     "opponent_fell": 0.044,
+     "opponent_fell_n": 7,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL step_s1": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.912,
+     "survival_ci95": [
+      0.858,
+      0.947
+     ],
+     "up_within_1m": 0.875,
+     "up_within_1m_ci95": [
+      0.815,
+      0.918
+     ],
+     "opponent_fell": 0.05,
+     "opponent_fell_n": 8,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL step": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.994,
+     "survival_ci95": [
+      0.965,
+      0.999
+     ],
+     "up_within_1m": 0.994,
+     "up_within_1m_ci95": [
+      0.965,
+      0.999
+     ],
+     "opponent_fell": 0.044,
+     "opponent_fell_n": 7,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL guard": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.994,
+     "survival_ci95": [
+      0.965,
+      0.999
+     ],
+     "up_within_1m": 0.988,
+     "up_within_1m_ci95": [
+      0.956,
+      0.997
+     ],
+     "opponent_fell": 0.037,
+     "opponent_fell_n": 6,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL step_fw": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 1.0,
+     "survival_ci95": [
+      0.977,
+      1.0
+     ],
+     "up_within_1m": 0.994,
+     "up_within_1m_ci95": [
+      0.965,
+      0.999
+     ],
+     "opponent_fell": 0.044,
+     "opponent_fell_n": 7,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL guard_fw": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 1.0,
+     "survival_ci95": [
+      0.977,
+      1.0
+     ],
+     "up_within_1m": 1.0,
+     "up_within_1m_ci95": [
+      0.977,
+      1.0
+     ],
+     "opponent_fell": 0.031,
+     "opponent_fell_n": 5,
+     "blocked_share": null,
+     "head_clean_n": null
+    }
+   }
+  },
+  "test standard puppet": {
+   "source": "results/eval_opponent/summary_test_puppet.json",
+   "raw": "results/eval_opponent/raw_test_puppet.json",
+   "hit_meter": false,
+   "seconds": 10.0,
+   "opponent_aim": null,
+   "controllers": {
+    "pd_stand": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.075,
+     "survival_ci95": [
+      0.043,
+      0.127
+     ],
+     "up_within_1m": 0.075,
+     "up_within_1m_ci95": [
+      0.043,
+      0.127
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL v1": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.169,
+     "survival_ci95": [
+      0.119,
+      0.234
+     ],
+     "up_within_1m": 0.169,
+     "up_within_1m_ci95": [
+      0.119,
+      0.234
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL v2": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.2,
+     "survival_ci95": [
+      0.145,
+      0.269
+     ],
+     "up_within_1m": 0.2,
+     "up_within_1m_ci95": [
+      0.145,
+      0.269
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL v3": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.175,
+     "survival_ci95": [
+      0.124,
+      0.241
+     ],
+     "up_within_1m": 0.175,
+     "up_within_1m_ci95": [
+      0.124,
+      0.241
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL step_s1": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.869,
+     "survival_ci95": [
+      0.808,
+      0.913
+     ],
+     "up_within_1m": 0.844,
+     "up_within_1m_ci95": [
+      0.78,
+      0.892
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL step": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.994,
+     "survival_ci95": [
+      0.965,
+      0.999
+     ],
+     "up_within_1m": 0.988,
+     "up_within_1m_ci95": [
+      0.956,
+      0.997
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL guard": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.988,
+     "survival_ci95": [
+      0.956,
+      0.997
+     ],
+     "up_within_1m": 0.95,
+     "up_within_1m_ci95": [
+      0.904,
+      0.974
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL step_fw": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.975,
+     "survival_ci95": [
+      0.937,
+      0.99
+     ],
+     "up_within_1m": 0.956,
+     "up_within_1m_ci95": [
+      0.912,
+      0.979
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL guard_fw": {
+     "episodes": 160,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 1.0,
+     "survival_ci95": [
+      0.977,
+      1.0
+     ],
+     "up_within_1m": 0.981,
+     "up_within_1m_ci95": [
+      0.946,
+      0.994
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    }
+   }
+  },
+  "val hard": {
+   "source": "results/eval_opponent/aim/summary_val_hard.json",
+   "raw": "results/eval_opponent/aim/raw_val_hard.json",
+   "hit_meter": true,
+   "seconds": 20.0,
+   "opponent_aim": "shadow",
+   "controllers": {
+    "pd_stand": {
+     "episodes": 64,
+     "head_clean_pm": 16.111,
+     "head_clean_pm_ci95": [
+      12.863,
+      19.882
+     ],
+     "torso_clean_pm": 12.449,
+     "torso_clean_pm_ci95": [
+      8.548,
+      16.553
+     ],
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.057
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.057
+     ],
+     "opponent_fell": 0.047,
+     "opponent_fell_n": 3,
+     "blocked_share": 0.235,
+     "head_clean_n": 66
+    },
+    "RL v1": {
+     "episodes": 64,
+     "head_clean_pm": 18.476,
+     "head_clean_pm_ci95": [
+      15.441,
+      21.642
+     ],
+     "torso_clean_pm": 15.692,
+     "torso_clean_pm_ci95": [
+      12.405,
+      19.368
+     ],
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.057
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.057
+     ],
+     "opponent_fell": 0.047,
+     "opponent_fell_n": 3,
+     "blocked_share": 0.17,
+     "head_clean_n": 73
+    },
+    "RL v2": {
+     "episodes": 64,
+     "head_clean_pm": 15.586,
+     "head_clean_pm_ci95": [
+      12.52,
+      18.338
+     ],
+     "torso_clean_pm": 15.297,
+     "torso_clean_pm_ci95": [
+      11.728,
+      19.081
+     ],
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.057
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.057
+     ],
+     "opponent_fell": 0.062,
+     "opponent_fell_n": 4,
+     "blocked_share": 0.177,
+     "head_clean_n": 54
+    },
+    "RL v3": {
+     "episodes": 64,
+     "head_clean_pm": 14.709,
+     "head_clean_pm_ci95": [
+      11.436,
+      18.063
+     ],
+     "torso_clean_pm": 16.474,
+     "torso_clean_pm_ci95": [
+      12.555,
+      20.719
+     ],
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.057
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.057
+     ],
+     "opponent_fell": 0.047,
+     "opponent_fell_n": 3,
+     "blocked_share": 0.184,
+     "head_clean_n": 50
+    },
+    "RL step_s1": {
+     "episodes": 64,
+     "head_clean_pm": 10.415,
+     "head_clean_pm_ci95": [
+      8.687,
+      12.045
+     ],
+     "torso_clean_pm": 11.946,
+     "torso_clean_pm_ci95": [
+      10.06,
+      13.856
+     ],
+     "survival": 0.406,
+     "survival_ci95": [
+      0.295,
+      0.529
+     ],
+     "up_within_1m": 0.25,
+     "up_within_1m_ci95": [
+      0.16,
+      0.368
+     ],
+     "opponent_fell": 0.094,
+     "opponent_fell_n": 6,
+     "blocked_share": 0.125,
+     "head_clean_n": 136
+    },
+    "RL step": {
+     "episodes": 64,
+     "head_clean_pm": 7.335,
+     "head_clean_pm_ci95": [
+      6.249,
+      8.448
+     ],
+     "torso_clean_pm": 11.561,
+     "torso_clean_pm_ci95": [
+      9.869,
+      13.143
+     ],
+     "survival": 0.938,
+     "survival_ci95": [
+      0.85,
+      0.975
+     ],
+     "up_within_1m": 0.547,
+     "up_within_1m_ci95": [
+      0.426,
+      0.663
+     ],
+     "opponent_fell": 0.109,
+     "opponent_fell_n": 7,
+     "blocked_share": 0.105,
+     "head_clean_n": 151
+    },
+    "RL guard": {
+     "episodes": 64,
+     "head_clean_pm": 3.187,
+     "head_clean_pm_ci95": [
+      2.439,
+      3.965
+     ],
+     "torso_clean_pm": 9.808,
+     "torso_clean_pm_ci95": [
+      8.339,
+      11.323
+     ],
+     "survival": 0.922,
+     "survival_ci95": [
+      0.83,
+      0.966
+     ],
+     "up_within_1m": 0.375,
+     "up_within_1m_ci95": [
+      0.267,
+      0.497
+     ],
+     "opponent_fell": 0.062,
+     "opponent_fell_n": 4,
+     "blocked_share": 0.209,
+     "head_clean_n": 65
+    },
+    "RL step_fw": {
+     "episodes": 64,
+     "head_clean_pm": 7.549,
+     "head_clean_pm_ci95": [
+      6.378,
+      8.781
+     ],
+     "torso_clean_pm": 11.442,
+     "torso_clean_pm_ci95": [
+      9.981,
+      12.726
+     ],
+     "survival": 0.969,
+     "survival_ci95": [
+      0.893,
+      0.991
+     ],
+     "up_within_1m": 0.797,
+     "up_within_1m_ci95": [
+      0.683,
+      0.877
+     ],
+     "opponent_fell": 0.109,
+     "opponent_fell_n": 7,
+     "blocked_share": 0.116,
+     "head_clean_n": 159
+    },
+    "RL guard_fw": {
+     "episodes": 64,
+     "head_clean_pm": 4.567,
+     "head_clean_pm_ci95": [
+      3.634,
+      5.613
+     ],
+     "torso_clean_pm": 10.513,
+     "torso_clean_pm_ci95": [
+      9.092,
+      11.938
+     ],
+     "survival": 0.969,
+     "survival_ci95": [
+      0.893,
+      0.991
+     ],
+     "up_within_1m": 0.766,
+     "up_within_1m_ci95": [
+      0.649,
+      0.853
+     ],
+     "opponent_fell": 0.062,
+     "opponent_fell_n": 4,
+     "blocked_share": 0.229,
+     "head_clean_n": 96
+    }
+   }
+  },
+  "val hard aimed": {
+   "source": "results/eval_opponent/aim/summary_val_hard_aim.json",
+   "raw": "results/eval_opponent/aim/raw_val_hard_aim.json",
+   "hit_meter": true,
+   "seconds": 20.0,
+   "opponent_aim": "standoff+armwarp_vz",
+   "controllers": {
+    "pd_stand": {
+     "episodes": 64,
+     "head_clean_pm": 13.241,
+     "head_clean_pm_ci95": [
+      9.998,
+      16.872
+     ],
+     "torso_clean_pm": 8.386,
+     "torso_clean_pm_ci95": [
+      5.969,
+      10.786
+     ],
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.057
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.057
+     ],
+     "opponent_fell": 0.078,
+     "opponent_fell_n": 5,
+     "blocked_share": 0.2,
+     "head_clean_n": 60,
+     "intent_n": 411,
+     "intent_head_share": 0.107,
+     "intent_blocked_share": 0.234
+    },
+    "RL v1": {
+     "episodes": 64,
+     "head_clean_pm": 13.154,
+     "head_clean_pm_ci95": [
+      10.038,
+      15.908
+     ],
+     "torso_clean_pm": 5.846,
+     "torso_clean_pm_ci95": [
+      3.228,
+      8.723
+     ],
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.057
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.057
+     ],
+     "opponent_fell": 0.078,
+     "opponent_fell_n": 5,
+     "blocked_share": 0.201,
+     "head_clean_n": 54,
+     "intent_n": 383,
+     "intent_head_share": 0.131,
+     "intent_blocked_share": 0.217
+    },
+    "RL v2": {
+     "episodes": 64,
+     "head_clean_pm": 10.595,
+     "head_clean_pm_ci95": [
+      7.806,
+      13.27
+     ],
+     "torso_clean_pm": 6.092,
+     "torso_clean_pm_ci95": [
+      3.797,
+      8.487
+     ],
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.057
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.057
+     ],
+     "opponent_fell": 0.078,
+     "opponent_fell_n": 5,
+     "blocked_share": 0.185,
+     "head_clean_n": 40,
+     "intent_n": 351,
+     "intent_head_share": 0.094,
+     "intent_blocked_share": 0.197
+    },
+    "RL v3": {
+     "episodes": 64,
+     "head_clean_pm": 11.355,
+     "head_clean_pm_ci95": [
+      8.657,
+      14.057
+     ],
+     "torso_clean_pm": 5.816,
+     "torso_clean_pm_ci95": [
+      3.448,
+      8.652
+     ],
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.057
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.057
+     ],
+     "opponent_fell": 0.078,
+     "opponent_fell_n": 5,
+     "blocked_share": 0.184,
+     "head_clean_n": 41,
+     "intent_n": 327,
+     "intent_head_share": 0.101,
+     "intent_blocked_share": 0.211
+    },
+    "RL step_s1": {
+     "episodes": 64,
+     "head_clean_pm": 9.029,
+     "head_clean_pm_ci95": [
+      7.478,
+      10.79
+     ],
+     "torso_clean_pm": 7.194,
+     "torso_clean_pm_ci95": [
+      5.592,
+      8.854
+     ],
+     "survival": 0.469,
+     "survival_ci95": [
+      0.352,
+      0.589
+     ],
+     "up_within_1m": 0.328,
+     "up_within_1m_ci95": [
+      0.226,
+      0.45
+     ],
+     "opponent_fell": 0.078,
+     "opponent_fell_n": 5,
+     "blocked_share": 0.146,
+     "head_clean_n": 123,
+     "intent_n": 1249,
+     "intent_head_share": 0.08,
+     "intent_blocked_share": 0.154
+    },
+    "RL step": {
+     "episodes": 64,
+     "head_clean_pm": 8.77,
+     "head_clean_pm_ci95": [
+      7.29,
+      10.262
+     ],
+     "torso_clean_pm": 9.015,
+     "torso_clean_pm_ci95": [
+      7.533,
+      10.536
+     ],
+     "survival": 0.922,
+     "survival_ci95": [
+      0.83,
+      0.966
+     ],
+     "up_within_1m": 0.625,
+     "up_within_1m_ci95": [
+      0.503,
+      0.733
+     ],
+     "opponent_fell": 0.172,
+     "opponent_fell_n": 11,
+     "blocked_share": 0.112,
+     "head_clean_n": 179,
+     "intent_n": 1874,
+     "intent_head_share": 0.052,
+     "intent_blocked_share": 0.144
+    },
+    "RL guard": {
+     "episodes": 64,
+     "head_clean_pm": 5.503,
+     "head_clean_pm_ci95": [
+      4.365,
+      6.709
+     ],
+     "torso_clean_pm": 7.097,
+     "torso_clean_pm_ci95": [
+      5.711,
+      8.493
+     ],
+     "survival": 0.859,
+     "survival_ci95": [
+      0.754,
+      0.924
+     ],
+     "up_within_1m": 0.438,
+     "up_within_1m_ci95": [
+      0.323,
+      0.559
+     ],
+     "opponent_fell": 0.172,
+     "opponent_fell_n": 11,
+     "blocked_share": 0.229,
+     "head_clean_n": 107,
+     "intent_n": 1782,
+     "intent_head_share": 0.04,
+     "intent_blocked_share": 0.352
+    },
+    "RL step_fw": {
+     "episodes": 64,
+     "head_clean_pm": 8.741,
+     "head_clean_pm_ci95": [
+      7.266,
+      10.265
+     ],
+     "torso_clean_pm": 8.741,
+     "torso_clean_pm_ci95": [
+      7.407,
+      10.126
+     ],
+     "survival": 0.891,
+     "survival_ci95": [
+      0.791,
+      0.946
+     ],
+     "up_within_1m": 0.766,
+     "up_within_1m_ci95": [
+      0.649,
+      0.853
+     ],
+     "opponent_fell": 0.125,
+     "opponent_fell_n": 8,
+     "blocked_share": 0.144,
+     "head_clean_n": 175,
+     "intent_n": 1837,
+     "intent_head_share": 0.056,
+     "intent_blocked_share": 0.169
+    },
+    "RL guard_fw": {
+     "episodes": 64,
+     "head_clean_pm": 5.92,
+     "head_clean_pm_ci95": [
+      4.875,
+      7.03
+     ],
+     "torso_clean_pm": 5.632,
+     "torso_clean_pm_ci95": [
+      4.536,
+      6.807
+     ],
+     "survival": 0.953,
+     "survival_ci95": [
+      0.871,
+      0.984
+     ],
+     "up_within_1m": 0.781,
+     "up_within_1m_ci95": [
+      0.666,
+      0.865
+     ],
+     "opponent_fell": 0.156,
+     "opponent_fell_n": 10,
+     "blocked_share": 0.261,
+     "head_clean_n": 123,
+     "intent_n": 1909,
+     "intent_head_share": 0.043,
+     "intent_blocked_share": 0.391
+    }
+   }
+  },
+  "val hard nohits": {
+   "source": "results/eval_opponent/aim/summary_val_hard_nohits.json",
+   "raw": "results/eval_opponent/aim/raw_val_hard_nohits.json",
+   "hit_meter": true,
+   "seconds": 20.0,
+   "opponent_aim": "shadow",
+   "controllers": {
+    "pd_stand": {
+     "episodes": 64,
+     "head_clean_pm": 22.189,
+     "head_clean_pm_ci95": [
+      19.001,
+      25.031
+     ],
+     "torso_clean_pm": 14.191,
+     "torso_clean_pm_ci95": [
+      10.365,
+      17.89
+     ],
+     "survival": 0.203,
+     "survival_ci95": [
+      0.123,
+      0.317
+     ],
+     "up_within_1m": 0.203,
+     "up_within_1m_ci95": [
+      0.123,
+      0.317
+     ],
+     "opponent_fell": 0.031,
+     "opponent_fell_n": 2,
+     "blocked_share": 0.208,
+     "head_clean_n": 172
+    },
+    "RL v1": {
+     "episodes": 64,
+     "head_clean_pm": 16.59,
+     "head_clean_pm_ci95": [
+      14.293,
+      19.205
+     ],
+     "torso_clean_pm": 18.568,
+     "torso_clean_pm_ci95": [
+      14.1,
+      23.434
+     ],
+     "survival": 0.109,
+     "survival_ci95": [
+      0.054,
+      0.209
+     ],
+     "up_within_1m": 0.109,
+     "up_within_1m_ci95": [
+      0.054,
+      0.209
+     ],
+     "opponent_fell": 0.016,
+     "opponent_fell_n": 1,
+     "blocked_share": 0.161,
+     "head_clean_n": 109
+    },
+    "RL v2": {
+     "episodes": 64,
+     "head_clean_pm": 17.501,
+     "head_clean_pm_ci95": [
+      14.858,
+      20.031
+     ],
+     "torso_clean_pm": 14.683,
+     "torso_clean_pm_ci95": [
+      11.299,
+      18.914
+     ],
+     "survival": 0.125,
+     "survival_ci95": [
+      0.065,
+      0.228
+     ],
+     "up_within_1m": 0.125,
+     "up_within_1m_ci95": [
+      0.065,
+      0.228
+     ],
+     "opponent_fell": 0.016,
+     "opponent_fell_n": 1,
+     "blocked_share": 0.177,
+     "head_clean_n": 118
+    },
+    "RL v3": {
+     "episodes": 64,
+     "head_clean_pm": 18.152,
+     "head_clean_pm_ci95": [
+      15.084,
+      21.313
+     ],
+     "torso_clean_pm": 16.113,
+     "torso_clean_pm_ci95": [
+      12.232,
+      21.034
+     ],
+     "survival": 0.078,
+     "survival_ci95": [
+      0.034,
+      0.17
+     ],
+     "up_within_1m": 0.078,
+     "up_within_1m_ci95": [
+      0.034,
+      0.17
+     ],
+     "opponent_fell": 0.016,
+     "opponent_fell_n": 1,
+     "blocked_share": 0.164,
+     "head_clean_n": 89
+    },
+    "RL step_s1": {
+     "episodes": 64,
+     "head_clean_pm": 14.481,
+     "head_clean_pm_ci95": [
+      12.345,
+      16.822
+     ],
+     "torso_clean_pm": 17.741,
+     "torso_clean_pm_ci95": [
+      14.917,
+      20.486
+     ],
+     "survival": 0.453,
+     "survival_ci95": [
+      0.337,
+      0.574
+     ],
+     "up_within_1m": 0.375,
+     "up_within_1m_ci95": [
+      0.267,
+      0.497
+     ],
+     "opponent_fell": 0.031,
+     "opponent_fell_n": 2,
+     "blocked_share": 0.133,
+     "head_clean_n": 191
+    },
+    "RL step": {
+     "episodes": 64,
+     "head_clean_pm": 9.785,
+     "head_clean_pm_ci95": [
+      8.532,
+      11.069
+     ],
+     "torso_clean_pm": 15.732,
+     "torso_clean_pm_ci95": [
+      14.055,
+      17.404
+     ],
+     "survival": 0.969,
+     "survival_ci95": [
+      0.893,
+      0.991
+     ],
+     "up_within_1m": 0.938,
+     "up_within_1m_ci95": [
+      0.85,
+      0.975
+     ],
+     "opponent_fell": 0.016,
+     "opponent_fell_n": 1,
+     "blocked_share": 0.134,
+     "head_clean_n": 204
+    },
+    "RL guard": {
+     "episodes": 64,
+     "head_clean_pm": 4.974,
+     "head_clean_pm_ci95": [
+      4.08,
+      5.952
+     ],
+     "torso_clean_pm": 13.908,
+     "torso_clean_pm_ci95": [
+      11.892,
+      15.891
+     ],
+     "survival": 0.969,
+     "survival_ci95": [
+      0.893,
+      0.991
+     ],
+     "up_within_1m": 0.594,
+     "up_within_1m_ci95": [
+      0.471,
+      0.705
+     ],
+     "opponent_fell": 0.047,
+     "opponent_fell_n": 3,
+     "blocked_share": 0.245,
+     "head_clean_n": 103
+    },
+    "RL step_fw": {
+     "episodes": 64,
+     "head_clean_pm": 9.824,
+     "head_clean_pm_ci95": [
+      8.436,
+      11.186
+     ],
+     "torso_clean_pm": 14.538,
+     "torso_clean_pm_ci95": [
+      12.783,
+      16.188
+     ],
+     "survival": 0.938,
+     "survival_ci95": [
+      0.85,
+      0.975
+     ],
+     "up_within_1m": 0.906,
+     "up_within_1m_ci95": [
+      0.81,
+      0.956
+     ],
+     "opponent_fell": 0.047,
+     "opponent_fell_n": 3,
+     "blocked_share": 0.142,
+     "head_clean_n": 198
+    },
+    "RL guard_fw": {
+     "episodes": 64,
+     "head_clean_pm": 5.048,
+     "head_clean_pm_ci95": [
+      4.126,
+      5.95
+     ],
+     "torso_clean_pm": 11.272,
+     "torso_clean_pm_ci95": [
+      9.628,
+      12.911
+     ],
+     "survival": 0.953,
+     "survival_ci95": [
+      0.871,
+      0.984
+     ],
+     "up_within_1m": 0.938,
+     "up_within_1m_ci95": [
+      0.85,
+      0.975
+     ],
+     "opponent_fell": 0.016,
+     "opponent_fell_n": 1,
+     "blocked_share": 0.275,
+     "head_clean_n": 103
+    }
+   }
+  },
+  "val hard nohits aimed": {
+   "source": "results/eval_opponent/aim/summary_val_hard_nohits_aim.json",
+   "raw": "results/eval_opponent/aim/raw_val_hard_nohits_aim.json",
+   "hit_meter": true,
+   "seconds": 20.0,
+   "opponent_aim": "standoff+armwarp_vz",
+   "controllers": {
+    "pd_stand": {
+     "episodes": 64,
+     "head_clean_pm": 12.956,
+     "head_clean_pm_ci95": [
+      10.672,
+      15.334
+     ],
+     "torso_clean_pm": 7.464,
+     "torso_clean_pm_ci95": [
+      5.757,
+      9.199
+     ],
+     "survival": 0.047,
+     "survival_ci95": [
+      0.016,
+      0.129
+     ],
+     "up_within_1m": 0.047,
+     "up_within_1m_ci95": [
+      0.016,
+      0.129
+     ],
+     "opponent_fell": 0.031,
+     "opponent_fell_n": 2,
+     "blocked_share": 0.208,
+     "head_clean_n": 92,
+     "intent_n": 643,
+     "intent_head_share": 0.135,
+     "intent_blocked_share": 0.229
+    },
+    "RL v1": {
+     "episodes": 64,
+     "head_clean_pm": 14.786,
+     "head_clean_pm_ci95": [
+      10.953,
+      18.235
+     ],
+     "torso_clean_pm": 6.872,
+     "torso_clean_pm_ci95": [
+      4.753,
+      9.517
+     ],
+     "survival": 0.031,
+     "survival_ci95": [
+      0.009,
+      0.107
+     ],
+     "up_within_1m": 0.031,
+     "up_within_1m_ci95": [
+      0.009,
+      0.107
+     ],
+     "opponent_fell": 0.031,
+     "opponent_fell_n": 2,
+     "blocked_share": 0.182,
+     "head_clean_n": 71,
+     "intent_n": 436,
+     "intent_head_share": 0.144,
+     "intent_blocked_share": 0.156
+    },
+    "RL v2": {
+     "episodes": 64,
+     "head_clean_pm": 11.445,
+     "head_clean_pm_ci95": [
+      8.767,
+      13.96
+     ],
+     "torso_clean_pm": 7.505,
+     "torso_clean_pm_ci95": [
+      4.848,
+      10.573
+     ],
+     "survival": 0.016,
+     "survival_ci95": [
+      0.003,
+      0.083
+     ],
+     "up_within_1m": 0.016,
+     "up_within_1m_ci95": [
+      0.003,
+      0.083
+     ],
+     "opponent_fell": 0.031,
+     "opponent_fell_n": 2,
+     "blocked_share": 0.212,
+     "head_clean_n": 61,
+     "intent_n": 487,
+     "intent_head_share": 0.121,
+     "intent_blocked_share": 0.201
+    },
+    "RL v3": {
+     "episodes": 64,
+     "head_clean_pm": 13.943,
+     "head_clean_pm_ci95": [
+      10.959,
+      16.828
+     ],
+     "torso_clean_pm": 6.48,
+     "torso_clean_pm_ci95": [
+      3.877,
+      9.788
+     ],
+     "survival": 0.016,
+     "survival_ci95": [
+      0.003,
+      0.083
+     ],
+     "up_within_1m": 0.016,
+     "up_within_1m_ci95": [
+      0.003,
+      0.083
+     ],
+     "opponent_fell": 0.016,
+     "opponent_fell_n": 1,
+     "blocked_share": 0.209,
+     "head_clean_n": 71,
+     "intent_n": 466,
+     "intent_head_share": 0.135,
+     "intent_blocked_share": 0.202
+    },
+    "RL step_s1": {
+     "episodes": 64,
+     "head_clean_pm": 9.279,
+     "head_clean_pm_ci95": [
+      7.436,
+      11.544
+     ],
+     "torso_clean_pm": 7.156,
+     "torso_clean_pm_ci95": [
+      5.254,
+      8.969
+     ],
+     "survival": 0.422,
+     "survival_ci95": [
+      0.309,
+      0.544
+     ],
+     "up_within_1m": 0.375,
+     "up_within_1m_ci95": [
+      0.267,
+      0.497
+     ],
+     "opponent_fell": 0.031,
+     "opponent_fell_n": 2,
+     "blocked_share": 0.169,
+     "head_clean_n": 118,
+     "intent_n": 1164,
+     "intent_head_share": 0.092,
+     "intent_blocked_share": 0.171
+    },
+    "RL step": {
+     "episodes": 64,
+     "head_clean_pm": 11.571,
+     "head_clean_pm_ci95": [
+      9.976,
+      13.068
+     ],
+     "torso_clean_pm": 11.378,
+     "torso_clean_pm_ci95": [
+      9.799,
+      13.06
+     ],
+     "survival": 0.969,
+     "survival_ci95": [
+      0.893,
+      0.991
+     ],
+     "up_within_1m": 0.922,
+     "up_within_1m_ci95": [
+      0.83,
+      0.966
+     ],
+     "opponent_fell": 0.062,
+     "opponent_fell_n": 4,
+     "blocked_share": 0.14,
+     "head_clean_n": 240,
+     "intent_n": 1900,
+     "intent_head_share": 0.067,
+     "intent_blocked_share": 0.162
+    },
+    "RL guard": {
+     "episodes": 64,
+     "head_clean_pm": 7.571,
+     "head_clean_pm_ci95": [
+      6.242,
+      8.933
+     ],
+     "torso_clean_pm": 7.813,
+     "torso_clean_pm_ci95": [
+      6.293,
+      9.445
+     ],
+     "survival": 0.969,
+     "survival_ci95": [
+      0.893,
+      0.991
+     ],
+     "up_within_1m": 0.703,
+     "up_within_1m_ci95": [
+      0.582,
+      0.801
+     ],
+     "opponent_fell": 0.062,
+     "opponent_fell_n": 4,
+     "blocked_share": 0.272,
+     "head_clean_n": 157,
+     "intent_n": 1900,
+     "intent_head_share": 0.048,
+     "intent_blocked_share": 0.406
+    },
+    "RL step_fw": {
+     "episodes": 64,
+     "head_clean_pm": 11.367,
+     "head_clean_pm_ci95": [
+      9.985,
+      12.831
+     ],
+     "torso_clean_pm": 9.531,
+     "torso_clean_pm_ci95": [
+      8.175,
+      10.951
+     ],
+     "survival": 0.922,
+     "survival_ci95": [
+      0.83,
+      0.966
+     ],
+     "up_within_1m": 0.906,
+     "up_within_1m_ci95": [
+      0.81,
+      0.956
+     ],
+     "opponent_fell": 0.078,
+     "opponent_fell_n": 5,
+     "blocked_share": 0.149,
+     "head_clean_n": 229,
+     "intent_n": 1845,
+     "intent_head_share": 0.079,
+     "intent_blocked_share": 0.167
+    },
+    "RL guard_fw": {
+     "episodes": 64,
+     "head_clean_pm": 7.72,
+     "head_clean_pm_ci95": [
+      6.779,
+      8.566
+     ],
+     "torso_clean_pm": 7.961,
+     "torso_clean_pm_ci95": [
+      6.433,
+      9.595
+     ],
+     "survival": 0.969,
+     "survival_ci95": [
+      0.893,
+      0.991
+     ],
+     "up_within_1m": 0.891,
+     "up_within_1m_ci95": [
+      0.791,
+      0.946
+     ],
+     "opponent_fell": 0.062,
+     "opponent_fell_n": 4,
+     "blocked_share": 0.306,
+     "head_clean_n": 160,
+     "intent_n": 1898,
+     "intent_head_share": 0.05,
+     "intent_blocked_share": 0.45
+    }
+   }
+  },
+  "val standard": {
+   "source": "results/eval_opponent/summary_val.json",
+   "raw": "results/eval_opponent/raw_val.json",
+   "hit_meter": false,
+   "seconds": 10.0,
+   "opponent_aim": null,
+   "controllers": {
+    "pd_stand": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.338,
+     "survival_ci95": [
+      0.243,
+      0.446
+     ],
+     "up_within_1m": 0.338,
+     "up_within_1m_ci95": [
+      0.243,
+      0.446
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL v1": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.637,
+     "survival_ci95": [
+      0.528,
+      0.734
+     ],
+     "up_within_1m": 0.637,
+     "up_within_1m_ci95": [
+      0.528,
+      0.734
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL v2": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.588,
+     "survival_ci95": [
+      0.478,
+      0.689
+     ],
+     "up_within_1m": 0.588,
+     "up_within_1m_ci95": [
+      0.478,
+      0.689
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL v3": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.588,
+     "survival_ci95": [
+      0.478,
+      0.689
+     ],
+     "up_within_1m": 0.588,
+     "up_within_1m_ci95": [
+      0.478,
+      0.689
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL step_s1": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.875,
+     "survival_ci95": [
+      0.785,
+      0.931
+     ],
+     "up_within_1m": 0.863,
+     "up_within_1m_ci95": [
+      0.77,
+      0.921
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL step": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.988,
+     "survival_ci95": [
+      0.933,
+      0.998
+     ],
+     "up_within_1m": 0.975,
+     "up_within_1m_ci95": [
+      0.913,
+      0.993
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL guard": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 1.0,
+     "survival_ci95": [
+      0.954,
+      1.0
+     ],
+     "up_within_1m": 0.975,
+     "up_within_1m_ci95": [
+      0.913,
+      0.993
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL step_fw": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 1.0,
+     "survival_ci95": [
+      0.954,
+      1.0
+     ],
+     "up_within_1m": 1.0,
+     "up_within_1m_ci95": [
+      0.954,
+      1.0
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL guard_fw": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 1.0,
+     "survival_ci95": [
+      0.954,
+      1.0
+     ],
+     "up_within_1m": 0.988,
+     "up_within_1m_ci95": [
+      0.933,
+      0.998
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    }
+   }
+  },
+  "val standard puppet": {
+   "source": "results/eval_opponent/summary_val_puppet.json",
+   "raw": "results/eval_opponent/raw_val_puppet.json",
+   "hit_meter": false,
+   "seconds": 10.0,
+   "opponent_aim": null,
+   "controllers": {
+    "pd_stand": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.046
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.046
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL v1": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.046
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.046
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL v2": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.046
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.046
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL v3": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.0,
+     "survival_ci95": [
+      0.0,
+      0.046
+     ],
+     "up_within_1m": 0.0,
+     "up_within_1m_ci95": [
+      0.0,
+      0.046
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL step_s1": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.575,
+     "survival_ci95": [
+      0.466,
+      0.677
+     ],
+     "up_within_1m": 0.537,
+     "up_within_1m_ci95": [
+      0.429,
+      0.643
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL step": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.963,
+     "survival_ci95": [
+      0.895,
+      0.987
+     ],
+     "up_within_1m": 0.725,
+     "up_within_1m_ci95": [
+      0.619,
+      0.811
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL guard": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.963,
+     "survival_ci95": [
+      0.895,
+      0.987
+     ],
+     "up_within_1m": 0.775,
+     "up_within_1m_ci95": [
+      0.672,
+      0.853
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL step_fw": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 0.95,
+     "survival_ci95": [
+      0.878,
+      0.98
+     ],
+     "up_within_1m": 0.812,
+     "up_within_1m_ci95": [
+      0.713,
+      0.883
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    },
+    "RL guard_fw": {
+     "episodes": 80,
+     "head_clean_pm": null,
+     "head_clean_pm_ci95": null,
+     "torso_clean_pm": null,
+     "torso_clean_pm_ci95": null,
+     "survival": 1.0,
+     "survival_ci95": [
+      0.954,
+      1.0
+     ],
+     "up_within_1m": 0.925,
+     "up_within_1m_ci95": [
+      0.846,
+      0.965
+     ],
+     "opponent_fell": 0.0,
+     "opponent_fell_n": 0,
+     "blocked_share": null,
+     "head_clean_n": null
+    }
+   }
+  }
+ }
+}

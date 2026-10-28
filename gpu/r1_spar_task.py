@@ -31,7 +31,7 @@ def _cfg(stage):
 
 # Guard: the stepping base's default arm pose (its action offset and the pose the posture reward holds) becomes a boxer's
 # guard: fists at cheek height, elbows down by the ribs. Found by FK/IK on the R1 (gpu/README.md), inside mjlab's soft
-# joint limits (90% of range). Fine-tuned from the shipped stepping base.
+# joint limits (90% of range). Fine-tuned from the stage-2 base.
 GUARD_ARMS = {"left_shoulder_pitch_joint": -0.85, "left_shoulder_roll_joint": 0.15, "left_shoulder_yaw_joint": 0.2, "left_elbow_joint": -0.7,
               "right_shoulder_pitch_joint": -0.85, "right_shoulder_roll_joint": -0.15, "right_shoulder_yaw_joint": -0.2, "right_elbow_joint": -0.7}
 
@@ -44,6 +44,29 @@ def _guard(make):
         return cfg
     return g
 
+# Stage 3, footwork (shipped; fine-tuned from the stage-2 bases): the outer loops in this repo (hold your spot, turn to face;
+# r1gym/env.py) drive the policy through its velocity command, and the stage-2 bases track it poorly (0.5 m/s -> 0.2-0.3,
+# 0.3 sideways -> 0.2) and the arms-down one doesn't turn left in CPU MuJoCo (results/face_opponent_ab.json).
+#  * Unitree's command_vel curriculum is removed, so the ranges below are the ones trained (it overrode the task's
+#    ranges before; gpu/README.md); 30% standing; velocity and yaw tracking weighted 1.5x.
+#  * Upper-body shoves like the opponent's: apply_body_impulse on the torso, 10 cm above its COM, each force component
+#    uniform in +-100 N for 0.05-0.15 s (typically ~5-15 N*s) every 1-3 s, on top of stage 2's velocity pushes.
+def _footwork(make):
+    def f(play=False):
+        cfg = make(play); cfg.curriculum.pop("command_vel", None)
+        tw = cfg.commands["twist"]; tw.rel_standing_envs = 0.3
+        tw.ranges.lin_vel_x = (-0.6, 0.8); tw.ranges.lin_vel_y = (-0.5, 0.5); tw.ranges.ang_vel_z = (-1.0, 1.0)
+        cfg.rewards["track_linear_velocity"].weight = 1.5; cfg.rewards["track_angular_velocity"].weight = 1.5
+        if not play:
+            from mjlab.envs import mdp as envs_mdp
+            from mjlab.managers.event_manager import EventTermCfg
+            from mjlab.managers.scene_entity_config import SceneEntityCfg
+            cfg.events["shove"] = EventTermCfg(func=envs_mdp.apply_body_impulse, mode="step", params={
+                "force_range": (-100.0, 100.0), "torque_range": (0.0, 0.0), "duration_s": (0.05, 0.15), "cooldown_s": (1.0, 3.0),
+                "asset_cfg": SceneEntityCfg("robot", body_names=("torso_link",)), "body_point_offset": (0.0, 0.0, 0.1)})
+        return cfg
+    return f
+
 def register():
     from mjlab.tasks.registry import register_mjlab_task
     from src.tasks.velocity.rl import VelocityOnPolicyRunner
@@ -53,6 +76,9 @@ def register():
         register_mjlab_task(task_id=tid, env_cfg=make(), play_env_cfg=make(play=True), rl_cfg=rl, runner_cls=VelocityOnPolicyRunner)
     make = _guard(_cfg(2)); rl = unitree_r1_ppo_runner_cfg(); rl.experiment_name = "r1_spar"
     register_mjlab_task(task_id="R1-Spar-Guard", env_cfg=make(), play_env_cfg=make(play=True), rl_cfg=rl, runner_cls=VelocityOnPolicyRunner)
+    for tid, make in [("R1-Spar-Footwork", _footwork(_cfg(2))), ("R1-Spar-Footwork-Guard", _footwork(_guard(_cfg(2))))]:
+        rl = unitree_r1_ppo_runner_cfg(); rl.experiment_name = "r1_spar"
+        register_mjlab_task(task_id=tid, env_cfg=make(), play_env_cfg=make(play=True), rl_cfg=rl, runner_cls=VelocityOnPolicyRunner)
 
 if __name__ == "__main__":
     sys.path.insert(0, str(Path.cwd())); sys.path.insert(0, str(Path.cwd() / "scripts"))

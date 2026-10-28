@@ -1,7 +1,7 @@
 """Opponent checkpoint comparison -> results/opponent_tracker/selection.json.
 
 Train + val clips only (never test): 2 distances x 6 clean starts per clip, 10 s bouts, no scripted hits, against the
-arms-down stepping base (it stands its ground; its turn command is off). Per bout: does the opponent fall, does the R1 fall,
+arms-down stepping base (it stands its ground: its turn command is off, and hold-your-spot is off too, overriding its gym.json). Per bout: does the opponent fall, does the R1 fall,
 the opponent's bearing off the R1's starting axis (0 = straight in front; median and 90th percentile), and its distance
 error. --opponent label=path.onnx[:nostyle] (the motion_index.json next to the ONNX; nostyle = the clips without the style
 cuts, i.e. the motion the stage-3 tracker was trained on: git show 5787b83:results/opponent_tracker/policy.onnx and
@@ -18,7 +18,7 @@ from r1gym.policy import load_controller, controller_cfg
 from r1gym.scenario import clean_starts, pick_start
 
 def compare(onnx, style=True, r1="results/policy_mjlab/policy.onnx", seconds=10.0):
-    c = load_controller(f"r1={r1}"); cfg = {**controller_cfg(c), "opponent_mode": "policy", "opponent_policy": str(Path(onnx).resolve()), "opponent_style_cuts": style}
+    c = load_controller(f"r1={r1}"); cfg = {**controller_cfg(c), "hold_position": False, "opponent_mode": "policy", "opponent_policy": str(Path(onnx).resolve()), "opponent_style_cuts": style}
     m = build_spec(opponent=True, cfg=cfg).compile(); clips, dists = TRAIN_CLIPS + VAL_CLIPS, [0.55, 0.65]; good = clean_starts(cfg, clips, dists)
     eps = [(cl, d, pick_start(good[(cl, d)], u)) for cl in clips for d in dists for u in np.linspace(0, 5.9, 6)]
     def run(ep):

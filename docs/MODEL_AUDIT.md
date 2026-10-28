@@ -68,4 +68,4 @@ fine, but with two robots the visible shells passed up to ~8 cm into each other 
 With an opponent the gym now lets each link's visual mesh (MuJoCo collides its convex hull) collide with the other robot's
 only (`robot_contact: shell`, `r1gym/model.py`), with stiffer, frictionless contact (condim 1, as mjlab's non-foot geoms), and keeps the capsules for the ground and the
 opponent's self-collision, which is what the policies trained with. `scripts/clip_check.py` measures the overlap
-(`results/clip_check.json`): the deepest overlap per bout drops from a median ~5.5 cm to under 1 cm.
+(`results/clip_check.json`, both footwork policies): the deepest overlap per bout drops from a median 5.4–6.1 cm (capsules) to under 1 cm (shells).

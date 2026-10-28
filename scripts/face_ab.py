@@ -6,7 +6,10 @@
    bearing error passes 20 deg, stop below 6 deg). Facing error = |bearing to the opponent - pelvis heading|, median per
    bout, then median over the bouts it survived; drift = pelvis distance from its start at the end; ring-out = got more
    than 1 m from its start at any time (rates over survived bouts).
-3. --val: survival on the headline eval's validation episodes (scripts/eval_opponent.py, standard and hard tier) for each
+--hold: the same bouts for the hold-your-spot outer loop (off / hold / hold_tight) -> results/hold_ab.json.
+Otherwise each policy runs with its own gym.json hold setting; --no_hold turns it off (the stage-2 rows of
+face_opponent_ab.json, measured before the hold loop existed). Rows are merged per policy into the existing file.
+3. --val: survival (and up-and-within-1 m, drift) on the headline eval's validation episodes (scripts/eval_opponent.py, standard and hard tier) for each
    setting, merged into the same file. Settings are chosen on these, never on test."""
 import sys, json, argparse
 from pathlib import Path
@@ -21,6 +24,9 @@ from r1gym.policy import load_controller, controller_cfg
 from r1gym.scenario import clean_starts, pick_start, SCRIPTED
 
 SETTINGS = {"off": dict(face_opponent=False), "on": dict(face_opponent=True), "deadband": dict(face_opponent=True, face_deadband=[0.35, 0.1])}
+# --hold: the hold-your-spot outer loop (r1gym/env.py _hold) instead, turn command off throughout
+HOLD = {"off": dict(hold_position=False, face_opponent=False), "hold": dict(hold_position=True, hold_deadband=[0.25, 0.08], face_opponent=False),
+        "hold_tight": dict(hold_position=True, hold_deadband=[0.12, 0.05], face_opponent=False)}
 
 def turn_response(c, cfg):
     out = {}; m = build_spec(cfg=cfg).compile()   # no opponent in the scene
@@ -34,7 +40,7 @@ def turn_response(c, cfg):
         out[f"{wz:.1f}"] = round(float(np.mean(r)), 2)
     return out
 
-def bouts(c, cfg, m, eps, seconds=12.0):
+def bouts(c, cfg, m, eps, seconds=12.0, settings=None):
     def run(ep):
         cl, d, t0 = ep; e = R1HitEnv(seed=0, cfg=cfg, model=m, episode_s=seconds + 1, max_impulse=0, train=False)
         e.opp = FightReplay(m, cl, distance=d, cfg=cfg); e.opp_t0 = t0; rng = np.random.default_rng(3)
@@ -51,31 +57,40 @@ def bouts(c, cfg, m, eps, seconds=12.0):
                 facing_err_p90_median_deg=round(float(np.median([r["face90"] for r in ok])), 1), drift_mean_m=round(float(np.mean([r["drift"] for r in ok])), 2),
                 ring_out=round(float(np.mean([r["out"] for r in ok])), 3))
 
-def val_survival(c, base, m):
+def val_survival(c, base, m, settings=SETTINGS):
     import eval_opponent as eo
     from r1gym.model import load_cfg
     out = {}
     for tier in ("standard", "hard"):
         T = eo.TIERS[tier]; good = clean_starts({**load_cfg(), "opponent_mode": "policy"}, VAL_CLIPS, T["distances"]); eps = eo.episodes(VAL_CLIPS, 16, tier, good)
-        out[tier] = {k: round(float(np.mean([r["fell_s"] is None for r in eo.run(c, eps, m, {**base, "face_deadband": None, **v}, T["seconds"], dr=T["dr"])])), 3) for k, v in SETTINGS.items()}
+        out[tier] = {}
+        for k, v in settings.items():
+            rows = eo.run(c, eps, m, {**base, "face_deadband": None, **v}, T["seconds"], dr=T["dr"])
+            out[tier][k] = dict(survival=round(float(np.mean([r["fell_s"] is None for r in rows])), 3),
+                                in_ring=round(float(np.mean([r["fell_s"] is None and not r["ring_out"] for r in rows])), 3),
+                                drift_m=round(float(np.mean([r["drift_m"] for r in rows if r["fell_s"] is None] or [0])), 2))
     return out
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(); ap.add_argument("--policy", nargs="+", default=["arms_down=results/policy_mjlab/policy.onnx", "guard=results/policy_mjlab_guard/policy.onnx"])
-    ap.add_argument("--out", default="results/face_opponent_ab.json"); ap.add_argument("--val", action="store_true"); a = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument("--policy", nargs="+", default=["footwork_arms_down=results/policy_mjlab_footwork/policy.onnx", "footwork_guard=results/policy_mjlab_guard_footwork/policy.onnx"])
+    ap.add_argument("--out", default=None); ap.add_argument("--val", action="store_true"); ap.add_argument("--hold", action="store_true")
+    ap.add_argument("--no_hold", action="store_true", help="hold-your-spot off whatever gym.json says (the stage-2 rows of face_opponent_ab.json)"); a = ap.parse_args()
+    nh = {"hold_position": False} if a.no_hold else {}
+    S = HOLD if a.hold else SETTINGS; a.out = a.out or ("results/hold_ab.json" if a.hold else "results/face_opponent_ab.json")
     if a.val:   # merge validation survival into the existing file
         sys.path.insert(0, str(Path(__file__).resolve().parent)); res = json.load(open(a.out)); res["about"] = __doc__; res.setdefault("val_survival", {})
         for spec in a.policy:
-            lab, path = spec.split("=", 1); c = load_controller(f"{lab}={path}"); base = {**controller_cfg(c), "opponent_mode": "policy"}
-            res["val_survival"][lab] = val_survival(c, base, build_spec(opponent=True, cfg=base).compile()); print(lab, res["val_survival"][lab], flush=True)
+            lab, path = spec.split("=", 1); c = load_controller(f"{lab}={path}"); base = {**controller_cfg(c), "opponent_mode": "policy", **nh}
+            res["val_survival"][lab] = val_survival(c, base, build_spec(opponent=True, cfg=base).compile(), S); print(lab, res["val_survival"][lab], flush=True)
         json.dump(res, open(a.out, "w"), indent=1); sys.exit(0)
-    res = {"about": __doc__, "turn_response_cmd_to_measured_rad_s": {}, "bouts": {}}
+    res = json.load(open(a.out)) if Path(a.out).exists() else {}   # other policies' rows (and the note) stay
+    res["about"] = __doc__; res.setdefault("turn_response_cmd_to_measured_rad_s", {}); res.setdefault("bouts", {})
     for spec in a.policy:
-        lab, path = spec.split("=", 1); c = load_controller(f"{lab}={path}"); base = {**controller_cfg(c), "opponent_mode": "policy"}
+        lab, path = spec.split("=", 1); c = load_controller(f"{lab}={path}"); base = {**controller_cfg(c), "opponent_mode": "policy", **nh}
         m = build_spec(opponent=True, cfg=base).compile()
-        res["turn_response_cmd_to_measured_rad_s"][lab] = turn_response(c, base); print(lab, res["turn_response_cmd_to_measured_rad_s"][lab], flush=True)
+        if not a.hold: res["turn_response_cmd_to_measured_rad_s"][lab] = turn_response(c, base); print(lab, res["turn_response_cmd_to_measured_rad_s"][lab], flush=True)
         clips, dists = TRAIN_CLIPS + VAL_CLIPS, [0.55, 0.65]; good = clean_starts(base, clips, dists)
         eps = [(cl, d, pick_start(good[(cl, d)], u)) for cl in clips for d in dists for u in np.linspace(0, 5.9, 6)]
-        res["bouts"][lab] = {k: bouts(c, {**base, **v}, m, eps) for k, v in SETTINGS.items()}
+        res["bouts"][lab] = {k: bouts(c, {**base, **v}, m, eps) for k, v in S.items()}
         print(lab, json.dumps(res["bouts"][lab]), flush=True)
     json.dump(res, open(a.out, "w"), indent=1)

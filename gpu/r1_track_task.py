@@ -93,7 +93,7 @@ def _steer_cfg(mc, speed=STEER_SPEED):
 LUNGE_M, LUNGE_MPS, LUNGE_HOLD_S, LUNGE_EVERY_S, LUNGE_TAU, LUNGE_BACK_MPS = (0.10, 0.30), (0.5, 1.2), (0.25, 0.6), (1.0, 3.0), 0.1, 0.4
 _AIM = {}
 
-def _aim_cfg(mc):
+def _aim_cfg(mc, strike_lunges=False):
     """A Steer2 command config -> the same config building an AimMotionCommand: Steer2's drift plus lunges (module
     docstring), a second xy offset `lo` chasing its target `lt` at a capped speed."""
     import dataclasses, torch
@@ -111,26 +111,50 @@ def _aim_cfg(mc):
             def body_lin_vel_w(self): return super().body_lin_vel_w + self.lv[:, None, :]
             @property
             def anchor_lin_vel_w(self): return super().anchor_lin_vel_w + self.lv
-            def _resample_command(self, env_ids):   # new episode: no lunge under way
+            def _resample_command(self, env_ids):   # new episode: no lunge under way (run 2: none until the next window opens)
                 self.lo[env_ids] = 0; self.lv[env_ids] = 0; self.lt[env_ids] = 0; self.cap[env_ids] = LUNGE_BACK_MPS; self.l_left[env_ids] = 0
+                if hasattr(self, "prev_win"): self.prev_win[env_ids] = True
                 self.l_next[env_ids] = torch.rand(len(env_ids), device=self.device) * LUNGE_EVERY_S[1]; super()._resample_command(env_ids)
+            def _window(self):
+                """Run 2: 1 where the current motion frame is in a train-clip strike's lunge window (the motion's _apex.json)."""
+                if not hasattr(self, "_lw"):
+                    import json
+                    f = Path(self.cfg.motion_file); self._lw = torch.tensor(json.load(open(f.with_name(f.stem + "_apex.json")))["lunge_window"], dtype=torch.bool, device=self.device)
+                    self.prev_win = torch.ones(self.num_envs, dtype=torch.bool, device=self.device)
+                return self._lw[self.time_steps.clamp(max=len(self._lw) - 1)]
             def _update_command(self):
                 dt, dev = self._env.step_dt, self.device; self.l_next -= dt
                 was = self.l_left > 0; self.l_left -= dt; back = was & (self.l_left <= 0); self.lt[back] = 0; self.cap[back] = LUNGE_BACK_MPS
-                ids = torch.where((self.l_next <= 0) & (self.l_left <= 0))[0]
+                if self.cfg.strike_lunges:   # run 2: a lunge starts as a strike's window opens and is held until it closes
+                    win = self._window(); opened = win & ~self.prev_win; closed = ~win & self.prev_win & (self.l_left > 0); self.prev_win = win
+                    self.l_left[closed] = torch.rand(int(closed.sum()), device=dev) * STRIKE_LUNGE_TAIL_S + 1e-6
+                    ids = torch.where(opened & (self.l_left <= 0) & (torch.rand(self.num_envs, device=dev) < STRIKE_LUNGE_P))[0]; hold = 1e9
+                else:
+                    ids = torch.where((self.l_next <= 0) & (self.l_left <= 0))[0]; hold = None
                 if len(ids):
                     u = lambda r: r[0] + torch.rand(len(ids), device=dev) * (r[1] - r[0])
                     w, x, y, z = self.anchor_quat_w[ids].unbind(-1); yaw = torch.atan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z))
                     L, v = u(LUNGE_M), u(LUNGE_MPS); self.lt[ids, 0] = L * torch.cos(yaw); self.lt[ids, 1] = L * torch.sin(yaw)
-                    self.cap[ids] = v; self.l_left[ids] = u(LUNGE_HOLD_S) + L / v; self.l_next[ids] = self.l_left[ids] + u(LUNGE_EVERY_S)
+                    self.cap[ids] = v; self.l_left[ids] = hold if hold else u(LUNGE_HOLD_S) + L / v; self.l_next[ids] = self.l_left[ids] + u(LUNGE_EVERY_S)
                 want = (self.lt - self.lo) / LUNGE_TAU; sp = torch.linalg.norm(want, dim=-1, keepdim=True)
                 self.lv = want * torch.clamp(self.cap[:, None] / sp.clamp_min(1e-9), max=1.0); self.lo += self.lv * dt
                 super()._update_command()
         @dataclasses.dataclass(kw_only=True)
         class AimMotionCommandCfg(_STEER["cfg"]):
+            strike_lunges: bool = False
             def build(self, env): return AimMotionCommand(self, env)
         _AIM["cfg"] = AimMotionCommandCfg
-    return _AIM["cfg"](**{f.name: getattr(mc, f.name) for f in dataclasses.fields(mc)})
+    return _AIM["cfg"](**{f.name: getattr(mc, f.name) for f in dataclasses.fields(mc)}, strike_lunges=strike_lunges)
+
+STRIKE_LUNGE_P, STRIKE_LUNGE_TAIL_S = 0.6, 0.2   # run 2: share of strike windows with a lunge; hold after the window closes (0-0.2 s)
+
+def lunge_anchor_exp(env, command_name, std):
+    """Run 2: while a lunge is asked for, exp(-d^2 / std^2) with d the horizontal distance of the anchor (torso) from its
+    lunging reference; 0 otherwise. Steer2's anchor term (std 0.5 m) makes a 20 cm lunge nearly free to ignore."""
+    import torch
+    cmd = env.command_manager.get_term(command_name); on = torch.linalg.norm(cmd.lt[:, :2], dim=-1) > 0
+    d2 = torch.sum(torch.square(cmd.anchor_pos_w[:, :2] - cmd.robot_anchor_pos_w[:, :2]), dim=-1)
+    return torch.exp(-d2 / std ** 2) * on
 
 WRISTS = (BODIES.index("left_wrist_roll_link"), BODIES.index("right_wrist_roll_link"))
 
@@ -184,10 +208,11 @@ def env_cfg(play=False, motion_file="", relaxed_hands=False, feet=0.25, hands=0.
             r = cfg.rewards["motion_global_root_pos"]; r.weight = 2.0; r.params["std"] = 0.5
             t = copy.deepcopy(cfg.terminations["anchor_pos"]); t.func = bad_anchor_pos; t.params = {"command_name": "motion", "threshold": 0.6}
             cfg.terminations["anchor_xy"] = t
-    if aim:   # M2 run 1 (module docstring)
+    if aim:   # M2 run 1 (aim=1) and run 2 (aim=2; module docstring)
         from mjlab.managers.reward_manager import RewardTermCfg
-        cfg.commands["motion"] = mc = _aim_cfg(mc)
-        cfg.rewards["strike_apex"] = RewardTermCfg(func=strike_apex_exp, weight=1.5, params={"command_name": "motion", "std": 0.1})
+        cfg.commands["motion"] = mc = _aim_cfg(mc, strike_lunges=aim == 2)
+        cfg.rewards["strike_apex"] = RewardTermCfg(func=strike_apex_exp, weight=3.0 if aim == 2 else 1.5, params={"command_name": "motion", "std": 0.1})
+        if aim == 2: cfg.rewards["lunge_anchor"] = RewardTermCfg(func=lunge_anchor_exp, weight=1.0, params={"command_name": "motion", "std": 0.15})
         if not play:
             from mjlab.envs import mdp as envs_mdp
             from mjlab.managers.event_manager import EventTermCfg
@@ -221,6 +246,8 @@ def register(motion_file=""):
 
     register_mjlab_task(task_id="R1-Track-KungFu-Aim", env_cfg=env_cfg(motion_file=motion_file, relaxed_hands=True, feet=0.4, hands=0.6, steer=True, strict=True, aim=True),
                         play_env_cfg=env_cfg(True, motion_file, relaxed_hands=True, feet=0.4, hands=0.6, steer=True, strict=True, aim=True), rl_cfg=rl, runner_cls=MotionTrackingOnPolicyRunner)
+    register_mjlab_task(task_id="R1-Track-KungFu-Aim2", env_cfg=env_cfg(motion_file=motion_file, relaxed_hands=True, feet=0.4, hands=0.6, steer=True, strict=True, aim=2),
+                        play_env_cfg=env_cfg(True, motion_file, relaxed_hands=True, feet=0.4, hands=0.6, steer=True, strict=True, aim=2), rl_cfg=rl, runner_cls=MotionTrackingOnPolicyRunner)
 
 def widen(src, dst, at=48, n=3):
     """Checkpoint for the steer task from a no-position one: n new actor inputs at index `at` (after the 48-d command,

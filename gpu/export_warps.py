@@ -22,6 +22,10 @@ strikes whose windows don't overlap is aimed, each at its own target:
            target by more than 3 cm at the apex, a foot leaves its reference by more than 1 cm on any frame, a joint moves
            faster than both its p99 over the train clips and its own fastest in the unwarped window, or the centre of mass
            leaves the support polygon of the feet on the floor by 2 cm more than the unwarped reference does.
+Run 2 (R1-Track-KungFu-Aim2): --head_share 1 --max_warp_m 0.35 --copies 48 --name r1_kungfu_aim2: every strike aimed at the head,
+apexes moved up to 0.35 m (0.30 / 0.25 / 0.20 m on redraws).
+_apex.json also marks, per frame, each train-clip hand strike's lunge window (0.3 s before onset to apex + 0.05 s), which
+R1-Track-KungFu-Aim2 times its steering lunges to.
 _apex.json lists, per motion frame, the striking hand at every train-clip strike's apex (+-2 frames; warped or not, in the
 original part too): gpu/r1_track_task.py's strike_apex reward reads it. Val and test strikes are never warped or listed."""
 import sys, json, argparse
@@ -36,7 +40,7 @@ from r1gym import strikes as S
 from export_motion import blend
 
 W = dict(max_warp_m=0.25, D=(0.42, 0.62), lat=0.10, dz=0.05, yaw_deg=20.0, max_dq=0.8, waist_yaw=0.6, waist_roll=0.2, root_dz=(-0.03, 0.08),
-         lunge_x=0.25, lunge_y=0.10, lunge_in_mps=0.6, lunge_out_mps=0.4, res_m=0.03, foot_m=0.01, com_m=0.02, tries=4, apex_pad=2,
+         lunge_x=0.25, lunge_y=0.10, lunge_in_mps=0.6, lunge_out_mps=0.4, res_m=0.03, foot_m=0.01, lunge_lead_s=0.3, com_m=0.02, tries=4, apex_pad=2,
          prior=dict(arm=1e-3, waist=4e-3, root_z=8e-3, lunge=2e-2, legs=1e-3), iters=40)
 WAIST = [CTRL_JOINTS.index("waist_roll_joint"), CTRL_JOINTS.index("waist_yaw_joint")]
 LEGS = list(range(12)); FEET = ("left_ankle_roll_link", "right_ankle_roll_link")
@@ -167,6 +171,7 @@ def window(s):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("--out", default="gpu/motions"); ap.add_argument("--copies", type=int, default=24); ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--head_share", type=float, default=0.5); ap.add_argument("--max_warp_m", type=float, default=W["max_warp_m"]); ap.add_argument("--name", default="r1_kungfu_aim")
     ap.add_argument("--blend_s", type=float, default=0.4); a = ap.parse_args(); rng = np.random.default_rng(a.seed)
     m = build_spec(opponent=True).compile(); n = int(round(a.blend_s * 50)); k = Kin()
     clips = {c: FightReplay(m, c, distance=0.0).q for c in list_clips()}
@@ -177,6 +182,7 @@ if __name__ == "__main__":
     lib = {c: [s for s in S.load(clip=c) if s.hand] for c in TRAIN_CLIPS}; assert all(s.split == "train" for v in lib.values() for s in v)
     vmax = np.percentile(np.abs(np.diff(np.concatenate([clips[c] for c in TRAIN_CLIPS])[:, 7:], axis=0)) * 50, 99, axis=0)
     apex = [(index[c]["start_frame"] + r * index[c]["frames"] + s.apex, s.limb) for c in TRAIN_CLIPS for r in (0, 1) for s in lib[c]]
+    spans = [(index[c]["start_frame"] + r * index[c]["frames"] + s.onset, index[c]["start_frame"] + r * index[c]["frames"] + s.apex) for c in TRAIN_CLIPS for r in (0, 1) for s in lib[c]]
     copies, warps, rejects = [], [], {}
     for ci in range(a.copies):
         for c in TRAIN_CLIPS:
@@ -185,21 +191,25 @@ if __name__ == "__main__":
                 w0, w1 = window(s)
                 if any(not (w1 < u0 or w0 > u1) for u0, u1 in taken): continue
                 for tr in range(W["tries"]):
-                    zone = "head" if rng.random() < 0.5 else "torso"; tgt, draw = r1_target(rng, zone); q2, info = warp_strike(k, q, s, tgt, vmax, W["max_warp_m"] - 0.05 * tr)
+                    zone = "head" if rng.random() < a.head_share else "torso"; tgt, draw = r1_target(rng, zone); q2, info = warp_strike(k, q, s, tgt, vmax, a.max_warp_m - 0.05 * tr)
                     if q2 is not None: q = q2; taken.append((w0, w1)); warps.append(dict(copy=ci, clip=c, onset=s.onset, apex=s.apex, limb=s.limb, **draw, **info)); break
                     rejects[info.split()[0]] = rejects.get(info.split()[0], 0) + 1
             start = len(seq) - n; seq = blend(seq, q, n); copies.append(dict(copy=ci, clip=c, start_frame=int(start), frames=int(len(q))))
             for w in warps:
                 if w["copy"] == ci and w["clip"] == c and "frame" not in w: w["frame"] = int(start + w["apex"])
-            apex += [(start + s.apex, s.limb) for s in lib[c]]
+            apex += [(start + s.apex, s.limb) for s in lib[c]]; spans += [(start + s.onset, start + s.apex) for s in lib[c]]
             print(f"copy {ci} {c}: {sum(w['copy'] == ci and w['clip'] == c for w in warps)} of {len(lib[c])} strikes warped", flush=True)
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     csv = np.concatenate([seq[:, :3], seq[:, [4, 5, 6, 3]], seq[:, 7:]], 1)
     ref = np.loadtxt(out / "r1_kungfu.csv", delimiter=","); base = len(ref); assert np.allclose(csv[:base - n], ref[:base - n], atol=2e-6), "original part differs from export_motion.py"
-    np.savetxt(out / "r1_kungfu_aim.csv", csv, delimiter=",", fmt="%.6f")
+    np.savetxt(out / f"{a.name}.csv", csv, delimiter=",", fmt="%.6f")
     hand = np.full(len(seq), -1, int)
     for f, limb in apex: hand[max(0, f - W["apex_pad"]):f + W["apex_pad"] + 1] = 0 if limb == "l_hand" else 1
-    json.dump(dict(about="per frame: -1 none, 0 left hand, 1 right hand at a train-clip strike apex (+-%d frames)" % W["apex_pad"], hand=hand.tolist()), open(out / "r1_kungfu_aim_apex.json", "w"))
+    lw = np.zeros(len(seq), int); a0, a1 = int(round(W["lunge_lead_s"] * 50)), int(round(AIM["arm"]["hold_s"] * 50))
+    for f0, fa in spans: lw[max(0, f0 - a0):fa + a1 + 1] = 1
+    json.dump(dict(about="hand, per frame: -1 none, 0 left hand, 1 right hand at a train-clip strike apex (+-%d frames). lunge_window, per frame: 1 from "
+                         "%.2f s before a train-clip hand strike's onset to its apex + %.2f s (R1-Track-KungFu-Aim2 times its lunges to these)" % (W["apex_pad"], W["lunge_lead_s"], AIM["arm"]["hold_s"]),
+                   hand=hand.tolist(), lunge_window=lw.tolist()), open(out / f"{a.name}_apex.json", "w"))
     json.dump(dict(about=__doc__, fps=50, joints=CTRL_JOINTS, frames=int(len(seq)), blend_frames=n, clips=index, copies=copies, params=W, seed=a.seed, warps=warps, rejects=rejects,
-                   n_warped=len(warps), n_strike_slots=a.copies * sum(len(v) for v in lib.values())), open(out / "r1_kungfu_aim_index.json", "w"), indent=1)
+                   n_warped=len(warps), n_strike_slots=a.copies * sum(len(v) for v in lib.values()), args=vars(a)), open(out / f"{a.name}_index.json", "w"), indent=1)
     print(len(seq), "frames,", round(len(seq) / 50, 1), "s;", len(warps), "warps; rejects", rejects)

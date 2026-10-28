@@ -2,9 +2,13 @@
 
 MuJoCo simulation and RL for turning a **Unitree R1** into a sparring partner that can take hits from a real opponent and stay up.
 
+[![showcase](media/showcase_loop.webp)](media/showcase.mp4)
+
+One held-out hard-tier bout (test episode 16, picked by a fixed rule in [`showcase/pick_bouts.py`](showcase/pick_bouts.py)) run once with each controller on identical physics and hits: the rigid PD stance (left) falls at 5.5 s, the footwork policy (right) stays up. Rendered in Blender Cycles from the recorded simulation, not animated by hand; every number on screen is read from the results files. **Full 34 s video: [`media/showcase.mp4`](media/showcase.mp4)** ([GIF fallback](media/showcase_loop.gif)). Pipeline: [`showcase/README.md`](showcase/README.md).
+
 ![demo](media/demo.gif)
 
-**Silver:** our R1 running the two shipped policies, stepping balance controllers trained on GPU from Unitree's own R1 task and fine-tuned for footwork: arms down (left) and holding a boxer's guard (right). When the bout pushes them off their spot they walk back to it, and the guard turns to face the opponent. **Orange:** the opponent, a second R1 **on its own motors**. A motion-tracking policy performs cleaned KungFuAthleteBot fight clips (here `kfab_201`, with its idle stretches and posing cut), and the sim steers it to stay in front of our R1 and face it. No invisible forces hold it up. **Yellow spheres** are real contacts between the two robots (size ∝ force); **orange arrows** are scripted pushes from the side and behind. Full video: [`media/demo.mp4`](media/demo.mp4). Reproduce: `python scripts/demo.py`.
+The raw eval view. **Silver:** our R1 running the two shipped policies, stepping balance controllers trained on GPU from Unitree's own R1 task and fine-tuned for footwork: arms down (left) and holding a boxer's guard (right). When the bout pushes them off their spot they walk back to it, and the guard turns to face the opponent. **Orange:** the opponent, a second R1 **on its own motors**. A motion-tracking policy performs cleaned KungFuAthleteBot fight clips (here `kfab_201`, with its idle stretches and posing cut), and the sim steers it to stay in front of our R1 and face it. No invisible forces hold it up. **Yellow spheres** are real contacts between the two robots (size ∝ force); **orange arrows** are scripted pushes from the side and behind. Full video: [`media/demo.mp4`](media/demo.mp4). Reproduce: `python scripts/demo.py`.
 
 **Status (all simulation, held-out test clips):**
 - **Hard tier** (20 s bouts; the opponent 0.40–0.55 m away and stepping in; six 8–14 N·s strikes and pushes from any direction; randomised robot physics): the guard survives **99.2%** of bouts (95% CI 95.7%–99.9%) and the arms-down policy 90.6%. PD and the residual policies survive 0%.

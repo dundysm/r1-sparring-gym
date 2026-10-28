@@ -68,8 +68,9 @@ def _footwork(make):
     return f
 
 # Stage 4, turning (fine-tuned from the footwork arms-down policy, and from the stage-2 guard with the footwork changes:
-# the footwork guard's checkpoint was lost). After stage 3 a held +-0.8 rad/s command still turns the robot at 0.1-0.3
-# rad/s, in mjlab too (results/turn_check_mjlab.json). Unitree's task gives every moving env its yaw rate from a heading
+# the footwork guard's checkpoint was lost). After stage 3 a held +-0.8 rad/s command still turns the robot at 0.1-0.2
+# rad/s, in mjlab too (results/turn_check_mjlab.json, 8 envs per command; when this was written, before training, it said
+# 0.1-0.3, from the superseded one-env rows). Result: neither candidate passed (results/turn_selection.json). Unitree's task gives every moving env its yaw rate from a heading
 # target (stiffness 0.5), tracks yaw with a loose std (sqrt(0.5)), and holds hip and waist yaw to 0.15 rad while walking.
 #  * 25% of the moving envs turn in place: no linear command, yaw rate +-0.3..1.0 rad/s held (no heading control), which
 #    is what the turn-to-face loop asks for.

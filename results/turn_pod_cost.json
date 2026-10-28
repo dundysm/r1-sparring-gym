@@ -1,0 +1,32 @@
+{
+ "pod_id": "9zlp7h659n6pte",
+ "gpu": "NVIDIA GeForce RTX 4090",
+ "cloud": "SECURE",
+ "cost_per_hr": 0.89,
+ "created_utc": "2026-10-28 02:24:06.145 +0000 UTC",
+ "deleted_utc": "2026-10-28T05:13Z",
+ "training_utc": {
+  "turn_arms": [
+   "02:34",
+   "02:59"
+  ],
+  "turn_guard": [
+   "02:59",
+   "03:27"
+  ],
+  "outputs_ready": "03:29"
+ },
+ "balance_before": 4.2620992005,
+ "balance_after_settled": 1.7410971282,
+ "cost": 2.52,
+ "idle_note": "the pod sat idle from 03:29 to 05:13 UTC: the session was paused (usage limit) before it downloaded the outputs and deleted the pod",
+ "runpodctl_billing_pods": [
+  {
+   "amount": 2.001511058071628,
+   "diskSpaceBilledGb": 1080,
+   "gpuId": "NVIDIA GeForce RTX 4090",
+   "time": "2026-10-28 00:00:00",
+   "timeBilledMs": 8045438
+  }
+ ]
+}

@@ -1,0 +1,10 @@
+{
+ "face_opponent": false,
+ "hold_position": true,
+ "hold_deadband": [
+  0.25,
+  0.08
+ ],
+ "_why_hold": "fixed by results/turn_prereg.json (as the shipped footwork policies); this candidate did not ship (results/turn_selection.json)",
+ "_why_face": "turn command left at the default (off): not chosen, because criterion 1 failed and the validation that would choose it (results/turn_prereg.json) wasn't run"
+}

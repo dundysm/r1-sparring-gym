@@ -1,0 +1,46 @@
+{
+ "about": "Turning candidates (gpu/r1_spar_task.py stage 4) -> results/turn_selection.json, by the rule fixed in\nresults/turn_prereg.json before they were trained. Criterion 1 (CPU MuJoCo turn response, scripts/face_ab.py turn_response)\nis checked first; criteria 2-3 (hard / standard validation, with the turn setting chosen by the face_ab rule) run only for a\ncandidate that passes it, since all three must hold. Test is never used here. The prereg also said test would be reported\nonce for both candidates after the decision; that is only possible for a candidate with a turn setting chosen on validation,\nso when criterion 1 fails it is not run, and the output records the deviation.",
+ "prereg": "results/turn_prereg.json",
+ "candidates": {
+  "turn_arms": {
+   "policy": "results/policy_mjlab_turn/policy.onnx",
+   "replaces": "results/policy_mjlab_footwork",
+   "turn_response_cmd_to_measured_rad_s": {
+    "-0.8": -0.03,
+    "-0.4": 0.02,
+    "0.0": -0.01,
+    "0.4": 0.12,
+    "0.8": 0.19
+   },
+   "turn_min_abs_0p8": 0.03,
+   "criterion_1": {
+    "need": ">= 0.25 and >= 1.5 x 0.09",
+    "passed": false
+   },
+   "criterion_2": "not run: criterion 1 failed",
+   "criterion_3": "not run: criterion 1 failed",
+   "ships": false,
+   "test": "not run: criterion 1 failed, so no turn setting was chosen on validation to test with (a deviation from turn_prereg.json's test report)"
+  },
+  "turn_guard": {
+   "policy": "results/policy_mjlab_guard_turn/policy.onnx",
+   "replaces": "results/policy_mjlab_guard_footwork",
+   "turn_response_cmd_to_measured_rad_s": {
+    "-0.8": -0.21,
+    "-0.4": -0.14,
+    "0.0": -0.01,
+    "0.4": 0.05,
+    "0.8": 0.16
+   },
+   "turn_min_abs_0p8": 0.16,
+   "criterion_1": {
+    "need": ">= 0.25 and >= 1.5 x 0.08",
+    "passed": false
+   },
+   "criterion_2": "not run: criterion 1 failed",
+   "criterion_3": "not run: criterion 1 failed",
+   "ships": false,
+   "test": "not run: criterion 1 failed, so no turn setting was chosen on validation to test with (a deviation from turn_prereg.json's test report)"
+  }
+ }
+}

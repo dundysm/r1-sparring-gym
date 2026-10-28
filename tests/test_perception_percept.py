@@ -44,12 +44,12 @@ def test_truth_mode_is_the_legacy_face_and_hold():
 
 def test_stored_val_episodes_rerun_bit_identical():
     """16 stored validation bouts per shipped policy (results/eval_opponent/raw_val.json) re-run bit-identically (every row
-    field) under the gym.json they were run with: face and hold off (hold_position came later), perception truth."""
+    field) under the gym.json they were run with (face off, hold as shipped), perception truth."""
     import importlib.util
     sp = importlib.util.spec_from_file_location("eval_opponent", ROOT.parent / "scripts" / "eval_opponent.py"); eo = importlib.util.module_from_spec(sp); sp.loader.exec_module(eo)
     r = json.load(open(ROOT.parent / "results" / "eval_opponent" / "raw_val.json")); eps = r["episodes"][:16]; assert {e["clip"] for e in eps} == set(VAL_CLIPS)
     for lab, path in [("RL guard", "results/policy_mjlab_guard/policy.onnx"), ("RL step", "results/policy_mjlab/policy.onnx")]:
-        c = load_controller(f"{lab}={path}"); cfg = {**controller_cfg(c), "opponent_mode": "policy", "hold_position": False}
+        c = load_controller(f"{lab}={path}"); cfg = {**controller_cfg(c), "opponent_mode": "policy"}
         assert cfg["perception"] == "truth" and not cfg["face_opponent"]
         assert eo.run(c, eps, build_spec(opponent=True, cfg=cfg).compile(), cfg, 10.0, threads=4) == r["raw"][lab][:16], lab
 

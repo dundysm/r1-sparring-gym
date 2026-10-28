@@ -1,0 +1,961 @@
+{
+ "about": "Hand labels for the strike detector's audit (M1.2, docs/AIMED_OPPONENT.md). Candidates: r1gym/strikes.py audit_candidates (every val speed peak, 36 seeded train ones, then 36 more train ones from the hands only: round 2, added because round 1 held only 13 clear strikes, before any precision or recall was computed). Each was labelled from scripts/strike_sheet.py --proposals sheets: five rendered frames 0.12 s apart around the effector's speed peak (side-on from the opponent's left front, the effector marked, a translucent stand-in R1 at 0.60 m), the effector's forward extension over +-0.5 s and its top-down path. Nothing on the sheets comes from the detector. Rendered with MuJoCo 3.17 on an Intel Arc 140V (OpenGL 4.6, driver 32.0.101.8132) at commit adcd6cb plus the uncommitted M1.2 code.",
+ "protocol": "strike = 1 if the speed peak belongs to a fast, deliberate drive of the effector toward the stand-in that ends extended in front of the body (punch, palm, hook or swing from behind, chop, rising strike; for a foot, a kick that leaves the floor forward). 0 if at the speed peak the effector retracts, winds up or chambers, swings back or overhead, is held, steps or pivots on the floor, or ends below the stand-in's hips. null (unsure) for slow reaches (< 2 m/s), an already extended arm sliding along the stand-in, or a small re-extension; counted, but left out of precision and recall.",
+ "labeller": "Labeller: Claude (claude-opus-5-5), the agent that wrote the detector, 2026-10-27, from the sheets alone (sheet = round:sheet.row). Before labelling it had seen a printed list of the detector's strikes for kfab_200 and the first four of kfab_201 while testing the detector; it did not consult it while labelling. One labeller, no second rater: the labels carry its judgement of what counts as a strike.",
+ "labels": [
+  {
+   "round": 1,
+   "sheet": "r1:00.0",
+   "clip": "kfab_204",
+   "limb": "l_hand",
+   "frame": 1,
+   "strike": 0,
+   "note": "hand drops to the hip (chamber); no forward drive"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:00.1",
+   "clip": "kfab_204",
+   "limb": "l_hand",
+   "frame": 13,
+   "strike": 1,
+   "note": "arm drives forward and up from the hip to the stand-in's head height, with a front kick"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:00.2",
+   "clip": "kfab_204",
+   "limb": "l_hand",
+   "frame": 25,
+   "strike": 1,
+   "note": "the same rising drive, arm extended toward the stand-in's head"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:00.3",
+   "clip": "kfab_204",
+   "limb": "l_hand",
+   "frame": 45,
+   "strike": 1,
+   "note": "overhead arm chops forward-down onto the stand-in's chest"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:00.4",
+   "clip": "kfab_204",
+   "limb": "l_hand",
+   "frame": 58,
+   "strike": 0,
+   "note": "hand leaves the stand-in and swings up: retraction"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:00.5",
+   "clip": "kfab_204",
+   "limb": "l_hand",
+   "frame": 72,
+   "strike": 0,
+   "note": "hand comes down and back to the body"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:01.0",
+   "clip": "kfab_204",
+   "limb": "l_hand",
+   "frame": 85,
+   "strike": 0,
+   "note": "hand lowers from head to chest height, moving back"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:01.1",
+   "clip": "kfab_204",
+   "limb": "l_hand",
+   "frame": 109,
+   "strike": 1,
+   "note": "straight punch from the chest into the stand-in's chest in a lunge"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:01.2",
+   "clip": "kfab_204",
+   "limb": "l_hand",
+   "frame": 131,
+   "strike": 0,
+   "note": "extended arm pulled back to the shoulder: retraction"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:01.3",
+   "clip": "kfab_204",
+   "limb": "l_hand",
+   "frame": 146,
+   "strike": 0,
+   "note": "low arm swing for balance during a kick"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:01.4",
+   "clip": "kfab_204",
+   "limb": "r_hand",
+   "frame": 11,
+   "strike": null,
+   "note": "arm rises forward to head height then swings back (uppercut-like, or balance)"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:01.5",
+   "clip": "kfab_204",
+   "limb": "r_hand",
+   "frame": 24,
+   "strike": 0,
+   "note": "arm swings back during the kick"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:02.0",
+   "clip": "kfab_204",
+   "limb": "r_hand",
+   "frame": 45,
+   "strike": 0,
+   "note": "rear arm extended behind the body while the other arm chops"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:02.1",
+   "clip": "kfab_204",
+   "limb": "r_hand",
+   "frame": 58,
+   "strike": 0,
+   "note": "rear arm stays behind, at the side"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:02.2",
+   "clip": "kfab_204",
+   "limb": "r_hand",
+   "frame": 77,
+   "strike": 1,
+   "note": "8 m/s swing from behind around to the front at head height (hook)"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:02.3",
+   "clip": "kfab_204",
+   "limb": "r_hand",
+   "frame": 96,
+   "strike": 1,
+   "note": "hand drops from the face and drives forward at waist height (low straight), start of the drive"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:02.4",
+   "clip": "kfab_204",
+   "limb": "r_hand",
+   "frame": 109,
+   "strike": 1,
+   "note": "the same punch at full extension into the stand-in's chest"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:02.5",
+   "clip": "kfab_204",
+   "limb": "r_hand",
+   "frame": 124,
+   "strike": 0,
+   "note": "hand at the hip, not driven forward"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:03.0",
+   "clip": "kfab_204",
+   "limb": "r_hand",
+   "frame": 146,
+   "strike": null,
+   "note": "arm thrust forward at chest height with a front kick, reaching only ~0.3 m"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:03.1",
+   "clip": "kfab_204",
+   "limb": "r_hand",
+   "frame": 160,
+   "strike": 0,
+   "note": "hand drops to the hip"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:03.2",
+   "clip": "kfab_204",
+   "limb": "l_foot",
+   "frame": 37,
+   "strike": 0,
+   "note": "support foot pivots while the other leg kicks"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:03.3",
+   "clip": "kfab_204",
+   "limb": "l_foot",
+   "frame": 47,
+   "strike": 0,
+   "note": "step forward at floor level"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:03.4",
+   "clip": "kfab_204",
+   "limb": "l_foot",
+   "frame": 58,
+   "strike": 0,
+   "note": "stepping at floor level"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:03.5",
+   "clip": "kfab_204",
+   "limb": "l_foot",
+   "frame": 76,
+   "strike": 0,
+   "note": "step at floor level"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:04.0",
+   "clip": "kfab_204",
+   "limb": "l_foot",
+   "frame": 96,
+   "strike": 0,
+   "note": "foot on the floor"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:04.1",
+   "clip": "kfab_204",
+   "limb": "l_foot",
+   "frame": 141,
+   "strike": 0,
+   "note": "support foot (the other leg kicks)"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:04.2",
+   "clip": "kfab_204",
+   "limb": "l_foot",
+   "frame": 158,
+   "strike": 0,
+   "note": "foot on the floor"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:04.3",
+   "clip": "kfab_204",
+   "limb": "r_foot",
+   "frame": 1,
+   "strike": 0,
+   "note": "rear foot on the floor"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:04.4",
+   "clip": "kfab_204",
+   "limb": "r_foot",
+   "frame": 22,
+   "strike": 1,
+   "note": "front kick: the foot swings from behind up to the stand-in's hip"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:04.5",
+   "clip": "kfab_204",
+   "limb": "r_foot",
+   "frame": 41,
+   "strike": 0,
+   "note": "kicking leg comes back down: retraction"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:05.0",
+   "clip": "kfab_204",
+   "limb": "r_foot",
+   "frame": 77,
+   "strike": 0,
+   "note": "foot on the floor"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:05.1",
+   "clip": "kfab_204",
+   "limb": "r_foot",
+   "frame": 90,
+   "strike": 0,
+   "note": "foot on the floor"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:05.2",
+   "clip": "kfab_204",
+   "limb": "r_foot",
+   "frame": 118,
+   "strike": 0,
+   "note": "rear foot of a lunge, on the floor"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:05.3",
+   "clip": "kfab_204",
+   "limb": "r_foot",
+   "frame": 143,
+   "strike": 1,
+   "note": "low front kick (9.6 m/s), foot 0.65 m forward at shin height"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:05.4",
+   "clip": "kfab_200",
+   "limb": "l_hand",
+   "frame": 4,
+   "strike": 0,
+   "note": "overhead wind-up; the forward drive comes after the window centre"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:05.5",
+   "clip": "kfab_200",
+   "limb": "l_hand",
+   "frame": 83,
+   "strike": 0,
+   "note": "hand rises from the waist to a guard by the face"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:06.0",
+   "clip": "kfab_200",
+   "limb": "l_hand",
+   "frame": 106,
+   "strike": 1,
+   "note": "straight punch from the face into the stand-in's chest, start of the drive"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:06.1",
+   "clip": "kfab_200",
+   "limb": "l_hand",
+   "frame": 191,
+   "strike": null,
+   "note": "hand rises from the hip to beside the face (uppercut, or a guard)"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:06.2",
+   "clip": "kfab_200",
+   "limb": "r_hand",
+   "frame": 50,
+   "strike": 0,
+   "note": "hand held in front of the face, small motion"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:06.3",
+   "clip": "kfab_200",
+   "limb": "r_hand",
+   "frame": 196,
+   "strike": 0,
+   "note": "hand pulled back from 0.4 m to the chest: retraction"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:06.4",
+   "clip": "kfab_200",
+   "limb": "l_foot",
+   "frame": 205,
+   "strike": 0,
+   "note": "stepping"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:06.5",
+   "clip": "kfab_200",
+   "limb": "r_foot",
+   "frame": 27,
+   "strike": 0,
+   "note": "rear foot steps forward at floor level"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:07.0",
+   "clip": "kfab_201",
+   "limb": "l_hand",
+   "frame": 131,
+   "strike": 1,
+   "note": "straight punch from the face into the stand-in"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:07.1",
+   "clip": "kfab_201",
+   "limb": "l_hand",
+   "frame": 298,
+   "strike": 0,
+   "note": "hand drops from the stand-in's head height to the waist"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:07.2",
+   "clip": "kfab_201",
+   "limb": "l_hand",
+   "frame": 338,
+   "strike": 0,
+   "note": "arm rises from the hip to overhead (a raise or block)"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:07.3",
+   "clip": "kfab_201",
+   "limb": "r_hand",
+   "frame": 64,
+   "strike": 0,
+   "note": "hand swings back from the face to behind the body"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:07.4",
+   "clip": "kfab_201",
+   "limb": "r_hand",
+   "frame": 389,
+   "strike": 1,
+   "note": "swing from behind to the front at head height (hook), ending overhead"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:07.5",
+   "clip": "kfab_201",
+   "limb": "r_hand",
+   "frame": 452,
+   "strike": 0,
+   "note": "hand moves back and down before the next punch"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:08.0",
+   "clip": "kfab_201",
+   "limb": "r_hand",
+   "frame": 712,
+   "strike": 0,
+   "note": "hand near its own shoulder"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:08.1",
+   "clip": "kfab_201",
+   "limb": "l_foot",
+   "frame": 65,
+   "strike": 0,
+   "note": "foot pivot"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:08.2",
+   "clip": "kfab_201",
+   "limb": "l_foot",
+   "frame": 199,
+   "strike": 0,
+   "note": "knee raise (chamber), foot under the knee"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:08.3",
+   "clip": "kfab_201",
+   "limb": "l_foot",
+   "frame": 269,
+   "strike": 0,
+   "note": "foot on the floor"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:08.4",
+   "clip": "kfab_201",
+   "limb": "l_foot",
+   "frame": 300,
+   "strike": 0,
+   "note": "kneeling"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:08.5",
+   "clip": "kfab_201",
+   "limb": "l_foot",
+   "frame": 449,
+   "strike": 0,
+   "note": "lunge step at floor level"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:09.0",
+   "clip": "kfab_201",
+   "limb": "l_foot",
+   "frame": 463,
+   "strike": 0,
+   "note": "lunge step at floor level"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:09.1",
+   "clip": "kfab_201",
+   "limb": "r_foot",
+   "frame": 108,
+   "strike": 0,
+   "note": "foot on the floor"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:09.2",
+   "clip": "kfab_201",
+   "limb": "r_foot",
+   "frame": 296,
+   "strike": 0,
+   "note": "foot on the floor"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:09.3",
+   "clip": "kfab_201",
+   "limb": "r_foot",
+   "frame": 641,
+   "strike": 0,
+   "note": "foot on the floor"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:09.4",
+   "clip": "kfab_201",
+   "limb": "r_foot",
+   "frame": 669,
+   "strike": 1,
+   "note": "low front kick: the foot swings 0.55 m forward and returns"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:09.5",
+   "clip": "kfab_203",
+   "limb": "l_hand",
+   "frame": 61,
+   "strike": 0,
+   "note": "low arm swing in a crouch, ending at knee height"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:10.0",
+   "clip": "kfab_203",
+   "limb": "l_hand",
+   "frame": 161,
+   "strike": 0,
+   "note": "arm held extended after a punch, small motion"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:10.1",
+   "clip": "kfab_203",
+   "limb": "r_hand",
+   "frame": 74,
+   "strike": 0,
+   "note": "extended hand drops to the floor in a crouch"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:10.2",
+   "clip": "kfab_203",
+   "limb": "r_hand",
+   "frame": 101,
+   "strike": 0,
+   "note": "hand comes back up from low"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:10.3",
+   "clip": "kfab_203",
+   "limb": "r_hand",
+   "frame": 127,
+   "strike": 0,
+   "note": "arm swings from behind to overhead (wind-up)"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:10.4",
+   "clip": "kfab_203",
+   "limb": "r_hand",
+   "frame": 225,
+   "strike": 0,
+   "note": "overhead at the window centre (wind-up)"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:10.5",
+   "clip": "kfab_203",
+   "limb": "r_hand",
+   "frame": 269,
+   "strike": 0,
+   "note": "hand low by the hip"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:11.0",
+   "clip": "kfab_203",
+   "limb": "l_foot",
+   "frame": 30,
+   "strike": 0,
+   "note": "foot moves back into a kneel"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:11.1",
+   "clip": "kfab_203",
+   "limb": "l_foot",
+   "frame": 99,
+   "strike": 0,
+   "note": "stepping"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:11.2",
+   "clip": "kfab_203",
+   "limb": "r_foot",
+   "frame": 110,
+   "strike": 0,
+   "note": "foot on the floor"
+  },
+  {
+   "round": 1,
+   "sheet": "r1:11.3",
+   "clip": "kfab_203",
+   "limb": "r_foot",
+   "frame": 259,
+   "strike": 0,
+   "note": "foot on the floor"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:00.0",
+   "clip": "kfab_200",
+   "limb": "l_hand",
+   "frame": 132,
+   "strike": 0,
+   "note": "hand leaves the stand-in and swings overhead: retraction"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:00.1",
+   "clip": "kfab_200",
+   "limb": "r_hand",
+   "frame": 12,
+   "strike": 0,
+   "note": "extended hand pulled back past the chest to behind: retraction"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:00.2",
+   "clip": "kfab_200",
+   "limb": "r_hand",
+   "frame": 112,
+   "strike": 0,
+   "note": "arm held overhead"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:00.3",
+   "clip": "kfab_200",
+   "limb": "r_hand",
+   "frame": 132,
+   "strike": 0,
+   "note": "overhead arm swings down behind the body"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:00.4",
+   "clip": "kfab_200",
+   "limb": "r_hand",
+   "frame": 145,
+   "strike": 1,
+   "note": "8.8 m/s swing from behind around to the front at chest-head height (hook)"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:00.5",
+   "clip": "kfab_200",
+   "limb": "r_hand",
+   "frame": 176,
+   "strike": null,
+   "note": "slow reach (1.6 m/s) from the guard toward the stand-in's head"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:01.0",
+   "clip": "kfab_201",
+   "limb": "l_hand",
+   "frame": 35,
+   "strike": null,
+   "note": "slow reach (1.4 m/s) from the waist to the stand-in's hip height"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:01.1",
+   "clip": "kfab_201",
+   "limb": "l_hand",
+   "frame": 106,
+   "strike": 0,
+   "note": "extended hand pulled back to the chest: retraction"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:01.2",
+   "clip": "kfab_201",
+   "limb": "l_hand",
+   "frame": 162,
+   "strike": 1,
+   "note": "hand drives up and forward from the hip to the stand-in's head"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:01.3",
+   "clip": "kfab_201",
+   "limb": "l_hand",
+   "frame": 379,
+   "strike": null,
+   "note": "already extended arm slides up the stand-in from chest to head, then retracts"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:01.4",
+   "clip": "kfab_201",
+   "limb": "l_hand",
+   "frame": 389,
+   "strike": 0,
+   "note": "extended hand pulled back to the chest and hip: retraction"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:01.5",
+   "clip": "kfab_201",
+   "limb": "l_hand",
+   "frame": 435,
+   "strike": 0,
+   "note": "hand rises from the hip to a guard (chamber); the punch comes later"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:02.0",
+   "clip": "kfab_201",
+   "limb": "l_hand",
+   "frame": 451,
+   "strike": 1,
+   "note": "punch from the chest into the stand-in"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:02.1",
+   "clip": "kfab_201",
+   "limb": "l_hand",
+   "frame": 474,
+   "strike": 0,
+   "note": "extended hand pulled back to the hip"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:02.2",
+   "clip": "kfab_201",
+   "limb": "l_hand",
+   "frame": 548,
+   "strike": 0,
+   "note": "extended hand swings down and back behind the body"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:02.3",
+   "clip": "kfab_201",
+   "limb": "l_hand",
+   "frame": 570,
+   "strike": 0,
+   "note": "bottom of a swing from behind (wind-up); the drive into the stand-in comes after the window centre"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:02.4",
+   "clip": "kfab_201",
+   "limb": "l_hand",
+   "frame": 588,
+   "strike": 0,
+   "note": "hand leaves the stand-in and goes overhead"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:02.5",
+   "clip": "kfab_201",
+   "limb": "l_hand",
+   "frame": 652,
+   "strike": 0,
+   "note": "arm held extended"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:03.0",
+   "clip": "kfab_201",
+   "limb": "l_hand",
+   "frame": 700,
+   "strike": 1,
+   "note": "arm swings forward and up from the hip to the stand-in's head height"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:03.1",
+   "clip": "kfab_201",
+   "limb": "r_hand",
+   "frame": 1,
+   "strike": 0,
+   "note": "hand moves near its own chest and shoulder"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:03.2",
+   "clip": "kfab_201",
+   "limb": "r_hand",
+   "frame": 106,
+   "strike": 1,
+   "note": "6.5 m/s swing from behind to the front at head height (hook)"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:03.3",
+   "clip": "kfab_201",
+   "limb": "r_hand",
+   "frame": 141,
+   "strike": null,
+   "note": "small further extension of an arm already 0.35 m out"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:03.4",
+   "clip": "kfab_201",
+   "limb": "r_hand",
+   "frame": 296,
+   "strike": 1,
+   "note": "hand drives from the chest forward to head height"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:03.5",
+   "clip": "kfab_201",
+   "limb": "r_hand",
+   "frame": 469,
+   "strike": 1,
+   "note": "punch from the side into the stand-in's chest"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:04.0",
+   "clip": "kfab_201",
+   "limb": "r_hand",
+   "frame": 569,
+   "strike": 0,
+   "note": "hand leaves the stand-in and goes overhead and behind"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:04.1",
+   "clip": "kfab_201",
+   "limb": "r_hand",
+   "frame": 660,
+   "strike": 0,
+   "note": "arm rises from behind to overhead (wind-up)"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:04.2",
+   "clip": "kfab_201",
+   "limb": "r_hand",
+   "frame": 680,
+   "strike": 1,
+   "note": "overhead arm comes forward to the stand-in's head height (chop)"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:04.3",
+   "clip": "kfab_201",
+   "limb": "r_hand",
+   "frame": 697,
+   "strike": 0,
+   "note": "arm held up, slow"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:04.4",
+   "clip": "kfab_203",
+   "limb": "l_hand",
+   "frame": 1,
+   "strike": 1,
+   "note": "hand drives from the hip into a waist-height punch"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:04.5",
+   "clip": "kfab_203",
+   "limb": "l_hand",
+   "frame": 76,
+   "strike": 0,
+   "note": "hand goes down to the floor in a crouch"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:05.0",
+   "clip": "kfab_203",
+   "limb": "l_hand",
+   "frame": 99,
+   "strike": 1,
+   "note": "hand rises from the floor and drives forward into the stand-in's chest and head"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:05.1",
+   "clip": "kfab_203",
+   "limb": "l_hand",
+   "frame": 115,
+   "strike": null,
+   "note": "extended arm sweeps up across the stand-in from chest to head (6.9 m/s)"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:05.2",
+   "clip": "kfab_203",
+   "limb": "l_hand",
+   "frame": 199,
+   "strike": 0,
+   "note": "hand from a guard by the face to overhead"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:05.3",
+   "clip": "kfab_203",
+   "limb": "l_hand",
+   "frame": 238,
+   "strike": null,
+   "note": "short re-extension after a pull-back (0.25 to 0.35 m)"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:05.4",
+   "clip": "kfab_203",
+   "limb": "r_hand",
+   "frame": 6,
+   "strike": 1,
+   "note": "hand drives from the side forward to chest height"
+  },
+  {
+   "round": 2,
+   "sheet": "r2:05.5",
+   "clip": "kfab_203",
+   "limb": "r_hand",
+   "frame": 166,
+   "strike": 0,
+   "note": "arm held extended, slow"
+  }
+ ]
+}

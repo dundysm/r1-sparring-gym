@@ -1,0 +1,65 @@
+{
+ "about": "Unaimed vs aimed, side by side -> media/aim_frames.png (+ results/opponent_aim/aim_frames.json: which bout, times, GL).\nThe aim check's arms-down bout (train + val grid) where M1's operator (results/opponent_tracker/aim.json) added the most strike\nwindows ending on the head, re-run both ways; one row per aimed window that ended on the head, at its reference apex.",
+ "bout": {
+  "clip": "kfab_204",
+  "t0": 3.32,
+  "distance": 0.6
+ },
+ "operator": "standoff+armwarp_vz",
+ "frames_at_s": [
+  1.04,
+  4.92,
+  8.8
+ ],
+ "meta": {
+  "git_hash": "adcd6cb2362ab5f98c111f1402b616733517d7cd",
+  "git_dirty": true,
+  "mujoco": "3.17.0",
+  "config_hash": "01d4c93353b91b3e",
+  "controller_config_hashes": {},
+  "prereg_sha": "562834645ce51777",
+  "shell_solref": [
+   0.01,
+   1.0
+  ],
+  "opponent_caps": {
+   "policy": "mjlab",
+   "Nm": {
+    "left_hip_pitch": 60.0,
+    "left_hip_roll": 60.0,
+    "left_hip_yaw": 60.0,
+    "left_knee": 60.0,
+    "left_ankle_pitch": 50.0,
+    "left_ankle_roll": 50.0,
+    "right_hip_pitch": 60.0,
+    "right_hip_roll": 60.0,
+    "right_hip_yaw": 60.0,
+    "right_knee": 60.0,
+    "right_ankle_pitch": 50.0,
+    "right_ankle_roll": 50.0,
+    "waist_roll": 60.0,
+    "waist_yaw": 60.0,
+    "left_shoulder_pitch": 60.0,
+    "left_shoulder_roll": 60.0,
+    "left_shoulder_yaw": 33.0,
+    "left_elbow": 33.0,
+    "left_wrist_roll": 33.0,
+    "right_shoulder_pitch": 60.0,
+    "right_shoulder_roll": 60.0,
+    "right_shoulder_yaw": 33.0,
+    "right_elbow": 33.0,
+    "right_wrist_roll": 33.0
+   }
+  },
+  "hit_metric": {
+   "merge_gap_s": 0.1,
+   "min_impulse_Ns": 0.5,
+   "min_peak_N": 5,
+   "v_close_min": 1.0,
+   "max_strike_s": 0.15
+  },
+  "gl_vendor": "Intel",
+  "gl_renderer": "Intel(R) Arc(TM) 140V GPU (16GB)",
+  "gl_version": "4.6.0 - Build 32.0.101.8132"
+ }
+}

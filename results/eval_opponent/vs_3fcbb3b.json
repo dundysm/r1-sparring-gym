@@ -1,0 +1,693 @@
+{
+ "about": "Paired differences between controllers in the stored eval runs (results/eval_opponent/raw_*.json) and the same runs at an\nearlier commit, for runs where both have exactly the same episodes (checked; otherwise the run is skipped and listed).\nUsed for \"what changed since PR #13\": this PR's footwork policies vs the policies shipped at 3fcbb3b, and the stage-2\nbases with their new hold loop (gym.json) vs themselves at 3fcbb3b, without it.\n\npython scripts/paired_vs_ref.py --ref 3fcbb3b --pair \"RL step_fw=RL step\" \"RL guard_fw=RL guard\" \"RL step=RL step\" \"RL guard=RL guard\" --out results/eval_opponent/vs_3fcbb3b.json",
+ "ref": "3fcbb3b",
+ "runs": {
+  "raw_test.json": {
+   "RL step_fw - RL step@3fcbb3b": {
+    "survival": [
+     1.0,
+     1.0
+    ],
+    "survival_diff": [
+     0.0,
+     [
+      0.0,
+      0.0
+     ]
+    ],
+    "in_ring": [
+     0.988,
+     0.994
+    ],
+    "in_ring_diff": [
+     0.006,
+     [
+      -0.013,
+      0.031
+     ]
+    ]
+   },
+   "RL guard_fw - RL guard@3fcbb3b": {
+    "survival": [
+     0.994,
+     1.0
+    ],
+    "survival_diff": [
+     0.006,
+     [
+      0.0,
+      0.019
+     ]
+    ],
+    "in_ring": [
+     0.969,
+     1.0
+    ],
+    "in_ring_diff": [
+     0.031,
+     [
+      0.006,
+      0.062
+     ]
+    ]
+   },
+   "RL step - RL step@3fcbb3b": {
+    "survival": [
+     1.0,
+     0.994
+    ],
+    "survival_diff": [
+     -0.006,
+     [
+      -0.019,
+      0.0
+     ]
+    ],
+    "in_ring": [
+     0.988,
+     0.994
+    ],
+    "in_ring_diff": [
+     0.006,
+     [
+      0.0,
+      0.019
+     ]
+    ]
+   },
+   "RL guard - RL guard@3fcbb3b": {
+    "survival": [
+     0.994,
+     0.994
+    ],
+    "survival_diff": [
+     0.0,
+     [
+      0.0,
+      0.0
+     ]
+    ],
+    "in_ring": [
+     0.969,
+     0.988
+    ],
+    "in_ring_diff": [
+     0.019,
+     [
+      0.0,
+      0.044
+     ]
+    ]
+   }
+  },
+  "raw_test_hard.json": {
+   "RL step_fw - RL step@3fcbb3b": {
+    "survival": [
+     0.891,
+     0.906
+    ],
+    "survival_diff": [
+     0.016,
+     [
+      -0.047,
+      0.078
+     ]
+    ],
+    "in_ring": [
+     0.305,
+     0.727
+    ],
+    "in_ring_diff": [
+     0.422,
+     [
+      0.328,
+      0.508
+     ]
+    ]
+   },
+   "RL guard_fw - RL guard@3fcbb3b": {
+    "survival": [
+     0.922,
+     0.992
+    ],
+    "survival_diff": [
+     0.07,
+     [
+      0.023,
+      0.125
+     ]
+    ],
+    "in_ring": [
+     0.289,
+     0.812
+    ],
+    "in_ring_diff": [
+     0.523,
+     [
+      0.438,
+      0.609
+     ]
+    ]
+   },
+   "RL step - RL step@3fcbb3b": {
+    "survival": [
+     0.891,
+     0.898
+    ],
+    "survival_diff": [
+     0.008,
+     [
+      -0.055,
+      0.07
+     ]
+    ],
+    "in_ring": [
+     0.305,
+     0.648
+    ],
+    "in_ring_diff": [
+     0.344,
+     [
+      0.258,
+      0.43
+     ]
+    ]
+   },
+   "RL guard - RL guard@3fcbb3b": {
+    "survival": [
+     0.922,
+     0.945
+    ],
+    "survival_diff": [
+     0.023,
+     [
+      -0.023,
+      0.078
+     ]
+    ],
+    "in_ring": [
+     0.289,
+     0.367
+    ],
+    "in_ring_diff": [
+     0.078,
+     [
+      0.0,
+      0.156
+     ]
+    ]
+   }
+  },
+  "raw_test_hard_nohits.json": {
+   "RL step_fw - RL step@3fcbb3b": {
+    "survival": [
+     0.914,
+     0.984
+    ],
+    "survival_diff": [
+     0.07,
+     [
+      0.023,
+      0.117
+     ]
+    ],
+    "in_ring": [
+     0.539,
+     0.914
+    ],
+    "in_ring_diff": [
+     0.375,
+     [
+      0.289,
+      0.461
+     ]
+    ]
+   },
+   "RL guard_fw - RL guard@3fcbb3b": {
+    "survival": [
+     0.984,
+     1.0
+    ],
+    "survival_diff": [
+     0.016,
+     [
+      0.0,
+      0.039
+     ]
+    ],
+    "in_ring": [
+     0.547,
+     0.953
+    ],
+    "in_ring_diff": [
+     0.406,
+     [
+      0.32,
+      0.492
+     ]
+    ]
+   },
+   "RL step - RL step@3fcbb3b": {
+    "survival": [
+     0.914,
+     0.992
+    ],
+    "survival_diff": [
+     0.078,
+     [
+      0.031,
+      0.125
+     ]
+    ],
+    "in_ring": [
+     0.539,
+     0.914
+    ],
+    "in_ring_diff": [
+     0.375,
+     [
+      0.281,
+      0.469
+     ]
+    ]
+   },
+   "RL guard - RL guard@3fcbb3b": {
+    "survival": [
+     0.984,
+     0.992
+    ],
+    "survival_diff": [
+     0.008,
+     [
+      0.0,
+      0.023
+     ]
+    ],
+    "in_ring": [
+     0.547,
+     0.656
+    ],
+    "in_ring_diff": [
+     0.109,
+     [
+      0.039,
+      0.188
+     ]
+    ]
+   }
+  },
+  "raw_test_puppet.json": {
+   "RL step_fw - RL step@3fcbb3b": {
+    "survival": [
+     1.0,
+     0.975
+    ],
+    "survival_diff": [
+     -0.025,
+     [
+      -0.05,
+      -0.006
+     ]
+    ],
+    "in_ring": [
+     0.994,
+     0.956
+    ],
+    "in_ring_diff": [
+     -0.037,
+     [
+      -0.069,
+      -0.013
+     ]
+    ]
+   },
+   "RL guard_fw - RL guard@3fcbb3b": {
+    "survival": [
+     1.0,
+     1.0
+    ],
+    "survival_diff": [
+     0.0,
+     [
+      0.0,
+      0.0
+     ]
+    ],
+    "in_ring": [
+     0.975,
+     0.981
+    ],
+    "in_ring_diff": [
+     0.006,
+     [
+      -0.019,
+      0.037
+     ]
+    ]
+   },
+   "RL step - RL step@3fcbb3b": {
+    "survival": [
+     1.0,
+     0.994
+    ],
+    "survival_diff": [
+     -0.006,
+     [
+      -0.019,
+      0.0
+     ]
+    ],
+    "in_ring": [
+     0.994,
+     0.988
+    ],
+    "in_ring_diff": [
+     -0.006,
+     [
+      -0.025,
+      0.013
+     ]
+    ]
+   },
+   "RL guard - RL guard@3fcbb3b": {
+    "survival": [
+     1.0,
+     0.988
+    ],
+    "survival_diff": [
+     -0.013,
+     [
+      -0.031,
+      0.0
+     ]
+    ],
+    "in_ring": [
+     0.975,
+     0.95
+    ],
+    "in_ring_diff": [
+     -0.025,
+     [
+      -0.062,
+      0.013
+     ]
+    ]
+   }
+  },
+  "raw_val.json": {
+   "RL step_fw - RL step@3fcbb3b": {
+    "survival": [
+     0.988,
+     1.0
+    ],
+    "survival_diff": [
+     0.013,
+     [
+      0.0,
+      0.037
+     ]
+    ],
+    "in_ring": [
+     0.988,
+     1.0
+    ],
+    "in_ring_diff": [
+     0.013,
+     [
+      0.0,
+      0.037
+     ]
+    ]
+   },
+   "RL guard_fw - RL guard@3fcbb3b": {
+    "survival": [
+     1.0,
+     1.0
+    ],
+    "survival_diff": [
+     0.0,
+     [
+      0.0,
+      0.0
+     ]
+    ],
+    "in_ring": [
+     0.95,
+     0.988
+    ],
+    "in_ring_diff": [
+     0.037,
+     [
+      0.0,
+      0.087
+     ]
+    ]
+   },
+   "RL step - RL step@3fcbb3b": {
+    "survival": [
+     0.988,
+     0.988
+    ],
+    "survival_diff": [
+     0.0,
+     [
+      0.0,
+      0.0
+     ]
+    ],
+    "in_ring": [
+     0.988,
+     0.975
+    ],
+    "in_ring_diff": [
+     -0.013,
+     [
+      -0.037,
+      0.0
+     ]
+    ]
+   },
+   "RL guard - RL guard@3fcbb3b": {
+    "survival": [
+     1.0,
+     1.0
+    ],
+    "survival_diff": [
+     0.0,
+     [
+      0.0,
+      0.0
+     ]
+    ],
+    "in_ring": [
+     0.95,
+     0.975
+    ],
+    "in_ring_diff": [
+     0.025,
+     [
+      -0.025,
+      0.075
+     ]
+    ]
+   }
+  },
+  "raw_val_hard.json": {
+   "RL step_fw - RL step@3fcbb3b": {
+    "survival": [
+     0.891,
+     0.969
+    ],
+    "survival_diff": [
+     0.078,
+     [
+      0.0,
+      0.156
+     ]
+    ],
+    "in_ring": [
+     0.312,
+     0.797
+    ],
+    "in_ring_diff": [
+     0.484,
+     [
+      0.328,
+      0.625
+     ]
+    ]
+   },
+   "RL guard_fw - RL guard@3fcbb3b": {
+    "survival": [
+     0.891,
+     0.969
+    ],
+    "survival_diff": [
+     0.078,
+     [
+      0.016,
+      0.141
+     ]
+    ],
+    "in_ring": [
+     0.25,
+     0.766
+    ],
+    "in_ring_diff": [
+     0.516,
+     [
+      0.391,
+      0.641
+     ]
+    ]
+   },
+   "RL step - RL step@3fcbb3b": {
+    "survival": [
+     0.891,
+     0.938
+    ],
+    "survival_diff": [
+     0.047,
+     [
+      -0.047,
+      0.141
+     ]
+    ],
+    "in_ring": [
+     0.312,
+     0.547
+    ],
+    "in_ring_diff": [
+     0.234,
+     [
+      0.078,
+      0.391
+     ]
+    ]
+   },
+   "RL guard - RL guard@3fcbb3b": {
+    "survival": [
+     0.891,
+     0.922
+    ],
+    "survival_diff": [
+     0.031,
+     [
+      -0.062,
+      0.109
+     ]
+    ],
+    "in_ring": [
+     0.25,
+     0.375
+    ],
+    "in_ring_diff": [
+     0.125,
+     [
+      0.0,
+      0.25
+     ]
+    ]
+   }
+  },
+  "raw_val_puppet.json": {
+   "RL step_fw - RL step@3fcbb3b": {
+    "survival": [
+     1.0,
+     0.95
+    ],
+    "survival_diff": [
+     -0.05,
+     [
+      -0.1,
+      -0.013
+     ]
+    ],
+    "in_ring": [
+     0.825,
+     0.812
+    ],
+    "in_ring_diff": [
+     -0.013,
+     [
+      -0.1,
+      0.075
+     ]
+    ]
+   },
+   "RL guard_fw - RL guard@3fcbb3b": {
+    "survival": [
+     0.95,
+     1.0
+    ],
+    "survival_diff": [
+     0.05,
+     [
+      0.013,
+      0.1
+     ]
+    ],
+    "in_ring": [
+     0.825,
+     0.925
+    ],
+    "in_ring_diff": [
+     0.1,
+     [
+      0.0,
+      0.2
+     ]
+    ]
+   },
+   "RL step - RL step@3fcbb3b": {
+    "survival": [
+     1.0,
+     0.963
+    ],
+    "survival_diff": [
+     -0.037,
+     [
+      -0.087,
+      0.0
+     ]
+    ],
+    "in_ring": [
+     0.825,
+     0.725
+    ],
+    "in_ring_diff": [
+     -0.1,
+     [
+      -0.2,
+      0.0
+     ]
+    ]
+   },
+   "RL guard - RL guard@3fcbb3b": {
+    "survival": [
+     0.95,
+     0.963
+    ],
+    "survival_diff": [
+     0.013,
+     [
+      0.0,
+      0.037
+     ]
+    ],
+    "in_ring": [
+     0.825,
+     0.775
+    ],
+    "in_ring_diff": [
+     -0.05,
+     [
+      -0.138,
+      0.037
+     ]
+    ]
+   }
+  }
+ },
+ "skipped": {}
+}

@@ -1,0 +1,1335 @@
+{
+ "about": "gpu/turn_check_mjlab.py --reps 8 --key <name> --out on a RunPod RTX 4090 (mjlab 1.2.0, mujoco 3.5.0, warp 1.12.1), 2026-10-28, unseeded. Rows written by the script (the pod's output, unchanged); the \"policy\" fields then renamed by hand from the pod's copies to the repo files they were copied from (same md5): /root/s2arms.onnx, s2guard.onnx, fwarms.onnx, fwguard.onnx = results/policy_mjlab, policy_mjlab_guard, policy_mjlab_footwork, policy_mjlab_guard_footwork; runs 2026-10-28_02-34-51_turn_arms and 2026-10-28_02-59-09_turn_guard = results/policy_mjlab_turn and policy_mjlab_guard_turn. Each command held for 300 control steps in 8 envs, which differ by the training randomisation that stays on in play (foot friction U(0.3, 1.6), encoder bias +-0.015 rad, torso COM +-5 cm, drawn per env); mean measured base rates over steps 100-300 (wz world frame rad/s, vx/vy body frame m/s) over the reps that didn't fall, with the spread across reps; no pushes, no obs noise.",
+ "policies": {
+  "arms_down": {
+   "policy": "results/policy_mjlab/policy.onnx",
+   "rows": [
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.8
+     ],
+     "measured_wz": -0.26,
+     "measured_vx": -0.05,
+     "measured_vy": -0.0,
+     "wz_std_over_reps": 0.04,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.4
+     ],
+     "measured_wz": -0.23,
+     "measured_vx": 0.0,
+     "measured_vy": 0.01,
+     "wz_std_over_reps": 0.02,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "measured_wz": 0.0,
+     "measured_vx": -0.0,
+     "measured_vy": -0.0,
+     "wz_std_over_reps": 0.0,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.4
+     ],
+     "measured_wz": -0.13,
+     "measured_vx": 0.01,
+     "measured_vy": 0.03,
+     "wz_std_over_reps": 0.04,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.8
+     ],
+     "measured_wz": -0.04,
+     "measured_vx": 0.02,
+     "measured_vy": 0.02,
+     "wz_std_over_reps": 0.03,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.5,
+      0.0,
+      0.0
+     ],
+     "measured_wz": 0.02,
+     "measured_vx": 0.35,
+     "measured_vy": 0.05,
+     "wz_std_over_reps": 0.09,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.3,
+      0.0
+     ],
+     "measured_wz": -0.26,
+     "measured_vx": -0.02,
+     "measured_vy": 0.18,
+     "wz_std_over_reps": 0.06,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      -0.3,
+      0.0
+     ],
+     "measured_wz": -0.09,
+     "measured_vx": 0.04,
+     "measured_vy": -0.1,
+     "wz_std_over_reps": 0.02,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      -0.3,
+      0.0,
+      0.0
+     ],
+     "measured_wz": -0.09,
+     "measured_vx": -0.13,
+     "measured_vy": 0.01,
+     "wz_std_over_reps": 0.05,
+     "reps": 8,
+     "falls": 0
+    }
+   ]
+  },
+  "footwork_arms_down": {
+   "policy": "results/policy_mjlab_footwork/policy.onnx",
+   "rows": [
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.8
+     ],
+     "measured_wz": -0.15,
+     "measured_vx": 0.03,
+     "measured_vy": -0.01,
+     "wz_std_over_reps": 0.03,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.4
+     ],
+     "measured_wz": -0.06,
+     "measured_vx": 0.03,
+     "measured_vy": -0.02,
+     "wz_std_over_reps": 0.03,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "measured_wz": 0.0,
+     "measured_vx": -0.0,
+     "measured_vy": -0.0,
+     "wz_std_over_reps": 0.0,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.4
+     ],
+     "measured_wz": 0.05,
+     "measured_vx": 0.04,
+     "measured_vy": -0.03,
+     "wz_std_over_reps": 0.02,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.8
+     ],
+     "measured_wz": 0.08,
+     "measured_vx": 0.05,
+     "measured_vy": -0.04,
+     "wz_std_over_reps": 0.02,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.5,
+      0.0,
+      0.0
+     ],
+     "measured_wz": 0.03,
+     "measured_vx": 0.36,
+     "measured_vy": -0.09,
+     "wz_std_over_reps": 0.07,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.3,
+      0.0
+     ],
+     "measured_wz": -0.06,
+     "measured_vx": 0.07,
+     "measured_vy": 0.05,
+     "wz_std_over_reps": 0.03,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      -0.3,
+      0.0
+     ],
+     "measured_wz": 0.02,
+     "measured_vx": 0.02,
+     "measured_vy": -0.14,
+     "wz_std_over_reps": 0.05,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      -0.3,
+      0.0,
+      0.0
+     ],
+     "measured_wz": -0.06,
+     "measured_vx": -0.07,
+     "measured_vy": -0.03,
+     "wz_std_over_reps": 0.07,
+     "reps": 8,
+     "falls": 0
+    }
+   ]
+  },
+  "turn_arms": {
+   "policy": "results/policy_mjlab_turn/policy.onnx (stage 4, not shipped)",
+   "rows": [
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.8
+     ],
+     "measured_wz": 0.01,
+     "measured_vx": 0.03,
+     "measured_vy": -0.0,
+     "wz_std_over_reps": 0.04,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.4
+     ],
+     "measured_wz": 0.07,
+     "measured_vx": 0.04,
+     "measured_vy": -0.01,
+     "wz_std_over_reps": 0.04,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "measured_wz": 0.0,
+     "measured_vx": -0.0,
+     "measured_vy": -0.0,
+     "wz_std_over_reps": 0.0,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.4
+     ],
+     "measured_wz": 0.17,
+     "measured_vx": 0.07,
+     "measured_vy": -0.01,
+     "wz_std_over_reps": 0.05,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.8
+     ],
+     "measured_wz": 0.22,
+     "measured_vx": 0.06,
+     "measured_vy": -0.02,
+     "wz_std_over_reps": 0.06,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.5,
+      0.0,
+      0.0
+     ],
+     "measured_wz": 0.11,
+     "measured_vx": 0.36,
+     "measured_vy": -0.03,
+     "wz_std_over_reps": 0.07,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.3,
+      0.0
+     ],
+     "measured_wz": 0.01,
+     "measured_vx": 0.08,
+     "measured_vy": 0.12,
+     "wz_std_over_reps": 0.06,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      -0.3,
+      0.0
+     ],
+     "measured_wz": 0.16,
+     "measured_vx": 0.02,
+     "measured_vy": -0.17,
+     "wz_std_over_reps": 0.05,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      -0.3,
+      0.0,
+      0.0
+     ],
+     "measured_wz": 0.01,
+     "measured_vx": -0.13,
+     "measured_vy": -0.03,
+     "wz_std_over_reps": 0.11,
+     "reps": 8,
+     "falls": 0
+    }
+   ]
+  },
+  "guard": {
+   "policy": "results/policy_mjlab_guard/policy.onnx (guard)",
+   "rows": [
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.8
+     ],
+     "measured_wz": -0.3,
+     "measured_vx": 0.05,
+     "measured_vy": 0.15,
+     "wz_std_over_reps": 0.05,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.4
+     ],
+     "measured_wz": -0.22,
+     "measured_vx": 0.03,
+     "measured_vy": 0.09,
+     "wz_std_over_reps": 0.04,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "measured_wz": 0.01,
+     "measured_vx": -0.0,
+     "measured_vy": -0.0,
+     "wz_std_over_reps": 0.01,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.4
+     ],
+     "measured_wz": 0.1,
+     "measured_vx": 0.09,
+     "measured_vy": 0.04,
+     "wz_std_over_reps": 0.04,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.8
+     ],
+     "measured_wz": 0.2,
+     "measured_vx": 0.06,
+     "measured_vy": 0.06,
+     "wz_std_over_reps": 0.02,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.5,
+      0.0,
+      0.0
+     ],
+     "measured_wz": -0.08,
+     "measured_vx": 0.17,
+     "measured_vy": 0.06,
+     "wz_std_over_reps": 0.06,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.3,
+      0.0
+     ],
+     "measured_wz": -0.09,
+     "measured_vx": -0.01,
+     "measured_vy": 0.22,
+     "wz_std_over_reps": 0.03,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      -0.3,
+      0.0
+     ],
+     "measured_wz": -0.04,
+     "measured_vx": 0.01,
+     "measured_vy": -0.06,
+     "wz_std_over_reps": 0.03,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      -0.3,
+      0.0,
+      0.0
+     ],
+     "measured_wz": -0.11,
+     "measured_vx": -0.16,
+     "measured_vy": 0.06,
+     "wz_std_over_reps": 0.04,
+     "reps": 8,
+     "falls": 0
+    }
+   ]
+  },
+  "footwork_guard": {
+   "policy": "results/policy_mjlab_guard_footwork/policy.onnx (guard)",
+   "rows": [
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.8
+     ],
+     "measured_wz": -0.11,
+     "measured_vx": 0.02,
+     "measured_vy": 0.08,
+     "wz_std_over_reps": 0.04,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.4
+     ],
+     "measured_wz": -0.02,
+     "measured_vx": -0.0,
+     "measured_vy": 0.08,
+     "wz_std_over_reps": 0.04,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "measured_wz": 0.0,
+     "measured_vx": -0.0,
+     "measured_vy": -0.0,
+     "wz_std_over_reps": 0.01,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.4
+     ],
+     "measured_wz": 0.12,
+     "measured_vx": 0.02,
+     "measured_vy": 0.05,
+     "wz_std_over_reps": 0.04,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.8
+     ],
+     "measured_wz": 0.19,
+     "measured_vx": 0.02,
+     "measured_vy": 0.04,
+     "wz_std_over_reps": 0.08,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.5,
+      0.0,
+      0.0
+     ],
+     "measured_wz": 0.17,
+     "measured_vx": 0.37,
+     "measured_vy": -0.02,
+     "wz_std_over_reps": 0.12,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.3,
+      0.0
+     ],
+     "measured_wz": -0.09,
+     "measured_vx": 0.0,
+     "measured_vy": 0.26,
+     "wz_std_over_reps": 0.05,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      -0.3,
+      0.0
+     ],
+     "measured_wz": 0.11,
+     "measured_vx": -0.02,
+     "measured_vy": -0.16,
+     "wz_std_over_reps": 0.03,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      -0.3,
+      0.0,
+      0.0
+     ],
+     "measured_wz": 0.03,
+     "measured_vx": -0.23,
+     "measured_vy": 0.11,
+     "wz_std_over_reps": 0.06,
+     "reps": 8,
+     "falls": 0
+    }
+   ]
+  },
+  "turn_guard": {
+   "policy": "results/policy_mjlab_guard_turn/policy.onnx (guard; stage 4, not shipped)",
+   "rows": [
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.8
+     ],
+     "measured_wz": -0.13,
+     "measured_vx": -0.11,
+     "measured_vy": 0.04,
+     "wz_std_over_reps": 0.05,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      -0.4
+     ],
+     "measured_wz": -0.09,
+     "measured_vx": -0.08,
+     "measured_vy": 0.05,
+     "wz_std_over_reps": 0.07,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "measured_wz": 0.0,
+     "measured_vx": -0.0,
+     "measured_vy": -0.0,
+     "wz_std_over_reps": 0.01,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.4
+     ],
+     "measured_wz": 0.06,
+     "measured_vx": -0.09,
+     "measured_vy": 0.01,
+     "wz_std_over_reps": 0.06,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.0,
+      0.8
+     ],
+     "measured_wz": 0.14,
+     "measured_vx": -0.07,
+     "measured_vy": 0.01,
+     "wz_std_over_reps": 0.03,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.5,
+      0.0,
+      0.0
+     ],
+     "measured_wz": -0.14,
+     "measured_vx": 0.32,
+     "measured_vy": 0.03,
+     "wz_std_over_reps": 0.11,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      0.3,
+      0.0
+     ],
+     "measured_wz": -0.16,
+     "measured_vx": -0.08,
+     "measured_vy": 0.22,
+     "wz_std_over_reps": 0.11,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      0.0,
+      -0.3,
+      0.0
+     ],
+     "measured_wz": 0.02,
+     "measured_vx": -0.07,
+     "measured_vy": -0.2,
+     "wz_std_over_reps": 0.07,
+     "reps": 8,
+     "falls": 0
+    },
+    {
+     "command_vx_vy_wz": [
+      -0.3,
+      0.0,
+      0.0
+     ],
+     "measured_wz": 0.05,
+     "measured_vx": -0.27,
+     "measured_vy": -0.03,
+     "wz_std_over_reps": 0.07,
+     "reps": 8,
+     "falls": 0
+    }
+   ]
+  }
+ },
+ "single_env_2026_10_27": {
+  "about": "gpu/turn_check_mjlab.py on the RunPod RTX 4090 (mjlab 1.2.0, mujoco 3.5.0, warp 1.12.1), 2026-10-27, its printed output copied here (the script now writes this file itself): each command held for 300 control steps in mjlab, mean measured base rates over steps 100-300 (wz world frame rad/s, vx/vy body frame m/s), one env per command, no seeds, no pushes; falls were not checked in that run. Superseded by the 8-rep rows above: single-env rates moved by up to 0.1 rad/s between runs (e.g. the footwork guard's +0.8 turn read 0.32, then 0.21 on a re-run).",
+  "policies": {
+   "arms_down": {
+    "policy": "results/policy_mjlab/policy.onnx",
+    "rows": [
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       -0.8
+      ],
+      "measured_wz": -0.33,
+      "measured_vx": -0.01,
+      "measured_vy": 0.05
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       -0.4
+      ],
+      "measured_wz": -0.27,
+      "measured_vx": 0.0,
+      "measured_vy": 0.02
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "measured_wz": 0.0,
+      "measured_vx": -0.0,
+      "measured_vy": -0.0
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.4
+      ],
+      "measured_wz": -0.14,
+      "measured_vx": 0.02,
+      "measured_vy": 0.03
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.8
+      ],
+      "measured_wz": -0.07,
+      "measured_vx": 0.01,
+      "measured_vy": 0.03
+     },
+     {
+      "command_vx_vy_wz": [
+       0.5,
+       0.0,
+       0.0
+      ],
+      "measured_wz": -0.08,
+      "measured_vx": 0.37,
+      "measured_vy": 0.05
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.3,
+       0.0
+      ],
+      "measured_wz": -0.28,
+      "measured_vx": -0.01,
+      "measured_vy": 0.16
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       -0.3,
+       0.0
+      ],
+      "measured_wz": -0.11,
+      "measured_vx": 0.04,
+      "measured_vy": -0.11
+     },
+     {
+      "command_vx_vy_wz": [
+       -0.3,
+       0.0,
+       0.0
+      ],
+      "measured_wz": -0.04,
+      "measured_vx": -0.13,
+      "measured_vy": -0.01
+     }
+    ]
+   },
+   "guard": {
+    "policy": "results/policy_mjlab_guard/policy.onnx (guard)",
+    "rows": [
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       -0.8
+      ],
+      "measured_wz": -0.31,
+      "measured_vx": 0.14,
+      "measured_vy": 0.1
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       -0.4
+      ],
+      "measured_wz": -0.21,
+      "measured_vx": 0.02,
+      "measured_vy": 0.19
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "measured_wz": -0.0,
+      "measured_vx": -0.0,
+      "measured_vy": 0.0
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.4
+      ],
+      "measured_wz": 0.06,
+      "measured_vx": 0.1,
+      "measured_vy": 0.1
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.8
+      ],
+      "measured_wz": 0.22,
+      "measured_vx": 0.25,
+      "measured_vy": 0.03
+     },
+     {
+      "command_vx_vy_wz": [
+       0.5,
+       0.0,
+       0.0
+      ],
+      "measured_wz": -0.11,
+      "measured_vx": 0.34,
+      "measured_vy": 0.03
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.3,
+       0.0
+      ],
+      "measured_wz": -0.12,
+      "measured_vx": -0.04,
+      "measured_vy": 0.32
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       -0.3,
+       0.0
+      ],
+      "measured_wz": -0.1,
+      "measured_vx": 0.01,
+      "measured_vy": -0.08
+     },
+     {
+      "command_vx_vy_wz": [
+       -0.3,
+       0.0,
+       0.0
+      ],
+      "measured_wz": -0.04,
+      "measured_vx": -0.13,
+      "measured_vy": 0.13
+     }
+    ]
+   },
+   "footwork_arms_down": {
+    "policy": "results/policy_mjlab_footwork/policy.onnx (run 2026-10-27_22-12-47)",
+    "rows": [
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       -0.8
+      ],
+      "measured_wz": -0.18,
+      "measured_vx": 0.0,
+      "measured_vy": -0.01
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       -0.4
+      ],
+      "measured_wz": -0.11,
+      "measured_vx": 0.06,
+      "measured_vy": -0.01
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "measured_wz": 0.0,
+      "measured_vx": -0.0,
+      "measured_vy": -0.0
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.4
+      ],
+      "measured_wz": 0.06,
+      "measured_vx": 0.05,
+      "measured_vy": -0.05
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.8
+      ],
+      "measured_wz": 0.09,
+      "measured_vx": 0.05,
+      "measured_vy": -0.04
+     },
+     {
+      "command_vx_vy_wz": [
+       0.5,
+       0.0,
+       0.0
+      ],
+      "measured_wz": -0.05,
+      "measured_vx": 0.37,
+      "measured_vy": -0.1
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.3,
+       0.0
+      ],
+      "measured_wz": -0.06,
+      "measured_vx": 0.07,
+      "measured_vy": 0.05
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       -0.3,
+       0.0
+      ],
+      "measured_wz": 0.05,
+      "measured_vx": 0.06,
+      "measured_vy": -0.16
+     },
+     {
+      "command_vx_vy_wz": [
+       -0.3,
+       0.0,
+       0.0
+      ],
+      "measured_wz": -0.12,
+      "measured_vx": -0.02,
+      "measured_vy": -0.01
+     }
+    ]
+   },
+   "footwork_guard": {
+    "policy": "results/policy_mjlab_guard_footwork/policy.onnx (guard; run 2026-10-27_22-49-48)",
+    "rows": [
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       -0.8
+      ],
+      "measured_wz": -0.1,
+      "measured_vx": 0.01,
+      "measured_vy": 0.11
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       -0.4
+      ],
+      "measured_wz": -0.16,
+      "measured_vx": 0.04,
+      "measured_vy": 0.14
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "measured_wz": -0.0,
+      "measured_vx": -0.01,
+      "measured_vy": 0.0
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.4
+      ],
+      "measured_wz": 0.11,
+      "measured_vx": 0.06,
+      "measured_vy": 0.01
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.8
+      ],
+      "measured_wz": 0.32,
+      "measured_vx": 0.03,
+      "measured_vy": 0.05
+     },
+     {
+      "command_vx_vy_wz": [
+       0.5,
+       0.0,
+       0.0
+      ],
+      "measured_wz": 0.0,
+      "measured_vx": 0.32,
+      "measured_vy": -0.02
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.3,
+       0.0
+      ],
+      "measured_wz": -0.12,
+      "measured_vx": -0.02,
+      "measured_vy": 0.26
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       -0.3,
+       0.0
+      ],
+      "measured_wz": 0.05,
+      "measured_vx": 0.05,
+      "measured_vy": -0.21
+     },
+     {
+      "command_vx_vy_wz": [
+       -0.3,
+       0.0,
+       0.0
+      ],
+      "measured_wz": 0.01,
+      "measured_vx": -0.23,
+      "measured_vy": 0.1
+     }
+    ]
+   }
+  }
+ },
+ "single_env_rerun_2026_10_28": {
+  "about": "the same single-env check re-run on 2026-10-28 for the two footwork policies (gpu/turn_check_mjlab.py before --reps), as the pod's setup smoke test (/root/fwarms.onnx, /root/fwguard.onnx = results/policy_mjlab_footwork, results/policy_mjlab_guard_footwork; each run draws new physics)",
+  "policies": {
+   "footwork_arms_down": {
+    "policy": "/root/fwarms.onnx",
+    "rows": [
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       -0.8
+      ],
+      "measured_wz": -0.18,
+      "measured_vx": 0.01,
+      "measured_vy": -0.0,
+      "fell": false
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       -0.4
+      ],
+      "measured_wz": -0.15,
+      "measured_vx": 0.03,
+      "measured_vy": -0.0,
+      "fell": false
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "measured_wz": 0.0,
+      "measured_vx": -0.0,
+      "measured_vy": -0.0,
+      "fell": false
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.4
+      ],
+      "measured_wz": 0.05,
+      "measured_vx": 0.02,
+      "measured_vy": 0.0,
+      "fell": false
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.8
+      ],
+      "measured_wz": 0.1,
+      "measured_vx": 0.07,
+      "measured_vy": -0.11,
+      "fell": false
+     },
+     {
+      "command_vx_vy_wz": [
+       0.5,
+       0.0,
+       0.0
+      ],
+      "measured_wz": -0.04,
+      "measured_vx": 0.41,
+      "measured_vy": -0.07,
+      "fell": false
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.3,
+       0.0
+      ],
+      "measured_wz": -0.09,
+      "measured_vx": 0.12,
+      "measured_vy": 0.04,
+      "fell": false
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       -0.3,
+       0.0
+      ],
+      "measured_wz": -0.04,
+      "measured_vx": 0.01,
+      "measured_vy": -0.15,
+      "fell": false
+     },
+     {
+      "command_vx_vy_wz": [
+       -0.3,
+       0.0,
+       0.0
+      ],
+      "measured_wz": -0.01,
+      "measured_vx": -0.16,
+      "measured_vy": -0.05,
+      "fell": false
+     }
+    ]
+   },
+   "footwork_guard": {
+    "policy": "/root/fwguard.onnx (guard)",
+    "rows": [
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       -0.8
+      ],
+      "measured_wz": -0.08,
+      "measured_vx": -0.02,
+      "measured_vy": 0.11,
+      "fell": false
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       -0.4
+      ],
+      "measured_wz": -0.05,
+      "measured_vx": 0.03,
+      "measured_vy": 0.1,
+      "fell": false
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "measured_wz": -0.0,
+      "measured_vx": -0.01,
+      "measured_vy": -0.0,
+      "fell": false
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.4
+      ],
+      "measured_wz": 0.05,
+      "measured_vx": 0.06,
+      "measured_vy": 0.04,
+      "fell": false
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.0,
+       0.8
+      ],
+      "measured_wz": 0.21,
+      "measured_vx": 0.03,
+      "measured_vy": 0.03,
+      "fell": false
+     },
+     {
+      "command_vx_vy_wz": [
+       0.5,
+       0.0,
+       0.0
+      ],
+      "measured_wz": 0.07,
+      "measured_vx": 0.3,
+      "measured_vy": 0.03,
+      "fell": false
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       0.3,
+       0.0
+      ],
+      "measured_wz": -0.15,
+      "measured_vx": 0.02,
+      "measured_vy": 0.24,
+      "fell": false
+     },
+     {
+      "command_vx_vy_wz": [
+       0.0,
+       -0.3,
+       0.0
+      ],
+      "measured_wz": 0.08,
+      "measured_vx": -0.01,
+      "measured_vy": -0.19,
+      "fell": false
+     },
+     {
+      "command_vx_vy_wz": [
+       -0.3,
+       0.0,
+       0.0
+      ],
+      "measured_wz": 0.01,
+      "measured_vx": -0.2,
+      "measured_vy": 0.07,
+      "fell": false
+     }
+    ]
+   }
+  }
+ }
+}

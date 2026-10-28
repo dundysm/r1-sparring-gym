@@ -1,0 +1,13 @@
+{
+ "image": "strikes_sheet.png",
+ "strikes": 55,
+ "library": "r1gym/assets/motions/strikes.json",
+ "meta": {
+  "git_hash": "adcd6cb2362ab5f98c111f1402b616733517d7cd",
+  "git_dirty": true,
+  "mujoco": "3.17.0",
+  "gl_vendor": "Intel",
+  "gl_renderer": "Intel(R) Arc(TM) 140V GPU (16GB)",
+  "gl_version": "4.6.0 - Build 32.0.101.8132"
+ }
+}

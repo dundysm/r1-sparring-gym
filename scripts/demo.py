@@ -120,8 +120,8 @@ def headcam(a):
     print("wrote", out, len(frames), "frames;", json.dumps({k: res[k] for k in ("fell_s", "facing_err_last6_med_deg", "ttf15_s", "media_bytes")}))
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--left", default="Stepping base=results/policy_mjlab/policy.onnx", help="label=PD | label=path (.pt/.onnx) | none (single panel)")
-    ap.add_argument("--right", default="Stepping base + guard=results/policy_mjlab_guard/policy.onnx"); ap.add_argument("--seconds", type=float, default=DEMO_SECONDS)
+    ap = argparse.ArgumentParser(); ap.add_argument("--left", default="Stepping base=results/policy_mjlab_footwork/policy.onnx", help="label=PD | label=path (.pt/.onnx) | none (single panel)")
+    ap.add_argument("--right", default="Stepping base + guard=results/policy_mjlab_guard_footwork/policy.onnx"); ap.add_argument("--seconds", type=float, default=DEMO_SECONDS)
     ap.add_argument("--clip", default=DEMO_CLIP); ap.add_argument("--distance", type=float, default=DEMO_DISTANCE)
     ap.add_argument("--w", type=int, default=640); ap.add_argument("--h", type=int, default=400); ap.add_argument("--name", default="demo")
     ap.add_argument("--headcam", action="store_true", help="the --right policy turning on its own head camera (phase 3, M1)")

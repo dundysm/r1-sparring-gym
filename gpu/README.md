@@ -1,17 +1,17 @@
 # GPU training (mjlab)
 
-Two policies are trained here: the **stepping base** our R1 runs (`r1_spar_task.py`) and the **opponent's motion tracker** (`r1_track_task.py`). Both use Unitree's own R1 contract in mjlab and are evaluated in this repo's CPU MuJoCo.
+Two kinds of policy are trained here: the **stepping base** our R1 runs, fine-tuned for footwork (`r1_spar_task.py`), and the **opponent's motion tracker** (`r1_track_task.py`). Both use Unitree's own R1 contract in mjlab and are evaluated in this repo's CPU MuJoCo.
 
 ## Stepping base
 
-`r1_spar_task.py` registers two tasks on top of Unitree's official R1 velocity task (`unitree_rl_mjlab` @1425b15):
-- `R1-Spar-Stand`: 40% standing envs. The task sets footwork commands of vx −0.6…0.8, vy ±0.5, wz ±0.8, but Unitree's `command_vel` curriculum, which it keeps, overrides them from the first reset: vx −0.5…1.0, vy ±0.5, wz ±1.0, widening to vx −1.0…2.0, vy ±1.0 after 5000 iterations (only the guard fine-tune, iterations 5000–5997, got there). The shipped policies were trained this way, so the code is left as it ran. Unitree's pushes are unchanged (±0.5 m/s every 5–6 s).
+`r1_spar_task.py` registers seven tasks on top of Unitree's official R1 velocity task (`unitree_rl_mjlab` @1425b15): the two stepping-base stages here, the guard, the two footwork fine-tunes and the two turning fine-tunes (sections below).
+- `R1-Spar-Stand`: 40% standing envs. The task sets footwork commands of vx −0.6…0.8, vy ±0.5, wz ±0.8, but Unitree's `command_vel` curriculum, which it keeps, overrides them from the first reset: vx −0.5…1.0, vy ±0.5, wz ±1.0, widening to vx −1.0…2.0, vy ±1.0 after 5000 iterations (only the guard fine-tune, iterations 5000–5997, got there). The stage-2 bases and the guard were trained this way, so the code is left as it ran; stage 3 (footwork, below) removes the curriculum. Unitree's pushes are unchanged (±0.5 m/s every 5–6 s).
 - `R1-Spar-Stand-Push`: same as above, plus:
   - pushes every 1.5–3.5 s, up to ±0.8 m/s linear and ±0.6 rad/s roll/pitch
   - 0–2 steps (0–40 ms) of observation delay on every actor term
 
-The shipped policy (`results/policy_mjlab/`) is stage 1 for 3000 iterations, then stage 2 resumed for 1500 more
-(4096 envs, 24 steps per iteration, about 440M env steps in total).
+The stage-2 base (`results/policy_mjlab/`) is stage 1 for 3000 iterations, then stage 2 resumed for 1500 more
+(4096 envs, 24 steps per iteration, about 440M env steps in total). The shipped policies are fine-tuned from it (guard, then stage 3, below).
 
 ## Run (RunPod, 1× RTX 4090, ~1.7 h, ~$1.5)
 ```bash
@@ -32,10 +32,60 @@ the contract in its metadata.
 Copy `policy.onnx` and evaluate it here: `python scripts/eval_opponent.py --split val --policy step=<path>/policy.onnx`.
 Choose candidates on `--split val`, report on `--split test`. `scripts/crosssim_mjlab.py <onnx>` checks that it stands
 and tracks velocity commands in this repo's CPU MuJoCo, which is the check that the obs/action contract (`configs/r1_mjlab.yaml`)
-is right.
+is right. `turn_check_mjlab.py <onnx> [guard] --reps 8 --key <name> --out turn_check_mjlab.json` measures the same in mjlab, on
+the GPU box, to tell a policy flaw from a simulator gap (`results/turn_check_mjlab.json`: the six stepping policies after stage 1, 8 envs per
+command, each with its own draw of the training randomisation; a single env read up to 0.11 rad/s differently between runs, so the earlier one-env rows are kept only for the record).
 
 ### Guard pose (variant)
-`R1-Spar-Guard` is stage 2 with the default arm pose replaced by a boxer's guard: shoulder pitch -0.85, roll ±0.15, yaw ±0.2, elbow -0.7. Fists sit at cheek height and the elbows hang down by the ribs. The pose was found by rendering FK candidates on the R1 (its elbow flexes forward for *negative* angles). It is inside mjlab's soft joint limits (90% of range; the elbow's is -0.82). The default pose is the action offset and what the posture reward holds, so the policy keeps its guard up while it steps. The run fine-tuned 1500 iterations from the shipped stepping base (`--agent.load-run <dir> --agent.load-checkpoint model_4498.pt`), about 28 min. When it was chosen (stage-3 opponent, no turn command) it tied the arms-down base on validation (0.975 vs 0.975 tracked; 0.950 vs 0.963 puppet). Against the steered opponent with capsule contact it was worse on validation (standard 0.863 vs 0.975, hard 0.609 vs 0.812); with shell contact (the visible shells collide) it ties: validation standard 1.000 vs 0.988, hard 0.891 vs 0.891; test hard 0.922 vs 0.891. Both ship; see the README's "Arms down vs guard".
+`R1-Spar-Guard` is stage 2 with the default arm pose replaced by a boxer's guard: shoulder pitch -0.85, roll ±0.15, yaw ±0.2, elbow -0.7. Fists sit at cheek height and the elbows hang down by the ribs. The pose was found by rendering FK candidates on the R1 (its elbow flexes forward for *negative* angles). It is inside mjlab's soft joint limits (90% of range; the elbow's is -0.82). The default pose is the action offset and what the posture reward holds, so the policy keeps its guard up while it steps. The run fine-tuned 1500 iterations from the stage-2 base (`--agent.load-run <dir> --agent.load-checkpoint model_4498.pt`), about 28 min. When it was chosen (stage-3 opponent, no turn command) it tied the arms-down base on validation (0.975 vs 0.975 tracked; 0.950 vs 0.963 puppet). Against the steered opponent with capsule contact it was worse on validation (standard 0.863 vs 0.975, hard 0.609 vs 0.812); with shell contact (the visible shells collide) it ties: validation standard 1.000 vs 0.988, hard 0.891 vs 0.891; test hard 0.922 vs 0.891. Both were fine-tuned again for footwork (below).
+
+### Stage 3: footwork (shipped)
+The README's outer loops (hold your spot, turn to face; `r1gym/env.py`) drive the policy through its velocity command, and the stage-2 bases track it poorly: 0.5 m/s forward gives 0.21–0.32, 0.3 sideways about 0.2, and the arms-down base turns the wrong way for a left turn. `turn_check_mjlab.py` showed the same in mjlab (+0.8 rad/s gives −0.04), so it is the policy, not the simulator. `R1-Spar-Footwork` and `R1-Spar-Footwork-Guard` (`_footwork` in `r1_spar_task.py`) change stage 2 (or the guard) as follows:
+- Unitree's `command_vel` curriculum is removed and the ranges are set explicitly, so these are the ones trained: vx −0.6…0.8, vy ±0.5, wz ±1.0 (the stage-1–2 task set ±0.8, which the curriculum overrode to ±1.0); 30% standing (from 40%). As in Unitree's task, every non-standing env takes its yaw-rate command from a random heading target (`heading_command`, gain 0.5), clipped to that range.
+- Velocity and yaw tracking rewards weighted 1.5 (from 1.0).
+- Upper-body shoves like the opponent's: `apply_body_impulse` on the torso, 10 cm above its COM, each force component uniform in ±100 N for 0.05–0.15 s, every 1–3 s, on top of stage 2's velocity pushes.
+
+```bash
+python /path/to/r1_spar_task.py R1-Spar-Footwork --env.scene.num-envs 4096 --agent.max-iterations 1500 --agent.logger tensorboard \
+  --agent.resume True --agent.load-run <stage-2 run dir> --agent.load-checkpoint model_4498.pt
+python /path/to/r1_spar_task.py R1-Spar-Footwork-Guard --env.scene.num-envs 4096 --agent.max-iterations 1500 --agent.logger tensorboard \
+  --agent.resume True --agent.load-run <guard run dir> --agent.load-checkpoint model_5997.pt
+```
+2026-10-27, one RTX 4090 (secure cloud, $0.89/h): about 36 min per policy, $1.14 for the pod in all. The arms-down one ends at `model_5997.pt` (`results/policy_mjlab_footwork/`). **The guard's checkpoint (`model_7496.pt`) was lost:** the pod was deleted before it finished downloading. Its ONNX (the policy that runs and was evaluated), `params/` and `gym.json` are kept in `results/policy_mjlab_guard_footwork/`; to fine-tune it further, rerun the second command (about 36 min, ~$0.5). The rerun won't be bit-identical, so evaluate it again.
+
+Each footwork policy's outer-loop settings were then chosen on hard-tier validation (`scripts/face_ab.py`, README "Holding the spot, and turning to face"). Turning is still weak after this stage, and the right turn got weaker: in mjlab +0.8 rad/s gives 0.08 (arms down) and 0.19 (guard), and −0.8 gives −0.15 and −0.11, where the stage-2 bases gave −0.26 and −0.30 (`results/turn_check_mjlab.json`, 8 envs per command). Stage 4 tried to fix it.
+
+### Stage 4: turning (not shipped)
+`R1-Spar-Turn` and `R1-Spar-Turn-Guard` (`_turn` in `r1_spar_task.py`) add to the footwork stage the three changes that looked like
+the cause in Unitree's task (`unitree_rl_mjlab` @1425b15, mjlab 1.2.0):
+- Every moving env took its yaw-rate command from a heading target (`heading_command`, gain 0.5), so a held turn rate was rare.
+  Now 25% of the moving envs turn in place: no linear command, a yaw rate of ±0.3–1.0 rad/s held, no heading control.
+- Yaw tracking std 0.5 (from 0.71) and weight 2.0 (from 1.5).
+- Hip and waist yaw posture std 0.25 while walking (from 0.15; Unitree's running value), so the feet can twist.
+
+The whole-body angular momentum penalty also counts yaw, but at weight −0.025 it is small, and it was left alone.
+
+```bash
+python /path/to/r1_spar_task.py R1-Spar-Turn --env.scene.num-envs 4096 --agent.max-iterations 1000 --agent.logger tensorboard \
+  --agent.resume True --agent.load-run <footwork arms-down run dir> --agent.run-name turn_arms      # from model_5997.pt
+python /path/to/r1_spar_task.py R1-Spar-Turn-Guard --env.scene.num-envs 4096 --agent.max-iterations 1200 --agent.logger tensorboard \
+  --agent.resume True --agent.load-run <guard run dir> --agent.run-name turn_guard                  # from the stage-2 guard's model_5997.pt
+```
+The guard run starts from the stage-2 guard, because the footwork guard's checkpoint was lost, so it also learns the footwork
+changes. 2026-10-28, one RTX 4090 (secure, $0.89/h): about 24 and 28 min (1.4 s per iteration). The pod ran 2 h 49 min in all
+($2.52 against a ~$1 estimate; `results/turn_pod_cost.json`), because it sat idle for about 1 h 45 min after training before it was downloaded and deleted.
+
+**Result: neither ships.** The rule was written before training (`results/turn_prereg.json`): both turn directions at ±0.8 rad/s
+must reach 0.25 rad/s in CPU MuJoCo (and 1.5x the shipped policy), and validation survival must hold. `scripts/turn_select.py` →
+`results/turn_selection.json`: the arms-down candidate turns at +0.19 / −0.03 (it now drifts left, as the stage-2 base drifted
+right) and the guard at +0.16 / −0.21. The guard's right turn got faster (−0.08 → −0.21) but its left turn slower (+0.18 → +0.16; +0.11 → +0.05 at +0.4), so
+its weaker direction, now the left one, is 0.16: still short. So the validation bouts weren't run, and neither was the test
+the rule said would be reported for both candidates, since no turn setting was chosen to test with (`turn_selection.json`). In mjlab, 8 envs per command: +0.22 / +0.01 and +0.14 / −0.13; there the guard's left turn fell too (+0.19 → +0.14) and its
+weaker direction only went from 0.11 to 0.13. They are kept in `results/policy_mjlab_turn/`
+and `results/policy_mjlab_guard_turn/` (with `model_6996.pt`, `model_7196.pt`).
+
+Turning in place with Unitree's contract may need more than reward shaping: for example a turn curriculum, more iterations, or
+a wider hip-yaw action scale (0.15 rad per unit action, the same as the other leg joints).
 
 ## Opponent tracker (`r1_track_task.py`)
 This is unitree_rl_mjlab's BeyondMimic-style tracking task on the R1: R1 robot and action scale, R1 body names, and no linear velocity in the actor. Stages 1–3 below also had no anchor position (IMU + encoders only); the shipped steerable version adds it back (stage 4). The motion is `export_motion.py`'s concatenation of the cleaned clips (each twice, cross-faded), exactly what `FightReplay` replays.

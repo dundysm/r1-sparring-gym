@@ -13,7 +13,13 @@ skips 7-85% of starts in the stored (shell-contact) runs, by clip and distance (
 episodes, so differences are paired, and the episodes don't depend on which controllers are in the run. --split test
 (default) uses TEST_CLIPS, --split val uses VAL_CLIPS: choose candidates on val, report on test.
 --hits 1 (default) also scores the opponent's landed hits per bout (r1gym/hits.py HitMeter, read-only: survival is the same
-with it off) into each summary's 'landed' and 'sensitivity' blocks; definitions preregistered in docs/AIMED_OPPONENT.md.
+with it off) into each summary's 'landed' and 'sensitivity' blocks; definitions preregistered in docs/AIMED_OPPONENT.md. With
+the tracked opponent its strike scheduler then runs as 'shadow' (r1gym/aim.py: it logs strike intents and changes nothing, bit
+for bit), so window outcomes can be scored: the library's strike windows shifted by the tracker's lag (blocked share), and the
+intent windows an aimed run is paired on. These v1 tiers keep their episodes (meta.benchmark_version 'v1').
+--aim MODE (or 'chosen': results/opponent_tracker/aim.json) runs the same tier's episodes with the aimed opponent and pairs
+every controller with the unaimed run of the tier (its raw file must exist): differences in survival, hits and window
+outcomes, with (clip, start) cluster CIs, in each summary's 'vs_unaimed'. Output: summary_{split}{tier tag}_aim.json.
 meta records the git commit, a config hash, the preregistration's hash, the shell contact solref and the opponent's caps."""
 import sys, json, time, argparse, itertools, copy, hashlib, subprocess
 from pathlib import Path
@@ -26,12 +32,13 @@ from r1gym.hits import HitMeter, landed_block, sensitivity_block
 from r1gym.opponent import FightReplay
 from r1gym.perturb import make_hit, LOCATIONS
 from r1gym.policy import PDStand, load_controller, controller_cfg
-from r1gym.stats import wilson, paired_diff
+from r1gym.stats import wilson, paired_diff, cluster_paired_diff
 from r1gym.scenario import clean_starts, pick_start, REF_POSES, START_STEP, START_SPAN
 
 TIERS = {"standard": dict(distances=[0.5, 0.55, 0.6, 0.65, 0.7], seconds=10.0, hits=2, impulse=(4, 6), dr=False, seed=10_000),
          "hard": dict(distances=[0.4, 0.45, 0.5, 0.55], seconds=20.0, hits=6, impulse=(8, 14), dr=True, seed=20_000)}
 RING_M = 1.0       # the R1's pelvis got more than 1 m from where it started (pushed or stepped): out of the sparring ring
+AIM_JSON = Path(__file__).resolve().parents[1] / "results" / "opponent_tracker" / "aim.json"   # M1's operator and the tracker's lag
 def episodes(clips, reps, tier, good, hits_on=True, seconds=None):
     T = TIERS[tier]; out = []; S = seconds or T["seconds"]
     for k, (clip, dist, r) in enumerate(itertools.product(clips, T["distances"], range(reps))):
@@ -49,7 +56,21 @@ def episodes(clips, reps, tier, good, hits_on=True, seconds=None):
         out.append(dict(clip=clip, distance=dist, rep=r, t0=t0, delay=int(rng.integers(0, 3)), hits=hits, seed=T["seed"] + k, **ep))
     return out
 
-def run(ctrl, eps, m, cfg, T=10.0, threads=8, dr=False, meter=False):   # meter: main() turns it on (--hits); other callers skip its ~15%
+def meter_row(e, ep, secs, sp, lag):
+    """The HitMeter's per-bout summary, scored on the library's strike windows (each occurrence in the bout, shifted by the
+    tracker's lag) and, when the opponent runs an Aim (shadow or aimed), on its intent windows; plus the first contact time."""
+    hm, op = e.substep_hooks[0], e.opp; rate = op.fps * op.speed; T = op.T; k0 = int(np.floor(ep["t0"] * rate / T)) - 1
+    lib = [((k * T + s.onset) / rate - ep["t0"] + lag, (k * T + s.end) / rate - ep["t0"] + lag, s.limb) for s in op.strikes for k in range(k0, int(np.ceil((secs + ep["t0"]) * rate / T)) + 1)]
+    out = hm.summary(secs, sp, [(round(a, 4), round(b, 4), l) for a, b, l in lib if a >= 0 and b <= secs]); ev = hm.events()
+    out["first_contact_s"] = round(min(x["t0"] for x in ev), 3) if ev else None
+    aim = e.opp_state.get("aim")
+    if aim is not None:
+        tail = aim.p["window_tail_s"]; its = [it for it in aim.intents if it.t_on >= 0 and it.t_apex + tail <= secs]; o = hm.windows([it.window(tail) for it in its])
+        out.update(intent_windows={k: o.count(k) for k in ("head", "torso", "blocked", "miss")}, intents_gated=sum(bool(it.gated) for it in its),
+                   intent_closest_cm=[round(100 * it.closest_m, 1) for it in its])
+    return out
+
+def run(ctrl, eps, m, cfg, T=10.0, threads=8, dr=False, meter=False, lag=0.0):   # meter: main() turns it on (--hits); other callers skip its ~15%
     # DR envs write their sampled parameters into the model before each step, so with DR each thread steps its own copy
     ms = [copy.deepcopy(m) for _ in range(threads)] if dr else [m] * threads
     reps = {}; envs = []
@@ -87,7 +108,7 @@ def run(ctrl, eps, m, cfg, T=10.0, threads=8, dr=False, meter=False):   # meter:
         q = x["e"].r.free_q; p = (x["at"] if x["at"] is not None else x["e"].d.qpos[q:q + 2]) - x["start"]
         rows.append(dict(clip=ep["clip"], distance=ep["distance"], fell_s=x["fell"], opp_fell=x["opp_fell"], drift_m=round(float(np.linalg.norm(p)), 3),
                          back_m=round(float(-p[0]), 3), max_disp_m=round(x["maxr"], 3), ring_out=x["maxr"] > RING_M,
-                         **({"hit_meter": x["e"].substep_hooks[0].summary(x["fell"] or T, x["sp"])} if meter else {})))
+                         **({"hit_meter": meter_row(x["e"], ep, x["fell"] or T, x["sp"], lag)} if meter else {})))
     return rows
 
 def summarise(rows, T, clusters=None, shell_solref=None):
@@ -103,26 +124,64 @@ def summarise(rows, T, clusters=None, shell_solref=None):
                 survivors_mean_back_m=round(float(np.mean([x["back_m"] for x in surv])), 3) if surv else None,
                 survivors_back_over_0p3m=round(float(np.mean([x["back_m"] > 0.3 for x in surv])), 3) if surv else None,
                 opponent_fell=round(float(np.mean([x["opp_fell"] for x in rows])), 3),
-                **({"landed": landed_block([x["hit_meter"] for x in rows], clusters, shell_solref), "sensitivity": sensitivity_block([x["hit_meter"] for x in rows], clusters)}
-                   if rows and "hit_meter" in rows[0] else {}))
+                **({"landed": landed_block([x["hit_meter"] for x in rows], clusters, shell_solref), "sensitivity": sensitivity_block([x["hit_meter"] for x in rows], clusters),
+                    **aim_block([x["hit_meter"] for x in rows])} if rows and "hit_meter" in rows[0] else {}))
+
+def aim_block(hm):
+    """Intent windows (shadow or aimed opponent): outcome totals, head share, gated share, closest palm-to-target; and the share
+    of bouts with robot-robot contact in the first 0.5 s (aiming must not start bouts in contact)."""
+    out = dict(early_contact_share=round(float(np.mean([h["first_contact_s"] is not None and h["first_contact_s"] < 0.5 for h in hm])), 3))
+    if "intent_windows" in hm[0]:
+        W = {k: sum(h["intent_windows"][k] for h in hm) for k in hm[0]["intent_windows"]}; n = sum(W.values()); cm = [c for h in hm for c in h["intent_closest_cm"]]
+        out["intent_windows"] = dict(W, n=n, head_share=round(W["head"] / n, 3) if n else None, gated_share=round(sum(h["intents_gated"] for h in hm) / n, 3) if n else None,
+                                     closest_cm_median=round(float(np.median(cm)), 1) if cm else None)
+    return out
+
+def vs_unaimed(a, b, clusters):
+    """Aimed minus unaimed on identical episodes: survival, opponent falls, the primary (head clean strikes/min) and every hit rule,
+    exposure-weighted, and the head share of intent windows; (clip, start) cluster bootstrap."""
+    D = lambda x, y, wa=None, wb=None: dict(zip(("diff", "ci95"), cluster_paired_diff(x, y, clusters, wa=wa, wb=wb)))
+    out = dict(survival=D([float(r["fell_s"] is None) for r in a], [float(r["fell_s"] is None) for r in b]), opponent_fell=D([float(r["opp_fell"]) for r in a], [float(r["opp_fell"]) for r in b]))
+    if "hit_meter" in a[0] and "hit_meter" in b[0]:
+        H, G = [r["hit_meter"] for r in a], [r["hit_meter"] for r in b]; wa, wb = [h["secs"] / 60 for h in H], [h["secs"] / 60 for h in G]
+        out.update({k: D([h[k] for h in H], [h[k] for h in G], wa, wb) for k in ("head_clean_pm", "head_landed_pm", "head_impulse_pm", "torso_clean_pm", "torso_landed_pm")})
+        out["rules"] = {r: {z: D([h["rules"][r][i] for h in H], [h["rules"][r][i] for h in G], wa, wb) for i, z in enumerate(("head", "torso"))} for r in H[0]["rules"]}
+        if "intent_windows" in H[0] and "intent_windows" in G[0]:
+            share = lambda h: h["intent_windows"]["head"] / max(1, sum(h["intent_windows"].values())); n = lambda h: max(1, sum(h["intent_windows"].values()))
+            out["intent_window_head_share"] = D([share(h) for h in H], [share(h) for h in G], [n(h) for h in H], [n(h) for h in G])
+    return out
 
 def shell_solref(m):   # robot-vs-robot shell contact time constant: peak forces scale with it (impulse doesn't)
     sh = [g for g in range(m.ngeom) if m.geom_conaffinity[g] & SHELL_BIT]; return m.geom_solref[sh[0]].round(4).tolist() if sh else None
 
 def provenance(m, cfg, ccfg=None):
-    """What a result was computed with: commit (and whether tracked files had uncommitted edits), hashes of the base config,
+    """What a result was computed with: commit (and whether the working tree had uncommitted changes, untracked files included), hashes of the base config,
     of each controller's config and of the preregistration (docs/AIMED_OPPONENT.md), the MuJoCo version, the robot-vs-robot
     shell contact solref (peak forces depend on it) and the opponent's torque caps."""
     import mujoco
-    root = Path(__file__).resolve().parents[1]; git = lambda *a: subprocess.run(["git", *a], cwd=root, capture_output=True, text=True).stdout.strip()
+    root = Path(__file__).resolve().parents[1]
+    def git(*a):   # None when git fails (no repo, a lock held by another process): unknown, not 'clean'
+        r = subprocess.run(["git", *a], cwd=root, capture_output=True, text=True); return r.stdout.strip() if r.returncode == 0 else None
     h = lambda b: hashlib.sha256(b).hexdigest()[:16]; hc = lambda c: h(json.dumps(c, sort_keys=True, default=str).encode()); pre = root / "docs" / "AIMED_OPPONENT.md"
     oa = [m.actuator("opp_" + j.replace("_joint", "")).id for j in CTRL_JOINTS]
     caps = "mjlab" if cfg.get("opponent_mode") == "policy" else cfg.get("opponent_cap_policy")   # the tracker always runs mjlab caps (r1gym/model.py)
-    return dict(git_hash=git("rev-parse", "HEAD"), git_dirty=bool(git("status", "--porcelain", "--untracked-files=no")), mujoco=mujoco.__version__,
+    st = git("status", "--porcelain")   # untracked files count: a new, uncommitted module is not in git_hash either
+    mh = git("rev-parse", "-q", "--verify", "MERGE_HEAD")   # an uncommitted merge in progress: the other parent
+    return dict(git_hash=git("rev-parse", "HEAD"), git_dirty=None if st is None else bool(st), **({"git_merge_head": mh} if mh else {}), mujoco=mujoco.__version__,
                 config_hash=hc(cfg), controller_config_hashes={n: hc(c) for n, c in (ccfg or {}).items()}, prereg_sha=h(pre.read_bytes().replace(b"\r\n", b"\n")) if pre.exists() else None,   # LF-normalised: same on every checkout
+                prereg_rules_sha=h(pre.read_bytes().replace(b"\r\n", b"\n").split(b"\n## Results")[0]) if pre.exists() else None,   # without the Results section (added after the first M1 runs)
                 shell_solref=shell_solref(m),
                 opponent_caps=dict(policy=caps, Nm={j.replace("_joint", ""): float(m.actuator_forcerange[a, 1]) for j, a in zip(CTRL_JOINTS, oa)}),
                 hit_metric=cfg.get("hit_metric"))
+
+def pairs(raw, summ):
+    """Paired differences on the same episodes between every two controllers (and vs PD): survival, and up and in the ring."""
+    up = {n: [x["fell_s"] is None for x in r] for n, r in raw.items()}
+    ring = {n: [x["fell_s"] is None and not x["ring_out"] for x in r] for n, r in raw.items()}
+    for name in raw:
+        summ[name]["survival_minus"] = {o: dict(zip(["diff", "ci95"], paired_diff(up[name], up[o]))) for o in raw if o != name}
+        summ[name]["survival_in_ring_minus"] = {o: dict(zip(["diff", "ci95"], paired_diff(ring[name], ring[o]))) for o in raw if o != name}
+        if name != "pd_stand": summ[name]["survival_minus_pd"], summ[name]["survival_minus_pd_ci95"] = paired_diff(up[name], up["pd_stand"])
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--policy", nargs="*", default=["v1=results/policy_v1/policy.pt", "v2=results/policy/policy.pt", "v3=results/policy_v3_candidate/policy.pt"],
@@ -133,36 +192,51 @@ def main():
                     help="tracked: the R1 on its own motors (default, realistic); puppet: assisted replay (stress test, up to 250 N horizontal assist)")
     ap.add_argument("--no_pushes", action="store_true"); ap.add_argument("--seconds", type=float, default=None); ap.add_argument("--out", default="results/eval_opponent")
     ap.add_argument("--hits", type=int, default=1, help="1: score landed hits per bout (r1gym/hits.py; read-only, survival unchanged); 0: off")
+    ap.add_argument("--aim", default=None, help="aimed opponent (r1gym/aim.py mode, or 'chosen': results/opponent_tracker/aim.json), paired with this tier's unaimed raw file")
+    ap.add_argument("--threads", type=int, default=8, help="threads stepping the bouts (results don't depend on it)")
+    ap.add_argument("--from_raw", action="store_true", help="recompute summary_*.json from the stored raw_*.json (no simulation)")
     a = ap.parse_args(); out = Path(a.out); out.mkdir(parents=True, exist_ok=True); tier = TIERS[a.tier]; T = a.seconds or tier["seconds"]
     cfg = load_cfg(); models = {}; tag = ("" if a.tier == "standard" else f"_{a.tier}") + ("" if a.opponent == "tracked" else "_puppet") + ("_nohits" if a.no_pushes else "")
+    if a.from_raw:
+        st = json.load(open(out / f"raw_{a.split}{tag}.json")); raw = st["raw"]; cl = [(e["clip"], e["t0"]) for e in st["episodes"]]
+        summ = {n: summarise(r, st["meta"]["seconds"], cl, st["meta"].get("shell_solref")) for n, r in raw.items()}; pairs(raw, summ)
+        json.dump(dict(meta=st["meta"], summary=summ), open(out / f"summary_{a.split}{tag}.json", "w"), indent=1); return
     if a.opponent == "puppet": cfg["opponent_mode"] = "puppet"
+    aimj = json.load(open(AIM_JSON)) if AIM_JSON.exists() else {}; lag = float(aimj.get("lag_s", 0.0)) if a.opponent == "tracked" else 0.0; aim = aimj["operator"] if a.aim == "chosen" else a.aim
+    if aim and a.opponent != "tracked": sys.exit("--aim needs the tracked opponent")
+    cfg["opponent_aim"] = aim or ("shadow" if a.hits and a.opponent == "tracked" else "none"); base_tag = tag; tag += "_aim" if aim else ""
     clips = TEST_CLIPS if a.split == "test" else VAL_CLIPS
     ctrls = [PDStand()]
     for lp in a.policy:
         lab, path = lp.split("=", 1)
         if Path(path).exists(): ctrls.append(load_controller(f"RL {lab}={path}"))
-    ccfg = {c.name: {**controller_cfg(c), "opponent_mode": cfg["opponent_mode"]} for c in ctrls}   # own contract per controller
+    ccfg = {c.name: {**controller_cfg(c), "opponent_mode": cfg["opponent_mode"], "opponent_aim": cfg["opponent_aim"]} for c in ctrls}   # own contract per controller
     poses = dict(REF_POSES)
     for n, cc in ccfg.items():   # a pose outside REF_POSES changes every controller's episodes: allowed, but loudly
         h = np.array(cc.get("home", HOME), float)
         if not any(np.allclose(h, p, atol=1e-3) for p in poses.values()):
             print(f"WARNING: {n}'s default pose is not in REF_POSES; adding it changes the episodes, so this run is not paired with stored results", flush=True)
             poses[n] = h
-    good = clean_starts({**cfg}, clips, tier["distances"], poses); eps = episodes(clips, a.reps, a.tier, good, not a.no_pushes, T)
+    good = clean_starts({**cfg, "opponent_aim": "none"}, clips, tier["distances"], poses); eps = episodes(clips, a.reps, a.tier, good, not a.no_pushes, T)   # judged on the unwarped clip
     raw, summ = {}, {}; clusters = [(e["clip"], e["t0"]) for e in eps]   # bootstrap clusters: (clip, start)
     for c in ctrls:
         cc = ccfg[c.name]; key = str(getattr(c, "cfg_path", "default"))
         if key not in models: models[key] = build_spec(opponent=True, cfg=cc).compile()
-        t0 = time.time(); raw[c.name] = run(c, eps, models[key], cc, T, dr=tier["dr"], meter=bool(a.hits)); summ[c.name] = summarise(raw[c.name], T, clusters, shell_solref(models[key]))
+        t0 = time.time(); raw[c.name] = run(c, eps, models[key], cc, T, threads=a.threads, dr=tier["dr"], meter=bool(a.hits), lag=lag); summ[c.name] = summarise(raw[c.name], T, clusters, shell_solref(models[key]))
         print(c.name, json.dumps(summ[c.name]), f"({time.time() - t0:.0f} s)", flush=True)
-    for name in raw:   # paired differences: vs PD, and between every two controllers (same episodes)
-        up = [x["fell_s"] is None for x in raw[name]]
-        summ[name]["survival_minus"] = {o: dict(zip(["diff", "ci95"], paired_diff(up, [x["fell_s"] is None for x in raw[o]]))) for o in raw if o != name}
-        if name != "pd_stand": summ[name]["survival_minus_pd"], summ[name]["survival_minus_pd_ci95"] = paired_diff(up, [x["fell_s"] is None for x in raw["pd_stand"]])
+    pairs(raw, summ)
+    if aim:   # pair with the unaimed run of this tier: same episodes, every controller
+        ref = out / f"raw_{a.split}{base_tag}.json"
+        if not ref.exists(): sys.exit(f"--aim pairs with {ref}: run this tier unaimed first")
+        R = json.load(open(ref)); assert R["episodes"] == json.loads(json.dumps(eps)), f"{ref} holds other episodes"
+        for name in raw:
+            if name in R["raw"]: summ[name]["vs_unaimed"] = vs_unaimed(raw[name], R["raw"][name], clusters)
     skipped = {f"{c}@{d}": round(1 - float(np.mean(g)), 3) for (c, d), g in good.items()}
     meta = dict(tier=a.tier, tier_cfg=tier, opponent=a.opponent, split=a.split, clips=clips, reps=a.reps, pushes=not a.no_pushes, seconds=T,
                 opponent_mode=cfg.get("opponent_mode", "puppet"), ring_m=RING_M, start_poses=list(poses), start_times_skipped=skipped,
-                hit_meter=bool(a.hits), **provenance(next(iter(models.values())), cfg, ccfg))
+                hit_meter=bool(a.hits), benchmark_version="v1" + (f"+aim:{aim}" if aim else ""), opponent_aim=cfg["opponent_aim"], strike_lag_s=lag,
+                **({"aim": dict(operator=aim, from_aim_json=a.aim == "chosen", aim_json=aimj or None, paired_with=f"raw_{a.split}{base_tag}.json", paired_with_git=R["meta"].get("git_hash"))} if aim else {}),
+                **provenance(next(iter(models.values())), cfg, ccfg))
     json.dump(dict(meta=meta, summary=summ), open(out / f"summary_{a.split}{tag}.json", "w"), indent=1)
     json.dump(dict(meta=meta, episodes=eps, raw=raw), open(out / f"raw_{a.split}{tag}.json", "w"))
     print(json.dumps(summ, indent=1))

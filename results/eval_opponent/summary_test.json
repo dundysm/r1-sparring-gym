@@ -44,64 +44,6 @@
    "kfab_205@0.6": 0.353,
    "kfab_205@0.65": 0.257,
    "kfab_205@0.7": 0.157
-  },
-  "hit_meter": true,
-  "benchmark_version": "v1",
-  "opponent_aim": "shadow",
-  "strike_lag_s": 0.02,
-  "git_hash": "adcd6cb2362ab5f98c111f1402b616733517d7cd",
-  "git_dirty": true,
-  "mujoco": "3.17.0",
-  "config_hash": "1d680f3ea97e921c",
-  "controller_config_hashes": {
-   "pd_stand": "1d680f3ea97e921c",
-   "RL v1": "1d680f3ea97e921c",
-   "RL v2": "1d680f3ea97e921c",
-   "RL v3": "1d680f3ea97e921c",
-   "RL step_s1": "4664d10c4095c29f",
-   "RL step": "75a86d176eca9611",
-   "RL guard": "5936e68bab6dd2d0"
-  },
-  "prereg_sha": "562834645ce51777",
-  "shell_solref": [
-   0.01,
-   1.0
-  ],
-  "opponent_caps": {
-   "policy": "mjlab",
-   "Nm": {
-    "left_hip_pitch": 60.0,
-    "left_hip_roll": 60.0,
-    "left_hip_yaw": 60.0,
-    "left_knee": 60.0,
-    "left_ankle_pitch": 50.0,
-    "left_ankle_roll": 50.0,
-    "right_hip_pitch": 60.0,
-    "right_hip_roll": 60.0,
-    "right_hip_yaw": 60.0,
-    "right_knee": 60.0,
-    "right_ankle_pitch": 50.0,
-    "right_ankle_roll": 50.0,
-    "waist_roll": 60.0,
-    "waist_yaw": 60.0,
-    "left_shoulder_pitch": 60.0,
-    "left_shoulder_roll": 60.0,
-    "left_shoulder_yaw": 33.0,
-    "left_elbow": 33.0,
-    "left_wrist_roll": 33.0,
-    "right_shoulder_pitch": 60.0,
-    "right_shoulder_roll": 60.0,
-    "right_shoulder_yaw": 33.0,
-    "right_elbow": 33.0,
-    "right_wrist_roll": 33.0
-   }
-  },
-  "hit_metric": {
-   "merge_gap_s": 0.1,
-   "min_impulse_Ns": 0.5,
-   "min_peak_N": 5,
-   "v_close_min": 1.0,
-   "max_strike_s": 0.15
   }
  },
  "summary": {
@@ -130,196 +72,6 @@
    "survivors_mean_back_m": -0.046,
    "survivors_back_over_0p3m": 0.0,
    "opponent_fell": 0.044,
-   "landed": {
-    "primary": "head_clean_pm",
-    "rates": "rate: total count / total minutes until the R1 fell; bout_mean: mean of per-bout rates",
-    "head_clean_pm": {
-     "rate": 3.659,
-     "ci95": [
-      2.618,
-      4.825
-     ],
-     "bout_mean": 4.115
-    },
-    "head_landed_pm": {
-     "rate": 5.188,
-     "ci95": [
-      3.883,
-      6.636
-     ],
-     "bout_mean": 6.032
-    },
-    "torso_clean_pm": {
-     "rate": 6.663,
-     "ci95": [
-      4.985,
-      8.548
-     ],
-     "bout_mean": 8.386
-    },
-    "torso_landed_pm": {
-     "rate": 13.599,
-     "ci95": [
-      11.355,
-      16.011
-     ],
-     "bout_mean": 16.326
-    },
-    "head_impulse_pm": {
-     "rate": 13.096,
-     "ci95": [
-      9.268,
-      17.713
-     ],
-     "bout_mean": 17.512
-    },
-    "arm_clean_pm": {
-     "rate": 10.595,
-     "ci95": [
-      8.795,
-      12.576
-     ],
-     "bout_mean": 12.88
-    },
-    "counts": {
-     "head_clean": 67,
-     "head_landed": 95,
-     "torso_clean": 122,
-     "torso_landed": 249,
-     "arm_clean": 194
-    },
-    "impulse_per_head_hit_Ns": {
-     "n": 95,
-     "median": 1.621,
-     "p90": 5.082
-    },
-    "peak_force_N": {
-     "n": 344,
-     "median": 247.45,
-     "p95": 601.925,
-     "max": 1089.1,
-     "shell_solref": [
-      0.01,
-      1.0
-     ]
-    },
-    "arm_share_of_clean": 0.507,
-    "spacing_m": {
-     "p10": 0.497,
-     "median": 0.624,
-     "p90": 0.71
-    },
-    "windows": {
-     "head": 24,
-     "torso": 59,
-     "blocked": 192,
-     "miss": 1837,
-     "blocked_share": 0.091
-    }
-   },
-   "sensitivity": {
-    "clean": {
-     "head": {
-      "rate": 3.659,
-      "ci95": [
-       2.618,
-       4.825
-      ],
-      "bout_mean": 4.115
-     },
-     "torso": {
-      "rate": 6.663,
-      "ci95": [
-       4.985,
-       8.548
-      ],
-      "bout_mean": 8.386
-     }
-    },
-    "landed": {
-     "head": {
-      "rate": 5.188,
-      "ci95": [
-       3.883,
-       6.636
-      ],
-      "bout_mean": 6.032
-     },
-     "torso": {
-      "rate": 13.599,
-      "ci95": [
-       11.355,
-       16.011
-      ],
-      "bout_mean": 16.326
-     }
-    },
-    "A_peak20": {
-     "head": {
-      "rate": 6.335,
-      "ci95": [
-       4.795,
-       8.014
-      ],
-      "bout_mean": 7.57
-     },
-     "torso": {
-      "rate": 28.18,
-      "ci95": [
-       23.503,
-       33.245
-      ],
-      "bout_mean": 33.019
-     }
-    },
-    "B_strike": {
-     "head": {
-      "rate": 4.151,
-      "ci95": [
-       3.041,
-       5.363
-      ],
-      "bout_mean": 4.865
-     },
-     "torso": {
-      "rate": 7.646,
-      "ci95": [
-       5.952,
-       9.626
-      ],
-      "bout_mean": 9.732
-     }
-    },
-    "impulse_only": {
-     "head": {
-      "rate": 5.789,
-      "ci95": [
-       4.412,
-       7.36
-      ],
-      "bout_mean": 6.907
-     },
-     "torso": {
-      "rate": 14.855,
-      "ci95": [
-       12.607,
-       17.38
-      ],
-      "bout_mean": 17.953
-     }
-    }
-   },
-   "early_contact_share": 0.494,
-   "intent_windows": {
-    "head": 35,
-    "torso": 74,
-    "blocked": 210,
-    "miss": 1543,
-    "n": 1862,
-    "head_share": 0.019,
-    "gated_share": 0.383,
-    "closest_cm_median": 36.7
-   },
    "survival_minus": {
     "RL v1": {
      "diff": -0.281,
@@ -362,6 +114,78 @@
       -0.694,
       -0.537
      ]
+    },
+    "RL step_fw": {
+     "diff": -0.625,
+     "ci95": [
+      -0.7,
+      -0.55
+     ]
+    },
+    "RL guard_fw": {
+     "diff": -0.625,
+     "ci95": [
+      -0.7,
+      -0.55
+     ]
+    }
+   },
+   "survival_in_ring_minus": {
+    "RL v1": {
+     "diff": -0.281,
+     "ci95": [
+      -0.369,
+      -0.194
+     ]
+    },
+    "RL v2": {
+     "diff": -0.275,
+     "ci95": [
+      -0.362,
+      -0.188
+     ]
+    },
+    "RL v3": {
+     "diff": -0.244,
+     "ci95": [
+      -0.331,
+      -0.156
+     ]
+    },
+    "RL step_s1": {
+     "diff": -0.5,
+     "ci95": [
+      -0.588,
+      -0.412
+     ]
+    },
+    "RL step": {
+     "diff": -0.619,
+     "ci95": [
+      -0.694,
+      -0.544
+     ]
+    },
+    "RL guard": {
+     "diff": -0.613,
+     "ci95": [
+      -0.688,
+      -0.531
+     ]
+    },
+    "RL step_fw": {
+     "diff": -0.619,
+     "ci95": [
+      -0.694,
+      -0.544
+     ]
+    },
+    "RL guard_fw": {
+     "diff": -0.625,
+     "ci95": [
+      -0.7,
+      -0.55
+     ]
     }
    }
   },
@@ -390,196 +214,6 @@
    "survivors_mean_back_m": 0.02,
    "survivors_back_over_0p3m": 0.0,
    "opponent_fell": 0.044,
-   "landed": {
-    "primary": "head_clean_pm",
-    "rates": "rate: total count / total minutes until the R1 fell; bout_mean: mean of per-bout rates",
-    "head_clean_pm": {
-     "rate": 1.808,
-     "ci95": [
-      1.147,
-      2.529
-     ],
-     "bout_mean": 1.945
-    },
-    "head_landed_pm": {
-     "rate": 2.395,
-     "ci95": [
-      1.688,
-      3.201
-     ],
-     "bout_mean": 2.795
-    },
-    "torso_clean_pm": {
-     "rate": 5.921,
-     "ci95": [
-      4.386,
-      7.574
-     ],
-     "bout_mean": 6.143
-    },
-    "torso_landed_pm": {
-     "rate": 9.808,
-     "ci95": [
-      8.069,
-      11.66
-     ],
-     "bout_mean": 10.731
-    },
-    "head_impulse_pm": {
-     "rate": 5.361,
-     "ci95": [
-      3.089,
-      8.402
-     ],
-     "bout_mean": 7.648
-    },
-    "arm_clean_pm": {
-     "rate": 8.452,
-     "ci95": [
-      6.835,
-      10.154
-     ],
-     "bout_mean": 9.84
-    },
-    "counts": {
-     "head_clean": 40,
-     "head_landed": 53,
-     "torso_clean": 131,
-     "torso_landed": 217,
-     "arm_clean": 187
-    },
-    "impulse_per_head_hit_Ns": {
-     "n": 53,
-     "median": 1.369,
-     "p90": 3.489
-    },
-    "peak_force_N": {
-     "n": 270,
-     "median": 295.85,
-     "p95": 623.665,
-     "max": 1685.1,
-     "shell_solref": [
-      0.01,
-      1.0
-     ]
-    },
-    "arm_share_of_clean": 0.522,
-    "spacing_m": {
-     "p10": 0.544,
-     "median": 0.642,
-     "p90": 0.731
-    },
-    "windows": {
-     "head": 14,
-     "torso": 82,
-     "blocked": 176,
-     "miss": 2288,
-     "blocked_share": 0.069
-    }
-   },
-   "sensitivity": {
-    "clean": {
-     "head": {
-      "rate": 1.808,
-      "ci95": [
-       1.147,
-       2.529
-      ],
-      "bout_mean": 1.945
-     },
-     "torso": {
-      "rate": 5.921,
-      "ci95": [
-       4.386,
-       7.574
-      ],
-      "bout_mean": 6.143
-     }
-    },
-    "landed": {
-     "head": {
-      "rate": 2.395,
-      "ci95": [
-       1.688,
-       3.201
-      ],
-      "bout_mean": 2.795
-     },
-     "torso": {
-      "rate": 9.808,
-      "ci95": [
-       8.069,
-       11.66
-      ],
-      "bout_mean": 10.731
-     }
-    },
-    "A_peak20": {
-     "head": {
-      "rate": 2.802,
-      "ci95": [
-       1.976,
-       3.732
-      ],
-      "bout_mean": 3.235
-     },
-     "torso": {
-      "rate": 21.559,
-      "ci95": [
-       17.724,
-       25.803
-      ],
-      "bout_mean": 24.695
-     }
-    },
-    "B_strike": {
-     "head": {
-      "rate": 1.808,
-      "ci95": [
-       1.147,
-       2.529
-      ],
-      "bout_mean": 1.945
-     },
-     "torso": {
-      "rate": 6.147,
-      "ci95": [
-       4.607,
-       7.771
-      ],
-      "bout_mean": 6.574
-     }
-    },
-    "impulse_only": {
-     "head": {
-      "rate": 2.531,
-      "ci95": [
-       1.798,
-       3.367
-      ],
-      "bout_mean": 3.033
-     },
-     "torso": {
-      "rate": 10.124,
-      "ci95": [
-       8.382,
-       11.99
-      ],
-      "bout_mean": 11.176
-     }
-    }
-   },
-   "early_contact_share": 0.481,
-   "intent_windows": {
-    "head": 14,
-    "torso": 86,
-    "blocked": 191,
-    "miss": 1980,
-    "n": 2271,
-    "head_share": 0.006,
-    "gated_share": 0.366,
-    "closest_cm_median": 39.3
-   },
    "survival_minus": {
     "pd_stand": {
      "diff": 0.281,
@@ -622,6 +256,78 @@
       -0.412,
       -0.263
      ]
+    },
+    "RL step_fw": {
+     "diff": -0.344,
+     "ci95": [
+      -0.419,
+      -0.269
+     ]
+    },
+    "RL guard_fw": {
+     "diff": -0.344,
+     "ci95": [
+      -0.419,
+      -0.269
+     ]
+    }
+   },
+   "survival_in_ring_minus": {
+    "pd_stand": {
+     "diff": 0.281,
+     "ci95": [
+      0.194,
+      0.369
+     ]
+    },
+    "RL v2": {
+     "diff": 0.006,
+     "ci95": [
+      -0.062,
+      0.081
+     ]
+    },
+    "RL v3": {
+     "diff": 0.037,
+     "ci95": [
+      -0.037,
+      0.113
+     ]
+    },
+    "RL step_s1": {
+     "diff": -0.219,
+     "ci95": [
+      -0.306,
+      -0.138
+     ]
+    },
+    "RL step": {
+     "diff": -0.338,
+     "ci95": [
+      -0.412,
+      -0.263
+     ]
+    },
+    "RL guard": {
+     "diff": -0.331,
+     "ci95": [
+      -0.406,
+      -0.256
+     ]
+    },
+    "RL step_fw": {
+     "diff": -0.338,
+     "ci95": [
+      -0.412,
+      -0.263
+     ]
+    },
+    "RL guard_fw": {
+     "diff": -0.344,
+     "ci95": [
+      -0.419,
+      -0.269
+     ]
     }
    },
    "survival_minus_pd": 0.281,
@@ -655,196 +361,6 @@
    "survivors_mean_back_m": 0.029,
    "survivors_back_over_0p3m": 0.01,
    "opponent_fell": 0.044,
-   "landed": {
-    "primary": "head_clean_pm",
-    "rates": "rate: total count / total minutes until the R1 fell; bout_mean: mean of per-bout rates",
-    "head_clean_pm": {
-     "rate": 1.658,
-     "ci95": [
-      1.07,
-      2.306
-     ],
-     "bout_mean": 2.004
-    },
-    "head_landed_pm": {
-     "rate": 1.934,
-     "ci95": [
-      1.283,
-      2.656
-     ],
-     "bout_mean": 2.526
-    },
-    "torso_clean_pm": {
-     "rate": 5.481,
-     "ci95": [
-      4.127,
-      7.034
-     ],
-     "bout_mean": 6.173
-    },
-    "torso_landed_pm": {
-     "rate": 9.58,
-     "ci95": [
-      7.773,
-      11.503
-     ],
-     "bout_mean": 11.169
-    },
-    "head_impulse_pm": {
-     "rate": 4.446,
-     "ci95": [
-      2.741,
-      6.394
-     ],
-     "bout_mean": 8.258
-    },
-    "arm_clean_pm": {
-     "rate": 6.954,
-     "ci95": [
-      5.552,
-      8.386
-     ],
-     "bout_mean": 8.586
-    },
-    "counts": {
-     "head_clean": 36,
-     "head_landed": 42,
-     "torso_clean": 119,
-     "torso_landed": 208,
-     "arm_clean": 151
-    },
-    "impulse_per_head_hit_Ns": {
-     "n": 42,
-     "median": 1.722,
-     "p90": 4.219
-    },
-    "peak_force_N": {
-     "n": 250,
-     "median": 295.35,
-     "p95": 571.67,
-     "max": 966.8,
-     "shell_solref": [
-      0.01,
-      1.0
-     ]
-    },
-    "arm_share_of_clean": 0.493,
-    "spacing_m": {
-     "p10": 0.543,
-     "median": 0.646,
-     "p90": 0.736
-    },
-    "windows": {
-     "head": 12,
-     "torso": 83,
-     "blocked": 125,
-     "miss": 2293,
-     "blocked_share": 0.05
-    }
-   },
-   "sensitivity": {
-    "clean": {
-     "head": {
-      "rate": 1.658,
-      "ci95": [
-       1.07,
-       2.306
-      ],
-      "bout_mean": 2.004
-     },
-     "torso": {
-      "rate": 5.481,
-      "ci95": [
-       4.127,
-       7.034
-      ],
-      "bout_mean": 6.173
-     }
-    },
-    "landed": {
-     "head": {
-      "rate": 1.934,
-      "ci95": [
-       1.283,
-       2.656
-      ],
-      "bout_mean": 2.526
-     },
-     "torso": {
-      "rate": 9.58,
-      "ci95": [
-       7.773,
-       11.503
-      ],
-      "bout_mean": 11.169
-     }
-    },
-    "A_peak20": {
-     "head": {
-      "rate": 2.211,
-      "ci95": [
-       1.495,
-       2.955
-      ],
-      "bout_mean": 2.762
-     },
-     "torso": {
-      "rate": 20.817,
-      "ci95": [
-       16.929,
-       25.089
-      ],
-      "bout_mean": 24.717
-     }
-    },
-    "B_strike": {
-     "head": {
-      "rate": 1.658,
-      "ci95": [
-       1.07,
-       2.306
-      ],
-      "bout_mean": 2.004
-     },
-     "torso": {
-      "rate": 5.665,
-      "ci95": [
-       4.277,
-       7.231
-      ],
-      "bout_mean": 6.508
-     }
-    },
-    "impulse_only": {
-     "head": {
-      "rate": 1.98,
-      "ci95": [
-       1.317,
-       2.697
-      ],
-      "bout_mean": 2.625
-     },
-     "torso": {
-      "rate": 9.764,
-      "ci95": [
-       7.931,
-       11.738
-      ],
-      "bout_mean": 11.504
-     }
-    }
-   },
-   "early_contact_share": 0.438,
-   "intent_windows": {
-    "head": 14,
-    "torso": 89,
-    "blocked": 138,
-    "miss": 1989,
-    "n": 2230,
-    "head_share": 0.006,
-    "gated_share": 0.365,
-    "closest_cm_median": 39.8
-   },
    "survival_minus": {
     "pd_stand": {
      "diff": 0.275,
@@ -887,6 +403,78 @@
       -0.425,
       -0.269
      ]
+    },
+    "RL step_fw": {
+     "diff": -0.35,
+     "ci95": [
+      -0.431,
+      -0.281
+     ]
+    },
+    "RL guard_fw": {
+     "diff": -0.35,
+     "ci95": [
+      -0.431,
+      -0.281
+     ]
+    }
+   },
+   "survival_in_ring_minus": {
+    "pd_stand": {
+     "diff": 0.275,
+     "ci95": [
+      0.188,
+      0.362
+     ]
+    },
+    "RL v1": {
+     "diff": -0.006,
+     "ci95": [
+      -0.081,
+      0.062
+     ]
+    },
+    "RL v3": {
+     "diff": 0.031,
+     "ci95": [
+      -0.037,
+      0.1
+     ]
+    },
+    "RL step_s1": {
+     "diff": -0.225,
+     "ci95": [
+      -0.312,
+      -0.144
+     ]
+    },
+    "RL step": {
+     "diff": -0.344,
+     "ci95": [
+      -0.419,
+      -0.275
+     ]
+    },
+    "RL guard": {
+     "diff": -0.338,
+     "ci95": [
+      -0.419,
+      -0.263
+     ]
+    },
+    "RL step_fw": {
+     "diff": -0.344,
+     "ci95": [
+      -0.419,
+      -0.269
+     ]
+    },
+    "RL guard_fw": {
+     "diff": -0.35,
+     "ci95": [
+      -0.431,
+      -0.281
+     ]
     }
    },
    "survival_minus_pd": 0.275,
@@ -920,196 +508,6 @@
    "survivors_mean_back_m": 0.04,
    "survivors_back_over_0p3m": 0.02,
    "opponent_fell": 0.044,
-   "landed": {
-    "primary": "head_clean_pm",
-    "rates": "rate: total count / total minutes until the R1 fell; bout_mean: mean of per-bout rates",
-    "head_clean_pm": {
-     "rate": 2.161,
-     "ci95": [
-      1.36,
-      3.003
-     ],
-     "bout_mean": 2.485
-    },
-    "head_landed_pm": {
-     "rate": 2.593,
-     "ci95": [
-      1.698,
-      3.504
-     ],
-     "bout_mean": 3.12
-    },
-    "torso_clean_pm": {
-     "rate": 4.226,
-     "ci95": [
-      3.117,
-      5.491
-     ],
-     "bout_mean": 5.448
-    },
-    "torso_landed_pm": {
-     "rate": 8.644,
-     "ci95": [
-      7.028,
-      10.479
-     ],
-     "bout_mean": 10.309
-    },
-    "head_impulse_pm": {
-     "rate": 5.067,
-     "ci95": [
-      3.235,
-      7.181
-     ],
-     "bout_mean": 9.594
-    },
-    "arm_clean_pm": {
-     "rate": 7.059,
-     "ci95": [
-      5.702,
-      8.503
-     ],
-     "bout_mean": 9.349
-    },
-    "counts": {
-     "head_clean": 45,
-     "head_landed": 54,
-     "torso_clean": 88,
-     "torso_landed": 180,
-     "arm_clean": 147
-    },
-    "impulse_per_head_hit_Ns": {
-     "n": 54,
-     "median": 1.475,
-     "p90": 2.759
-    },
-    "peak_force_N": {
-     "n": 234,
-     "median": 280.1,
-     "p95": 618.79,
-     "max": 1140.7,
-     "shell_solref": [
-      0.01,
-      1.0
-     ]
-    },
-    "arm_share_of_clean": 0.525,
-    "spacing_m": {
-     "p10": 0.56,
-     "median": 0.646,
-     "p90": 0.743
-    },
-    "windows": {
-     "head": 13,
-     "torso": 79,
-     "blocked": 119,
-     "miss": 2197,
-     "blocked_share": 0.049
-    }
-   },
-   "sensitivity": {
-    "clean": {
-     "head": {
-      "rate": 2.161,
-      "ci95": [
-       1.36,
-       3.003
-      ],
-      "bout_mean": 2.485
-     },
-     "torso": {
-      "rate": 4.226,
-      "ci95": [
-       3.117,
-       5.491
-      ],
-      "bout_mean": 5.448
-     }
-    },
-    "landed": {
-     "head": {
-      "rate": 2.593,
-      "ci95": [
-       1.698,
-       3.504
-      ],
-      "bout_mean": 3.12
-     },
-     "torso": {
-      "rate": 8.644,
-      "ci95": [
-       7.028,
-       10.479
-      ],
-      "bout_mean": 10.309
-     }
-    },
-    "A_peak20": {
-     "head": {
-      "rate": 2.737,
-      "ci95": [
-       1.828,
-       3.658
-      ],
-      "bout_mean": 3.232
-     },
-     "torso": {
-      "rate": 18.056,
-      "ci95": [
-       14.404,
-       22.146
-      ],
-      "bout_mean": 21.689
-     }
-    },
-    "B_strike": {
-     "head": {
-      "rate": 2.209,
-      "ci95": [
-       1.394,
-       3.066
-      ],
-      "bout_mean": 2.555
-     },
-     "torso": {
-      "rate": 4.322,
-      "ci95": [
-       3.206,
-       5.613
-      ],
-      "bout_mean": 5.558
-     }
-    },
-    "impulse_only": {
-     "head": {
-      "rate": 2.641,
-      "ci95": [
-       1.744,
-       3.587
-      ],
-      "bout_mean": 3.189
-     },
-     "torso": {
-      "rate": 8.74,
-      "ci95": [
-       7.1,
-       10.57
-      ],
-      "bout_mean": 10.419
-     }
-    }
-   },
-   "early_contact_share": 0.456,
-   "intent_windows": {
-    "head": 19,
-    "torso": 86,
-    "blocked": 133,
-    "miss": 1882,
-    "n": 2120,
-    "head_share": 0.009,
-    "gated_share": 0.367,
-    "closest_cm_median": 39.6
-   },
    "survival_minus": {
     "pd_stand": {
      "diff": 0.244,
@@ -1152,6 +550,78 @@
       -0.45,
       -0.3
      ]
+    },
+    "RL step_fw": {
+     "diff": -0.381,
+     "ci95": [
+      -0.456,
+      -0.306
+     ]
+    },
+    "RL guard_fw": {
+     "diff": -0.381,
+     "ci95": [
+      -0.456,
+      -0.306
+     ]
+    }
+   },
+   "survival_in_ring_minus": {
+    "pd_stand": {
+     "diff": 0.244,
+     "ci95": [
+      0.156,
+      0.331
+     ]
+    },
+    "RL v1": {
+     "diff": -0.037,
+     "ci95": [
+      -0.113,
+      0.037
+     ]
+    },
+    "RL v2": {
+     "diff": -0.031,
+     "ci95": [
+      -0.1,
+      0.037
+     ]
+    },
+    "RL step_s1": {
+     "diff": -0.256,
+     "ci95": [
+      -0.338,
+      -0.181
+     ]
+    },
+    "RL step": {
+     "diff": -0.375,
+     "ci95": [
+      -0.456,
+      -0.3
+     ]
+    },
+    "RL guard": {
+     "diff": -0.369,
+     "ci95": [
+      -0.444,
+      -0.294
+     ]
+    },
+    "RL step_fw": {
+     "diff": -0.375,
+     "ci95": [
+      -0.456,
+      -0.3
+     ]
+    },
+    "RL guard_fw": {
+     "diff": -0.381,
+     "ci95": [
+      -0.456,
+      -0.306
+     ]
     }
    },
    "survival_minus_pd": 0.244,
@@ -1185,196 +655,6 @@
    "survivors_mean_back_m": 0.099,
    "survivors_back_over_0p3m": 0.11,
    "opponent_fell": 0.05,
-   "landed": {
-    "primary": "head_clean_pm",
-    "rates": "rate: total count / total minutes until the R1 fell; bout_mean: mean of per-bout rates",
-    "head_clean_pm": {
-     "rate": 1.825,
-     "ci95": [
-      1.206,
-      2.541
-     ],
-     "bout_mean": 1.832
-    },
-    "head_landed_pm": {
-     "rate": 2.291,
-     "ci95": [
-      1.625,
-      3.047
-     ],
-     "bout_mean": 2.282
-    },
-    "torso_clean_pm": {
-     "rate": 6.836,
-     "ci95": [
-      5.301,
-      8.491
-     ],
-     "bout_mean": 6.915
-    },
-    "torso_landed_pm": {
-     "rate": 11.496,
-     "ci95": [
-      9.722,
-      13.348
-     ],
-     "bout_mean": 11.648
-    },
-    "head_impulse_pm": {
-     "rate": 4.237,
-     "ci95": [
-      2.855,
-      5.83
-     ],
-     "bout_mean": 4.283
-    },
-    "arm_clean_pm": {
-     "rate": 9.166,
-     "ci95": [
-      7.77,
-      10.572
-     ],
-     "bout_mean": 9.574
-    },
-    "counts": {
-     "head_clean": 47,
-     "head_landed": 59,
-     "torso_clean": 176,
-     "torso_landed": 296,
-     "arm_clean": 236
-    },
-    "impulse_per_head_hit_Ns": {
-     "n": 59,
-     "median": 1.504,
-     "p90": 2.645
-    },
-    "peak_force_N": {
-     "n": 355,
-     "median": 286.4,
-     "p95": 721.47,
-     "max": 1000.2,
-     "shell_solref": [
-      0.01,
-      1.0
-     ]
-    },
-    "arm_share_of_clean": 0.514,
-    "spacing_m": {
-     "p10": 0.563,
-     "median": 0.647,
-     "p90": 0.725
-    },
-    "windows": {
-     "head": 17,
-     "torso": 128,
-     "blocked": 192,
-     "miss": 2658,
-     "blocked_share": 0.064
-    }
-   },
-   "sensitivity": {
-    "clean": {
-     "head": {
-      "rate": 1.825,
-      "ci95": [
-       1.206,
-       2.541
-      ],
-      "bout_mean": 1.832
-     },
-     "torso": {
-      "rate": 6.836,
-      "ci95": [
-       5.301,
-       8.491
-      ],
-      "bout_mean": 6.915
-     }
-    },
-    "landed": {
-     "head": {
-      "rate": 2.291,
-      "ci95": [
-       1.625,
-       3.047
-      ],
-      "bout_mean": 2.282
-     },
-     "torso": {
-      "rate": 11.496,
-      "ci95": [
-       9.722,
-       13.348
-      ],
-      "bout_mean": 11.648
-     }
-    },
-    "A_peak20": {
-     "head": {
-      "rate": 2.525,
-      "ci95": [
-       1.81,
-       3.323
-      ],
-      "bout_mean": 2.523
-     },
-     "torso": {
-      "rate": 23.925,
-      "ci95": [
-       20.051,
-       28.071
-      ],
-      "bout_mean": 24.342
-     }
-    },
-    "B_strike": {
-     "head": {
-      "rate": 1.825,
-      "ci95": [
-       1.206,
-       2.541
-      ],
-      "bout_mean": 1.832
-     },
-     "torso": {
-      "rate": 6.836,
-      "ci95": [
-       5.301,
-       8.491
-      ],
-      "bout_mean": 6.915
-     }
-    },
-    "impulse_only": {
-     "head": {
-      "rate": 2.291,
-      "ci95": [
-       1.625,
-       3.047
-      ],
-      "bout_mean": 2.282
-     },
-     "torso": {
-      "rate": 11.496,
-      "ci95": [
-       9.722,
-       13.348
-      ],
-      "bout_mean": 11.648
-     }
-    }
-   },
-   "early_contact_share": 0.494,
-   "intent_windows": {
-    "head": 24,
-    "torso": 131,
-    "blocked": 216,
-    "miss": 2299,
-    "n": 2670,
-    "head_share": 0.009,
-    "gated_share": 0.371,
-    "closest_cm_median": 39.4
-   },
    "survival_minus": {
     "pd_stand": {
      "diff": 0.537,
@@ -1417,6 +697,78 @@
       -0.131,
       -0.037
      ]
+    },
+    "RL step_fw": {
+     "diff": -0.087,
+     "ci95": [
+      -0.131,
+      -0.044
+     ]
+    },
+    "RL guard_fw": {
+     "diff": -0.087,
+     "ci95": [
+      -0.131,
+      -0.044
+     ]
+    }
+   },
+   "survival_in_ring_minus": {
+    "pd_stand": {
+     "diff": 0.5,
+     "ci95": [
+      0.412,
+      0.588
+     ]
+    },
+    "RL v1": {
+     "diff": 0.219,
+     "ci95": [
+      0.138,
+      0.306
+     ]
+    },
+    "RL v2": {
+     "diff": 0.225,
+     "ci95": [
+      0.144,
+      0.312
+     ]
+    },
+    "RL v3": {
+     "diff": 0.256,
+     "ci95": [
+      0.181,
+      0.338
+     ]
+    },
+    "RL step": {
+     "diff": -0.119,
+     "ci95": [
+      -0.169,
+      -0.069
+     ]
+    },
+    "RL guard": {
+     "diff": -0.113,
+     "ci95": [
+      -0.163,
+      -0.062
+     ]
+    },
+    "RL step_fw": {
+     "diff": -0.119,
+     "ci95": [
+      -0.175,
+      -0.069
+     ]
+    },
+    "RL guard_fw": {
+     "diff": -0.125,
+     "ci95": [
+      -0.175,
+      -0.075
+     ]
     }
    },
    "survival_minus_pd": 0.537,
@@ -1450,196 +802,6 @@
    "survivors_mean_back_m": 0.061,
    "survivors_back_over_0p3m": 0.031,
    "opponent_fell": 0.044,
-   "landed": {
-    "primary": "head_clean_pm",
-    "rates": "rate: total count / total minutes until the R1 fell; bout_mean: mean of per-bout rates",
-    "head_clean_pm": {
-     "rate": 2.822,
-     "ci95": [
-      2.013,
-      3.669
-     ],
-     "bout_mean": 2.812
-    },
-    "head_landed_pm": {
-     "rate": 3.575,
-     "ci95": [
-      2.616,
-      4.571
-     ],
-     "bout_mean": 3.562
-    },
-    "torso_clean_pm": {
-     "rate": 6.171,
-     "ci95": [
-      4.972,
-      7.401
-     ],
-     "bout_mean": 6.196
-    },
-    "torso_landed_pm": {
-     "rate": 11.552,
-     "ci95": [
-      10.039,
-      13.119
-     ],
-     "bout_mean": 11.559
-    },
-    "head_impulse_pm": {
-     "rate": 7.01,
-     "ci95": [
-      4.889,
-      9.375
-     ],
-     "bout_mean": 6.986
-    },
-    "arm_clean_pm": {
-     "rate": 10.122,
-     "ci95": [
-      8.625,
-      11.656
-     ],
-     "bout_mean": 10.088
-    },
-    "counts": {
-     "head_clean": 75,
-     "head_landed": 95,
-     "torso_clean": 164,
-     "torso_landed": 307,
-     "arm_clean": 269
-    },
-    "impulse_per_head_hit_Ns": {
-     "n": 95,
-     "median": 1.74,
-     "p90": 3.03
-    },
-    "peak_force_N": {
-     "n": 402,
-     "median": 260.2,
-     "p95": 756.595,
-     "max": 1174.0,
-     "shell_solref": [
-      0.01,
-      1.0
-     ]
-    },
-    "arm_share_of_clean": 0.53,
-    "spacing_m": {
-     "p10": 0.54,
-     "median": 0.638,
-     "p90": 0.738
-    },
-    "windows": {
-     "head": 26,
-     "torso": 119,
-     "blocked": 248,
-     "miss": 2700,
-     "blocked_share": 0.08
-    }
-   },
-   "sensitivity": {
-    "clean": {
-     "head": {
-      "rate": 2.822,
-      "ci95": [
-       2.013,
-       3.669
-      ],
-      "bout_mean": 2.812
-     },
-     "torso": {
-      "rate": 6.171,
-      "ci95": [
-       4.972,
-       7.401
-      ],
-      "bout_mean": 6.196
-     }
-    },
-    "landed": {
-     "head": {
-      "rate": 3.575,
-      "ci95": [
-       2.616,
-       4.571
-      ],
-      "bout_mean": 3.562
-     },
-     "torso": {
-      "rate": 11.552,
-      "ci95": [
-       10.039,
-       13.119
-      ],
-      "bout_mean": 11.559
-     }
-    },
-    "A_peak20": {
-     "head": {
-      "rate": 3.65,
-      "ci95": [
-       2.687,
-       4.65
-      ],
-      "bout_mean": 3.638
-     },
-     "torso": {
-      "rate": 24.798,
-      "ci95": [
-       21.276,
-       28.419
-      ],
-      "bout_mean": 24.805
-     }
-    },
-    "B_strike": {
-     "head": {
-      "rate": 2.822,
-      "ci95": [
-       2.013,
-       3.669
-      ],
-      "bout_mean": 2.812
-     },
-     "torso": {
-      "rate": 6.171,
-      "ci95": [
-       4.972,
-       7.401
-      ],
-      "bout_mean": 6.196
-     }
-    },
-    "impulse_only": {
-     "head": {
-      "rate": 3.575,
-      "ci95": [
-       2.616,
-       4.571
-      ],
-      "bout_mean": 3.562
-     },
-     "torso": {
-      "rate": 11.552,
-      "ci95": [
-       10.039,
-       13.119
-      ],
-      "bout_mean": 11.559
-     }
-    }
-   },
-   "early_contact_share": 0.475,
-   "intent_windows": {
-    "head": 33,
-    "torso": 130,
-    "blocked": 280,
-    "miss": 2318,
-    "n": 2761,
-    "head_share": 0.012,
-    "gated_share": 0.381,
-    "closest_cm_median": 39.4
-   },
    "survival_minus": {
     "pd_stand": {
      "diff": 0.619,
@@ -1682,6 +844,78 @@
       -0.019,
       0.019
      ]
+    },
+    "RL step_fw": {
+     "diff": -0.006,
+     "ci95": [
+      -0.019,
+      0.0
+     ]
+    },
+    "RL guard_fw": {
+     "diff": -0.006,
+     "ci95": [
+      -0.019,
+      0.0
+     ]
+    }
+   },
+   "survival_in_ring_minus": {
+    "pd_stand": {
+     "diff": 0.619,
+     "ci95": [
+      0.544,
+      0.694
+     ]
+    },
+    "RL v1": {
+     "diff": 0.338,
+     "ci95": [
+      0.263,
+      0.412
+     ]
+    },
+    "RL v2": {
+     "diff": 0.344,
+     "ci95": [
+      0.275,
+      0.419
+     ]
+    },
+    "RL v3": {
+     "diff": 0.375,
+     "ci95": [
+      0.3,
+      0.456
+     ]
+    },
+    "RL step_s1": {
+     "diff": 0.119,
+     "ci95": [
+      0.069,
+      0.169
+     ]
+    },
+    "RL guard": {
+     "diff": 0.006,
+     "ci95": [
+      -0.013,
+      0.025
+     ]
+    },
+    "RL step_fw": {
+     "diff": 0.0,
+     "ci95": [
+      -0.019,
+      0.019
+     ]
+    },
+    "RL guard_fw": {
+     "diff": -0.006,
+     "ci95": [
+      -0.019,
+      0.0
+     ]
     }
    },
    "survival_minus_pd": 0.619,
@@ -1715,196 +949,6 @@
    "survivors_mean_back_m": 0.111,
    "survivors_back_over_0p3m": 0.101,
    "opponent_fell": 0.037,
-   "landed": {
-    "primary": "head_clean_pm",
-    "rates": "rate: total count / total minutes until the R1 fell; bout_mean: mean of per-bout rates",
-    "head_clean_pm": {
-     "rate": 0.226,
-     "ci95": [
-      0.073,
-      0.425
-     ],
-     "bout_mean": 0.225
-    },
-    "head_landed_pm": {
-     "rate": 0.302,
-     "ci95": [
-      0.107,
-      0.558
-     ],
-     "bout_mean": 0.3
-    },
-    "torso_clean_pm": {
-     "rate": 4.297,
-     "ci95": [
-      3.233,
-      5.417
-     ],
-     "bout_mean": 4.275
-    },
-    "torso_landed_pm": {
-     "rate": 7.237,
-     "ci95": [
-      5.886,
-      8.63
-     ],
-     "bout_mean": 7.2
-    },
-    "head_impulse_pm": {
-     "rate": 1.085,
-     "ci95": [
-      0.209,
-      2.316
-     ],
-     "bout_mean": 1.08
-    },
-    "arm_clean_pm": {
-     "rate": 37.393,
-     "ci95": [
-      33.623,
-      40.899
-     ],
-     "bout_mean": 37.556
-    },
-    "counts": {
-     "head_clean": 6,
-     "head_landed": 8,
-     "torso_clean": 114,
-     "torso_landed": 192,
-     "arm_clean": 992
-    },
-    "impulse_per_head_hit_Ns": {
-     "n": 8,
-     "median": 1.6,
-     "p90": 8.377
-    },
-    "peak_force_N": {
-     "n": 200,
-     "median": 240.0,
-     "p95": 737.91,
-     "max": 1290.6,
-     "shell_solref": [
-      0.01,
-      1.0
-     ]
-    },
-    "arm_share_of_clean": 0.892,
-    "spacing_m": {
-     "p10": 0.546,
-     "median": 0.644,
-     "p90": 0.76
-    },
-    "windows": {
-     "head": 1,
-     "torso": 57,
-     "blocked": 629,
-     "miss": 2399,
-     "blocked_share": 0.204
-    }
-   },
-   "sensitivity": {
-    "clean": {
-     "head": {
-      "rate": 0.226,
-      "ci95": [
-       0.073,
-       0.425
-      ],
-      "bout_mean": 0.225
-     },
-     "torso": {
-      "rate": 4.297,
-      "ci95": [
-       3.233,
-       5.417
-      ],
-      "bout_mean": 4.275
-     }
-    },
-    "landed": {
-     "head": {
-      "rate": 0.302,
-      "ci95": [
-       0.107,
-       0.558
-      ],
-      "bout_mean": 0.3
-     },
-     "torso": {
-      "rate": 7.237,
-      "ci95": [
-       5.886,
-       8.63
-      ],
-      "bout_mean": 7.2
-     }
-    },
-    "A_peak20": {
-     "head": {
-      "rate": 0.339,
-      "ci95": [
-       0.114,
-       0.611
-      ],
-      "bout_mean": 0.338
-     },
-     "torso": {
-      "rate": 20.167,
-      "ci95": [
-       16.323,
-       24.073
-      ],
-      "bout_mean": 20.062
-     }
-    },
-    "B_strike": {
-     "head": {
-      "rate": 0.226,
-      "ci95": [
-       0.073,
-       0.425
-      ],
-      "bout_mean": 0.225
-     },
-     "torso": {
-      "rate": 4.41,
-      "ci95": [
-       3.317,
-       5.559
-      ],
-      "bout_mean": 4.388
-     }
-    },
-    "impulse_only": {
-     "head": {
-      "rate": 0.302,
-      "ci95": [
-       0.107,
-       0.558
-      ],
-      "bout_mean": 0.3
-     },
-     "torso": {
-      "rate": 7.237,
-      "ci95": [
-       5.886,
-       8.63
-      ],
-      "bout_mean": 7.2
-     }
-    }
-   },
-   "early_contact_share": 0.75,
-   "intent_windows": {
-    "head": 3,
-    "torso": 74,
-    "blocked": 769,
-    "miss": 1911,
-    "n": 2757,
-    "head_share": 0.001,
-    "gated_share": 0.361,
-    "closest_cm_median": 41.9
-   },
    "survival_minus": {
     "pd_stand": {
      "diff": 0.619,
@@ -1947,12 +991,378 @@
       -0.019,
       0.019
      ]
+    },
+    "RL step_fw": {
+     "diff": -0.006,
+     "ci95": [
+      -0.019,
+      0.0
+     ]
+    },
+    "RL guard_fw": {
+     "diff": -0.006,
+     "ci95": [
+      -0.019,
+      0.0
+     ]
+    }
+   },
+   "survival_in_ring_minus": {
+    "pd_stand": {
+     "diff": 0.613,
+     "ci95": [
+      0.531,
+      0.688
+     ]
+    },
+    "RL v1": {
+     "diff": 0.331,
+     "ci95": [
+      0.256,
+      0.406
+     ]
+    },
+    "RL v2": {
+     "diff": 0.338,
+     "ci95": [
+      0.263,
+      0.419
+     ]
+    },
+    "RL v3": {
+     "diff": 0.369,
+     "ci95": [
+      0.294,
+      0.444
+     ]
+    },
+    "RL step_s1": {
+     "diff": 0.113,
+     "ci95": [
+      0.062,
+      0.163
+     ]
+    },
+    "RL step": {
+     "diff": -0.006,
+     "ci95": [
+      -0.025,
+      0.013
+     ]
+    },
+    "RL step_fw": {
+     "diff": -0.006,
+     "ci95": [
+      -0.025,
+      0.013
+     ]
+    },
+    "RL guard_fw": {
+     "diff": -0.013,
+     "ci95": [
+      -0.031,
+      0.0
+     ]
     }
    },
    "survival_minus_pd": 0.619,
    "survival_minus_pd_ci95": [
     0.537,
     0.694
+   ]
+  },
+  "RL step_fw": {
+   "episodes": 160,
+   "survival": 1.0,
+   "survival_ci95": [
+    0.977,
+    1.0
+   ],
+   "mean_time_to_fall_s": 10.0,
+   "survival_by_distance": {
+    "0.5": 1.0,
+    "0.55": 1.0,
+    "0.6": 1.0,
+    "0.65": 1.0,
+    "0.7": 1.0
+   },
+   "survival_in_ring": 0.994,
+   "survival_in_ring_ci95": [
+    0.965,
+    0.999
+   ],
+   "survivors_ring_out": 0.006,
+   "survivors_mean_drift_m": 0.11,
+   "survivors_mean_back_m": 0.007,
+   "survivors_back_over_0p3m": 0.0,
+   "opponent_fell": 0.044,
+   "survival_minus": {
+    "pd_stand": {
+     "diff": 0.625,
+     "ci95": [
+      0.55,
+      0.7
+     ]
+    },
+    "RL v1": {
+     "diff": 0.344,
+     "ci95": [
+      0.269,
+      0.419
+     ]
+    },
+    "RL v2": {
+     "diff": 0.35,
+     "ci95": [
+      0.281,
+      0.431
+     ]
+    },
+    "RL v3": {
+     "diff": 0.381,
+     "ci95": [
+      0.306,
+      0.456
+     ]
+    },
+    "RL step_s1": {
+     "diff": 0.087,
+     "ci95": [
+      0.044,
+      0.131
+     ]
+    },
+    "RL step": {
+     "diff": 0.006,
+     "ci95": [
+      0.0,
+      0.019
+     ]
+    },
+    "RL guard": {
+     "diff": 0.006,
+     "ci95": [
+      0.0,
+      0.019
+     ]
+    },
+    "RL guard_fw": {
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "survival_in_ring_minus": {
+    "pd_stand": {
+     "diff": 0.619,
+     "ci95": [
+      0.544,
+      0.694
+     ]
+    },
+    "RL v1": {
+     "diff": 0.338,
+     "ci95": [
+      0.263,
+      0.412
+     ]
+    },
+    "RL v2": {
+     "diff": 0.344,
+     "ci95": [
+      0.269,
+      0.419
+     ]
+    },
+    "RL v3": {
+     "diff": 0.375,
+     "ci95": [
+      0.3,
+      0.456
+     ]
+    },
+    "RL step_s1": {
+     "diff": 0.119,
+     "ci95": [
+      0.069,
+      0.175
+     ]
+    },
+    "RL step": {
+     "diff": 0.0,
+     "ci95": [
+      -0.019,
+      0.019
+     ]
+    },
+    "RL guard": {
+     "diff": 0.006,
+     "ci95": [
+      -0.013,
+      0.025
+     ]
+    },
+    "RL guard_fw": {
+     "diff": -0.006,
+     "ci95": [
+      -0.019,
+      0.0
+     ]
+    }
+   },
+   "survival_minus_pd": 0.625,
+   "survival_minus_pd_ci95": [
+    0.55,
+    0.7
+   ]
+  },
+  "RL guard_fw": {
+   "episodes": 160,
+   "survival": 1.0,
+   "survival_ci95": [
+    0.977,
+    1.0
+   ],
+   "mean_time_to_fall_s": 10.0,
+   "survival_by_distance": {
+    "0.5": 1.0,
+    "0.55": 1.0,
+    "0.6": 1.0,
+    "0.65": 1.0,
+    "0.7": 1.0
+   },
+   "survival_in_ring": 1.0,
+   "survival_in_ring_ci95": [
+    0.977,
+    1.0
+   ],
+   "survivors_ring_out": 0.0,
+   "survivors_mean_drift_m": 0.161,
+   "survivors_mean_back_m": 0.105,
+   "survivors_back_over_0p3m": 0.025,
+   "opponent_fell": 0.031,
+   "survival_minus": {
+    "pd_stand": {
+     "diff": 0.625,
+     "ci95": [
+      0.55,
+      0.7
+     ]
+    },
+    "RL v1": {
+     "diff": 0.344,
+     "ci95": [
+      0.269,
+      0.419
+     ]
+    },
+    "RL v2": {
+     "diff": 0.35,
+     "ci95": [
+      0.281,
+      0.431
+     ]
+    },
+    "RL v3": {
+     "diff": 0.381,
+     "ci95": [
+      0.306,
+      0.456
+     ]
+    },
+    "RL step_s1": {
+     "diff": 0.087,
+     "ci95": [
+      0.044,
+      0.131
+     ]
+    },
+    "RL step": {
+     "diff": 0.006,
+     "ci95": [
+      0.0,
+      0.019
+     ]
+    },
+    "RL guard": {
+     "diff": 0.006,
+     "ci95": [
+      0.0,
+      0.019
+     ]
+    },
+    "RL step_fw": {
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "survival_in_ring_minus": {
+    "pd_stand": {
+     "diff": 0.625,
+     "ci95": [
+      0.55,
+      0.7
+     ]
+    },
+    "RL v1": {
+     "diff": 0.344,
+     "ci95": [
+      0.269,
+      0.419
+     ]
+    },
+    "RL v2": {
+     "diff": 0.35,
+     "ci95": [
+      0.281,
+      0.431
+     ]
+    },
+    "RL v3": {
+     "diff": 0.381,
+     "ci95": [
+      0.306,
+      0.456
+     ]
+    },
+    "RL step_s1": {
+     "diff": 0.125,
+     "ci95": [
+      0.075,
+      0.175
+     ]
+    },
+    "RL step": {
+     "diff": 0.006,
+     "ci95": [
+      0.0,
+      0.019
+     ]
+    },
+    "RL guard": {
+     "diff": 0.013,
+     "ci95": [
+      0.0,
+      0.031
+     ]
+    },
+    "RL step_fw": {
+     "diff": 0.006,
+     "ci95": [
+      0.0,
+      0.019
+     ]
+    }
+   },
+   "survival_minus_pd": 0.625,
+   "survival_minus_pd_ci95": [
+    0.55,
+    0.7
    ]
   }
  }

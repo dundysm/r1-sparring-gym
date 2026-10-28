@@ -1,0 +1,37 @@
+{
+ "written_utc": "2026-10-28T02:23:30Z",
+ "written_before": "any stage-4 (turning) training result",
+ "candidates": {
+  "turn_arms": {
+   "task": "R1-Spar-Turn",
+   "init": "results/policy_mjlab_footwork/model_5997.pt (footwork arms down)",
+   "iterations": 1000,
+   "replaces": "arms_down"
+  },
+  "turn_guard": {
+   "task": "R1-Spar-Turn-Guard",
+   "init": "results/policy_mjlab_guard/model_5997.pt (stage-2 guard; the footwork guard's model_7496.pt was lost, so this run also learns the footwork changes)",
+   "iterations": 1200,
+   "replaces": "guard"
+  }
+ },
+ "outer_loops": "hold-your-spot fixed at hold_deadband [0.25, 0.08] (as both shipped footwork policies); turn command off / on / deadband [0.35, 0.1] chosen on hard-tier validation by the existing rule: most bouts up and within 1 m among the settings within one bout (1/64) of the best survival (scripts/face_ab.py --val).",
+ "ship_rule": "A candidate replaces the shipped footwork policy with the same arm pose only if, on validation only, all hold: (1) CPU MuJoCo turn response (scripts/face_ab.py turn_response, no opponent) min(|w(+0.8)|, |w(-0.8)|) >= 0.25 rad/s and >= 1.5x the shipped policy's; (2) hard-tier validation survival >= shipped - 1/64 and up-and-within-1 m >= shipped - 1/64, each with its chosen turn setting; (3) standard-tier validation survival >= shipped - 1/80.",
+ "test": "reported once, for both candidates, after the decision; never used to choose.",
+ "shipped_reference_validation": {
+  "arms_down": {
+   "policy": "results/policy_mjlab_footwork",
+   "turn_min_abs_0p8": 0.09,
+   "hard_val_survival": 0.969,
+   "hard_val_in_ring": 0.797,
+   "standard_val_survival": 1.0
+  },
+  "guard": {
+   "policy": "results/policy_mjlab_guard_footwork",
+   "turn_min_abs_0p8": 0.08,
+   "hard_val_survival": 0.969,
+   "hard_val_in_ring": 0.766,
+   "standard_val_survival": 1.0
+  }
+ }
+}

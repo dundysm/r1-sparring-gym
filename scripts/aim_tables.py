@@ -1,17 +1,20 @@
 """README tables for the aimed opponent (M1), generated from the stored results only: the strike library and its audit
 (r1gym/assets/motions/strikes.json), the tracker's tolerance (results/opponent_tracker/tolerance.json), the paired aim check
 and the operator it chose (results/opponent_aim/aim_check.json, results/opponent_tracker/aim.json), and the hard tier with and
-without the aim (results/eval_opponent/summary_{val,test}_hard[_nohits][_aim].json). --write replaces the blocks between
-'<!-- tag:begin -->' and '<!-- tag:end -->': aim, headline and spacing in README.md, results in docs/AIMED_OPPONENT.md (after
-checking that the preregistered text above its Results section still has the prereg_sha every M1 result carries); without
-it the blocks are printed."""
+without the aim: against the shipped footwork policies (results/eval_opponent/aim/, after merging main) and, archived, as first
+run against PR #13's bases (results/eval_opponent/aim_pre14/). --write replaces the blocks between '<!-- tag:begin -->' and
+'<!-- tag:end -->': aim in README.md, results in docs/AIMED_OPPONENT.md (after checking that the preregistered text above its
+Results section still hashes to what every M1 result was computed under); without it the blocks are printed."""
 import sys, json, argparse
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]; sys.path.insert(0, str(ROOT))
 from r1gym.stats import cluster_paired_diff
 from r1gym.env import TRAIN_CLIPS, VAL_CLIPS
 CTRL = [("pd_stand", "PD stand"), ("RL v1", "RL v1 (residual)"), ("RL v2", "RL v2 (residual)"), ("RL v3", "RL v3 cand. (residual)"), ("RL step_s1", "Stepping base, stage 1"),
-        ("RL step", "**Stepping base, arms down**"), ("RL guard", "**Stepping base + guard**")]
+        ("RL step", "Stepping base, arms down (PR #13)"), ("RL guard", "Stepping base + guard (PR #13)"),
+        ("RL step_fw", "**Footwork, arms down (shipped)**"), ("RL guard_fw", "**Footwork + guard (shipped)**")]
+PRE, NEW = "results/eval_opponent/aim_pre14", "results/eval_opponent/aim"   # as first run (PR #13's bases), and against main's shipped policies
+SHIP = ("RL step_fw", "RL guard_fw"); NAME = {"RL step": "arms down (PR #13)", "RL guard": "guard (PR #13)", "RL step_fw": "footwork arms down", "RL guard_fw": "footwork guard"}
 OPS = [("standoff", "StandOff"), ("armwarp", "ArmWarp"), ("armwarp_vz", "ArmWarp, height and sideways only"), ("standoff+armwarp_vz", "StandOff + ArmWarp (height, sideways)"), ("select", "StrikeSelector")]
 
 def ci(x, f="{:+.1f}"): return f"{f.format(x['diff'])} [{f.format(x['ci95'][0]).lstrip('+')}, {f.format(x['ci95'][1]).lstrip('+')}]"
@@ -35,7 +38,7 @@ def block():
     if ac:
         sa = ac["summary"]["arms_down"]; base = sa["by_mode"]["shadow"]; d = ac["decision"]
         L += [f"**Paired aim check** (`scripts/aim_check.py`, train + val, {ac['meta']['grid']['bouts_per_cell']} bouts of 10 s per operator and target at 0.40-0.65 m; "
-              f"against the arms-down base; the unaimed opponent lands {base['landed']['head_clean_pm']['rate']:.1f} head clean strikes/min):", "",
+              f"against PR #13's arms-down base; the unaimed opponent lands {base['landed']['head_clean_pm']['rate']:.1f} head clean strikes/min):", "",
               "| operator | Δ head clean strikes/min [95% CI] | Δ head-landed share per strike window | opponent falls, pooled (unaimed {:.1%}) | sign under the other hit rules |".format(
                   d["candidates"]["standoff"]["opp_fell_unaimed"]), "|---|---|---|---|---|"]
         for op, lab in OPS:
@@ -54,7 +57,7 @@ def block():
         L += [f"The chosen operator on every target (same episodes; peak forces at the shell solref named):", "",
               f"| target | head clean strikes/min, unaimed → aimed | Δ [95% CI] | Δ on train clips ({ncl['train']} start times) / on the val clip ({ncl['val']}) | Δ head-landed/min | Δ head impulse, N·s/min | strike windows ending on the head, unaimed → aimed | windows not aimed (lean / touch gate) | windows whose target is >= 8 cm beyond the arm's reach | head-hit peak force, median / p95 |",
               "|---|---|---|---|---|---|---|---|---|---|"]
-        for t, lab in (("mannequin", "mannequin (welded R1: the aim alone)"), ("arms_down", "arms-down base"), ("guard", "guard"), ("arms_down_solref0.02", "arms-down, shell solref 0.02")):
+        for t, lab in (("mannequin", "mannequin (welded R1: the aim alone)"), ("arms_down", "arms-down base (PR #13)"), ("guard", "guard (PR #13)"), ("arms_down_solref0.02", "arms-down (PR #13), shell solref 0.02")):
             S_, P_ = ac["summary"][t]["by_mode"], ac["summary"][t]["paired"][op]; I = [i for r in raw[t][op] for i in r["intents"]]
             far = sum(i["ik_res_cm"] is not None and i["ik_res_cm"] >= 8 for i in I) / len(I); gt = sum(i["gated"] == "tilt" for i in I) / len(I); gc = sum(i["gated"] == "touch" for i in I) / len(I)
             pk = S_[op]["landed"]["peak_force_N"]; sub = {}
@@ -73,9 +76,9 @@ def block():
                   f"and the {bk['>=8cm']['n']} that are 8 cm or more short {bk['>=8cm']['head_share']:.0%}. The actual pelvis spacing stays near "
                   f"{ac['summary']['arms_down']['by_mode'][op]['landed']['spacing_m']['median']:.2f} m (median) at nominal 0.40-0.65 m. Whole-body aiming (M2, GPU) is what can change that.", ""]
     rows = []
-    for split in ("val", "test"):
+    for split in ("val", "test"):   # README: stage 1, PR #13's bases and the shipped footwork policies
         for push in ("", "_nohits"):
-            u, a = j(f"results/eval_opponent/summary_{split}_hard{push}.json"), j(f"results/eval_opponent/summary_{split}_hard{push}_aim.json")
+            u, a = j(f"{NEW}/summary_{split}_hard{push}.json"), j(f"{NEW}/summary_{split}_hard{push}_aim.json")
             if not (u and a): continue
             for k, lab in CTRL[4:]:   # the stepping bases; PD and v1-v3 fall in every hard bout either way (all of them are in the JSON)
                 if k not in a["summary"] or "vs_unaimed" not in a["summary"][k]: continue
@@ -84,52 +87,92 @@ def block():
                             f"{U['landed']['head_clean_pm']['rate']:.1f} → {A['landed']['head_clean_pm']['rate']:.1f} | {ci(V['head_clean_pm'])} | "
                             f"{ci(V['opponent_fell'], '{:+.3f}')} | {U['landed']['spacing_m']['median'] if U['landed'].get('spacing_m') else '–'} m |")
     if rows:
-        L += [f"**Hard tier with the aimed opponent** (`--aim chosen`: {aim['operator']}; the same episodes as the unaimed tier, paired; nominal distance 0.40-0.55 m):", "",
+        L += [f"**Hard tier with the aimed opponent** (`--aim chosen`: {aim['operator']}, chosen before the footwork policies existed and not re-chosen; `{NEW}/`: the same "
+              f"episodes as the unaimed tier, the scheduler in shadow there, paired; nominal distance 0.40-0.55 m):", "",
               "| split | controller | survival, unaimed → aimed | Δ survival [95% CI] | head clean strikes/min, unaimed → aimed | Δ [95% CI] | Δ opponent falls [95% CI] | actual spacing (median, unaimed) |",
               "|---|---|---|---|---|---|---|---|", *rows, ""]
-        T, U = j("results/eval_opponent/summary_test_hard_aim.json"), j("results/eval_opponent/summary_test_hard.json")
+        T, U = j(f"{NEW}/summary_test_hard_aim.json"), j(f"{NEW}/summary_test_hard.json")
         if T:
-            V = {k: T["summary"][k]["vs_unaimed"] for k in ("RL step", "RL guard")}; up = [k for k in V if V[k]["opponent_fell"]["ci95"][0] > 0.02]
-            name = lambda k: "arms down" if k == "RL step" else "guard"; of = lambda D, k: D["summary"][k]["opponent_fell"]
-            N, M = j("results/eval_opponent/summary_test_hard_nohits_aim.json"), j("results/eval_opponent/summary_test_hard_nohits.json")
+            V = {k: T["summary"][k]["vs_unaimed"] for k in SHIP}; up = [k for k in V if V[k]["opponent_fell"]["ci95"][0] > 0.02]
+            name = lambda k: NAME[k]; of = lambda D, k: D["summary"][k]["opponent_fell"]
+            N, M = j(f"{NEW}/summary_test_hard_nohits_aim.json"), j(f"{NEW}/summary_test_hard_nohits.json")
             nh = f" ({', '.join(f'{of(M, k):.1%} → {of(N, k):.1%}' for k in up)} without the scripted hits)" if N and M else ""
-            L += [f"On test (run once, after the choice): head clean strikes/min {ci(V['RL step']['head_clean_pm'])} against arms down and {ci(V['RL guard']['head_clean_pm'])} "
-                  f"against the guard; survival {ci(V['RL step']['survival'], '{:+.3f}')} and {ci(V['RL guard']['survival'], '{:+.3f}')}. PD and the residual policies fall in every hard bout with scripted hits, aimed or not (their rows, "
-                  f"with and without the hits, are in the JSON and in `docs/AIMED_OPPONENT.md`)."
+            L += [f"On test (run once, after val): head clean strikes/min {ci(V['RL step_fw']['head_clean_pm'])} against the footwork arms-down policy and {ci(V['RL guard_fw']['head_clean_pm'])} "
+                  f"against the footwork guard; survival {ci(V['RL step_fw']['survival'], '{:+.3f}')} and {ci(V['RL guard_fw']['survival'], '{:+.3f}')}. PD, the residual policies and PR #13's bases "
+                  f"are in the JSON and in `docs/AIMED_OPPONENT.md`, as is the first run against PR #13's bases (`{PRE}/`)."
                   + (f" **The aimed opponent falls more in the hard tier:** in {', '.join(f'{of(U, k):.1%} → {of(T, k):.1%} ({name(k)})' for k in up)} of test bouts{nh}. "
                      f"The preregistered fall rule is judged on the aim-check grid (10 s, nominal physics, 0.40-0.65 m), where it stayed within +2 pp; in the hard tier "
                      f"(20 s, randomised R1, 0.40-0.55 m) it doesn't, with or without the scripted hits, so M1's operator is not fit to be the default opponent." if up else ""), ""]
     return "\n".join(L)
 
 PREREG = ROOT / "docs" / "AIMED_OPPONENT.md"
-M1_RESULTS = ["results/opponent_tracker/tolerance.json", "results/opponent_aim/aim_check.json", "results/opponent_tracker/aim.json", "results/opponent_aim/aim_frames.json"] + \
-             [f"results/eval_opponent/summary_{s}{t}{a}.json" for s in ("val", "test") for t in ("", "_hard", "_hard_nohits") for a in ("", "_aim")] + \
-             [f"results/eval_opponent/summary_{s}_puppet.json" for s in ("val", "test")]
+ASRUN = ["results/opponent_tracker/tolerance.json", "results/opponent_aim/aim_check.json", "results/opponent_tracker/aim.json", "results/opponent_aim/aim_frames.json"] + \
+        [f"{PRE}/summary_{s}{t}{a}.json" for s in ("val", "test") for t in ("", "_hard", "_hard_nohits") for a in ("", "_aim")] + [f"{PRE}/summary_{s}_puppet.json" for s in ("val", "test")]
+REMEASURED = [f"{NEW}/summary_{s}_hard{t}{a}.json" for s in ("val", "test") for t in ("", "_nohits") for a in ("", "_aim")]
+M1_RESULTS = ASRUN + REMEASURED
 
 def prereg_sha():
     """sha256 (first 16 hex) of docs/AIMED_OPPONENT.md, LF line endings, without its '## Results' section: the text the results
-    were computed under (scripts/eval_opponent.py provenance() hashes the whole file, which had no Results section then)."""
+    were computed under. The first runs hashed the whole file (prereg_sha), which had no Results section then; later runs also
+    record this hash (prereg_rules_sha, scripts/eval_opponent.py provenance())."""
     s = PREREG.read_bytes().replace(b"\r\n", b"\n"); i = s.find(b"\n## Results")
     import hashlib; return hashlib.sha256(s if i < 0 else s[:i]).hexdigest()[:16]
 
 def provenance_rows():
+    """(file, hash of the rules it ran under, commit, merge head, dirty) per M1 result."""
     out = []
     for f in M1_RESULTS:
         d = j(f)
         if d is None: continue
-        m = d.get("meta", {}); out.append((f, m.get("prereg_sha"), (m.get("git_hash") or "")[:7] or None, m.get("git_dirty")))
+        m = d.get("meta", {}); out.append((f, m.get("prereg_rules_sha", m.get("prereg_sha")), (m.get("git_hash") or "")[:7] or None, (m.get("git_merge_head") or "")[:7] or None, m.get("git_dirty")))
+    return out
+
+M15_HEAD = ["| split | scripted hits | controller | Δ survival [95% CI] | Δ head clean strikes/min [95% CI] | Δ opponent falls [95% CI] | hit rules with the other sign |",
+            "|---|---|---|---|---|---|---|"]
+
+def m15_rows(D, ctrl):
+    """M1.5 table rows (aimed minus unaimed, same episodes) from the summaries in directory D."""
+    L = []
+    for split in ("val", "test"):
+        for push, pl in (("", "on"), ("_nohits", "off")):
+            a = j(f"{D}/summary_{split}_hard{push}_aim.json")
+            if not a: continue
+            for k, lb in ctrl:
+                if k not in a["summary"]: continue
+                V = a["summary"][k]["vs_unaimed"]; sg = V["head_clean_pm"]["diff"] > 0
+                fl = [r for r, x in V["rules"].items() if r != "clean" and (x["head"]["diff"] > 0) != sg]
+                L.append(f"| {split} | {pl} | {lb} | {ci(V['survival'], '{:+.3f}')} | {ci(V['head_clean_pm'], '{:+.2f}')} | {ci(V['opponent_fell'], '{:+.3f}')} | {', '.join(fl) or '–'} |")
+    return L
+
+def same_bouts(k):
+    """Per file: are controller k's bouts (every field, hits included) identical in PRE and NEW? (the re-measurement reproduces them)"""
+    out = {}
+    for split in ("val", "test"):
+        for t in ("_hard", "_hard_nohits", "_hard_aim", "_hard_nohits_aim"):
+            a, b = j(f"{PRE}/raw_{split}{t}.json"), j(f"{NEW}/raw_{split}{t}.json")
+            if a and b and k in a["raw"] and k in b["raw"]: out[f"{split}{t}"] = a["episodes"] == b["episodes"] and a["raw"][k] == b["raw"][k]
+    return out
+
+def main_identical(k):
+    """Per file: does the re-measured unaimed hard tier match main's stored headline raw file (no hit columns there) in every field it has?"""
+    out = {}
+    for split in ("val", "test"):
+        for t in ("_hard", "_hard_nohits"):
+            a, b = j(f"results/eval_opponent/raw_{split}{t}.json"), j(f"{NEW}/raw_{split}{t}.json")
+            if a and b and k in a["raw"] and k in b["raw"]:
+                out[f"{split}{t}"] = a["episodes"] == b["episodes"] and all(all(x[f] == y[f] for f in x) for x, y in zip(a["raw"][k], b["raw"][k]))
     return out
 
 def doc_block():
     """The results section of docs/AIMED_OPPONENT.md (M1.2-M1.5): every number from the stored JSON."""
     lib = j("r1gym/assets/motions/strikes.json"); tol = j("results/opponent_tracker/tolerance.json"); ac = j("results/opponent_aim/aim_check.json"); aim = j("results/opponent_tracker/aim.json")
     lab = j("r1gym/assets/motions/strike_labels.json"); au, s = lib["audit"], lib["summary"]; d = ac["decision"]; cs = d["candidates"]; op = d["operator"]; nm = dict(OPS)
-    pr = provenance_rows(); sha = prereg_sha(); bad = [f for f, p, _, _ in pr if p != sha]; nogit = [f for f, _, g, _ in pr if g is None]
+    pr = [r for r in provenance_rows() if r[0] in ASRUN]; sha = prereg_sha(); bad = [f for f, p, _, _, _ in pr if p != sha]; nogit = [f for f, _, g, _, _ in pr if g is None]
     L = ["### Provenance and the test-once record", "",
-         f"- The {len(pr)} M1 result files (`M1_RESULTS` in `scripts/aim_tables.py`) carry `prereg_sha` {', '.join(sorted({p for _, p, _, _ in pr}))}; this file without this Results section hashes to "
+         f"- The {len(pr)} result files of the first M1 runs (`ASRUN` in `scripts/aim_tables.py`; the hard tier now archived in `{PRE}/`) carry `prereg_sha` {', '.join(sorted({p for _, p, _, _, _ in pr}))}; this file without this Results section hashes to "
          f"{sha} ({'the same' if not bad else 'DIFFERENT for ' + ', '.join(bad)}). The definitions, rules and amendment 1 above are the text they were computed under.",
-         f"- They were run from the uncommitted working tree on {sorted({g for _, _, g, _ in pr if g})[0]} (`git_dirty` true"
-         + (f"; {', '.join(nogit)} records no commit" if nogit else "") + "): the commit that adds this section is the code that produced them.",
+         f"- They were run from the uncommitted working tree on {sorted({g for _, _, g, _, _ in pr if g})[0]} (`git_dirty` true"
+         + (f"; {', '.join(nogit)} records no commit" if nogit else "") + "): 72ad022, which added this section, is the code that produced them.",
          "- Order, from the files' write times and the run logs: amendment 1; the strike library; tolerance; aim check and `aim.json`; the hard tier on val "
          "(unaimed and aimed, with and without scripted hits); then the hard tier on test, each variant once; then the standard and puppet tiers, val before test. "
          "No test result was generated twice, and nothing was chosen after a test run. The standard-tier val `--aim` run was repeated once (val, after the "
@@ -175,58 +218,61 @@ def doc_block():
         return ci(dict(zip(("diff", "ci95"), cluster_paired_diff([f_(r) for r in A_], [f_(r) for r in B_], [(r["clip"], r["t0"]) for r in A_], wa=[w_(r) for r in A_], wb=[w_(r) for r in B_]))))
     L += ["", f"The other targets, same operator: the welded mannequin {ci(mp)} (train clips {split_ci('mannequin', TRAIN_CLIPS)}, val clip {split_ci('mannequin', VAL_CLIPS)}), "
               f"the guard {ci(gp)}. Neither CI is above 0 on its own; the rule is judged on the arms-down target only.", ""]
-    L += ["### M1.5 hard `--aim` tier: Δ survival and Δ primary per controller (aimed minus unaimed, same episodes)", "",
-          "| split | scripted hits | controller | Δ survival [95% CI] | Δ head clean strikes/min [95% CI] | Δ opponent falls [95% CI] | hit rules with the other sign |",
-          "|---|---|---|---|---|---|---|"]
-    for split in ("val", "test"):
-        for push, pl in (("", "on"), ("_nohits", "off")):
-            a = j(f"results/eval_opponent/summary_{split}_hard{push}_aim.json")
-            if not a: continue
-            for k, lb in CTRL:
-                if k not in a["summary"]: continue
-                V = a["summary"][k]["vs_unaimed"]; sg = V["head_clean_pm"]["diff"] > 0
-                fl = [r for r, x in V["rules"].items() if r != "clean" and (x["head"]["diff"] > 0) != sg]
-                L.append(f"| {split} | {pl} | {lb} | {ci(V['survival'], '{:+.3f}')} | {ci(V['head_clean_pm'], '{:+.2f}')} | {ci(V['opponent_fell'], '{:+.3f}')} | {', '.join(fl) or '–'} |")
-    T, U = j("results/eval_opponent/summary_test_hard_aim.json")["summary"], j("results/eval_opponent/summary_test_hard.json")["summary"]
-    Vv = j("results/eval_opponent/summary_val_hard_aim.json")["summary"]
-    L += ["", f"- **Stepping bases on test:** the aim adds head clean strikes against both (arms down {ci(T['RL step']['vs_unaimed']['head_clean_pm'], '{:+.2f}')}, guard "
-              f"{ci(T['RL guard']['vs_unaimed']['head_clean_pm'], '{:+.2f}')}/min), as on val for the guard ({ci(Vv['RL guard']['vs_unaimed']['head_clean_pm'], '{:+.2f}')}); on val the "
-              f"arms-down CI touches 0 ({ci(Vv['RL step']['vs_unaimed']['head_clean_pm'], '{:+.2f}')}). The guard's survival drops on test ({ci(T['RL guard']['vs_unaimed']['survival'], '{:+.3f}')}).",
-          f"- **The opponent falls more** against the stepping bases on test: {U['RL step']['opponent_fell']:.1%} → {T['RL step']['opponent_fell']:.1%} (arms down), "
+    L += [f"### M1.5 hard `--aim` tier, as run against PR #13's stepping bases (archived: `{PRE}/`)", "",
+          "Aimed minus unaimed, same episodes. These were the shipped policies when the runs were made; PR #14 replaced them.", "", *M15_HEAD, *m15_rows(PRE, CTRL)]
+    T, U = j(f"{PRE}/summary_test_hard_aim.json")["summary"], j(f"{PRE}/summary_test_hard.json")["summary"]; Vv = j(f"{PRE}/summary_val_hard_aim.json")["summary"]
+    L += ["", f"- **Stepping bases on test:** arms down {ci(T['RL step']['vs_unaimed']['head_clean_pm'], '{:+.2f}')}, guard "
+              f"{ci(T['RL guard']['vs_unaimed']['head_clean_pm'], '{:+.2f}')} head clean strikes/min; on val guard {ci(Vv['RL guard']['vs_unaimed']['head_clean_pm'], '{:+.2f}')}, "
+              f"arms down {ci(Vv['RL step']['vs_unaimed']['head_clean_pm'], '{:+.2f}')}. Guard survival on test {ci(T['RL guard']['vs_unaimed']['survival'], '{:+.3f}')}.",
+          f"- **Opponent falls** on test: {U['RL step']['opponent_fell']:.1%} → {T['RL step']['opponent_fell']:.1%} (arms down), "
           f"{U['RL guard']['opponent_fell']:.1%} → {T['RL guard']['opponent_fell']:.1%} (guard). M1.5 has no fall rule; rule 2 (aim check) passed, so this is reported, not a rejection.",
           f"- **PD, the residual policies and stage 1**, which fall in most hard bouts, show the aim's effect with opposite signs on val and test; their bouts are short, "
-          f"so their rates rest on few minutes. They are reported, not interpreted.", "",
-          "### What this doesn't show", "",
-          f"- The defenders are the stepping bases of this branch (`results/policy_mjlab*/`, with the hold-your-spot settings of d1990f9), not later footwork policies.",
-          f"- Most aimed windows can't reach the head from where the opponent stands: on the arms-down target {ac['summary']['arms_down']['by_mode'][op]['by_ik_residual']['>=8cm']['n']} of "
+          f"so their rates rest on few minutes. They are reported, not interpreted.", ""]
+    N = {f: j(f"{NEW}/summary_{f}.json") for f in ("val_hard", "val_hard_aim", "val_hard_nohits", "val_hard_nohits_aim", "test_hard", "test_hard_aim", "test_hard_nohits", "test_hard_nohits_aim")}
+    if all(N.values()):
+        nm_ = N["test_hard_aim"]["meta"]; SH = {k: N["test_hard_aim"]["summary"][k]["vs_unaimed"] for k in SHIP}; SV = {k: N["val_hard_aim"]["summary"][k]["vs_unaimed"] for k in SHIP}
+        SN = {k: N["test_hard_nohits_aim"]["summary"][k]["vs_unaimed"] for k in SHIP}; UT, AT = N["test_hard"]["summary"], N["test_hard_aim"]["summary"]
+        rep = {k: same_bouts(k) for k in ("pd_stand", "RL v1", "RL v2", "RL v3", "RL step_s1", "RL step", "RL guard")}; rep_all = all(v and all(v.values()) for v in rep.values())
+        mi = {k: main_identical(k) for k, _ in CTRL}; mi_all = all(v and all(v.values()) for v in mi.values())
+        nr = [r for r in provenance_rows() if r[0] in REMEASURED]
+        L += [f"### Addendum: re-measured against the PR #14 defenders after merging main; operator unchanged (`{NEW}/`)", "",
+              f"Merging main (PR #14's footwork policies, PR #15, PR #16) made the footwork policies the shipped defenders. The hard tier was run again, "
+              f"unaimed (scheduler in shadow) and aimed ({nm_['aim']['operator']}, from `aim.json` as fixed on train + val; nothing selected or tuned here), with and without "
+              f"scripted hits, against all {len(UT)} controllers of main's headline: val first, then test once. Code: {nm_['git_hash'][:7]} with main {(nm_.get('git_merge_head') or '')[:7]} "
+              f"merged in, uncommitted (the merge commit pins it); these {len(nr)} files ran under the rules hash "
+              f"{', '.join(sorted({p for _, p, _, _, _ in nr}))} ({'the text above' if all(p == prereg_sha() for _, p, _, _, _ in nr) else 'DIFFERENT from the text above'}). "
+              f"The footwork policies run with their `gym.json` as shipped (hold your spot; the guard also turns to face).", "",
+              f"- **Same bouts where nothing changed:** PD, v1-v3, stage 1 and PR #13's bases reproduce the archived runs bout for bout in every file, hits included "
+              f"({'yes' if rep_all else 'NO: ' + json.dumps(rep)}), and every controller's unaimed bouts match main's stored headline files in every field those have "
+              f"({'yes' if mi_all else 'NO: ' + json.dumps(mi)}). The re-measurement differs from the as-run one only in its defenders.", "", *M15_HEAD,
+              *m15_rows(NEW, [c for c in CTRL if c[0] in SHIP]), "",
+              f"- **Head clean strikes/min, footwork arms down:** test {ci(SH['RL step_fw']['head_clean_pm'], '{:+.2f}')} (without scripted hits {ci(SN['RL step_fw']['head_clean_pm'], '{:+.2f}')}), "
+              f"val {ci(SV['RL step_fw']['head_clean_pm'], '{:+.2f}')}; unaimed → aimed on test {UT['RL step_fw']['landed']['head_clean_pm']['rate']:.2f} → {AT['RL step_fw']['landed']['head_clean_pm']['rate']:.2f}.",
+              f"- **Footwork guard:** test {ci(SH['RL guard_fw']['head_clean_pm'], '{:+.2f}')} (without scripted hits {ci(SN['RL guard_fw']['head_clean_pm'], '{:+.2f}')}), "
+              f"val {ci(SV['RL guard_fw']['head_clean_pm'], '{:+.2f}')}; {UT['RL guard_fw']['landed']['head_clean_pm']['rate']:.2f} → {AT['RL guard_fw']['landed']['head_clean_pm']['rate']:.2f}.",
+              f"- **Survival** on test: footwork arms down {UT['RL step_fw']['survival']:.3f} → {AT['RL step_fw']['survival']:.3f} ({ci(SH['RL step_fw']['survival'], '{:+.3f}')}), "
+              f"footwork guard {UT['RL guard_fw']['survival']:.3f} → {AT['RL guard_fw']['survival']:.3f} ({ci(SH['RL guard_fw']['survival'], '{:+.3f}')}); up and within 1 m "
+              f"{UT['RL step_fw']['survival_in_ring']:.3f} → {AT['RL step_fw']['survival_in_ring']:.3f} and {UT['RL guard_fw']['survival_in_ring']:.3f} → {AT['RL guard_fw']['survival_in_ring']:.3f}.",
+              f"- **Opponent falls** on test: {UT['RL step_fw']['opponent_fell']:.1%} → {AT['RL step_fw']['opponent_fell']:.1%} (footwork arms down, {ci(SH['RL step_fw']['opponent_fell'], '{:+.3f}')}), "
+              f"{UT['RL guard_fw']['opponent_fell']:.1%} → {AT['RL guard_fw']['opponent_fell']:.1%} (footwork guard, {ci(SH['RL guard_fw']['opponent_fell'], '{:+.3f}')}).",
+              f"- Every controller's rows, the other hit rules and the window outcomes are in `{NEW}/summary_*_aim.json` (`vs_unaimed`).", ""]
+    L += ["### What this doesn't show", "",
+          f"- Most aimed windows can't reach the head from where the opponent stands: on the aim check's arms-down target {ac['summary']['arms_down']['by_mode'][op]['by_ik_residual']['>=8cm']['n']} of "
           f"{ac['summary']['arms_down']['by_mode'][op]['windows']['n']} windows' targets are 8 cm or more beyond the arm, and "
           f"{ac['summary']['arms_down']['by_mode'][op]['windows']['gated_share']:.0%} of windows are not aimed (lean or touch gate). The effect is per minute of bout, not per strike.",
-          f"- Test holds {s['splits']['test']['strikes']} library strikes, {s['splits']['test']['head_band']} of them level with the head; the test result is one replication on two short clips."]
+          "- The operator was chosen against PR #13's arms-down base (aim check, train + val) and not re-chosen for the footwork policies.",
+          f"- Test holds {s['splits']['test']['strikes']} library strikes, {s['splits']['test']['head_band']} of them level with the head; a test result is one replication on two short clips."]
     return "\n".join(L)
 
-def headline():
-    """The headline table (the frozen v1 tiers: every cell from results/eval_opponent/summary_*.json) with the hit columns, and
-    the actual pelvis spacing next to the hard tier's nominal distance."""
-    S = {f: (j(f"results/eval_opponent/summary_{f}.json") or {}).get("summary", {}) for f in ("test_hard", "val_hard", "test", "val", "test_puppet", "val_puppet")}
-    f3 = lambda x: f"{x:.3f}"; c2 = lambda c: f"[{c[0]:.2f}, {c[1]:.2f}]"; sv = lambda f, k: f3(S[f][k]["survival"]) if k in S[f] else "–"
-    L = ["| | **hard: test survival** [95% CI] | hard: val | hard: test, up and within 1 m of start | hard: test, head clean strikes taken/min [95% CI] | hard: test, blocked share of strike windows | standard: test [95% CI] | standard: val | puppet: test | puppet: val |",
-         "|---|---|---|---|---|---|---|---|---|---|"]
-    for k, lab in CTRL:
-        h = S["test_hard"][k]; ld = h["landed"]; lab = lab[:-2] + " (shipped)**" if lab.endswith("**") else lab
-        L.append(f"| {lab} | **{f3(h['survival'])}** {c2(h['survival_ci95'])} | {sv('val_hard', k)} | {f3(h['survival_in_ring'])} | {ld['head_clean_pm']['rate']:.1f} {c2(ld['head_clean_pm']['ci95'])} | "
-                 f"{ld['windows']['blocked_share']:.2f} | {f3(S['test'][k]['survival'])} {c2(S['test'][k]['survival_ci95'])} | {sv('val', k)} | {sv('test_puppet', k)} | {sv('val_puppet', k)} |")
-    sp, sg = S["test_hard"]["RL step"]["landed"]["spacing_m"], S["test_hard"]["RL guard"]["landed"]["spacing_m"]
-    return "\n".join(L), f"actual pelvis spacing on test: median {sp['median']:.2f} m (p10-p90 {sp['p10']:.2f}-{sp['p90']:.2f}) against arms down, {sg['median']:.2f} m against the guard"
-
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(); ap.add_argument("--write", action="store_true"); a = ap.parse_args(); b = block(); hl, sp = headline(); db = doc_block()
-    if not a.write: sys.stdout.reconfigure(encoding="utf-8"); print(b, hl, sp, db, sep="\n\n"); sys.exit(0)
+    ap = argparse.ArgumentParser(); ap.add_argument("--write", action="store_true"); a = ap.parse_args(); b = block(); db = doc_block()
+    if not a.write: sys.stdout.reconfigure(encoding="utf-8"); print(b, db, sep="\n\n"); sys.exit(0)
     def put(p, blocks):   # each generated block sits between <!-- tag:begin --> and <!-- tag:end -->
         s = p.read_text(encoding="utf-8")
         for tag, txt in blocks:
             i, k = s.index(f"<!-- {tag}:begin -->"), s.index(f"<!-- {tag}:end -->"); s = s[:i] + f"<!-- {tag}:begin -->" + txt + s[k:]
         p.write_bytes(s.replace("\r\n", "\n").encode("utf-8"))
-    put(ROOT / "README.md", (("aim", "\n" + b + "\n"), ("headline", "\n" + hl + "\n"), ("spacing", sp))); print("README blocks written")
+    put(ROOT / "README.md", (("aim", "\n" + b + "\n"),)); print("README block written")
     sha = prereg_sha(); put(PREREG, (("results", "\n" + db + "\n"),))
-    assert prereg_sha() == sha and all(p == sha for _, p, _, _ in provenance_rows()), "docs/AIMED_OPPONENT.md above '## Results' changed since the runs"
+    assert prereg_sha() == sha and all(p == sha for _, p, _, _, _ in provenance_rows()), "docs/AIMED_OPPONENT.md above '## Results' changed since the runs"
     print("docs/AIMED_OPPONENT.md results written; preregistration text unchanged:", sha)

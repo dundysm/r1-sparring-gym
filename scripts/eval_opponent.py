@@ -166,11 +166,22 @@ def provenance(m, cfg, ccfg=None):
     oa = [m.actuator("opp_" + j.replace("_joint", "")).id for j in CTRL_JOINTS]
     caps = "mjlab" if cfg.get("opponent_mode") == "policy" else cfg.get("opponent_cap_policy")   # the tracker always runs mjlab caps (r1gym/model.py)
     st = git("status", "--porcelain")   # untracked files count: a new, uncommitted module is not in git_hash either
-    return dict(git_hash=git("rev-parse", "HEAD"), git_dirty=None if st is None else bool(st), mujoco=mujoco.__version__,
+    mh = git("rev-parse", "-q", "--verify", "MERGE_HEAD")   # an uncommitted merge in progress: the other parent
+    return dict(git_hash=git("rev-parse", "HEAD"), git_dirty=None if st is None else bool(st), **({"git_merge_head": mh} if mh else {}), mujoco=mujoco.__version__,
                 config_hash=hc(cfg), controller_config_hashes={n: hc(c) for n, c in (ccfg or {}).items()}, prereg_sha=h(pre.read_bytes().replace(b"\r\n", b"\n")) if pre.exists() else None,   # LF-normalised: same on every checkout
+                prereg_rules_sha=h(pre.read_bytes().replace(b"\r\n", b"\n").split(b"\n## Results")[0]) if pre.exists() else None,   # without the Results section (added after the first M1 runs)
                 shell_solref=shell_solref(m),
                 opponent_caps=dict(policy=caps, Nm={j.replace("_joint", ""): float(m.actuator_forcerange[a, 1]) for j, a in zip(CTRL_JOINTS, oa)}),
                 hit_metric=cfg.get("hit_metric"))
+
+def pairs(raw, summ):
+    """Paired differences on the same episodes between every two controllers (and vs PD): survival, and up and in the ring."""
+    up = {n: [x["fell_s"] is None for x in r] for n, r in raw.items()}
+    ring = {n: [x["fell_s"] is None and not x["ring_out"] for x in r] for n, r in raw.items()}
+    for name in raw:
+        summ[name]["survival_minus"] = {o: dict(zip(["diff", "ci95"], paired_diff(up[name], up[o]))) for o in raw if o != name}
+        summ[name]["survival_in_ring_minus"] = {o: dict(zip(["diff", "ci95"], paired_diff(ring[name], ring[o]))) for o in raw if o != name}
+        if name != "pd_stand": summ[name]["survival_minus_pd"], summ[name]["survival_minus_pd_ci95"] = paired_diff(up[name], up["pd_stand"])
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--policy", nargs="*", default=["v1=results/policy_v1/policy.pt", "v2=results/policy/policy.pt", "v3=results/policy_v3_candidate/policy.pt"],
@@ -183,8 +194,13 @@ def main():
     ap.add_argument("--hits", type=int, default=1, help="1: score landed hits per bout (r1gym/hits.py; read-only, survival unchanged); 0: off")
     ap.add_argument("--aim", default=None, help="aimed opponent (r1gym/aim.py mode, or 'chosen': results/opponent_tracker/aim.json), paired with this tier's unaimed raw file")
     ap.add_argument("--threads", type=int, default=8, help="threads stepping the bouts (results don't depend on it)")
+    ap.add_argument("--from_raw", action="store_true", help="recompute summary_*.json from the stored raw_*.json (no simulation)")
     a = ap.parse_args(); out = Path(a.out); out.mkdir(parents=True, exist_ok=True); tier = TIERS[a.tier]; T = a.seconds or tier["seconds"]
     cfg = load_cfg(); models = {}; tag = ("" if a.tier == "standard" else f"_{a.tier}") + ("" if a.opponent == "tracked" else "_puppet") + ("_nohits" if a.no_pushes else "")
+    if a.from_raw:
+        st = json.load(open(out / f"raw_{a.split}{tag}.json")); raw = st["raw"]; cl = [(e["clip"], e["t0"]) for e in st["episodes"]]
+        summ = {n: summarise(r, st["meta"]["seconds"], cl, st["meta"].get("shell_solref")) for n, r in raw.items()}; pairs(raw, summ)
+        json.dump(dict(meta=st["meta"], summary=summ), open(out / f"summary_{a.split}{tag}.json", "w"), indent=1); return
     if a.opponent == "puppet": cfg["opponent_mode"] = "puppet"
     aimj = json.load(open(AIM_JSON)) if AIM_JSON.exists() else {}; lag = float(aimj.get("lag_s", 0.0)) if a.opponent == "tracked" else 0.0; aim = aimj["operator"] if a.aim == "chosen" else a.aim
     if aim and a.opponent != "tracked": sys.exit("--aim needs the tracked opponent")
@@ -208,10 +224,7 @@ def main():
         if key not in models: models[key] = build_spec(opponent=True, cfg=cc).compile()
         t0 = time.time(); raw[c.name] = run(c, eps, models[key], cc, T, threads=a.threads, dr=tier["dr"], meter=bool(a.hits), lag=lag); summ[c.name] = summarise(raw[c.name], T, clusters, shell_solref(models[key]))
         print(c.name, json.dumps(summ[c.name]), f"({time.time() - t0:.0f} s)", flush=True)
-    for name in raw:   # paired differences: vs PD, and between every two controllers (same episodes)
-        up = [x["fell_s"] is None for x in raw[name]]
-        summ[name]["survival_minus"] = {o: dict(zip(["diff", "ci95"], paired_diff(up, [x["fell_s"] is None for x in raw[o]]))) for o in raw if o != name}
-        if name != "pd_stand": summ[name]["survival_minus_pd"], summ[name]["survival_minus_pd_ci95"] = paired_diff(up, [x["fell_s"] is None for x in raw["pd_stand"]])
+    pairs(raw, summ)
     if aim:   # pair with the unaimed run of this tier: same episodes, every controller
         ref = out / f"raw_{a.split}{base_tag}.json"
         if not ref.exists(): sys.exit(f"--aim pairs with {ref}: run this tier unaimed first")

@@ -1,5 +1,5 @@
 {
- "about": "Turn-toward-the-opponent A/B for the stepping policies -> results/face_opponent_ab.json (the evidence behind gym.json).\n\n1. Turn response: yaw-rate command held from standing for 6 s, mean measured rate after 2 s, 3 seeds.\n2. Bouts with the shipped opponent on train + val clips (never test): 2 distances x 6 clean starts per clip, 12 s, the demo's\n   scripted pushes, obs delay 1 step. Each policy runs with the command off, on, and on with a deadband (turn once the\n   bearing error passes 20 deg, stop below 6 deg). Facing error = |bearing to the opponent - pelvis heading|, median per\n   bout, then median over the bouts it survived; drift = pelvis distance from its start at the end; ring-out = got more\n   than 1 m from its start at any time (rates over survived bouts).\n3. --val: survival on the headline eval's validation episodes (scripts/eval_opponent.py, standard and hard tier) for each\n   setting, merged into the same file. Settings are chosen on these, never on test.",
+ "about": "Turn-toward-the-opponent A/B for the stepping policies -> results/face_opponent_ab.json (the evidence behind gym.json).\n\n1. Turn response: yaw-rate command held from standing for 6 s, mean measured rate after 2 s, 3 seeds.\n2. Bouts with the shipped opponent on train + val clips (never test): 2 distances x 6 clean starts per clip, 12 s, the demo's\n   scripted pushes, obs delay 1 step. Each policy runs with the command off, on, and on with a deadband (turn once the\n   bearing error passes 20 deg, stop below 6 deg). Facing error = |bearing to the opponent - pelvis heading|, median per\n   bout, then median over the bouts it survived; drift = pelvis distance from its start at the end; ring-out = got more\n   than 1 m from its start at any time (rates over survived bouts).\n--hold: the same bouts for the hold-your-spot outer loop (off / hold / hold_tight) -> results/hold_ab.json.\nOtherwise each policy runs with its own gym.json hold setting; --no_hold turns it off (the stage-2 rows of\nface_opponent_ab.json, measured before the hold loop existed). Rows are merged per policy into the existing file.\n3. --val: survival (and up-and-within-1 m, drift) on the headline eval's validation episodes (scripts/eval_opponent.py, standard and hard tier) for each\n   setting, merged into the same file. Settings are chosen on these, never on test.",
  "turn_response_cmd_to_measured_rad_s": {
   "arms_down": {
    "-0.8": -0.32,
@@ -14,6 +14,20 @@
    "0.0": -0.0,
    "0.4": 0.08,
    "0.8": 0.21
+  },
+  "footwork_arms_down": {
+   "-0.8": -0.12,
+   "-0.4": -0.05,
+   "0.0": 0.0,
+   "0.4": 0.05,
+   "0.8": 0.09
+  },
+  "footwork_guard": {
+   "-0.8": -0.08,
+   "-0.4": -0.01,
+   "0.0": 0.09,
+   "0.4": 0.11,
+   "0.8": 0.18
   }
  },
  "bouts": {
@@ -68,32 +82,205 @@
     "drift_mean_m": 0.62,
     "ring_out": 0.229
    }
+  },
+  "footwork_arms_down": {
+   "off": {
+    "bouts": 48,
+    "falls": 0,
+    "facing_err_median_deg": 10.8,
+    "facing_err_p90_median_deg": 34.1,
+    "drift_mean_m": 0.13,
+    "ring_out": 0.0
+   },
+   "on": {
+    "bouts": 48,
+    "falls": 0,
+    "facing_err_median_deg": 8.7,
+    "facing_err_p90_median_deg": 21.8,
+    "drift_mean_m": 0.11,
+    "ring_out": 0.0
+   },
+   "deadband": {
+    "bouts": 48,
+    "falls": 0,
+    "facing_err_median_deg": 8.5,
+    "facing_err_p90_median_deg": 22.2,
+    "drift_mean_m": 0.15,
+    "ring_out": 0.0
+   }
+  },
+  "footwork_guard": {
+   "off": {
+    "bouts": 48,
+    "falls": 0,
+    "facing_err_median_deg": 28.7,
+    "facing_err_p90_median_deg": 53.6,
+    "drift_mean_m": 0.17,
+    "ring_out": 0.0
+   },
+   "on": {
+    "bouts": 48,
+    "falls": 0,
+    "facing_err_median_deg": 17.8,
+    "facing_err_p90_median_deg": 42.6,
+    "drift_mean_m": 0.22,
+    "ring_out": 0.021
+   },
+   "deadband": {
+    "bouts": 48,
+    "falls": 0,
+    "facing_err_median_deg": 20.4,
+    "facing_err_p90_median_deg": 44.6,
+    "drift_mean_m": 0.2,
+    "ring_out": 0.0
+   }
   }
  },
  "val_survival": {
   "arms_down": {
    "standard": {
-    "off": 0.988,
-    "on": 1.0,
-    "deadband": 0.988
+    "off": {
+     "survival": 0.988,
+     "in_ring": 0.988,
+     "drift_m": 0.24
+    },
+    "on": {
+     "survival": 1.0,
+     "in_ring": 0.925,
+     "drift_m": 0.43
+    },
+    "deadband": {
+     "survival": 0.988,
+     "in_ring": 0.963,
+     "drift_m": 0.29
+    }
    },
    "hard": {
-    "off": 0.891,
-    "on": 0.906,
-    "deadband": 0.891
+    "off": {
+     "survival": 0.891,
+     "in_ring": 0.312,
+     "drift_m": 1.35
+    },
+    "on": {
+     "survival": 0.906,
+     "in_ring": 0.062,
+     "drift_m": 1.77
+    },
+    "deadband": {
+     "survival": 0.891,
+     "in_ring": 0.125,
+     "drift_m": 1.64
+    }
    }
   },
   "guard": {
    "standard": {
-    "off": 1.0,
-    "on": 1.0,
-    "deadband": 1.0
+    "off": {
+     "survival": 1.0,
+     "in_ring": 0.95,
+     "drift_m": 0.34
+    },
+    "on": {
+     "survival": 1.0,
+     "in_ring": 0.762,
+     "drift_m": 0.72
+    },
+    "deadband": {
+     "survival": 1.0,
+     "in_ring": 0.775,
+     "drift_m": 0.54
+    }
    },
    "hard": {
-    "off": 0.891,
-    "on": 0.891,
-    "deadband": 0.875
+    "off": {
+     "survival": 0.891,
+     "in_ring": 0.25,
+     "drift_m": 1.37
+    },
+    "on": {
+     "survival": 0.891,
+     "in_ring": 0.016,
+     "drift_m": 2.56
+    },
+    "deadband": {
+     "survival": 0.875,
+     "in_ring": 0.078,
+     "drift_m": 2.11
+    }
+   }
+  },
+  "footwork_arms_down": {
+   "standard": {
+    "off": {
+     "survival": 1.0,
+     "in_ring": 1.0,
+     "drift_m": 0.1
+    },
+    "on": {
+     "survival": 1.0,
+     "in_ring": 1.0,
+     "drift_m": 0.16
+    },
+    "deadband": {
+     "survival": 1.0,
+     "in_ring": 0.988,
+     "drift_m": 0.12
+    }
+   },
+   "hard": {
+    "off": {
+     "survival": 0.969,
+     "in_ring": 0.797,
+     "drift_m": 0.41
+    },
+    "on": {
+     "survival": 0.938,
+     "in_ring": 0.703,
+     "drift_m": 0.32
+    },
+    "deadband": {
+     "survival": 0.938,
+     "in_ring": 0.766,
+     "drift_m": 0.28
+    }
+   }
+  },
+  "footwork_guard": {
+   "standard": {
+    "off": {
+     "survival": 1.0,
+     "in_ring": 1.0,
+     "drift_m": 0.14
+    },
+    "on": {
+     "survival": 1.0,
+     "in_ring": 0.988,
+     "drift_m": 0.16
+    },
+    "deadband": {
+     "survival": 1.0,
+     "in_ring": 1.0,
+     "drift_m": 0.16
+    }
+   },
+   "hard": {
+    "off": {
+     "survival": 0.938,
+     "in_ring": 0.719,
+     "drift_m": 0.26
+    },
+    "on": {
+     "survival": 0.969,
+     "in_ring": 0.766,
+     "drift_m": 0.36
+    },
+    "deadband": {
+     "survival": 0.938,
+     "in_ring": 0.781,
+     "drift_m": 0.33
+    }
    }
   }
- }
+ },
+ "note": "arms_down / guard (stage-2 bases): hold-your-spot off, as measured in PR #13 with shell contact (scripts/face_ab.py --no_hold --policy arms_down=results/policy_mjlab/policy.onnx guard=results/policy_mjlab_guard/policy.onnx; their val_survival rows regenerated with --no_hold --val by the current script, survival identical to PR #13's). footwork_* (stage-3 fine-tunes, shipped): hold-your-spot on from gym.json (deadband [0.25, 0.08]) in every row (scripts/face_ab.py, then --val)."
 }

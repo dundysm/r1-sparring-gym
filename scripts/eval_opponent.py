@@ -11,14 +11,18 @@ Each episode samples the clip start time, the obs delay (0-2 steps) and the hits
 the clean ones: those where no part of the opponent begins inside the R1 in either reference pose (REF_POSES), which
 skips 7-85% of starts in the stored (shell-contact) runs, by clip and distance (meta.start_times_skipped). Every controller sees exactly the same
 episodes, so differences are paired, and the episodes don't depend on which controllers are in the run. --split test
-(default) uses TEST_CLIPS, --split val uses VAL_CLIPS: choose candidates on val, report on test."""
-import sys, json, time, argparse, itertools, copy
+(default) uses TEST_CLIPS, --split val uses VAL_CLIPS: choose candidates on val, report on test.
+--hits 1 (default) also scores the opponent's landed hits per bout (r1gym/hits.py HitMeter, read-only: survival is the same
+with it off) into each summary's 'landed' and 'sensitivity' blocks; definitions preregistered in docs/AIMED_OPPONENT.md.
+meta records the git commit, a config hash, the preregistration's hash, the shell contact solref and the opponent's caps."""
+import sys, json, time, argparse, itertools, copy, hashlib, subprocess
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor
 from r1gym.env import R1HitEnv, VAL_CLIPS, TEST_CLIPS, _DR_NOMINAL
-from r1gym.model import build_spec, load_cfg, HOME
+from r1gym.model import build_spec, load_cfg, HOME, CTRL_JOINTS, SHELL_BIT
+from r1gym.hits import HitMeter, landed_block, sensitivity_block
 from r1gym.opponent import FightReplay
 from r1gym.perturb import make_hit, LOCATIONS
 from r1gym.policy import PDStand, load_controller, controller_cfg
@@ -45,7 +49,7 @@ def episodes(clips, reps, tier, good, hits_on=True, seconds=None):
         out.append(dict(clip=clip, distance=dist, rep=r, t0=t0, delay=int(rng.integers(0, 3)), hits=hits, seed=T["seed"] + k, **ep))
     return out
 
-def run(ctrl, eps, m, cfg, T=10.0, threads=8, dr=False):
+def run(ctrl, eps, m, cfg, T=10.0, threads=8, dr=False, meter=False):   # meter: main() turns it on (--hits); other callers skip its ~15%
     # DR envs write their sampled parameters into the model before each step, so with DR each thread steps its own copy
     ms = [copy.deepcopy(m) for _ in range(threads)] if dr else [m] * threads
     reps = {}; envs = []
@@ -54,9 +58,10 @@ def run(ctrl, eps, m, cfg, T=10.0, threads=8, dr=False):
         if key not in reps: reps[key] = FightReplay(m, ep["clip"], distance=ep["distance"], cfg=cfg)
         e = R1HitEnv(seed=ep.get("env_seed", ep["seed"]), cfg=cfg, model=ms[i % threads], episode_s=T, max_impulse=0, train=False, dr=dr)
         e.opp = reps[key]; e.opp_t0 = ep["t0"]; rng = np.random.default_rng(ep.get("hit_seed", ep["seed"]))
+        if meter: e.substep_hooks.append(HitMeter(e.m, cfg.get("hit_metric")))   # read-only: logs contacts after every mj_step
         hits = [make_hit(k, l, imp, t, y, rng) for k, l, imp, t, y in ep["hits"]]
         o = e.reset(hits=hits, delay=ep["delay"]); q = e.r.free_q
-        envs.append(dict(e=e, o=o, fell=None, at=None, start=e.d.qpos[q:q + 2].copy(), maxr=0.0, opp_fell=False))
+        envs.append(dict(e=e, o=o, fell=None, at=None, start=e.d.qpos[q:q + 2].copy(), maxr=0.0, opp_fell=False, sp=[]))
     groups = [list(range(g, len(envs), threads)) for g in range(threads)]; pool = ThreadPoolExecutor(threads)
     for _ in range(int(T / envs[0]["e"].dt)):
         live = [i for i in range(len(envs)) if envs[i]["fell"] is None]
@@ -67,6 +72,7 @@ def run(ctrl, eps, m, cfg, T=10.0, threads=8, dr=False):
                 if i not in A: continue
                 x = envs[i]; e = x["e"]; x["o"], r, d, info = e.step(A[i]); q = e.r.free_q; xy = e.d.qpos[q:q + 2]
                 x["maxr"] = max(x["maxr"], float(np.linalg.norm(xy - x["start"])))
+                if meter: x["sp"].append(float(np.linalg.norm(e.d.qpos[e.opp.qadr:e.opp.qadr + 2] - xy)))   # actual pelvis spacing
                 b = min(e.opp.bodies)   # opponent pelvis; deep stances reach z ~0.37, so judge by tilt
                 if e.d.xmat[b][8] < 0.5 or e.d.xpos[b][2] < 0.25: x["opp_fell"] = True   # an opponent on the floor is no threat
                 if info["fallen"]: x["fell"] = e.t * e.dt; x["at"] = xy.copy()   # where it was when it fell
@@ -80,10 +86,11 @@ def run(ctrl, eps, m, cfg, T=10.0, threads=8, dr=False):
     for ep, x in zip(eps, envs):
         q = x["e"].r.free_q; p = (x["at"] if x["at"] is not None else x["e"].d.qpos[q:q + 2]) - x["start"]
         rows.append(dict(clip=ep["clip"], distance=ep["distance"], fell_s=x["fell"], opp_fell=x["opp_fell"], drift_m=round(float(np.linalg.norm(p)), 3),
-                         back_m=round(float(-p[0]), 3), max_disp_m=round(x["maxr"], 3), ring_out=x["maxr"] > RING_M))
+                         back_m=round(float(-p[0]), 3), max_disp_m=round(x["maxr"], 3), ring_out=x["maxr"] > RING_M,
+                         **({"hit_meter": x["e"].substep_hooks[0].summary(x["fell"] or T, x["sp"])} if meter else {})))
     return rows
 
-def summarise(rows, T):
+def summarise(rows, T, clusters=None, shell_solref=None):
     s = [x["fell_s"] is None for x in rows]; n = len(s); k = int(sum(s))
     ring = [x["fell_s"] is None and not x["ring_out"] for x in rows]
     ttf = [x["fell_s"] if x["fell_s"] is not None else T for x in rows]
@@ -95,7 +102,27 @@ def summarise(rows, T):
                 survivors_mean_drift_m=round(float(np.mean([x["drift_m"] for x in surv])), 3) if surv else None,
                 survivors_mean_back_m=round(float(np.mean([x["back_m"] for x in surv])), 3) if surv else None,
                 survivors_back_over_0p3m=round(float(np.mean([x["back_m"] > 0.3 for x in surv])), 3) if surv else None,
-                opponent_fell=round(float(np.mean([x["opp_fell"] for x in rows])), 3))
+                opponent_fell=round(float(np.mean([x["opp_fell"] for x in rows])), 3),
+                **({"landed": landed_block([x["hit_meter"] for x in rows], clusters, shell_solref), "sensitivity": sensitivity_block([x["hit_meter"] for x in rows], clusters)}
+                   if rows and "hit_meter" in rows[0] else {}))
+
+def shell_solref(m):   # robot-vs-robot shell contact time constant: peak forces scale with it (impulse doesn't)
+    sh = [g for g in range(m.ngeom) if m.geom_conaffinity[g] & SHELL_BIT]; return m.geom_solref[sh[0]].round(4).tolist() if sh else None
+
+def provenance(m, cfg, ccfg=None):
+    """What a result was computed with: commit (and whether tracked files had uncommitted edits), hashes of the base config,
+    of each controller's config and of the preregistration (docs/AIMED_OPPONENT.md), the MuJoCo version, the robot-vs-robot
+    shell contact solref (peak forces depend on it) and the opponent's torque caps."""
+    import mujoco
+    root = Path(__file__).resolve().parents[1]; git = lambda *a: subprocess.run(["git", *a], cwd=root, capture_output=True, text=True).stdout.strip()
+    h = lambda b: hashlib.sha256(b).hexdigest()[:16]; hc = lambda c: h(json.dumps(c, sort_keys=True, default=str).encode()); pre = root / "docs" / "AIMED_OPPONENT.md"
+    oa = [m.actuator("opp_" + j.replace("_joint", "")).id for j in CTRL_JOINTS]
+    caps = "mjlab" if cfg.get("opponent_mode") == "policy" else cfg.get("opponent_cap_policy")   # the tracker always runs mjlab caps (r1gym/model.py)
+    return dict(git_hash=git("rev-parse", "HEAD"), git_dirty=bool(git("status", "--porcelain", "--untracked-files=no")), mujoco=mujoco.__version__,
+                config_hash=hc(cfg), controller_config_hashes={n: hc(c) for n, c in (ccfg or {}).items()}, prereg_sha=h(pre.read_bytes().replace(b"\r\n", b"\n")) if pre.exists() else None,   # LF-normalised: same on every checkout
+                shell_solref=shell_solref(m),
+                opponent_caps=dict(policy=caps, Nm={j.replace("_joint", ""): float(m.actuator_forcerange[a, 1]) for j, a in zip(CTRL_JOINTS, oa)}),
+                hit_metric=cfg.get("hit_metric"))
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--policy", nargs="*", default=["v1=results/policy_v1/policy.pt", "v2=results/policy/policy.pt", "v3=results/policy_v3_candidate/policy.pt"],
@@ -105,6 +132,7 @@ def main():
     ap.add_argument("--opponent", choices=["tracked", "puppet"], default="tracked",
                     help="tracked: the R1 on its own motors (default, realistic); puppet: assisted replay (stress test, up to 250 N horizontal assist)")
     ap.add_argument("--no_pushes", action="store_true"); ap.add_argument("--seconds", type=float, default=None); ap.add_argument("--out", default="results/eval_opponent")
+    ap.add_argument("--hits", type=int, default=1, help="1: score landed hits per bout (r1gym/hits.py; read-only, survival unchanged); 0: off")
     a = ap.parse_args(); out = Path(a.out); out.mkdir(parents=True, exist_ok=True); tier = TIERS[a.tier]; T = a.seconds or tier["seconds"]
     cfg = load_cfg(); models = {}; tag = ("" if a.tier == "standard" else f"_{a.tier}") + ("" if a.opponent == "tracked" else "_puppet") + ("_nohits" if a.no_pushes else "")
     if a.opponent == "puppet": cfg["opponent_mode"] = "puppet"
@@ -121,11 +149,11 @@ def main():
             print(f"WARNING: {n}'s default pose is not in REF_POSES; adding it changes the episodes, so this run is not paired with stored results", flush=True)
             poses[n] = h
     good = clean_starts({**cfg}, clips, tier["distances"], poses); eps = episodes(clips, a.reps, a.tier, good, not a.no_pushes, T)
-    raw, summ = {}, {}
+    raw, summ = {}, {}; clusters = [(e["clip"], e["t0"]) for e in eps]   # bootstrap clusters: (clip, start)
     for c in ctrls:
         cc = ccfg[c.name]; key = str(getattr(c, "cfg_path", "default"))
         if key not in models: models[key] = build_spec(opponent=True, cfg=cc).compile()
-        t0 = time.time(); raw[c.name] = run(c, eps, models[key], cc, T, dr=tier["dr"]); summ[c.name] = summarise(raw[c.name], T)
+        t0 = time.time(); raw[c.name] = run(c, eps, models[key], cc, T, dr=tier["dr"], meter=bool(a.hits)); summ[c.name] = summarise(raw[c.name], T, clusters, shell_solref(models[key]))
         print(c.name, json.dumps(summ[c.name]), f"({time.time() - t0:.0f} s)", flush=True)
     for name in raw:   # paired differences: vs PD, and between every two controllers (same episodes)
         up = [x["fell_s"] is None for x in raw[name]]
@@ -133,7 +161,8 @@ def main():
         if name != "pd_stand": summ[name]["survival_minus_pd"], summ[name]["survival_minus_pd_ci95"] = paired_diff(up, [x["fell_s"] is None for x in raw["pd_stand"]])
     skipped = {f"{c}@{d}": round(1 - float(np.mean(g)), 3) for (c, d), g in good.items()}
     meta = dict(tier=a.tier, tier_cfg=tier, opponent=a.opponent, split=a.split, clips=clips, reps=a.reps, pushes=not a.no_pushes, seconds=T,
-                opponent_mode=cfg.get("opponent_mode", "puppet"), ring_m=RING_M, start_poses=list(poses), start_times_skipped=skipped)
+                opponent_mode=cfg.get("opponent_mode", "puppet"), ring_m=RING_M, start_poses=list(poses), start_times_skipped=skipped,
+                hit_meter=bool(a.hits), **provenance(next(iter(models.values())), cfg, ccfg))
     json.dump(dict(meta=meta, summary=summ), open(out / f"summary_{a.split}{tag}.json", "w"), indent=1)
     json.dump(dict(meta=meta, episodes=eps, raw=raw), open(out / f"raw_{a.split}{tag}.json", "w"))
     print(json.dumps(summ, indent=1))

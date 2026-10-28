@@ -56,3 +56,10 @@ opponent_policy: results/opponent_tracker/policy.onnx   # relative to the repo r
 opponent_gains: stand_pd      # puppet mode only
 opponent_cap_policy: min      # puppet mode only
 opponent_armature: 0.03       # puppet mode only
+# Landed-hit metric (r1gym/hits.py HitMeter; definitions preregistered in docs/AIMED_OPPONENT.md). It only reads the sim.
+hit_metric:
+  merge_gap_s: 0.1       # contact substeps of one (opponent limb group, R1 zone) at most this far apart are one episode: a contact-free gap of up to 95 ms (a bounce is one hit)
+  min_impulse_Ns: 0.5    # landed: impulse over the episode (median physical head hit ~2.2 N*s in the review probe)
+  min_peak_N: 5          # landed: peak normal force; below it a touch, not a hit
+  v_close_min: 1.0       # clean strike: closing speed along the contact normal at first touch [m/s]
+  max_strike_s: 0.15     # clean strike: episode duration; longer is a press

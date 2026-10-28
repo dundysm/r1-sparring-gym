@@ -296,3 +296,16 @@ def test_hold_command_walks_back_to_the_spot():
     e.d.qpos[q + 3:q + 7] = [np.cos(np.pi / 4), 0, 0, np.sin(np.pi / 4)]; e._hold()                          # facing +y: the spot is behind
     assert e.command[0] < 0 and abs(e.command[1]) < 1e-6 and e.command[0] >= e.HOLD_VX[0]
     e.opp = None; e.command[:] = 0; e._hold(); assert not e.command.any()
+
+
+def test_cluster_paired_diff_matches_paired_diff():
+    """With one episode per cluster the clustered bootstrap is paired_diff exactly; repeating each episode inside its
+    cluster leaves it unchanged, where the unclustered bootstrap would narrow."""
+    from r1gym.stats import paired_diff, cluster_paired_diff
+    rng = np.random.default_rng(0); a, b = rng.normal(1.0, 2.0, 50), rng.normal(0.5, 2.0, 50)
+    assert cluster_paired_diff(a, b, list(range(50))) == paired_diff(a, b) and cluster_paired_diff(a, b, [("kfab_200", i) for i in range(50)]) == paired_diff(a, b)
+    a3, b3, c3 = np.repeat(a, 3), np.repeat(b, 3), np.repeat(np.arange(50), 3); d, (lo, hi) = cluster_paired_diff(a3, b3, c3)
+    assert np.isclose(d, paired_diff(a, b)[0], atol=1.5e-3) and np.allclose((lo, hi), paired_diff(a, b)[1], atol=2e-3)
+    assert np.diff(paired_diff(a3, b3)[1])[0] < hi - lo
+    wa, wb = rng.uniform(0.02, 1 / 6, 50), rng.uniform(0.02, 1 / 6, 50); d, (lo, hi) = cluster_paired_diff(a, b, list(range(50)), wa=wa, wb=wb)   # minutes as weights
+    assert d == round(float(a @ wa / wa.sum() - b @ wb / wb.sum()), 3) and lo < d < hi

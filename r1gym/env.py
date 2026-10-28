@@ -38,6 +38,7 @@ class R1HitEnv:
         else:
             self.noise = np.concatenate([np.full(3, n["ang_vel"]), np.full(3, n["gravity"]), np.full(24, n["joint_pos"]), np.full(24, n["joint_vel"] * 0.05), np.zeros(24)])
         self.hits = []; self.schedule_fn = None; self.opp = None; self.contact_log = None   # set by demo/eval
+        self.substep_hooks = []   # read-only observers (r1gym/hits.py HitMeter): h.substep(m, d) after every mj_step, h.reset() in reset()
         self.command = np.zeros(3)   # mjlab contract only: velocity command (vx, vy, wz); zero = stand / spar in place
         self.face = self.contract == "mjlab" and bool(self.cfg.get("face_opponent", False))   # turn toward the opponent (wz)
         self.face_band = self.cfg.get("face_deadband")   # [start, stop] bearing error (rad): turn only when clearly off, or None
@@ -77,6 +78,7 @@ class R1HitEnv:
             self.opp.place(self.m, self.d, getattr(self, "opp_t0", 0.0)); mujoco.mj_forward(self.m, self.d)
             self.opp_state = {"last": np.zeros(24, np.float32)}   # tracker opponent: its last action
         self.turning = False; self.returning = False; self.spot = self.d.qpos[self.r.free_q:self.r.free_q + 2].copy()
+        for h in self.substep_hooks: h.reset()
         self._face(); self._hold(); o = self._raw_obs(); self.sensor.reset(o); return self.sensor(o)
 
     def step(self, a):
@@ -95,6 +97,7 @@ class R1HitEnv:
             self.hits_ap.apply(d, self.hits, d.time)   # clears xfrc_applied, then writes the scripted hits
             if self.opp is not None: self.opp.apply(self.m, d, d.time + getattr(self, "opp_t0", 0.0), self.m.opt.timestep)
             mujoco.mj_step(self.m, d)
+            for h in self.substep_hooks: h.substep(self.m, d)   # must not write d: bouts stay bit-identical with or without them
         if self.contact_log is not None:
             from .contacts import per_body_force
             f = per_body_force(self.m, d, self.r.r1_bodies)

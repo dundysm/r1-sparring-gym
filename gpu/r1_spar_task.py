@@ -67,6 +67,49 @@ def _footwork(make):
         return cfg
     return f
 
+# Stage 4, turning (fine-tuned from the footwork arms-down policy, and from the stage-2 guard with the footwork changes:
+# the footwork guard's checkpoint was lost). After stage 3 a held +-0.8 rad/s command still turns the robot at 0.1-0.2
+# rad/s, in mjlab too (results/turn_check_mjlab.json, 8 envs per command; when this was written, before training, it said
+# 0.1-0.3, from the superseded one-env rows). Result: neither candidate passed (results/turn_selection.json). Unitree's task gives every moving env its yaw rate from a heading
+# target (stiffness 0.5), tracks yaw with a loose std (sqrt(0.5)), and holds hip and waist yaw to 0.15 rad while walking.
+#  * 25% of the moving envs turn in place: no linear command, yaw rate +-0.3..1.0 rad/s held (no heading control), which
+#    is what the turn-to-face loop asks for.
+#  * yaw tracking std 0.5 (from 0.71), weight 2.0; hip and waist yaw posture std 0.25 while walking (Unitree's running value).
+_TURN = {}
+def _turn_classes():
+    if _TURN: return _TURN["cfg"]
+    from dataclasses import dataclass
+    import torch
+    from mjlab.tasks.velocity.mdp import UniformVelocityCommand, UniformVelocityCommandCfg
+    class TurnVelocityCommand(UniformVelocityCommand):
+        def _resample_command(self, env_ids):
+            super()._resample_command(env_ids)
+            r = torch.rand(len(env_ids), device=self.device)
+            ids = env_ids[(r < self.cfg.rel_turn_envs) & ~self.is_standing_env[env_ids]]
+            if len(ids) == 0: return
+            self.vel_command_b[ids, :2] = 0.0; self.is_heading_env[ids] = False
+            lo, hi = self.cfg.turn_rate
+            mag = torch.empty(len(ids), device=self.device).uniform_(lo, hi); sign = torch.where(torch.rand(len(ids), device=self.device) < 0.5, -1.0, 1.0)
+            self.vel_command_b[ids, 2] = sign * mag
+    @dataclass(kw_only=True)
+    class TurnVelocityCommandCfg(UniformVelocityCommandCfg):
+        rel_turn_envs: float = 0.25
+        turn_rate: tuple = (0.3, 1.0)
+        def build(self, env): return TurnVelocityCommand(self, env)
+    _TURN["cfg"] = TurnVelocityCommandCfg
+    return TurnVelocityCommandCfg
+
+def _turn(make):
+    def f(play=False):
+        import dataclasses
+        cfg = make(play); tw = cfg.commands["twist"]; Cfg = _turn_classes()
+        cfg.commands["twist"] = Cfg(**{x.name: getattr(tw, x.name) for x in dataclasses.fields(tw)})
+        t = cfg.rewards["track_angular_velocity"]; t.weight = 2.0; t.params["std"] = 0.5
+        sw = dict(cfg.rewards["pose"].params["std_walking"]); sw[r".*hip_yaw.*"] = 0.25; sw[r".*waist_yaw.*"] = 0.25
+        cfg.rewards["pose"].params["std_walking"] = sw
+        return cfg
+    return f
+
 def register():
     from mjlab.tasks.registry import register_mjlab_task
     from src.tasks.velocity.rl import VelocityOnPolicyRunner
@@ -76,7 +119,8 @@ def register():
         register_mjlab_task(task_id=tid, env_cfg=make(), play_env_cfg=make(play=True), rl_cfg=rl, runner_cls=VelocityOnPolicyRunner)
     make = _guard(_cfg(2)); rl = unitree_r1_ppo_runner_cfg(); rl.experiment_name = "r1_spar"
     register_mjlab_task(task_id="R1-Spar-Guard", env_cfg=make(), play_env_cfg=make(play=True), rl_cfg=rl, runner_cls=VelocityOnPolicyRunner)
-    for tid, make in [("R1-Spar-Footwork", _footwork(_cfg(2))), ("R1-Spar-Footwork-Guard", _footwork(_guard(_cfg(2))))]:
+    for tid, make in [("R1-Spar-Footwork", _footwork(_cfg(2))), ("R1-Spar-Footwork-Guard", _footwork(_guard(_cfg(2)))),
+                      ("R1-Spar-Turn", _turn(_footwork(_cfg(2)))), ("R1-Spar-Turn-Guard", _turn(_footwork(_guard(_cfg(2)))))]:
         rl = unitree_r1_ppo_runner_cfg(); rl.experiment_name = "r1_spar"
         register_mjlab_task(task_id=tid, env_cfg=make(), play_env_cfg=make(play=True), rl_cfg=rl, runner_cls=VelocityOnPolicyRunner)
 

@@ -113,16 +113,17 @@ Each policy's settings were chosen on hard-tier validation (64 bouts): **the mos
 `scripts/face_ab.py --hold` → `results/hold_ab.json` (turn command off), and `scripts/face_ab.py` → `results/face_opponent_ab.json` (hold on for the footwork policies). The stage-2 bases' turn command was measured in PR #13 with shell contact (the stage-2 rows of `face_opponent_ab.json`), without the hold loop, and left off. The same files have 48 bouts of 12 s on train + val clips with the demo's pushes:
 - **Hold** cuts the footwork policies' drift in those bouts from 0.46 to 0.17 m (guard) and 0.21 to 0.13 m (arms down), and walking back costs the guard some facing (median 22° → 29° off).
 - **Turning** brings the footwork guard back to 18°. The footwork arms-down policy already faces the opponent within a median 11° without it (the steered opponent keeps itself in front), and with it survives less on validation.
-- **Turning is weak, and the fine-tune made the right turn weaker.** Measured rad/s for a yaw-rate command held from standing, here (`face_opponent_ab.json`) and in mjlab, where they trained (`gpu/turn_check_mjlab.py`'s output, in `results/turn_check_mjlab.json`; one env per command there, 3 seeds here):
+- **Turning is weak, and the fine-tune made the right turn weaker.** Measured rad/s for a yaw-rate command held from standing, here (`face_opponent_ab.json`) and in mjlab, where they trained (`gpu/turn_check_mjlab.py --reps 8` → `results/turn_check_mjlab.json`; 8 envs per command there, each with its own draw of mjlab's training randomisation of foot friction, torso COM and encoder bias, and no sensor noise; 3 seeds here at nominal physics, with sensor noise and a 20 ms obs delay):
 
   | | +0.8 here | −0.8 here | +0.8 mjlab | −0.8 mjlab |
   |---|---|---|---|---|
-  | stage 2, arms down | -0.04 | -0.32 | -0.07 | -0.33 |
-  | **footwork, arms down** | 0.09 | -0.12 | 0.09 | -0.18 |
-  | stage 2, guard | 0.21 | -0.29 | 0.22 | -0.31 |
-  | **footwork + guard** | 0.18 | -0.08 | 0.32 | -0.10 |
+  | stage 2, arms down | -0.04 | -0.32 | -0.04 | -0.26 |
+  | **footwork, arms down** | 0.09 | -0.12 | 0.08 | -0.15 |
+  | stage 2, guard | 0.21 | -0.29 | 0.20 | -0.30 |
+  | **footwork + guard** | 0.18 | -0.08 | 0.19 | -0.11 |
 
-  The stage-2 arms-down base drifted right for any turn command (it turned the wrong way for a left turn); the footwork one lost that drift but turns slowly both ways. The stage-2 guard turned both ways; in mjlab at 0.8 the footwork guard turns left faster than the stage-2 guard (0.32 vs 0.22) but right at about a third of its speed (-0.10 vs -0.31), and here it also yaws at +0.09 rad/s with no command. Even in mjlab no policy gets past 0.33 of a 0.8 command, so this is mostly the policies. The single-env mjlab numbers are rough: the footwork guard's +0.8 turn is about half as fast here as in mjlab, but its +0.4 turn is the same (0.11 vs 0.11).
+  The stage-2 arms-down base drifted right for any turn command (it turned the wrong way for a left turn); the footwork one lost that drift but turns slowly both ways. The stage-2 guard turned both ways; the footwork guard turns left about as fast in mjlab (0.19 vs 0.20) but right at about a third of its speed (-0.11 vs -0.30), and here it also yaws at +0.09 rad/s with no command (a 3-seed mean; mjlab's 8 envs read 0.00, so treat it as rough). In mjlab no policy gets past 0.30 rad/s for a 0.8 command, and for these four the two simulators' means agree within 0.06 rad/s at ±0.8 (randomised physics there, nominal here; one command's spread across mjlab's 8 envs is up to 0.08), so this is the policies, not the simulator. An earlier single-env mjlab check read up to 0.11 rad/s differently between runs, each run drawing new physics; it is what the older claims of a faster left turn in mjlab and a 'simulator gap' for the guard came from, and `turn_check_mjlab.json` keeps it.
+- **A turning pass didn't fix it (stage 4, not shipped).** Fine-tunes with turn-in-place commands for 25% of the moving envs, tighter yaw tracking and looser hip and waist yaw posture (`gpu/README.md`) turn at 0.19 / -0.03 rad/s for +0.8 / −0.8 here (arms down, now drifting left; mjlab +0.22 / +0.01) and 0.16 / -0.21 (guard; mjlab +0.14 / -0.13). The guard's right turn got faster and its left turn slower, here and in mjlab. The rule written before training (`results/turn_prereg.json`) needed both directions at 0.25 rad/s or more; the weaker direction is 0.03 and 0.16 (`scripts/turn_select.py` → `results/turn_selection.json`), so the footwork policies stay. The validation bouts weren't run, and neither was the test the rule said would be reported for both candidates: no turn setting was chosen to test with.
 
 ## What the shipped policies are, and aren't
 - **Training:** Unitree's official R1 velocity task in mjlab (MuJoCo Warp), in three stages on one RTX 4090 (`gpu/README.md`):
@@ -139,7 +140,7 @@ Each policy's settings were chosen on hard-tier validation (64 bouts): **the mos
   | stage 2, guard | 0.21 | 0.14 | 0.21 | 0.12 |
   | **footwork + guard** | 0.34 | 0.23 | 0.27 | 0.13 |
 
-  The footwork guard tracks forward, back and sideways better here, but it yaws at 0.13 rad/s while walking forward (stage 2: -0.03), and in mjlab its sideways tracking is a little worse (0.26 vs 0.32 m/s for 0.3; `turn_check_mjlab.json`). The arms-down one is about the same forward and back, worse sideways, and now turns the right way for a left turn, slowly. The turn column is a left turn only; right turns got worse (above). Holding a spot takes short steps, which both manage; quick footwork and turning need another pass.
+  The footwork guard tracks forward, back and sideways better here, but it yaws at 0.13 rad/s while walking forward (stage 2: -0.03), and in mjlab it tracks 0.3 m/s sideways at 0.26 (stage 2: 0.22; `turn_check_mjlab.json`). The arms-down one is about the same forward and back, worse sideways, and now turns the right way for a left turn, slowly. The turn column is a left turn only; right turns got worse (above). Holding a spot takes short steps, which both manage; quick footwork and turning need another pass.
 - **They don't see, block, counter or clinch.** They stay standing and hold their ground. Phase 3 (perception, strikes, blocks) builds on them.
 - **No hardware.** They use Unitree's deploy gains, not the old kp 300 stand. The R1 EDU still needs system ID (phase 4). Unitree's own R1 `deploy.yaml` lists a flat 0.25 action scale where its exported policies use 0.15–0.41 per joint (`docs/DEPLOY.md`).
 
@@ -187,13 +188,14 @@ Each policy's settings were chosen on hard-tier validation (64 bouts): **the mos
 | `results/policy_mjlab_guard_footwork/` | **shipped** footwork policy with a guard (`policy.onnx`, `params/`, `crosssim.json`, `gym.json`; its checkpoint was lost, `gpu/README.md`) |
 | `results/policy_mjlab/`, `results/policy_mjlab_guard/` | the stage-2 bases they were fine-tuned from (`model_4498.pt`, `model_5997.pt`, `train_log.json`, ...); `results/policy_mjlab_stage1/` for comparison |
 | `results/hold_ab.json`, `results/face_opponent_ab.json`, `results/turn_check_mjlab.json` | the evidence behind each policy's `gym.json` (hold your spot, turn to face) and how well they turn |
+| `results/policy_mjlab_turn/`, `results/policy_mjlab_guard_turn/` | stage-4 turning candidates, **not shipped** (`policy.onnx`, `model_*.pt`, `params/`, `crosssim.json`; `results/turn_prereg.json`, `results/turn_selection.json`) |
 | `r1gym/scenario.py` | starting a bout (start times without overlap) and the demo scenario shared by `demo.py`, `demo_check.py` and `eval_opponent.py` |
 | `configs/r1_mjlab.yaml`, `r1gym/policy.py` (`MjlabPolicy`) | runs unitree_rl_mjlab policies here under their own contract (checked against the ONNX metadata); same opponent |
 | `gpu/` | the mjlab tasks (stepping base, guard, footwork, opponent tracker), the motion export, the mjlab turn check, and how to reproduce them on RunPod |
 | `r1gym/perturb.py` | strikes / pushes / grabs by impulse, body and direction; peak force capped at 400 N |
 | `r1gym/env.py` | env (78-dim obs, 24-dim residual action), 0–40 ms obs delay, noise, optional opponent in training, thread/process batching; the hold-your-spot and turn-to-face outer loops for the stepping policies |
 | `r1gym/policy.py` | PD baseline, torch policy, ONNX policy |
-| `scripts/` | `eval_opponent.py` (headline, both tiers), `evaluate.py` (hit sweeps), `eval_tracker.py`, `style_cuts.py`, `clip_check.py`, `face_ab.py`, `paired_vs_ref.py`, `select_opponent.py`, `crosssim_mjlab.py`, `verify_r1.py`, `train.py`, `demo_check.py`, `demo.py`, `export_onnx.py` |
+| `scripts/` | `eval_opponent.py` (headline, both tiers), `evaluate.py` (hit sweeps), `eval_tracker.py`, `style_cuts.py`, `clip_check.py`, `face_ab.py`, `paired_vs_ref.py`, `turn_select.py`, `select_opponent.py`, `crosssim_mjlab.py`, `verify_r1.py`, `train.py`, `demo_check.py`, `demo.py`, `export_onnx.py` |
 | `configs/r1_assumptions.yaml` | every parameter not taken from Unitree (armature, foot friction, PD gains) |
 | `results/policy/` | v2 policy (`policy.pt`, `policy.onnx`, `train_log.json`, `latency.json`); `results/policy_v1/` = v1 |
 | `results/eval/`, `results/eval_v1/` | hit eval for v2 / v1 (`summary.json`, `survival.png`) |
@@ -310,7 +312,7 @@ New eval (`scripts/evaluate.py`): 1120 single hits per controller up to 30 N·s,
 - Nothing has run on a real R1. Armature, friction and latency are assumptions until system ID (`docs/MODEL_AUDIT.md`, ROADMAP phase 4).
 - The robots' shells can still overlap by up to 2–3 cm for a few steps in hard impacts (contact can't be stiffer at this timestep).
 - The opponent performs fight *forms* (KungFuAthleteBot, trimmed to the strikes), not sparring aimed at the R1. It is kept in front and faces the R1, but it doesn't adapt its strikes to it.
-- Turning is weak: a +0.8 rad/s command turns the footwork policies at 0.09–0.18 rad/s here (0.09–0.32 in mjlab, where they trained); right turns are slower still for the guard (0.08 rad/s here, 0.10 in mjlab) but not for the arms-down one (0.12 / 0.18), which also tracks sideways commands poorly.
+- Turning is weak: a +0.8 rad/s command turns the footwork policies at 0.09–0.18 rad/s here (0.08–0.19 in mjlab, where they trained); right turns are slower still for the guard (0.08 rad/s here, 0.11 in mjlab) but not for the arms-down one (0.12 / 0.15), which also tracks sideways commands poorly. A turning pass (stage 4) didn't fix it.
 - Holding the spot is an outer loop, not learned: in the hard tier about one surviving bout in five still leaves the 1 m circle at some point.
 - The arms-down footwork policy, with its hold loop, falls more against the puppet stress test than PR #13's base without one (test -0.025 [-0.05, -0.01]; up and within 1 m -0.037 [-0.07, -0.01]); the loop and the fine-tune each account for part of it, neither significantly.
 

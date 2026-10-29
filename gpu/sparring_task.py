@@ -11,6 +11,10 @@ M2, R1-Spar-Block-{A,B} add to it: the 28-d opponent-keypoint block on the actor
 the defender's torso frame, glove velocities, relative yaw, head-camera FOV masks; training noise and dropout inside the term),
 the clean block plus the strike phase on the critic (98 -> 136), half the envs on the CPU's face/hold outer loops, looser arm
 and waist-roll posture, and the sparring rewards (A, B: x2). -Blind / -Blind-B: the same with the actor's block zeroed.
+Run 2 (doc section 9), R1-Spar-Block2-A / -Blind: run 1's sighted defenders backed out of the ring. The same task with every env
+on the outer loops, the aim committed at max(onset, apex - 0.15 s) (SCHED_R2), clearance paid only for strikes in reach at the
+latch, block pay only for intercepts (HIT_R2), an in-ring bonus and a ring_out termination (RING), stand_still on legs and waist
+only, and ring_home on the critic (98 -> 138; actor 111). The run-1 tasks and every default are unchanged bit for bit.
 Hits are counted on GPU by HitAccount, which mirrors r1gym/hits.py's rules on the proxies' per-substep contact forces.
 
 Pure parts (no mjlab import; CPU tests and probes use them): the MjSpec builders attacker_spec / add_shell_proxies /
@@ -19,10 +23,13 @@ mjlab glue lives in _classes() and the cfg builders, importing mjlab only inside
 
 Subcommands (python sparring_task.py ...):
   widen <src.pt> <dst.pt>          warm start for R1-Spar-Block-*: zero-weight columns for the new inputs (3.1)
+  widen2 <src.pt> <dst.pt>         the same for R1-Spar-Block2-* (run 2): critic 98 -> 138 (+ ring_home, 2)
   calibrate [--bouts 64 --secs 20 --recheck 1]  CPU replica in r1gym (R1HitEnv + the frozen warm start ONNX), HitMeter vs HitAccount (2.5)
   calcheck [m1_calibration.json]   the preregistered 'CPU calibration passes first', for ATTACK as set here (pod, before m1check)
-  m1check --checkpoint model_7496.pt [--num-envs 4096 --steps 1000 --out m1_gate.json --calibration m1_calibration.json]   gate 1 (2.6)
-  gate --m1 m1_gate.json --smoke-log smoke.log [--proxy mesh --num-envs 4096]               gate 2 from the smoke log
+  m1check --checkpoint model_7496.pt [--num-envs 4096 --steps 1000 --out m1_gate.json --calibration m1_calibration.json --r2 0]
+                                   gate 1 (2.6); --r2 1: the run-2 attacker schedule (SCHED_R2)
+  gate --m1 m1_gate.json --smoke-log smoke.log [--proxy mesh --num-envs 4096 --max-iter-s 2.0 --last 0 --prereg-envs 4096]
+                                   gate 2 from a training log (run 2: A2's own log, --max-iter-s 2.2 --last 200 --prereg-envs 3072)
   <task id> [train.py flags]       training (unitree_rl_mjlab's train.main), from a unitree_rl_mjlab checkout
 Environment: SPAR_SHELL_PROXY=capsule (2.6's speed fallback), SPAR_GRAVCOMP=0 (feed-forward instead of body gravcomp),
 SPAR_CALIB_DEVIATION="<reason>" (train although the calibration did not choose ATTACK: recorded as a deviation),
@@ -79,7 +86,9 @@ CALIB_PASS = dict(impulse_Ns=(1.58, 3.56), head_clean_pm=7.7, speed_ratio=0.85, 
 SCHED = dict(D=(0.35, 0.65), lam=(0.5, 2.0), first=(0.5, 1.5), alpha_deg=50.0, alpha_every=(2.0, 5.0), alpha_rate=0.5, spot_tau=0.5,
              spot_vmax=0.3, base_dx=(0.0, 0.0), base_dy=(0.0, 0.0), base_dz=(0.0, 0.0), head_dz=(0.0, 0.12), beta_deg=(-30.0, 0.0),
              sigma=(0.7, 1.3), p_head=0.8, min_gap=0.25, aim_head=(0.087, 0.0, 0.36), aim_torso=(0.070, 0.0, 0.15), delta=ATTACK["delta"],
-             max_delta=0.5, idle_blend_s=0.2, lead=7.5, hold=2.5, tail=5.0, win_post=0.15)
+             max_delta=0.5, idle_blend_s=0.2, lead=7.5, hold=2.5, tail=5.0, win_post=0.15, reach_tol=0.05)
+# reach_tol (run 2, read only when p["reach_gate"] is on): a strike is in reach when, at its latch, the defender's pelvis is at
+# most reach_tol beyond the stand-off D from the live spot S
 # ---- 2.5 hit accounting (r1gym/hits.py DEFAULTS)
 HIT = dict(dt=SUB_DT, gap=0.1, min_impulse=0.5, min_peak=5.0, v_close=1.0, max_dur=0.15, ring=4096)
 T_TOL = 1e-4   # duration / gap slack: the float32 episode clock is off by ~1e-6 s at 20 s, a substep is 5e-3 s (HitMeter: float64)
@@ -88,6 +97,32 @@ EP_KEYS = ("head_clean", "torso_clean", "head_landed", "torso_landed", "head_imp
 # ---- 3.2 rewards per step (mjlab multiplies by step_dt) and 3.1 widening
 WEIGHTS = {"A": dict(spar_head_impulse=-20.0, spar_head_clean=-40.0, spar_torso_impulse=-5.0, spar_block=20.0, spar_clearance=0.5)}
 WEIGHTS["B"] = {k: 2.0 * v for k, v in WEIGHTS["A"].items()}
+# ---- run 2 (docs/SPARRING_M1M2.md section 9): R1-Spar-Block2-A / -Blind. Run 1's sighted defenders backed out of the ring
+# (val: survival_in_ring 0.0, drift 5.3 m): nothing tied them to a spot, and a strike thrown at a defender already out of reach
+# still paid clearance. Run-1 tasks keep SCHED, HIT, WEIGHTS A / B and their cfg bit for bit; every override below reaches only the
+# run-2 tasks (and m1check --r2 1) through AttackCommandCfg.sched / .hit.
+#  * commit_s: the aim correction latches at max(onset, apex - 0.15 s), the CPU aimed opponent's commit (r1gym/aim.py commit_s),
+#    instead of at the onset: a slip still makes a strike miss if it starts within 0.15 s of the apex. The spot keeps its 0.3 m/s
+#    cap (= the CPU tracker's STEER_MAX): a faster chase is a train / eval mismatch, and with the ring it changed nothing.
+#  * reach_gate: spar_clearance pays only strikes in reach at the latch (pelvis at most SCHED reach_tol beyond D from the live spot;
+#    before the latch, the live excess): running out of reach no longer pays.
+SCHED_R2 = dict(commit_s=0.15, reach_gate=True)
+# Block pay for run 2: spar_block pays only an arm-first window whose arm episode opened by apex + 0.05 s (an intercept; run 1 also
+# paid a forearm touch on the retracting glove after a miss, section 8 item 26) and only if no head / torso hit landed in that
+# window after the touch (a graze that does not stop the strike pays nothing), at twice run 1's A weight. The eval's blocked
+# share, ep / tot 'blocked' and 'block_first' keep run 1's definition.
+HIT_R2 = dict(block_by_apex_s=0.05)
+# Ring anchor: r = the pelvis xy distance from the episode's start (OuterLoopTwistCommand.spot), every env on the outer loops.
+# spar_ring is a BONUS: 1 per s within `free` (the hold loop's 0.25 m engage distance), linear to 0 at `out`, where ring_out
+# terminates (time_out False: is_terminated's -200 x 0.02 = -4 applies, as for a fall). Run 1's net reward per live second was
+# about -1.1 (A, train_A.log), so a ring penalty would have made ending the episode pay; a bonus keeps every live second worth more.
+RING = dict(free=0.25, out=1.0, outer=1.0, weight=2.5)
+WEIGHTS["A2"] = dict(spar_head_impulse=-20.0, spar_head_clean=-40.0, spar_torso_impulse=-5.0, spar_block=40.0, spar_clearance=0.5, spar_ring=RING["weight"])
+HOME_DIM = 2   # critic-only ring_home: the start xy minus the pelvis xy in the heading frame (critic 136 -> 138; the actor stays 111)
+# stand_still (Unitree, weight -1: sum of squared deviation from the default pose while |command| <= 0.1) on every joint taxes a
+# raised guard (the default pose is the guard; at A's last iteration it cost -0.112 against spar_block's +0.040); run 2 keeps it
+# on the legs and waist only (the arms keep the pose term's std 0.35)
+STAND_STILL_JOINTS = (r".*hip_.*", r".*knee.*", r".*ankle_.*", r".*waist_.*")
 POSTURE_ARMS = (r".*shoulder_pitch.*", r".*shoulder_roll.*", r".*shoulder_yaw.*", r".*elbow.*", r".*wrist.*")
 STD_STANDING = {**{k: 0.05 for k in (r".*hip_pitch.*", r".*hip_roll.*", r".*hip_yaw.*", r".*knee.*", r".*ankle_pitch.*", r".*ankle_roll.*",
                                      r".*waist_yaw.*")}, r".*waist_roll.*": 0.15, **{k: 0.35 for k in POSTURE_ARMS}}
@@ -266,7 +301,8 @@ class AttackSchedule:
     sin)(alpha) with a 0.5 s lag capped at 0.3 m/s, facing f toward the pelvis; keypoints k sit at World(k + koff). A strike (one
     of its library segments, speed sigma, head p 0.8 else torso) replays the segment in its frame frozen at the start, guard-
     blended so it starts and ends at that hand's guard, bent by w(tau) * Delta onto a point 5 mm inside the aimed zone; Delta
-    follows the defender until the strike's onset, then is world-fixed. Ended strikes blend back to the live guard in 0.2 s.
+    follows the defender until the strike's onset, then is world-fixed (run 2, p commit_s > 0: until max(onset, apex - commit_s);
+    p reach_gate: reach_ok records whether the defender was in reach at that latch, for spar_clearance). Ended strikes blend back to the live guard in 0.2 s.
     step() returns the glove and elbow world targets (N, 2, 3), the virtual opponent head (N, 3) and yaw (N). Episode times t
     are per env (s since reset); random draws use `gen` (a torch.Generator) when given. No mjlab import."""
     def __init__(self, lib, n, device="cpu", dt=CTRL_DT, gen=None, p=None):
@@ -286,6 +322,7 @@ class AttackSchedule:
         self.t0, self.sig, self.t_ret, self.tau, self.u = z(n, 2), torch.ones(n, 2, device=device), z(n, 2), z(n, 2), z(n, 2)
         self.win_on, self.win_off, self.t_apex = z(n, 2), z(n, 2), z(n, 2)
         self.S0, self.f0, self.delta, self.latched = z(n, 2, 2), z(n, 2, 2), z(n, 2, 3), z(n, 2, dt=torch.bool)
+        self.reach_ok = z(n, 2, dt=torch.bool)   # run 2 (p reach_gate): the strike was in reach at its latch
         self.glove, self.elbow, self.head, self.yaw = z(n, 2, 3), z(n, 2, 3), z(n, 3), z(n)
         self.n_strikes = z(n); self.koff, self.beta, self.hdz = z(n, 3), z(n), z(n)
 
@@ -341,7 +378,7 @@ class AttackSchedule:
         self.f[ids] = torch.nn.functional.normalize(pel_xy - S, dim=-1)
         for x in (self.phase, self.strike_id, self.seg_id, self.zone): x[ids] = 0
         for x in (self.t0, self.t_ret, self.tau, self.u, self.win_on, self.win_off, self.t_apex, self.delta, self.S0, self.f0, self.n_strikes): x[ids] = 0
-        self.sig[ids] = 1.0; self.latched[ids] = False
+        self.sig[ids] = 1.0; self.latched[ids] = False; self.reach_ok[ids] = False
         Gg, Ge = self.G[self.ar, self.ar], self.G[self.ar, self.ar + 2]
         Sx, fx = self.S[ids, None], self.f[ids, None]
         self.glove[ids] = self._W(Sx, fx, Gg, ids); self.elbow[ids] = self._W(Sx, fx, Ge, ids)
@@ -390,7 +427,12 @@ class AttackSchedule:
         uh = torch.nn.functional.normalize(surf[..., :2] - self.S0, dim=-1); uh = torch.cat([uh, torch.zeros_like(uh[..., :1])], -1)
         nd = surf - (TIP - p["delta"]) * uh - self._W(self.S0, self.f0, Kap[:, self.ar, self.ar])
         nd = nd * torch.clamp(p["max_delta"] / torch.linalg.norm(nd, dim=-1, keepdim=True).clamp(min=1e-9), max=1.0)
-        upd = act & ~self.latched; self.delta = torch.where(upd[..., None], nd, self.delta); self.latched = self.latched | (act & (tau >= on))
+        cs = p.get("commit_s", 0.0); lat = on if cs <= 0.0 else torch.maximum(on, ap - cs * self.fps * self.sig)   # run 1: at onset
+        upd = act & ~self.latched; self.delta = torch.where(upd[..., None], nd, self.delta)
+        if p.get("reach_gate"):   # run 2: in reach at the latch (the step it latches on)
+            exc = torch.linalg.norm(pel_xy - self.S, dim=-1) - self.D
+            self.reach_ok = torch.where(upd & (tau >= lat), (exc <= p["reach_tol"])[:, None], self.reach_ok)
+        self.latched = self.latched | (act & (tau >= lat))
         g_s = self._W(self.S0, self.f0, Kp[:, self.ar, self.ar]) + w[..., None] * self.delta
         e_s = self._W(self.S0, self.f0, Kp[:, self.ar, self.ar + 2]) + w[..., None] * self.delta
         # guard: live (idle), frozen -> live (returning)
@@ -483,15 +525,19 @@ class HitAccount:
         before its arm episode or on the same substep (it could still land and turn 'blocked' into a hit: HitMeter calls a
         window blocked only when the arm episode opened strictly first)."""
         import torch
-        w = self.open & self.ewin & ~self._landed() & (self.t0 <= self.w_arm[..., None])
-        return w[..., :2].any(-1) & torch.isfinite(self.w_arm)
+        w = self.open & self.ewin & ~self._landed()
+        if self.p.get("block_by_apex_s") is None: w = w & (self.t0 <= self.w_arm[..., None])
+        return w[..., :2].any(-1) & torch.isfinite(self.w_arm)   # run 2: any open one (a hit after the touch cancels the pay)
 
     def _finish(self, E):
         """Decide windows E (N, 2): blocked iff the arm episode opened before the first landed head / torso one (HitMeter)."""
-        bl = E & (self.w_arm < self.w_hit); bf = (bl & (self.w_armz == self.ARM[0])).float().sum(1)
-        for k, v in (("windows", E.float().sum(1)), ("blocked", bl.float().sum(1)), ("block_first", bf)):
+        import torch
+        bl = E & (self.w_arm < self.w_hit); bz = bl & (self.w_armz == self.ARM[0]); pay = bz; ba = self.p.get("block_by_apex_s")
+        if ba is not None:   # run 2: intercepts only (t_apex = w_off - win_post), and nothing landed in the window after the touch
+            pay = pay & (self.w_arm <= self.w_off - SCHED["win_post"] + ba + W_TOL) & ~torch.isfinite(self.w_hit)
+        for k, v in (("windows", E.float().sum(1)), ("blocked", bl.float().sum(1)), ("block_first", bz.float().sum(1))):
             self.ep[k] += v; self.tot[k] += v.sum()
-        self.step["block"] += bf; self.w_open &= ~E; self.ewin &= ~E[..., None]
+        self.step["block"] += pay.float().sum(1); self.w_open &= ~E; self.ewin &= ~E[..., None]
 
     def process(self, Fz, t_end, strike_id, w_on, w_off, vc, vcs=None):
         """One control step: Fz (N, 2, 5, S) zone forces per fist, oldest substep first, the last ending at episode time t_end
@@ -617,8 +663,50 @@ def spar_hits(env, command_name="attack"):
     c = _cmd(env, command_name); c.hit_update(); return c.hits.step["head_clean"]
 def spar_clearance(env, command_name="attack"):
     """Per head-aimed strike in [onset - 0.15 s, apex + 0.15 s]: clip((d - 0.10) / 0.15, 0, 1), d = glove tip to the defender's
-    head point, summed over hands."""
+    head point, summed over hands (run 2, SCHED_R2 reach_gate: only strikes in reach, reach_mask)."""
     return _cmd(env, command_name).clearance()
+
+def reach_mask(s, pel_xy):
+    """Run 2's clearance gate (N, 2) for AttackSchedule s and the defender's pelvis xy (N, 2), or None when s.p has no reach_gate
+    (run 1: every strike pays): after the latch, whether the strike was in reach at the latch (s.reach_ok); before it, the live
+    spacing excess |pelvis - S| - D <= reach_tol."""
+    if not s.p.get("reach_gate"): return None
+    import torch
+    exc = torch.linalg.norm(pel_xy - s.S, dim=-1) - s.D
+    return torch.where(s.latched, s.reach_ok, (exc <= s.p["reach_tol"])[:, None].expand_as(s.latched))
+
+def clearance_value(d, win, reach=None):
+    """sum over hands of clip((d - 0.10) / 0.15, 0, 1) inside the windows win (N, 2) (and reach, when given)."""
+    w = win if reach is None else win & reach
+    return (((d - 0.10) / 0.15).clamp(0.0, 1.0) * w).sum(1)
+
+# ---- run 2: ring anchor (RING), its critic input and two diagnostics (metrics only)
+def _ring_r(env, command_name="twist"):
+    """r: the pelvis xy distance from the episode's start xy (OuterLoopTwistCommand.spot, read from qpos at reset)."""
+    import torch
+    tw = env.command_manager.get_term(command_name); return torch.linalg.norm(tw.robot.data.root_link_pos_w[:, :2] - tw.spot, dim=-1)
+def spar_ring(env, command_name="twist", free=RING["free"], out=RING["out"]):
+    """Reward term (positive weight RING weight): the in-ring bonus 1 - clip((r - free) / (out - free), 0, 1): 1 within `free` of
+    the start, linear to 0 at `out`."""
+    return 1.0 - ((_ring_r(env, command_name) - free) / (out - free)).clamp(0.0, 1.0)
+def spar_ring_out(env, command_name="twist", radius=RING["out"]):
+    """Termination (time_out False, so is_terminated's -4 applies): the pelvis left the ring (r > radius, the CPU eval's RING_M)."""
+    return _ring_r(env, command_name) > radius
+def ring_home(env, command_name="twist"):
+    """Critic term (2): the episode's start xy minus the pelvis xy, in the pelvis heading frame (the ring bonus's state)."""
+    import torch
+    tw = env.command_manager.get_term(command_name); d = tw.robot.data; e = tw.spot - d.root_link_pos_w[:, :2]; c, s = torch.cos(d.heading_w), torch.sin(d.heading_w)
+    return torch.stack([c * e[:, 0] + s * e[:, 1], -s * e[:, 0] + c * e[:, 1]], -1)
+def spar_ring_r(env, command_name="twist"):
+    """Metric: r per step (the episode mean is logged; OuterLoopTwistCommand's ring_max_m logs the episode maximum)."""
+    return _ring_r(env, command_name)
+def spar_arm_idle_touch(env, command_name="attack"):
+    """Metric: 1 when an idle attacker fist (phase 0, not striking or returning) touches the defender's arm proxies (block or
+    upper_arm zone) this step: pinning / clinching."""
+    import torch
+    c = _cmd(env, command_name); c.hit_update(); Fz = c.last_Fz   # (N, 2 fists, 5 zones, S)
+    if Fz is None: return torch.zeros(env.num_envs, device=env.device)
+    touch = (Fz[:, :, HitAccount.ARM[0]:HitAccount.ARM[1] + 1] > 0).flatten(2).any(-1); return (touch & (c.sched.phase == 0)).any(1).float()
 
 # =============================================================================================== mjlab glue: classes
 _C = {}
@@ -626,6 +714,7 @@ def _classes():
     """mjlab classes, built once on first use (mjlab is imported only here): AttackerEntity(Cfg), AttackCommand(Cfg),
     OuterLoopTwistCommand(Cfg)."""
     if _C: return _C
+    import dataclasses
     from dataclasses import dataclass
     import torch
     from mjlab.entity import Entity, EntityCfg
@@ -671,12 +760,12 @@ def _classes():
             bad = [k for k, e in ev.items() if e is not None and (getattr(e.func, "__name__", "") == "reset_scene_to_default"
                    or any(getattr(v, "name", None) == cfg.attacker_name for v in (getattr(e, "params", None) or {}).values()))]
             assert not bad, f"events {bad} would move the attacker's root off the world origin (slides are world coordinates)"
-            self.sched = AttackSchedule(load_library(cfg.library), n, dev, env.step_dt, p={"delta": cfg.delta})
+            self.sched = AttackSchedule(load_library(cfg.library), n, dev, env.step_dt, p={"delta": cfg.delta, **dict(cfg.sched)}); self.last_Fz = None
             self.torso = self.robot.find_bodies("torso_link")[0][0]; self.fists = self.att.find_bodies(list(FISTS), preserve_order=True)[0]
             self.jid = torch.tensor(self.att.find_joints(list(ATT_JOINTS), preserve_order=True)[0], device=dev)
             prims = [list(dict.fromkeys(s.primary_name for s in env.scene[nm]._slots)) for nm in cfg.sensor_names]
             assert prims[0] == prims[1] and len(prims[0]) == len(LINKS), prims
-            self.hits = HitAccount(n, dev, zone_index(prims[0])); self._hit_step = -1; z3 = torch.zeros(n, 2, 3, device=dev)
+            self.hits = HitAccount(n, dev, zone_index(prims[0]), p=dict(cfg.hit)); self._hit_step = -1; z3 = torch.zeros(n, 2, 3, device=dev)
             self._hs = (z3, z3, torch.zeros(n, 3, device=dev))
             self._hs_ok = torch.zeros(n, device=dev)
             self.head_w, self.opp_yaw = torch.zeros(n, 3, device=dev), torch.zeros(n, device=dev)
@@ -697,13 +786,13 @@ def _classes():
             n = self.num_envs; sl = lambda q: q[:, self.jid].reshape(n, 2, 5)[..., :3]
             x0, v0, vT0 = self._hs   # this step's start, saved by _update_command after the forward (slides: qpos / qvel, exact)
             vr = fist_substep_vel(x0, v0, sl(self.att.q_prev), sl(self.att.q_next)) - vT0[:, None, :, None]; ok = self._hs_ok[:, None, None, None]
-            s = self.sched; self.hits.process(Fz, self._t_ep(), s.strike_id, s.win_on, s.win_off, closing_speeds(vr, Fv) * ok, closing_speeds(vr, Fv, signed=True) * ok)
+            s = self.sched; self.last_Fz = Fz; self.hits.process(Fz, self._t_ep(), s.strike_id, s.win_on, s.win_off, closing_speeds(vr, Fv) * ok, closing_speeds(vr, Fv, signed=True) * ok)
         def clearance(self):
             s = self.sched; t = self._t_ep()[:, None]; ad = self.att.data; x_T, R_T = self._torso()
             tip = ad.body_link_pos_w[:, self.fists] + TIP * quat_to_mat(ad.body_link_quat_w[:, self.fists])[..., :, 0]
             hp = x_T + torch.einsum("nij,j->ni", R_T, _t(DEF_HEAD_T, x_T)); d = torch.linalg.norm(tip - hp[:, None], dim=-1)
             win = (s.phase == 1) & (s.zone == 0) & (t >= s.win_on - 0.15) & (t <= s.t_apex + 0.15)
-            return (((d - 0.10) / 0.15).clamp(0.0, 1.0) * win).sum(1)
+            return clearance_value(d, win, reach_mask(s, self.robot.data.root_link_pos_w[:, :2]))   # run 1: no reach gate
         def _refresh_metrics(self, ids=None):
             ids = slice(None) if ids is None else ids; h, mins = self.hits.ep, (self._t_ep()[ids].clamp(min=self._env.step_dt) / 60.0)
             self.metrics["head_clean_pm"][ids] = h["head_clean"][ids] / mins; self.metrics["torso_clean_pm"][ids] = h["torso_clean"][ids] / mins
@@ -743,17 +832,23 @@ def _classes():
     @dataclass(kw_only=True)
     class AttackCommandCfg(CommandTermCfg):
         library: str = str(LIB_PATH); robot_name: str = "robot"; attacker_name: str = "attacker"; sensor_names: tuple = ("hit_l", "hit_r")
-        delta: float = ATTACK["delta"]
+        delta: float = ATTACK["delta"]; sched: dict = dataclasses.field(default_factory=dict); hit: dict = dataclasses.field(default_factory=dict)   # AttackSchedule / HitAccount p overrides (run 2: SCHED_R2, HIT_R2)
         def build(self, env): return AttackCommand(self, env)
 
     class OuterLoopTwistCommand(UniformVelocityCommand):
         """Per episode a share rel_outer_envs of the envs take r1gym/env.py's outer loops every step (face: wz = clip(2.0 x the
         bearing error of the live spot S, +-0.8); hold: back to the episode's start pelvis xy with hysteresis 0.25 / 0.08 m,
-        vx = clip(1.5 e_fwd, -0.5, 0.8), vy = clip(1.5 e_left, +-0.5), else 0); the rest keep the footwork command."""
+        vx = clip(1.5 e_fwd, -0.5, 0.8), vy = clip(1.5 e_left, +-0.5), else 0); the rest keep the footwork command.
+        cfg.ring_metric (run 2): also the metric ring_max_m, the episode's largest pelvis distance from the start (logged at reset)."""
         def __init__(self, cfg, env):
             super().__init__(cfg, env); n = self.num_envs
             self.outer = torch.zeros(n, dtype=torch.bool, device=self.device); self.spot = torch.zeros(n, 2, device=self.device)
             self.returning = torch.zeros_like(self.outer)
+            if cfg.ring_metric: self.metrics["ring_max_m"] = torch.zeros(n, device=self.device)
+        def _update_metrics(self):
+            super()._update_metrics()
+            if self.cfg.ring_metric:
+                m = self.metrics["ring_max_m"]; torch.maximum(m, torch.linalg.norm(self.robot.data.root_link_pos_w[:, :2] - self.spot, dim=-1), out=m)
         def reset(self, env_ids):
             out = super().reset(env_ids)
             if isinstance(env_ids, torch.Tensor) and len(env_ids):
@@ -771,7 +866,7 @@ def _classes():
 
     @dataclass(kw_only=True)
     class OuterLoopTwistCommandCfg(UniformVelocityCommandCfg):
-        rel_outer_envs: float = 0.5; attack_name: str = "attack"
+        rel_outer_envs: float = 0.5; attack_name: str = "attack"; ring_metric: bool = False   # run 2: log ring_max_m
         def build(self, env): return OuterLoopTwistCommand(self, env)
 
     _C.update(AttackerEntity=AttackerEntity, AttackerEntityCfg=AttackerEntityCfg, AttackCommand=AttackCommand, AttackCommandCfg=AttackCommandCfg,
@@ -800,11 +895,11 @@ def _scene_spec(prev, spec):
     if prev is not None: prev(spec)
     proxy_bits(spec, prefix="robot/")
 
-def _attack(make, outer=None, check=False):
+def _attack(make, outer=None, check=False, sched=None, hit=None):
     """R1-Spar-Attack (2.6) on top of `make`: attacker, proxies (SPAR_SHELL_PROXY), sensors, attack command, nan termination,
     the spar_hits metrics term (the hit update before resets).
     outer: also replace the twist command by OuterLoopTwistCommand with that share of outer-loop envs (twist stays first).
-    check: m1check's variant (push_robot and shove removed)."""
+    check: m1check's variant (push_robot and shove removed). sched: AttackSchedule overrides (run 2: SCHED_R2)."""
     import functools
     def f(play=False):
         from mjlab.envs.mdp.terminations import nan_detection
@@ -822,7 +917,7 @@ def _attack(make, outer=None, check=False):
         if outer is not None:
             import dataclasses
             tw = cfg.commands["twist"]; cfg.commands["twist"] = C["OuterLoopTwistCommandCfg"](**{x.name: getattr(tw, x.name) for x in dataclasses.fields(tw)}, rel_outer_envs=outer)
-        cfg.commands["attack"] = C["AttackCommandCfg"](resampling_time_range=(1e9, 1e9), library=str(LIB_PATH))
+        cfg.commands["attack"] = C["AttackCommandCfg"](resampling_time_range=(1e9, 1e9), library=str(LIB_PATH), sched=dict(sched or {}), hit=dict(hit or {}))
         cfg.terminations["nan"] = TerminationTermCfg(func=nan_detection)
         cfg.metrics = {**(getattr(cfg, "metrics", None) or {}), "spar_hits": MetricsTermCfg(func=spar_hits, params={"command_name": "attack"})}
         if check:
@@ -830,12 +925,16 @@ def _attack(make, outer=None, check=False):
         return cfg
     return f
 
-def _block(make, weights="A", blind=False):
-    """R1-Spar-Block-{A,B} / -Blind(-B) (3.2) on top of `make` (the footwork guard)."""
+def _reward_params(name):
+    """The sparring reward terms' params: spar_ring (run 2) reads the twist command's start spot, the rest the attack command."""
+    return {"command_name": "twist", "free": RING["free"], "out": RING["out"]} if name == "spar_ring" else {"command_name": "attack"}
+
+def _block(make, weights="A", blind=False, outer=0.5, sched=None, hit=None):
+    """R1-Spar-Block-{A,B} / -Blind(-B) (3.2) on top of `make` (the footwork guard). outer / sched / hit: run 2 (_block2)."""
     def f(play=False):
         from mjlab.managers.observation_manager import ObservationTermCfg
         from mjlab.managers.reward_manager import RewardTermCfg
-        cfg = _attack(make, outer=0.5)(play); lag = 0 if play else 2
+        cfg = _attack(make, outer=outer, sched=sched, hit=hit)(play); lag = 0 if play else 2
         if blind: term = ObservationTermCfg(func=opp_keypoints_blind, params={"command_name": "attack"}, delay_min_lag=0, delay_max_lag=lag)
         else: term = ObservationTermCfg(func=opp_keypoints, params={"command_name": "attack", "corrupt": not play}, delay_min_lag=0, delay_max_lag=lag)
         cfg.observations["actor"].terms["opp_keypoints_blind" if blind else "opp_keypoints"] = term
@@ -846,7 +945,28 @@ def _block(make, weights="A", blind=False):
         for k in ("std_walking", "std_running"):
             d = dict(pp[k]); d.update({a: 0.35 for a in POSTURE_ARMS}); d[r".*waist_roll.*"] = 0.15; pp[k] = d
         for name, w in WEIGHTS[weights].items():
-            cfg.rewards[name] = RewardTermCfg(func=globals()[name], weight=w, params={"command_name": "attack"})
+            cfg.rewards[name] = RewardTermCfg(func=globals()[name], weight=w, params=_reward_params(name))
+        return cfg
+    return f
+
+def _block2(make, blind=False):
+    """R1-Spar-Block2-A / -Blind (run 2, doc section 9): R1-Spar-Block-A / -Blind with every env on the outer loops (RING outer),
+    the attacker's SCHED_R2 (aim committed at max(onset, apex - 0.15 s); clearance only for strikes in reach), weights A2 (block
+    pay 40, intercepts only: HIT_R2; the in-ring bonus spar_ring +2.5), a ring_out termination at r > 1 m (training cfg only, not
+    play), ring_home on the critic (appended last: 138 inputs), stand_still on the legs and waist only, and the metrics spar_ring_r,
+    spar_arm_idle_touch and the twist command's ring_max_m. Actor unchanged (111)."""
+    def f(play=False):
+        from mjlab.managers.metrics_manager import MetricsTermCfg
+        from mjlab.managers.observation_manager import ObservationTermCfg
+        from mjlab.managers.scene_entity_config import SceneEntityCfg
+        from mjlab.managers.termination_manager import TerminationTermCfg
+        cfg = _block(make, "A2", blind, outer=RING["outer"], sched=SCHED_R2, hit=HIT_R2)(play)
+        cfg.observations["critic"].terms["ring_home"] = ObservationTermCfg(func=ring_home, params={"command_name": "twist"})
+        if not play: cfg.terminations["ring_out"] = TerminationTermCfg(func=spar_ring_out, params={"command_name": "twist", "radius": RING["out"]})
+        ss = cfg.rewards["stand_still"]; ss.params = {**ss.params, "asset_cfg": SceneEntityCfg("robot", joint_names=STAND_STILL_JOINTS)}
+        cfg.commands["twist"].ring_metric = True
+        cfg.metrics = {**cfg.metrics, "spar_ring_r": MetricsTermCfg(func=spar_ring_r, params={"command_name": "twist"}),
+                       "spar_arm_idle_touch": MetricsTermCfg(func=spar_arm_idle_touch, params={"command_name": "attack"})}
         return cfg
     return f
 
@@ -855,7 +975,8 @@ def _base():
     return RS._footwork(RS._guard(RS._cfg(2)))
 
 TASKS = {"R1-Spar-Attack": lambda: _attack(_base()), "R1-Spar-Block-A": lambda: _block(_base(), "A"), "R1-Spar-Block-B": lambda: _block(_base(), "B"),
-         "R1-Spar-Block-Blind": lambda: _block(_base(), "A", blind=True), "R1-Spar-Block-Blind-B": lambda: _block(_base(), "B", blind=True)}
+         "R1-Spar-Block-Blind": lambda: _block(_base(), "A", blind=True), "R1-Spar-Block-Blind-B": lambda: _block(_base(), "B", blind=True),
+         "R1-Spar-Block2-A": lambda: _block2(_base()), "R1-Spar-Block2-Blind": lambda: _block2(_base(), blind=True)}
 
 def register():
     from mjlab.tasks.registry import register_mjlab_task
@@ -866,23 +987,25 @@ def register():
         register_mjlab_task(task_id=tid, env_cfg=make(), play_env_cfg=make(play=True), rl_cfg=rl, runner_cls=VelocityOnPolicyRunner)
 
 # =============================================================================================== widen (3.1)
-def widen_norm(critic=False):
+def widen_norm(critic=False, extra=0):
     """Normaliser (mean, std) for the new inputs: positions 0 / 0.5, glove velocities 0 / 2.0, yaw pair (0, -1) / 0.5, masks
     0.5 / 0.5; the critic also strike phase 0 / 1."""
     mean = [0.0] * 15 + [0.0] * 6 + [0.0, -1.0] + [0.5] * 5 + ([0.0] * PHASE_DIM if critic else [])
     std = [0.5] * 15 + [2.0] * 6 + [0.5, 0.5] + [0.5] * 5 + ([1.0] * PHASE_DIM if critic else [])
+    if critic and extra: mean += [0.0] * extra; std += [0.5] * extra   # run 2: ring_home (m), mean 0 std 0.5
     return mean, std
 
-def widen(src, dst):
+def widen(src, dst, critic_extra=0):
     """Checkpoint for R1-Spar-Block-* from the warm start (rsl_rl 5.0.1 layout): actor 28 columns at 83, critic 38 at 98, first
     layer weights zero, Adam exp_avg / exp_avg_sq zero for those columns (matched by shape, asserted unique), normaliser
-    mean/var/std of widen_norm (count 7.4e8: they stay put). The widened policy acts exactly as the warm start."""
+    mean/var/std of widen_norm (count 7.4e8: they stay put). The widened policy acts exactly as the warm start.
+    critic_extra (run 2, widen2: HOME_DIM): that many more critic columns after the 38 (ring_home: critic 98 -> 138)."""
     import torch
     c = torch.load(src, map_location="cpu", weights_only=False)
     def ins(x, at, vals): v = torch.as_tensor(vals, dtype=x.dtype).expand(*x.shape[:-1], len(vals)); return torch.cat([x[..., :at], v, x[..., at:]], -1)
     rep = {}
     for key, at, critic in (("actor_state_dict", ACTOR_DIM, False), ("critic_state_dict", CRITIC_DIM, True)):
-        sd = c[key]; w = sd["mlp.0.weight"]; assert w.shape[1] == at, (key, tuple(w.shape)); mean, std = widen_norm(critic); n = len(mean)
+        sd = c[key]; w = sd["mlp.0.weight"]; assert w.shape[1] == at, (key, tuple(w.shape)); mean, std = widen_norm(critic, critic_extra if critic else 0); n = len(mean)
         sd["mlp.0.weight"] = ins(w, at, [0.0] * n); sd["obs_normalizer._mean"] = ins(sd["obs_normalizer._mean"], at, mean)
         sd["obs_normalizer._std"] = ins(sd["obs_normalizer._std"], at, std); sd["obs_normalizer._var"] = ins(sd["obs_normalizer._var"], at, [s * s for s in std])
         hit = [st for st in c["optimizer_state_dict"]["state"].values() if tuple(st["exp_avg"].shape) == (w.shape[0], at)]
@@ -923,14 +1046,15 @@ def calibration_check(path=CALIB_FILE):
     dev = os.environ.get("SPAR_CALIB_DEVIATION", "").strip(); res["match"] = ok; res["deviation"] = None if ok or not dev else dev
     res["pass"] = bool(ok or (dev and j is not None)); return res
 
-def m1check(checkpoint, num_envs=4096, steps=1000, out="m1_gate.json", device="cuda:0", calibration=CALIB_FILE):
+def m1check(checkpoint, num_envs=4096, steps=1000, out="m1_gate.json", device="cuda:0", calibration=CALIB_FILE, r2=False):
     """Gate 1: R1-Spar-Attack with the frozen warm start (deterministic mean, normaliser applied), push_robot and shove removed
     (the CPU 7.72 is 'no scripted hits'), corruption and DR on, every env on the CPU outer loops (as the CPU eval). Pooled
     head clean strikes per minute (count / env-minutes) >= 7.7 and median impulse per head-landed hit in [1.58, 3.56] N*s;
-    and calibration_check on the calibration file (recorded; part of the pass)."""
+    and calibration_check on the calibration file (recorded; part of the pass). r2: the run-2 attacker schedule (SCHED_R2,
+    recorded as 'sched'; prereg_m2_run2.json gate 1)."""
     import torch
     from mjlab.envs import ManagerBasedRlEnv
-    cfg = _attack(_base(), outer=1.0, check=True)(play=False); cfg.scene.num_envs = num_envs
+    cfg = _attack(_base(), outer=1.0, check=True, sched=SCHED_R2 if r2 else None)(play=False); cfg.scene.num_envs = num_envs
     env = ManagerBasedRlEnv(cfg=cfg, device=device); actor = load_actor(checkpoint, device)
     obs, _ = env.reset(); cmd = env.command_manager.get_term("attack"); cmd.check_root(); cmd.hits.reset_totals(); falls = 0; strikes0 = 0.0; t0 = time.time()
     with torch.no_grad():
@@ -940,7 +1064,7 @@ def m1check(checkpoint, num_envs=4096, steps=1000, out="m1_gate.json", device="c
     med = cmd.hits.median_head_impulse(); rate = T["head_clean"] / mins
     res = dict(task="R1-Spar-Attack (m1check: outer loops on every env, no push_robot / shove)", checkpoint=str(checkpoint), num_envs=num_envs, steps=steps,
                env_minutes=round(mins, 1), shell_proxy=os.environ.get("SPAR_SHELL_PROXY", "mesh"), gravcomp=os.environ.get("SPAR_GRAVCOMP", "1") != "0",
-               attack=dict(ATTACK), head_clean_pm=round(rate, 3), torso_clean_pm=round(T["torso_clean"] / mins, 3), head_landed_pm=round(T["head_landed"] / mins, 3),
+               attack=dict(ATTACK), sched=dict(SCHED_R2) if r2 else {}, head_clean_pm=round(rate, 3), torso_clean_pm=round(T["torso_clean"] / mins, 3), head_landed_pm=round(T["head_landed"] / mins, 3),
                median_impulse_per_head_landed_Ns=round(med, 3), mean_impulse_per_head_landed_Ns=round(T["head_imp_landed"] / max(T["head_landed"], 1.0), 3),
                impulse_ring_n=int(cmd.hits.ring_n), blocked_share=round(T["blocked"] / max(T["windows"], 1.0), 3), windows=int(T["windows"]),
                head_landed_vneg_share=round(T["head_landed_vneg"] / max(T["head_landed"], 1.0), 4),   # signed closing speed < 0 (FORCE_SIGN check; clean uses |v.n|)
@@ -951,23 +1075,25 @@ def m1check(checkpoint, num_envs=4096, steps=1000, out="m1_gate.json", device="c
     if cal["deviation"]: j["deviations"] = [f"calibration: ATTACK {cal['attack']} is not the calibration's chosen row {cal.get('chosen')}: {cal['deviation']}"]
     json.dump(j, open(out, "w"), indent=1); print("M1CHECK", json.dumps(res)); return res
 
-def gate(m1_json, smoke_log, proxy=None, num_envs=None, max_iter_s=2.0, first=20, prereg_envs=4096):
-    """Gate 2 from the 200-iteration smoke log: mean 'Iteration time' over iterations first..end and no nan termination
-    (Episode_Termination/nan > 0 anywhere). Merged into the m1 gate file with gate 1; exit code 0 iff both pass. Also logged:
-    iteration first's time and the mean 'Collection time' (env stepping: a launch-bound miss shows there, not in learning);
-    a pass at num_envs other than the preregistered 4096 (2.6's last speed fallback) is listed under 'deviations'."""
+def gate(m1_json, smoke_log, proxy=None, num_envs=None, max_iter_s=2.0, first=20, prereg_envs=4096, last=None, prereg_ref="prereg_m2.json m1_gate_before_training.speed"):
+    """Gate 2 from the 200-iteration smoke log: mean 'Iteration time' over iterations first..end (first..last when last is
+    given: run 2 reads iterations 20-200 of A2's own 1500-iteration log, max_iter_s 2.2) and no nan termination
+    (Episode_Termination/nan > 0 anywhere in the log). Merged into the m1 gate file with gate 1; exit code 0 iff both pass. Also
+    logged: iteration first's time and the mean 'Collection time' (env stepping: a launch-bound miss shows there, not in
+    learning); a pass at num_envs other than the preregistered prereg_envs (2.6's last speed fallback) is listed under 'deviations'."""
     import re
     txt = re.sub(r"\x1b\[[0-9;]*m", "", open(smoke_log, errors="replace").read())
     its = [float(x) for x in re.findall(r"Iteration time:\s*([0-9.]+)\s*s", txt)]; col = [float(x) for x in re.findall(r"Collection time:\s*([0-9.]+)\s*s", txt)]; nans = [float(x) for x in re.findall(r"Episode_Termination/nan:\s*([0-9.eE+-]+)", txt)]
-    sel = its[first - 1:]; mean_it = float(np.mean(sel)) if sel else float("nan")
+    sel = its[first - 1:last]; mean_it = float(np.mean(sel)) if sel else float("nan"); cs = col[first - 1:last]
     j = json.load(open(m1_json)) if Path(m1_json).exists() else {}
     j.setdefault("smoke", []).append(dict(log=str(smoke_log), iterations=len(its), mean_iter_s=round(mean_it, 3), iter_s_at_first=its[first - 1] if len(its) >= first else None,
-                                          mean_collection_s=round(float(np.mean(col[first - 1:])), 3) if col[first - 1:] else None, nan_terminations=float(sum(nans)), nan_logged=len(nans),
+                                          mean_collection_s=round(float(np.mean(cs)), 3) if cs else None, nan_terminations=float(sum(nans)), nan_logged=len(nans),
                                           shell_proxy=proxy or os.environ.get("SPAR_SHELL_PROXY", "mesh"), num_envs=num_envs,
-                                          pass_speed=bool(sel) and mean_it <= max_iter_s, pass_nan=bool(nans) and sum(nans) == 0))
+                                          pass_speed=bool(sel) and mean_it <= max_iter_s, pass_nan=bool(nans) and sum(nans) == 0,
+                                          **({"iterations_gated": [first, last], "max_iter_s": max_iter_s} if last else {})))
     s = j["smoke"][-1]; s["pass"] = bool(s["pass_speed"] and s["pass_nan"]); j["pass"] = bool(j.get("m1", {}).get("pass", False) and s["pass"])
     if s["pass"] and num_envs and num_envs != prereg_envs:
-        s["deviation"] = d = f"speed gate passed at {num_envs} envs; prereg_m2.json m1_gate_before_training.speed says {prereg_envs}"
+        s["deviation"] = d = f"speed gate passed at {num_envs} envs; {prereg_ref} says {prereg_envs}"
         if d not in j.setdefault("deviations", []): j["deviations"].append(d)
     json.dump(j, open(m1_json, "w"), indent=1); print("GATE", json.dumps(s), "overall", j["pass"]); return j
 
@@ -1115,6 +1241,7 @@ if __name__ == "__main__":
     sys.path.insert(0, str(Path.cwd())); sys.path.insert(0, str(Path.cwd() / "scripts")); sys.path.insert(0, str(HERE)); sys.path.insert(1, str(HERE.parent))
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
     if cmd == "widen": widen(sys.argv[2], sys.argv[3]); sys.exit(0)
+    if cmd == "widen2": widen(sys.argv[2], sys.argv[3], critic_extra=HOME_DIM); sys.exit(0)   # run 2: critic 98 -> 138
     if cmd == "calcheck":
         r = calibration_check(sys.argv[2] if len(sys.argv) > 2 else CALIB_FILE); print("CALCHECK", json.dumps(r)); sys.exit(0 if r["pass"] else 1)
     if cmd in ("calibrate", "m1check", "gate"):
@@ -1127,11 +1254,13 @@ if __name__ == "__main__":
             a = ap.parse_args(); calibrate(a.bouts, a.secs, a.workers, a.out, a.onnx, a.grid, bool(a.shell_check), bool(a.recheck)); sys.exit(0)
         if cmd == "gate":
             ap.add_argument("--m1", required=True); ap.add_argument("--smoke-log", required=True); ap.add_argument("--proxy"); ap.add_argument("--num-envs", type=int)
-            a = ap.parse_args(); sys.exit(0 if gate(a.m1, a.smoke_log, a.proxy, a.num_envs)["pass"] else 1)
+            ap.add_argument("--max-iter-s", type=float, default=2.0); ap.add_argument("--last", type=int, default=0); ap.add_argument("--prereg-envs", type=int, default=4096)
+            ap.add_argument("--prereg-ref", default="prereg_m2.json m1_gate_before_training.speed"); a = ap.parse_args()
+            sys.exit(0 if gate(a.m1, a.smoke_log, a.proxy, a.num_envs, a.max_iter_s, prereg_envs=a.prereg_envs, last=a.last or None, prereg_ref=a.prereg_ref)["pass"] else 1)
         ap.add_argument("--checkpoint", required=True); ap.add_argument("--num-envs", type=int, default=4096); ap.add_argument("--steps", type=int, default=1000)
-        ap.add_argument("--out", default="m1_gate.json"); ap.add_argument("--calibration", default=str(CALIB_FILE)); a = ap.parse_args()
+        ap.add_argument("--out", default="m1_gate.json"); ap.add_argument("--calibration", default=str(CALIB_FILE)); ap.add_argument("--r2", type=int, default=0); a = ap.parse_args()
         import mjlab.tasks, src.tasks  # noqa: F401
-        sys.exit(0 if m1check(a.checkpoint, a.num_envs, a.steps, a.out, calibration=a.calibration)["pass"] else 1)
+        sys.exit(0 if m1check(a.checkpoint, a.num_envs, a.steps, a.out, calibration=a.calibration, r2=bool(a.r2))["pass"] else 1)
     import mjlab.tasks, src.tasks  # noqa: F401  (populate the registry first)
     register()
     import train

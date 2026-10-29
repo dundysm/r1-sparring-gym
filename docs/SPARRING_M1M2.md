@@ -641,3 +641,136 @@ Nothing here has run on a GPU.
       `m1_gate_<proxy>_<row>.json` and log in the download. The M2 write-up reports the row and this deviation.
     - The pass rule of the preregistration is unchanged: the CPU eval opponent is the same, only the training attacker
       changes.
+
+---
+
+## 9. Run 2 (2026-10-29; preregistered in `results/sparring/prereg_m2_run2.json` before any run-2 code ran on GPU)
+
+Run 1 failed (`results/sparring/M2_RUN1.md`): both sighted defenders learned to back out of reach. Run 2 keeps run 1's pass
+rule and its substance, trains new task IDs (`R1-Spar-Block2-A`, `R1-Spar-Block2-Blind`), and is scored on re-seeded episodes of the same clips.
+The run-1 tasks, `SCHED`, `HIT`, `WEIGHTS` A / B and every default are unchanged bit for bit, so run 1 stays reproducible
+(`tests/test_sparring_r2.py` drives `AttackSchedule` and `HitAccount` against a frozen copy of the run-1 file,
+`tests/fixtures/sparring_task_576727a.py`).
+
+### 9.1 Diagnosis (run 1's val runs, training logs and code)
+
+**Val, hard tier, 128 bouts per controller.** Columns are survival, in-ring (up and within 1 m of the start) and head
+clean strikes per minute.
+
+| | guard_fw_r | A | B |
+|---|---|---|---|
+| unaimed | 0.977 / 0.953 / 5.48 (blocked share 0.264) | 0.984 / 0.00 / 0.62 (0.06); drift 5.3 m, back-off 4.0 m | 0.945 / 0.00 / 0.71 (0.05) |
+| aimed | 0.969 / 0.930 / about 7.3 | 0.797 / 0.0 / 0.72 | 0.664 / 0.0 / 1.19 |
+
+The test summary, committed in 576727a and seen before this section was written, gave A 0.750 / 0.0.
+
+**Confirmed in the code (`gpu/sparring_task.py` at 576727a):**
+- The spot's chase is capped at 0.3 m/s (`SCHED.spot_vmax`). The CPU tracker uses the same cap (`STEER_MAX`), so an
+  escape learned on GPU transfers to the eval.
+- The aim correction latches at the strike's onset (`latched |= act & (tau >= on)`), while the CPU aimed opponent commits
+  at apex - 0.15 s (`r1gym/aim.py commit_s`).
+- `_block` used `outer=0.5`: half the envs kept the footwork walking commands (mean 0.47 m/s, faster than the chase).
+- No term refers to the ring.
+- `clearance()` pays `clip((d - 0.10) / 0.15)` whatever the reach, so a strike that could never reach pays in full.
+
+**Confirmed in the logs** (`train_A.log`, A's last iteration, 8995 of 8996):
+- Mean reward was -17.23 over 844-step episodes, about -1.09 per live second. `action_rate_l2` alone was -1.38.
+- Tracking rewards were tiny (0.18 / 0.23) and `error_vel_xy` was 2.1, so the hold command alone did not anchor the policy.
+- `is_terminated` is -200 x 0.02 = -4 (the Unitree config).
+- `stand_still` (-0.112) cost more than `spar_block` paid (+0.040). It acts on every joint while |command| <= 0.1, and the
+  default pose is the guard (`_guard` sets `init_state`), so it taxed every block.
+
+### 9.2 What run 2 changes (`_block2`; overrides reach only the run-2 tasks)
+
+1. **Every env on the outer loops** (`RING["outer"]` = 1.0): face the spot, hold the start.
+2. **Ring anchor.** The in-ring bonus `spar_ring` pays weight 2.5 x (1 - clip((r - 0.25) / 0.75, 0, 1)) per second,
+   where r is the pelvis xy distance from the episode's start (`OuterLoopTwistCommand.spot`). It is 1 within the hold
+   loop's 0.25 m and 0 at 1 m, where the `ring_out` termination fires (training config only, not play). `ring_out` is
+   not a time-out, so the -4 applies as for a fall.
+   - It is a bonus and not a penalty because, with the net rate negative, a penalty near the edge (about -2.6 per second
+     for a -2 x clip(r - 0.25) design) makes continuing worth about -5.2 against -4 for leaving, so leaving would pay.
+   - The critic gets `ring_home`: the start minus the pelvis in the heading frame, 2 inputs appended last, for 138 critic
+     inputs. The actor stays at 111.
+3. **Aim commit** (`SCHED_R2["commit_s"]` = 0.15). Delta follows the defender until max(onset, apex - 0.15 s), the CPU
+   aimed opponent's commit, then is world-fixed. A slip that starts within 0.15 s of the apex still makes a strike miss.
+   The spot cap stays 0.3 m/s. A faster chase or a velocity lead would be a train / eval mismatch that gate 1 does not
+   check, and with the defender held in the ring it changed nothing in design 2's kinematic check (within 0.012).
+4. **Clearance only in reach** (`SCHED_R2["reach_gate"]`, `SCHED["reach_tol"]` = 0.05 m). At the latch the schedule
+   records whether the pelvis was at most 0.05 m beyond the stand-off D from the live spot (`reach_ok`). `spar_clearance`
+   pays only those strikes; before the latch it uses the live excess (`reach_mask`).
+5. **Block pay for intercepts only** (`HIT_R2`). `spar_block` (weight 40, twice run 1's A) pays an arm-first window only if
+   the arm contact opened by apex + 0.05 s and no head or torso hit landed in that window after it: a graze that does not
+   stop the strike pays nothing (the exploit review found that otherwise touching every glove paid about +37 per minute even
+   while more head hits landed). HitAccount's `blocked` and `block_first` per episode and in total keep run 1's definition
+   (arm first, landed or not), so the eval's blocked share is unchanged; the "blocks" claim reads a stopped share instead.
+6. **`stand_still` on legs and waist only** (`STAND_STILL_JOINTS`: 12 leg + 2 waist joints). The arms keep the pose
+   term's std of 0.35.
+7. **Metrics, logged and never gated:** `spar_ring_r` (episode mean of r), `ring_max_m` (the twist command's per-episode
+   maximum r), `spar_arm_idle_touch` (an idle fist touching an arm proxy: pinning).
+8. **Tooling:**
+   - `widen2` widens the critic to 138 (the ring_home columns have mean 0, std 0.5 and zero weights).
+   - `m1check --r2 1` runs gate 1 with `SCHED_R2`.
+   - `gate --last 200 --max-iter-s 2.2 --prereg-envs 3072` reads gate 2 from A2's own log.
+
+Dropped from run 1: B (doubling the weights destabilised run 1; falls rose about 4x). A second sighted seed (A2s, seed
+43) takes its place. The attacker row (1.0 kg, 60 N, -2 cm), capsule proxies and 3072 envs carry over from run 1's gates
+(section 8 item 29, `results/sparring/m1_gate/`). They are declared again as a deviation from "CPU calibration passes
+first" through `SPAR_CALIB_DEVIATION`.
+
+### 9.3 Gates, training, selection
+
+- **Gate 1:** `m1check --r2 1`, capsule proxies, 3072 envs, the frozen warm start. It needs head clean >= 7.7 / min and a
+  median impulse per landed head hit in [1.58, 3.56] N·s. Rows are tried in order (1.0, 60, -2 cm), (1.0, 50, -2 cm),
+  (1.0, 40, -2 cm), and the first that passes is used. If none passes, nothing is trained. The margin is thin: run 1's
+  capsule gate gave 3.44 N·s at 4096 envs with the onset latch.
+- **Gate 2:** A2's own log, iterations 20-200, <= 2.2 s per iteration, and no NaN termination. If it fails, the run stops
+  after A2 with no selection. There is no separate smoke run for the gate; a 3-iteration load smoke of both tasks only
+  checks that they build and log the ring terms.
+- **Training:** A2 (seed 42, run 1 A's), then blind2 (seed 42), then A2s (seed 43). Each runs 1500 iterations from
+  `widen2(model_7496.pt)` and the final checkpoint is the candidate. A2s is skipped only if blind2 ends more than 2.4 h after A2 started (budget).
+- **Eval:** `scripts/eval_opponent.py --tier hard_r2 --no_pushes --hits 1 --keypoints truth`, unaimed then `--aim chosen`.
+  - Val: `--reps 32`, seeds 21000-21127.
+  - Test: `--reps 16`, seeds 22000-22127. Run once, with guard_fw_r, the selected candidate and blind2 in one invocation.
+  - Output goes to `results/eval_opponent/m2r2`.
+- **Screen** (`scripts/m2_verdict.py --run 2 select`, val, aimed):
+  - A candidate qualifies with survival >= 0.95, a ring drop vs guard_fw_r <= 0.05 and head-clean R_warm (point) <= 0.80.
+  - Of the qualifiers the lower head clean/min wins; a difference under 0.1/min picks A2.
+  - If none qualifies, `go` is false and the test is not run.
+  - The output is `results/sparring/m2_run2_selection.json`, with `go` and the prereg's LF-normalised hash.
+- **Verdict** (`--run 2 verdict`): run 1's five-part rule, unchanged, against blind2. blind2 is seed-matched for A2 only;
+  for A2s this is reported. The verdict refuses a selection with `go` false or one made against another prereg. The output
+  is `results/sparring/m2_run2_verdict.json`.
+- **"Blocks" claim (not part of the pass):** the head-intent blocked share must rise by >= 0.10 vs guard_fw_r (paired
+  cluster CI > 0), and head slip (closest approach) must stay within 3 cm of guard_fw_r's. Otherwise the write-up says
+  "avoids".
+
+### 9.4 Keeping the test set honest
+
+- **Re-seeded:** run-2 episodes replay the same clips with new seeds (new start times, delays, DR and hit draws). Seeds, env seeds and hit seeds are
+  disjoint from run 1's (20000-20127) and between the splits; `tests/test_m2_run2.py` checks this. The v1 tiers' episodes
+  are unchanged.
+- **Reused:** the clips. No clean alternative exists: kfab_199 cannot be performed by the tracker, and the train clips
+  feed the GPU attacker. 66% of the new test start times (87% on val) fall within 0.1 s of a run-1 start.
+- **Disclosed:**
+  - run 1's test summary was committed and seen (survival 0.750, ring 0.0) before run 2 was designed;
+  - run 2's design came from run 1's val runs and training logs;
+  - run 1's val episodes (seed 20000) are spent.
+- **Controls:**
+  - The prereg is committed and hashed before the pod launches.
+  - `eval_opponent.py` refuses `--tier hard_r2 --split test` unless `m2_run2_selection.json` says `go` against the
+    current prereg hash.
+  - The test runs once, and no threshold changes.
+
+### 9.5 Exploits still open, and risks
+
+- **Most likely: a late lean or slip.** GPU strikes aim 2 cm short, while the CPU opponent aims 3 cm deep and commits at
+  the same moment. A policy that learns a lean will probably fail rule 1 honestly rather than game it.
+  - The exploit screen (reported; the run-1 diagnosis's per-step time series, not committed, with pelvis z, torso pitch
+    and hand-distance columns added) checks head
+    displacement away from the opponent between t_on and t_apex, intent_closest_cm against the blocked share, ring
+    creep, crouching, turning away and pinning.
+- **Critic offset:** the warm-start critic is off by about +5 because of the bonus. `fell_over` is watched over the
+  first 50 iterations; this is reported, not gated.
+- **Other risks:**
+  - Pushes may cause some ring-outs; they are logged.
+  - Blocks learned against two floating fists may not transfer to the CPU humanoid.

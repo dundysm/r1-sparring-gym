@@ -1,0 +1,60 @@
+{
+ "about": "Sparring M2 run 2: run 1's sighted defenders backed out of the ring (val: A survival_in_ring 0.0, drift 5.3 m). Run 2 anchors the defender to the ring and keeps run 1's pass rule.",
+ "written": "2026-10-29, before any run-2 code ran on GPU; after run 1's val, training logs AND test summary were viewed (576727a)",
+ "supersedes": "none; prereg_m2.json stays run 1's record",
+ "changes_vs_run1": {
+  "tasks": "R1-Spar-Block2-A / R1-Spar-Block2-Blind (gpu/sparring_task.py _block2); the run-1 tasks and every default are unchanged bit for bit (tests/test_sparring_r2.py against tests/fixtures/sparring_task_576727a.py)",
+  "attacker": "aim commits at max(onset, apex - 0.15 s) (SCHED_R2.commit_s, = r1gym/aim.py commit_s); spot cap 0.3 m/s unchanged; row 1.0 kg / 60 N / -0.02 m (SPAR_ATTACK), capsule proxies, 3072 envs (run 1's deviations, carried over: run 1's gate 1 picked the row from the predeclared GPU retune grid, section 8 item 29, and its gate 2 passed only at 3072 envs on capsule proxies; declared again on the pod through SPAR_CALIB_DEVIATION)",
+  "outer_loops": "every env on face/hold (rel_outer_envs 1.0)",
+  "ring": "spar_ring +2.5 x (1 - clip((r-0.25)/0.75,0,1)) per s; ring_out termination at r > 1.0 m (-4, like a fall); r = pelvis xy distance from the episode start",
+  "rewards": "A weights; spar_block 40, paid only when the arm contact opened by apex + 0.05 s AND no head or torso hit landed in that window after it (a graze that does not stop the strike pays nothing); spar_clearance only for strikes in reach at the latch (excess over D <= 0.05 m); stand_still on legs and waist only",
+  "critic": "+ ring_home (2), 138 inputs; actor 111 unchanged",
+  "metrics_added": "Episode_Metrics/spar_ring_r, Episode_Metrics/spar_arm_idle_touch, Metrics/twist/ring_max_m (logged, never gated)"
+ },
+ "candidates": {
+  "A2": "R1-Spar-Block2-A, --agent.seed 42 (run 1 A's seed: results/policy_mjlab_spar_a/params/agent.yaml), 1500 iterations from widen2(model_7496.pt), final checkpoint",
+  "blind2": "R1-Spar-Block2-Blind, same seed as A2 (42), same start",
+  "A2s": "R1-Spar-Block2-A, seed + 1 (43), same start",
+  "reference": "guard_fw_r policy.onnx (results/policy_mjlab_guard_footwork_r)",
+  "training_order": "A2, blind2, A2s. A2s is skipped only if blind2 finishes more than 2.4 h after A2 started training (pod_run2.sh checks the clock; this keeps the pod under about $3.6); the screen then runs on A2 alone"
+ },
+ "gates": {
+  "gate1": "python gpu/sparring_task.py m1check --r2 1, capsule proxies, 3072 envs, frozen guard_fw_r: head clean/min >= 7.7 and median impulse per landed head hit in [1.58, 3.56]. Rows in order: (1.0,60,-0.02), (1.0,50,-0.02), (1.0,40,-0.02); first passing row is used; none: no training.",
+  "gate2": "A2 iterations 20-200: <= 2.2 s/iteration and no NaN terminations in A2's log (read at iteration 200 and again on the whole log); fail: stop after A2, no selection",
+  "smoke": "a 3-iteration load smoke of both run-2 tasks before A2 checks they build, load widen2's checkpoint and log the ring terms; not a gate on any number",
+  "logged_not_gated": "Episode_Termination/ring_out, fell_over, mean episode length, ring_max_m, spar_arm_idle_touch"
+ },
+ "eval": {
+  "script": "scripts/eval_opponent.py --tier hard_r2 --no_pushes --hits 1 --keypoints truth; unaimed first, then --aim chosen in the same --out",
+  "val": "--split val --reps 32 (kfab_204 x 4 distances x 32 = 128 bouts; seeds 21000-21127); controllers guard_fw_r, A2, A2s (if trained), blind2 (reported)",
+  "test": "--split test --reps 16 (kfab_202, kfab_205 x 4 x 16 = 128; seeds 22000-22127), once, guard_fw_r + selected + blind2 in one invocation; refused unless m2_run2_selection.json has go = true",
+  "out": "results/eval_opponent/m2r2"
+ },
+ "selection": {
+  "rule": "On val, aimed: candidates A2 and A2s qualify with survival >= 0.95, survival_in_ring drop vs guard_fw_r <= 0.05, and head-clean R_warm (point) <= 0.80. Among qualifiers, the lower exposure-weighted head clean/min; a difference < 0.1/min picks A2. No qualifier: go = false, the test is not run, run 2 is reported as failing at the screen.",
+  "twin": "blind2 for either; for A2s it is not seed-matched (reported)",
+  "uses_test": false
+ },
+ "statistics": "identical to prereg_m2.json statistics, source raw_test_hard_r2_nohits_aim.json",
+ "rule": "identical to prereg_m2.json rule (head_vs_warm R <= 0.60 and CI upper < 0.80; head_vs_blind CI upper < 0.90; torso R <= 1.5; survival >= 0.95; ring drop <= 0.05; all five)",
+ "blocks_claim": "the write-up says 'blocks' only if the head-intent STOPPED share (arm contact first and no head or torso hit landed in that window, from the same HitMeter events) rises by >= 0.10 vs guard_fw_r (paired cluster CI > 0) and head slip (closest approach) stays within 3 cm of guard_fw_r's; otherwise 'avoids' (not part of pass). Run 1's blocked share (arm first, landed or not) is reported alongside",
+ "reported_regardless": "prereg_m2's list, plus the exploit screen in section 7 (vs guard_fw_r): drift at 5 s and 20 s; pelvis/head z p10; bearing error; late head displacement t_on..t_apex; arm-on-idle-fist share; opp_fall; falls with no hit in the previous 1 s",
+ "test_integrity": {
+  "reseeded": "Run-2 episodes are re-seeded on the same clips: seeds 21000+ for val and 22000+ for test give new start times, delays, domain randomisation and hit draws, but the opponent replays the same motion. Seeds and env seeds are disjoint from run 1's (tests/test_m2_run2.py).",
+  "reused": "There is no clean alternative clip: kfab_199 cannot be performed by the tracker, and the train clips feed the GPU attacker. So run 2 uses the same test clips, kfab_202 and kfab_205, and the same val clip, kfab_204. 66% of the new test start times (87% on val) fall within 0.1 s of a run-1 start.",
+  "disclosures": [
+   "run 1's test summary was committed and seen (survival 0.750, ring 0.0) before run 2 was designed",
+   "run 2's design came from run 1's val runs and training logs",
+   "run 1's val episodes (seed 20000) are spent"
+  ],
+  "controls": [
+   "This prereg is committed and hashed before the pod launches. Selection and verdict record its hash and the git hash.",
+   "The eval refuses hard_r2 on the test split unless the selection says go (scripts/eval_opponent.py r2_test_allowed, against this file's current hash).",
+   "The test is run once, with three controllers in one invocation and identical episodes.",
+   "No threshold changes.",
+   "The eval also refuses a second hard_r2 test run into an --out that already holds raw_test_hard_r2 files."
+  ]
+ },
+ "verdict_script": "scripts/m2_verdict.py --run 2 {select|verdict} -> results/sparring/m2_run2_{selection,verdict}.json",
+ "budget": "one RTX 4090 pod: gate 1 about 5 min per row (up to 3), 3 x 1500 iterations at about 1.95 s/iteration = about 2.45 h, about $3.3 plus up to $0.2 for gate 1"
+}

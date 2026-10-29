@@ -999,3 +999,39 @@ No eval of any run-2, 2b or 3 policy and no hard_r2 episode informed it.
 
 **Cost.** One RTX 4090 pod is about 2.75 h, about 2.45 USD. A stop of A3 at 50 / 100 / 200 / 500 costs about 0.15 / 0.19 /
 0.25 / 0.45 USD. That leaves room for one more attempt within the remaining cap of about 8.7 USD (RunPod balance 7.03 USD).
+
+### 9.8 Run 3 result (2026-10-29): FAILED at the val screen, test not run
+
+**Pod.** Gate 1 passed on the first row (head clean 14.70 / min, median 3.29 N*s), gate 2 passed (1.96 s per iteration, no nan).
+A3, blind3 and A3s all trained 1500 iterations; WATCH3 never stopped any of them. blind3 ended 6039 s after A3 started, so A3s
+was trained. The pod cost 2.30 USD (about 5.57 USD spent on GPU in total).
+
+**Training** (20-iteration windows, iterations 31-50 against 1481-1500; clean head hits per live minute, WATCH3's E4 basis):
+
+| run | blocked share | clean head hits / live min | ratio | hazard / live s | std |
+|---|---|---|---|---|---|
+| A3 | 0.568 -> 0.707 | 12.20 -> 10.51 | 0.861 | 0.154 -> 0.028 | 0.65 -> 0.58 |
+| A3s | -> 0.700 | -> 10.81 | 0.860 | -> 0.037 | -> 0.59 |
+| blind3 | -> 0.669 | -> 12.19 | 0.979 | -> 0.033 | -> 0.59 |
+
+The std held (entropy_coef 0.003 worked) and blocked share rose for the first time in any run. Part of the head-hit drop
+reappeared as torso contact: in A3, torso impulse per strike rose 1.94 -> 2.27 N*s while head impulse fell 1.28 -> 1.13.
+
+**Val** (`results/eval_opponent/m2r3`, hard_r2, 128 bouts per controller; aimed is the screen, unaimed reported):
+
+| aimed | survival | in ring | head clean / min | head landed / min | torso clean / min | torso landed / min |
+|---|---|---|---|---|---|---|
+| guard_fw_r | 0.969 | 0.883 | 6.71 | 20.81 | 7.80 | 18.90 |
+| A3 | 0.883 | 0.867 | 7.65 (R_warm 1.14) | 14.90 | 4.52 | 9.39 |
+| A3s | 0.875 | 0.867 | 5.80 (R_warm 0.86) | 15.01 | 4.02 | 7.42 |
+| blind3 | 0.930 | 0.930 | 6.05 | 17.88 | 4.07 | 10.07 |
+
+Unaimed: survival 0.984 / 0.906 / 0.883 / 0.914 and head clean 5.17 / 6.51 / 6.60 / 4.16 per min (same order).
+
+**Screen.** `scripts/m2_verdict.py --run 3 select` gives go = false (`results/sparring/m2_run3_selection.json`): neither A3 nor
+A3s reaches survival 0.95, and neither has R_warm <= 0.80. Run 3 fails at the screen; the hard_r2 test seeds (22000+) stay unused.
+
+**Reading.** The run-3 defenders take far fewer landed hits (head landed -28%, torso landed -50 to -61% against guard_fw_r)
+but no fewer clean head hits, and they fall more (survival -0.09). Training's gain did not transfer to the CPU eval's opponent
+(the tracked R1 on held-out clips), and the blind twin did as well or better on clean head hits, so nothing here credits the
+keypoints. Arm contact that deflects strikes is being learned; stopping the clean ones is not.

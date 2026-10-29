@@ -1,0 +1,87 @@
+{
+ "m1": {
+  "task": "R1-Spar-Attack (m1check: outer loops on every env, no push_robot / shove)",
+  "checkpoint": "/root/model_7496.pt",
+  "num_envs": 4096,
+  "steps": 1000,
+  "env_minutes": 1365.3,
+  "shell_proxy": "mesh",
+  "gravcomp": true,
+  "attack": {
+   "mass": 1.5,
+   "fmax": 80.0,
+   "delta": -0.02,
+   "kp": 1500.0,
+   "rot_kp": 60.0,
+   "rot_kv": 3.0,
+   "rot_fmax": 30.0,
+   "rot_armature": 0.01,
+   "radius": 0.045,
+   "link_mass": 0.01,
+   "link_inertia": 1e-05,
+   "capsule": [
+    -0.195,
+    0.03
+   ]
+  },
+  "head_clean_pm": 11.643,
+  "torso_clean_pm": 9.008,
+  "head_landed_pm": 16.607,
+  "median_impulse_per_head_landed_Ns": 4.039,
+  "mean_impulse_per_head_landed_Ns": 4.874,
+  "impulse_ring_n": 4096,
+  "blocked_share": 0.623,
+  "windows": 84870,
+  "head_landed_vneg_share": 0.0085,
+  "falls_per_min": 0.3179,
+  "wall_s": 68.0,
+  "pass_head_clean": true,
+  "pass_impulse": false,
+  "calibration": {
+   "file": "/root/m1_calibration.json",
+   "attack": [
+    1.5,
+    80.0,
+    -0.02
+   ],
+   "sha256_16": "3c28ff91fb099739",
+   "chosen": {
+    "mass": 1.5,
+    "fmax": 80.0,
+    "delta": -0.02
+   },
+   "constants_match": true,
+   "attack_row": {
+    "pass_": true,
+    "median_Ns": 3.52,
+    "checks": {
+     "impulse": true,
+     "head_clean": true,
+     "speed": true,
+     "agree_rate": true,
+     "agree_impulse": true
+    }
+   },
+   "attack_recheck": {
+    "seeds": [
+     64,
+     127
+    ],
+    "pass_": true,
+    "median_Ns": 3.231,
+    "checks": {
+     "impulse": true,
+     "head_clean": true,
+     "speed": true,
+     "agree_rate": true,
+     "agree_impulse": true
+    }
+   },
+   "match": true,
+   "deviation": null,
+   "pass": true
+  },
+  "pass_calibration": true,
+  "pass": false
+ }
+}

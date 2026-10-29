@@ -1,0 +1,481 @@
+{
+ "meta": {
+  "mode": "select",
+  "made_by": "python scripts/m2_verdict.py select --out results/eval_opponent/m2",
+  "script": "scripts/m2_verdict.py",
+  "script_sha256_16": "bb64bdce4d7a4fa5",
+  "git_hash": "86cfcbe5e9714eb97931555819246072ae525cb1",
+  "git_dirty": true,
+  "prereg": "results/sparring/prereg_m2.json",
+  "files_sha256_16": {
+   "results/eval_opponent/m2/raw_val_hard_nohits.json": "6336c83338bbf0eb",
+   "results/eval_opponent/m2/raw_val_hard_nohits_aim.json": "581c34310fd8f054",
+   "results/sparring/prereg_m2.json": "be2208e24c8c9aaf"
+  },
+  "n_boot": 4000,
+  "seed": 0,
+  "rate": "sum of hit_meter.n.<zone>_clean / sum of hit_meter.secs / 60",
+  "inf": "\"inf\": a zero reference rate"
+ },
+ "rule": "On val, aimed run: among A and B, those with survival >= 0.95 and survival_in_ring drop vs guard_fw_r <= 0.05; of those (of both if none qualifies) the lower exposure-weighted head clean strikes/min; a difference under 0.1/min picks A. If B is selected, train Blind-B before the test.",
+ "reference": {
+  "label": "RL guard_fw_r",
+  "survival_in_ring": 0.9296875
+ },
+ "candidates": {
+  "A": {
+   "label": "RL A",
+   "survival": 0.796875,
+   "survival_in_ring": 0.0,
+   "ring_drop_vs_ref": 0.9296875,
+   "head_clean_pm": 0.7246251789996723,
+   "qualifies": false
+  },
+  "B": {
+   "label": "RL B",
+   "survival": 0.6640625,
+   "survival_in_ring": 0.0,
+   "ring_drop_vs_ref": 0.9296875,
+   "head_clean_pm": 1.187856241770182,
+   "qualifies": false
+  }
+ },
+ "pool": [
+  "A",
+  "B"
+ ],
+ "head_clean_pm_A_minus_B": -0.4632310627705096,
+ "tie_break_to_A": false,
+ "selected": "A",
+ "selected_label": "RL A",
+ "twin": "blind",
+ "train_blind_b": false,
+ "aimed_rows": {
+  "pd_stand": {
+   "episodes": 128,
+   "survival": 0.09375,
+   "survival_in_ring": 0.09375,
+   "minutes": 14.316666666666666,
+   "head_clean_n": 170,
+   "head_clean_pm": 11.874272409778813,
+   "torso_clean_n": 120,
+   "torso_clean_pm": 8.381839348079161,
+   "rules": {
+    "clean": {
+     "head": 11.874243073341095,
+     "torso": 8.381821210710129
+    },
+    "landed": {
+     "head": 26.68217790454016,
+     "torso": 23.60887210710128
+    },
+    "A_peak20": {
+     "head": 43.4458434225844,
+     "torso": 51.96742367869616
+    },
+    "B_strike": {
+     "head": 12.223477951105938,
+     "torso": 8.800920419091968
+    },
+    "impulse_only": {
+     "head": 26.961566402793945,
+     "torso": 24.377213597206055
+    }
+   },
+   "windows": {
+    "head": 124,
+    "torso": 74,
+    "blocked": 393,
+    "miss": 1181,
+    "n": 1772,
+    "blocked_share": 0.22178329571106095
+   },
+   "intent_windows": {
+    "head": 130,
+    "torso": 73,
+    "blocked": 304,
+    "miss": 791,
+    "n": 1298,
+    "blocked_share": 0.23420647149460708
+   },
+   "impulse_per_head_hit_Ns": {
+    "n": 382,
+    "median": 3.67875,
+    "p90": 11.404690000000002
+   }
+  },
+  "RL guard_fw_r": {
+   "episodes": 128,
+   "survival": 0.96875,
+   "survival_in_ring": 0.9296875,
+   "minutes": 41.898333333333326,
+   "head_clean_n": 306,
+   "head_clean_pm": 7.3033931341739935,
+   "torso_clean_n": 346,
+   "torso_clean_pm": 8.258085047137914,
+   "rules": {
+    "clean": {
+     "head": 7.303395680019095,
+     "torso": 8.258087449779229
+    },
+    "landed": {
+     "head": 21.528303767055178,
+     "torso": 19.213174318787544
+    },
+    "A_peak20": {
+     "head": 34.22570479334899,
+     "torso": 39.97772299614146
+    },
+    "B_strike": {
+     "head": 7.374997573491389,
+     "torso": 9.212779362743149
+    },
+    "impulse_only": {
+     "head": 21.528303767055178,
+     "torso": 20.931619762122605
+    }
+   },
+   "windows": {
+    "head": 161,
+    "torso": 139,
+    "blocked": 1582,
+    "miss": 3293,
+    "n": 5175,
+    "blocked_share": 0.30570048309178743
+   },
+   "intent_windows": {
+    "head": 184,
+    "torso": 133,
+    "blocked": 1776,
+    "miss": 1753,
+    "n": 3846,
+    "blocked_share": 0.46177847113884557
+   },
+   "impulse_per_head_hit_Ns": {
+    "n": 902,
+    "median": 2.3003,
+    "p90": 5.3267
+   }
+  },
+  "RL A": {
+   "episodes": 128,
+   "survival": 0.796875,
+   "survival_in_ring": 0.0,
+   "minutes": 38.64066666666666,
+   "head_clean_n": 28,
+   "head_clean_pm": 0.7246251789996723,
+   "torso_clean_n": 39,
+   "torso_clean_pm": 1.0092993564638293,
+   "rules": {
+    "clean": {
+     "head": 0.7246273356222288,
+     "torso": 1.0093006331843828
+    },
+    "landed": {
+     "head": 1.449253083970256,
+     "torso": 1.4751303290143374
+    },
+    "A_peak20": {
+     "head": 2.122116276461759,
+     "torso": 3.7266525853591213
+    },
+    "B_strike": {
+     "head": 0.750507737961733,
+     "torso": 1.061060790876624
+    },
+    "impulse_only": {
+     "head": 1.449253083970256,
+     "torso": 1.552769172374528
+    }
+   },
+   "windows": {
+    "head": 20,
+    "torso": 9,
+    "blocked": 350,
+    "miss": 4393,
+    "n": 4772,
+    "blocked_share": 0.07334450963956413
+   },
+   "intent_windows": {
+    "head": 20,
+    "torso": 5,
+    "blocked": 412,
+    "miss": 3107,
+    "n": 3544,
+    "blocked_share": 0.1162528216704289
+   },
+   "impulse_per_head_hit_Ns": {
+    "n": 56,
+    "median": 2.2760499999999997,
+    "p90": 3.86975
+   }
+  },
+  "RL B": {
+   "episodes": 128,
+   "survival": 0.6640625,
+   "survival_in_ring": 0.0,
+   "minutes": 36.19966666666667,
+   "head_clean_n": 43,
+   "head_clean_pm": 1.187856241770182,
+   "torso_clean_n": 50,
+   "torso_clean_pm": 1.3812281881048627,
+   "rules": {
+    "clean": {
+     "head": 1.1878571810053498,
+     "torso": 1.3812388511864748
+    },
+    "landed": {
+     "head": 1.8232320371274136,
+     "torso": 1.8784808331568426
+    },
+    "A_peak20": {
+     "head": 2.7072179301835186,
+     "torso": 4.944798331476347
+    },
+    "B_strike": {
+     "head": 1.1878571810053498,
+     "torso": 1.3812388511864748
+    },
+    "impulse_only": {
+     "head": 1.8232320371274136,
+     "torso": 1.9613544968185705
+    }
+   },
+   "windows": {
+    "head": 21,
+    "torso": 8,
+    "blocked": 252,
+    "miss": 4192,
+    "n": 4473,
+    "blocked_share": 0.056338028169014086
+   },
+   "intent_windows": {
+    "head": 21,
+    "torso": 5,
+    "blocked": 302,
+    "miss": 2991,
+    "n": 3319,
+    "blocked_share": 0.0909912624284423
+   },
+   "impulse_per_head_hit_Ns": {
+    "n": 66,
+    "median": 2.30935,
+    "p90": 4.6057500000000005
+   }
+  }
+ },
+ "unaimed_rows": {
+  "pd_stand": {
+   "episodes": 128,
+   "survival": 0.1484375,
+   "survival_in_ring": 0.1484375,
+   "minutes": 14.931000000000001,
+   "head_clean_n": 287,
+   "head_clean_pm": 19.221753398968588,
+   "torso_clean_n": 261,
+   "torso_clean_pm": 17.480409885473176,
+   "rules": {
+    "clean": {
+     "head": 19.22176987475721,
+     "torso": 17.4804352465787
+    },
+    "landed": {
+     "head": 35.83153115442145,
+     "torso": 40.720661063112544
+    },
+    "A_peak20": {
+     "head": 51.30264793606143,
+     "torso": 78.62834221865025
+    },
+    "B_strike": {
+     "head": 19.891515593954413,
+     "torso": 17.882296497220544
+    },
+    "impulse_only": {
+     "head": 36.09941080079476,
+     "torso": 41.658287768178056
+    }
+   },
+   "windows": {
+    "head": 147,
+    "torso": 128,
+    "blocked": 368,
+    "miss": 1190,
+    "n": 1833,
+    "blocked_share": 0.20076377523186034
+   },
+   "intent_windows": {
+    "head": 156,
+    "torso": 123,
+    "blocked": 199,
+    "miss": 869,
+    "n": 1347,
+    "blocked_share": 0.147735708982925
+   },
+   "impulse_per_head_hit_Ns": {
+    "n": 535,
+    "median": 3.549,
+    "p90": 7.200840000000001
+   }
+  },
+  "RL guard_fw_r": {
+   "episodes": 128,
+   "survival": 0.9765625,
+   "survival_in_ring": 0.953125,
+   "minutes": 42.00133333333333,
+   "head_clean_n": 230,
+   "head_clean_pm": 5.476016634392559,
+   "torso_clean_n": 510,
+   "torso_clean_pm": 12.142471667566111,
+   "rules": {
+    "clean": {
+     "head": 5.476016062982128,
+     "torso": 12.142469762864671
+    },
+    "landed": {
+     "head": 16.80898885749659,
+     "torso": 22.975463263071017
+    },
+    "A_peak20": {
+     "head": 23.594487349607952,
+     "torso": 45.33189296371545
+    },
+    "B_strike": {
+     "head": 5.547442366908988,
+     "torso": 13.142438017840705
+    },
+    "impulse_only": {
+     "head": 16.80898885749659,
+     "torso": 24.427798109583822
+    }
+   },
+   "windows": {
+    "head": 55,
+    "torso": 163,
+    "blocked": 1371,
+    "miss": 3599,
+    "n": 5188,
+    "blocked_share": 0.26426368542791057
+   },
+   "intent_windows": {
+    "head": 65,
+    "torso": 156,
+    "blocked": 1495,
+    "miss": 2140,
+    "n": 3856,
+    "blocked_share": 0.38770746887966806
+   },
+   "impulse_per_head_hit_Ns": {
+    "n": 706,
+    "median": 2.51905,
+    "p90": 5.0593
+   }
+  },
+  "RL A": {
+   "episodes": 128,
+   "survival": 0.984375,
+   "survival_in_ring": 0.0,
+   "minutes": 42.19966666666666,
+   "head_clean_n": 26,
+   "head_clean_pm": 0.6161186107315225,
+   "torso_clean_n": 57,
+   "torso_clean_pm": 1.3507215696806454,
+   "rules": {
+    "clean": {
+     "head": 0.6161186107315225,
+     "torso": 1.350721767154559
+    },
+    "landed": {
+     "head": 0.995268525027844,
+     "torso": 1.7535687485683145
+    },
+    "A_peak20": {
+     "head": 1.3033278303936053,
+     "torso": 4.455012085403519
+    },
+    "B_strike": {
+     "head": 0.6161186107315225,
+     "torso": 1.3744186367980793
+    },
+    "impulse_only": {
+     "head": 0.995268525027844,
+     "torso": 1.8246593574988748
+    }
+   },
+   "windows": {
+    "head": 13,
+    "torso": 6,
+    "blocked": 311,
+    "miss": 4883,
+    "n": 5213,
+    "blocked_share": 0.05965854594283522
+   },
+   "intent_windows": {
+    "head": 13,
+    "torso": 4,
+    "blocked": 355,
+    "miss": 3501,
+    "n": 3873,
+    "blocked_share": 0.09166021172217918
+   },
+   "impulse_per_head_hit_Ns": {
+    "n": 42,
+    "median": 2.0533,
+    "p90": 3.35892
+   }
+  },
+  "RL B": {
+   "episodes": 128,
+   "survival": 0.9453125,
+   "survival_in_ring": 0.0,
+   "minutes": 40.63566666666666,
+   "head_clean_n": 29,
+   "head_clean_pm": 0.7136587726709707,
+   "torso_clean_n": 74,
+   "torso_clean_pm": 1.8210603164707526,
+   "rules": {
+    "clean": {
+     "head": 0.7136588382947658,
+     "torso": 1.8210603656885989
+    },
+    "landed": {
+     "head": 1.2058373678295753,
+     "torso": 2.264020983208512
+    },
+    "A_peak20": {
+     "head": 1.5749713470104263,
+     "torso": 4.971002797214272
+    },
+    "B_strike": {
+     "head": 0.787485607881418,
+     "torso": 1.8456692888841497
+    },
+    "impulse_only": {
+     "head": 1.2058373678295753,
+     "torso": 2.313238829599613
+    }
+   },
+   "windows": {
+    "head": 17,
+    "torso": 8,
+    "blocked": 245,
+    "miss": 4753,
+    "n": 5023,
+    "blocked_share": 0.04877563209237507
+   },
+   "intent_windows": {
+    "head": 17,
+    "torso": 3,
+    "blocked": 273,
+    "miss": 3438,
+    "n": 3731,
+    "blocked_share": 0.07317073170731707
+   },
+   "impulse_per_head_hit_Ns": {
+    "n": 49,
+    "median": 2.1008,
+    "p90": 4.117200000000001
+   }
+  }
+ }
+}

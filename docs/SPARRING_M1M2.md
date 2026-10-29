@@ -855,3 +855,147 @@ names; the aborted A2 produced no export.
   crouched or 60-70 degree states, so a hard-to-push-over crouch earns more than in run 2 (stand_still on the legs taxes it).
 - The critic transient.
 - Section 9.5's risks (late lean, block transfer) stand.
+
+### 9.7 Run 3 (2026-10-29; preregistered in `results/sparring/prereg_m2_run3.json` before any run-3 code ran on GPU)
+
+**Run 2b's outcome.** The restart pod passed gate 1 and the smoke. Its own rule then stopped A2 at iteration 100 (WATCH E3: action
+std 0.87 > 0.85; at 50 it had passed with std 0.78, edge rate +2.54 and hazard 0.173 per live second). The stopped export was
+kept for diagnosis and never evaluated. Under the amendment a stopped A2 ends run 2: **run 2 failed in training**, with no
+selection and no eval, so the hard_r2 val and test seeds are still unused.
+
+Run 2b fixed what it set out to fix. The edge rate stayed positive (+1.5 per live second at 100) and the defender learned to stay
+in the ring: ring-out hazard 0.170 -> 0.112 per live second, episodes 249 -> 346 steps (iterations 20-39 -> 100-107). It did not
+learn to defend. Clean head hits went 10.5 -> 12.5 per minute, the blocked share stayed at 0.54, spar_block fell 0.209 -> 0.198
+per live second, and the fall hazard doubled (0.013 -> 0.027). Over the same window the std climbed 0.73 -> 0.88.
+
+**Diagnosis** (the run 1, 2 and 2b logs and tensorboard files, model_7600's Adam state, rsl_rl 5.0.1 read).
+- The std is a free (24,) parameter. Only two terms move it: `entropy_coef` x entropy, and the surrogate's pull rho = -H
+  sigma^2 / sigma_A.
+- Adam removes the gradient's scale, so the std moves 20 lr f(c + rho) per iteration, where f(x) = x / sqrt(x^2 + 0.0104^2) and
+  0.0104 is the minibatch noise. At c 0.01 and lr 2.1e-4 the ceiling is 0.0029 per iteration: the rise seen.
+- The advantages are normalised and the entropy bonus is not, so the std settles at sigma* = sqrt(c sigma_A / H). H is 0.006-0.0077
+  on every log; sigma_A is the raw advantage std (sqrt value loss).
+- The alive bonus widened the advantages (value loss 1.3-2.1 vs A2's 0.5-0.6), so the equilibrium at c 0.01 rose to 1.0-1.37.
+  Section 9.6's expectation that the std would stop rising once terminations cost reward was wrong.
+- Exploration above the warm start's std was not rewarded: rho < 0 in every window after the first, in every run.
+
+| Run | sigma* predicted | observed |
+|---|---|---|
+| warm start's own task | 0.64 | 0.644 |
+| run 1 A | 0.78 | 0.78 (its 200-1500 mean) |
+| run 1 B | 0.87 | 0.86 |
+| A2 (run 2) | 0.90-1.02 | 0.94, still rising |
+| A2b (run 2b) | 1.0-1.37 | stopped at 0.887 |
+
+The law replays run 1 A from its own lr and value-loss path to 0.01 over 1500 iterations, and A2b's 0.874 at 100.
+
+**What changes** (R1-Spar-Block3-A / -Blind only; new IDs, so R1-Spar-Block2-* keeps meaning run 2b):
+1. **`entropy_coef` 0.01 -> 0.003** (`ENT3`). `register()` sets it on the run-3 tasks' PPO cfg (`RL_OVERRIDES`). There is no CLI flag
+   and no custom class. `params/agent.yaml` records it, and the pod's smoke refuses to train unless both smoke runs' agent.yaml say
+   `entropy_coef: 0.003`.
+2. **Nothing else.** The env cfg is `_block2`'s, the warm start is `widen2b`, and seeds, iterations, the attacker, the gates, eval,
+   selection and the pass rule all carry over. A3 differs from A2b in one setting, so its first 100 iterations are a paired
+   comparison with A2b's log.
+
+**Predicted** (the law, lr 2.1e-4, from the warm start's 0.6366, H 0.006-0.0077, sigma_A held at 0.88-1.47):
+
+| entropy_coef | it 50 | 100 | 300 | 500 | 1500 |
+|---|---|---|---|---|---|
+| 0.01 (run 2b) | 0.74-0.76 | 0.82-0.88 | 1.01-1.25 | 1.06-1.44 | 1.07-1.57 |
+| **0.003** | 0.63-0.66 | 0.62-0.69 | 0.60-0.76 | 0.59-0.80 | 0.59-0.85 |
+| 0.005 | 0.66-0.70 | 0.68-0.75 | 0.73-0.92 | 0.75-1.01 | 0.76-1.10 |
+| 0 | 0.57-0.61 | 0.52-0.58 | 0.38-0.49 | 0.30-0.42 | 0.15-0.25 |
+
+The table is the law alone. Every run so far started 0.007-0.023 above the law at iteration 20 from the same std and Adam state,
+so the excess is task-driven (a gradient push), not the Adam second moment. Modelled as +0.0097 on c over the first 20 iterations,
+the push reproduces A2b's 0.708 / 0.780 at 20 / 50, adds about 0.04-0.05 at 50 and fades (+0.01 by 500). With it, 0.003 gives about
+0.70-0.71 at 50, 0.70-0.725 at 100, 0.69-0.73 at 150 and 0.67-0.77 at 500 (the learn review's model); with sigma_A held at 0.88-1.47
+the envelope is 0.68-0.71 / 0.66-0.73 / 0.62-0.78 / 0.60-0.81 at 50 / 100 / 300 / 500. At c 0.01 the push puts 50 at 0.74-0.79
+(A2b 0.78). At std 0.65-0.75:
+- the noise floor of action_rate is -1.0 to -1.4 per live second (A2b at 0.87: -1.83);
+- the edge rate is +2.2 to +3.2 and the mean rate +4.1 to +5.1;
+- a termination costs about 8.4-10.4 (A2b: about 7).
+
+**Early stop `WATCH3`** (`watch --rule 3`; same checks and 20-iteration windows as run 2b; A3 and A3s are stopped, blind3 is
+reported only; the 1500 check is reported only; a stopped A3 ends run 3 with no eval):
+- **E1:** the window *median* of per-iteration edge rates is below +1.0. A median, because run 1 A's window to 1000 holds one
+  blown-up iteration: the window mean is -216 per live second, the median -1.14, the same as the windows to 900 and 1100.
+- **E2:** the hazard is above 0.21 / 0.18 / 0.17 / 0.16 from 50 / 100 / 150 / 300.
+- **E3:** the std is above 0.76 / 0.77 / 0.80 / 0.85 / 0.90 from 50 / 100 / 150 / 300 / 500.
+  - Each limit covers the law's highest path with the warm start's push (0.71 / 0.73 / 0.74 / 0.78 / 0.81) and the log's 2 dp,
+    with margins of 0.04-0.09.
+  - A run that is really at c 0.01 would show 0.74-0.79 at 50 and 0.82-0.91 at 100, so it stops by 100 at the latest.
+  - Late on, E1 and E2 price the noise directly.
+- **E4 (from 500):** neither fewer head hits nor more blocks. It stops only if both hold:
+  - clean head hits per *live* minute over the window are above the same over iterations 31-50. The rate is time-weighted:
+    -sum of `Episode_Reward/spar_head_clean` x 20 / (sum of episode lengths x 0.02) x 60 / 0.8, where 0.8 = 40 x 0.02 is one
+    clean head hit's reward. A zero or missing reference counts as no fewer head hits;
+  - the window mean of `Metrics/attack/blocked_share` is less than 0.02 above its 31-50 mean. A missing metric counts as no
+    progress.
+  - Why time-weighted: `Metrics/attack/head_clean_pm` averages hits / minutes over the episodes that ended, so it rises with
+    episode length alone (A2b: 0.82 -> 0.95 of the time-weighted rate as episodes went 226 -> 333 steps).
+  - Why the blocked share: staying in reach raises the hits taken per live minute, so a ring-keeping run that turns landings
+    into blocks may show no fewer hits by 500. The blocked share was flat across episode length and std in A2 and A2b
+    (0.535-0.570); 0.02 is about 3.5 standard errors of a 20-window difference.
+  - On the real logs: run 1 A / B / Blind were at 0.35 / 0.21 / 0.42 of their 31-50 rate at 500 (by backing away; blocked
+    share down 0.13 / 0.15 / 0.10). A2 was at 0.93 at 200 (blocked share +0.010) and A2b at 1.08 at 100 (-0.009).
+- **Replayed** (`probe_sparring_r3.py`):
+  - A2b stops at 50 on E3 (0.78 > 0.76). Applied off-rule at 100, E4 would also stop it (hits 1.08 x, blocked share -0.009).
+  - A2 stops at 100 on E3; E2 alone would also stop it at 200 (0.182; E3 0.91 trips too).
+  - Run 1's logs (c 0.01) stop on E3 and never trip E2 or E4 (time-weighted ratio at most 0.42 from 500).
+  - A synthetic run on the highest predicted path, with A2b's falling hazard, lengthening episodes and falling head hits, is
+    never stopped. One whose head hits rise 5% while its blocked share gains 0.03 is not stopped by E4.
+  - WATCH reproduces the run-2b pod's own outputs at 50 and 100.
+
+**Eval.** The eval is run 2's, with A3 / A3s / blind3 in the roles A2 / A2s / blind2 (`m2_verdict.py --run 3`; only run-3 names
+match). It uses the unused hard_r2 seeds (val 21000+, test 22000+) and writes to `results/eval_opponent/m2r3`.
+- `eval_opponent.py --run 3` refuses the test until `m2_run3_selection.json` says go against the run-3 prereg's hash.
+- It also refuses if a hard_r2 test raw file exists anywhere under `results/eval_opponent` (searched recursively) outside its
+  `--out`, so those episodes are spent once across runs 2 and 3. Its refusal messages name the run (`--run 3`).
+
+**Not chosen.**
+- A hard std cap at 0.80 via a `GaussianDistribution` subclass. It bounds the std by construction but pins it at 0.80, a noisier
+  arm than predicted here. It also needs a class object to pass through tyro and rsl_rl on the pod, checked only with tyro
+  1.0.16, and agent.yaml cannot record it. It stays the fallback if the std leaves the band.
+- A noise refund with the alive bonus dropped and the std capped. It is sound, but it makes three changes at once, adds module
+  state on the pod, and leaves a ring-edge termination only 3.1-3.9 worse than staying (run 2b: about 7).
+- Rescaling the warm start's std to 0.65 and resetting its Adam state ("widen3"). It moves the path by at most 0.012, does not
+  remove the warm start's push (task-driven, not Adam state), and it would be a second difference from A2b.
+- `entropy_coef` 0.005 (run 2b again, more slowly) and 0 / 0.001 (the std decays out of every observed regime).
+
+**Disclosed.** Everything listed in the prereg's `test_integrity.disclosures` was seen before run 3 was designed:
+- run 1's logs, event files, final checkpoints and test summary;
+- A2's 266-iteration log, smoke logs and gate outputs;
+- A2b's 107-iteration log, progress, watch, smoke and gate outputs, `widen2b.log` and the stopped export (model_7600.pt was read,
+  never rolled out);
+- the warm start's event file;
+- the remaining pod files of runs 1, 2 and 2b: setup / calcheck / widen / m1check / gate / smoke logs, `progress*.txt`,
+  `pod.log`, md5 files and watch logs (the prereg lists them by name); `m1_calibration.json` (every pod) and each export's
+  `gym.json`, `params/agent.yaml`, `params/env.yaml` and `policy.onnx` (run 1's three, run 2b's stopped one). None carries a learning number beyond the training logs.
+
+No eval of any run-2, 2b or 3 policy and no hard_r2 episode informed it.
+
+**Not verified.**
+- That the law holds at c 0.003. It was fitted at 0.01 and has never been tested below the warm start's 0.64. E3 catches a high
+  miss early; a low miss is reported, not stopped.
+- That lower noise helps blocking. Nothing in run 3 targets credit assignment for blocks. The likely failure is run 2b's: the
+  defender learns to stay in the ring but not to block. E4 at 500 and the val screen catch that.
+- That E4's bar is right for a ring-bound defender. Run 1's drop came from backing away, and A2b's hits rose while it learned to
+  stay. A healthy run whose hits rise early must fall back below its 31-50 level by 500 or raise its blocked share by 0.02.
+- The pod's library versions: progress.txt records torch, tyro, rsl-rl-lib and mjlab.
+
+**Disclosed risks.**
+- E3 cannot tell "exploration starts paying" from "the law is wrong high". The surrogate has pulled the std down in every window
+  of every run so far, so neither has been seen. In a stress case (H 0.0045, value loss held at A2b's early level) the pushed path
+  reaches 0.87 at 400 and run 3 would be stopped there (0.85). Accepted: E3 exists to catch a std that leaves the band, whatever
+  the cause.
+- `Metrics/attack/head_clean_pm` is biased by episode length: it is a mean over ended episodes of hits / that episode's minutes,
+  the first strike comes 0.5-1.5 s in, and short episodes count as much as long ones (A2b 0.82 -> 0.95 of the time-weighted
+  rate, run 1 up to 1.32). E4 therefore reads the time-weighted rate. The metric is still logged and reported, and fewer short
+  episodes can inflate it, more can deflate it.
+- E4's reference window (31-50) still sits in the drift-out transient. Even time-weighted, A2b's clean head rate rose 8% from
+  31-50 to 81-100 while its ring-out hazard fell 0.158 -> 0.119: staying in reach draws hits. The blocked-share clause is the
+  answer for a run that blocks more; a run that only stays in the ring and blocks no more is stopped, by design.
+
+**Cost.** One RTX 4090 pod is about 2.75 h, about 2.45 USD. A stop of A3 at 50 / 100 / 200 / 500 costs about 0.15 / 0.19 /
+0.25 / 0.45 USD. That leaves room for one more attempt within the remaining cap of about 8.7 USD (RunPod balance 7.03 USD).

@@ -15,6 +15,8 @@ Run 2 (doc section 9), R1-Spar-Block2-A / -Blind: run 1's sighted defenders back
 on the outer loops, the aim committed at max(onset, apex - 0.15 s) (SCHED_R2), clearance paid only for strikes in reach at the
 latch, block pay only for intercepts (HIT_R2), an in-ring bonus and a ring_out termination (RING), stand_still on legs and waist
 only, and ring_home on the critic (98 -> 138; actor 111). The run-1 tasks and every default are unchanged bit for bit.
+Run 3 (doc section 9.7), R1-Spar-Block3-A / -Blind: run 2b's env cfg and warm start (widen2b) bit for bit, with PPO entropy_coef
+0.003 (ENT3, set per task in register(): the R1 cfg's 0.01 drove the action std past run 1's band) and the early stop WATCH3.
 Hits are counted on GPU by HitAccount, which mirrors r1gym/hits.py's rules on the proxies' per-substep contact forces.
 
 Pure parts (no mjlab import; CPU tests and probes use them): the MjSpec builders attacker_spec / add_shell_proxies /
@@ -31,8 +33,9 @@ Subcommands (python sparring_task.py ...):
                                    gate 1 (2.6); --r2 1: the run-2 attacker schedule (SCHED_R2)
   gate --m1 m1_gate.json --smoke-log smoke.log [--proxy mesh --num-envs 4096 --max-iter-s 2.0 --last 0 --prereg-envs 4096]
                                    gate 2 from a training log (run 2: A2's own log, --max-iter-s 2.2 --last 200 --prereg-envs 3072)
-  watch --log train.log --at 150 [--no-edge]
-                                   run 2b's early stop at iteration --at (WATCH; exit 3 = stop): edge rate, termination hazard, std
+  watch --log train.log --at 150 [--no-edge --rule 2b]
+                                   run 2b's early stop at iteration --at (WATCH; exit 3 = stop): edge rate, termination hazard, std;
+                                   --rule 3: run 3's (WATCH3: median edge rate, limits for ENT3, head-hit / block progress from 500)
   <task id> [train.py flags]       training (unitree_rl_mjlab's train.main), from a unitree_rl_mjlab checkout
 Environment: SPAR_SHELL_PROXY=capsule (2.6's speed fallback), SPAR_GRAVCOMP=0 (feed-forward instead of body gravcomp),
 SPAR_CALIB_DEVIATION="<reason>" (train although the calibration did not choose ATTACK: recorded as a deviation),
@@ -140,6 +143,39 @@ ALIVE = dict(weight=4.0, v_shift=8.0)
 # position, so the floor under pushes is unknown; A2 still stops at 200 (E2 0.182, E3 0.91). The pod reports the 1500 check only.
 WATCH = dict(window=20, checks=(50, 100, 150, 200) + tuple(range(300, 1501, 100)), edge_min=0.0, h_max=((50, 0.22), (100, 0.19), (150, 0.17)),
              std_max=((50, 0.80), (100, 0.85), (150, 0.90)), num_envs=3072, dt=0.02, ep_s=20.0)
+# Run 3 (doc section 9.7, prereg_m2_run3.json): run 2b's A2 was stopped by its own E3 at 100 (std 0.87 > 0.85) with no defensive
+# trend (clean head hits 10.5 -> 12.5 per min, blocked share flat at 0.54). rsl_rl 5.0.1's action std is a free (24,) parameter
+# moved only by entropy_coef x entropy and the surrogate. Adam moves it at most 20 lr f(c + rho) per iteration (f(x) = x / sqrt(x^2
+# + 0.0104^2), 0.0104 the minibatch noise: 0.0029 at c 0.01 and lr 2.1e-4, the rise seen in run 2b), and as the advantages are
+# normalised and the entropy bonus is not, it settles at sigma* = sqrt(c sigma_A / H): H 0.006-0.0077 on every log, sigma_A the
+# raw advantage std (sqrt value loss: 0.78 run 1 A, 1.1-1.5 under the alive bonus). R1-Spar-Block3-A / -Blind are R1-Spar-Block2-A
+# / -Blind (env cfg and widen2b warm start bit for bit) with PPO entropy_coef ENT3 (R1 cfg 0.01, mjlab's default 0.005), set per
+# task in register() and written to params/agent.yaml: from the warm start's 0.637, law alone std 0.62-0.69 at 100 and 0.60-0.76 at
+# 300 (with the warm start's push about 0.70-0.725 at 100; c 0.01: 0.82-0.91 at 100; run 1 A learned at 0.64-0.81), action_rate's noise floor -1.0 to -1.4 per live s (A2b at 0.87: -1.83).
+ENT3 = dict(entropy_coef=0.003)
+RL_OVERRIDES = {t: dict(entropy_coef=ENT3["entropy_coef"]) for t in ("R1-Spar-Block3-A", "R1-Spar-Block3-Blind")}   # register(): rl.algorithm.<k> = v
+# WATCH3: run 3's early stop (prereg_m2_run3.json early_stop): WATCH's checks and 20-iteration windows, with
+#  E1 the window MEDIAN of the per-iteration edge rates (run 1 A's window to 1000 holds one blown-up iteration: mean -216 per live
+#     s, median -1.14 as at 900 / 1100) below edge_min 1.0: +2.2 to +3.2 is predicted at std 0.65-0.75; at +1.0 a termination
+#     still costs 4 + 2 x 1.0 = 6, so only a slide gets there (A2b: +1.50 at std 0.87).
+#  E2 h_max 0.21 / 0.18 / 0.17 / 0.16 from 50 / 100 / 150 / 300: A2 0.171 / 0.153 / 0.162 / 0.182 and A2b 0.173 / 0.144 at 50 /
+#     100 / 150 / 200; A2's slide stops at 200.
+#  E3 std_max 0.76 / 0.77 / 0.80 / 0.85 / 0.90 from 50 / 100 / 150 / 300 / 500: the highest ENT3 path (H 0.006, sigma_A held at
+#     A2b's early 1.47) with the warm start's gradient push (+0.0097 on c over the first 20 iterations: it fits A2b's 0.708 /
+#     0.780 at 20 / 50; +0.05 at 50, fading): 0.71 / 0.73 / 0.74 / 0.78 / 0.81, plus the log's 2 dp; c 0.01 gives 0.74-0.79 at 50
+#     (A2b 0.78) and 0.82-0.91 at 100. Late on E1 / E2 price the noise directly (0.90 = WATCH's late bar).
+#  E4 progress, from 500: clean head hits per LIVE minute (-Episode_Reward/spar_head_clean x ep_s / (Mean episode length x dt) x 60
+#     / per_hit, window sums: time-weighted; Metrics/attack/head_clean_pm is a mean over ended episodes of hits / that episode's
+#     minutes, which rises with episode length alone) above max_ratio x its value on the window ending at ref_at, AND the window
+#     mean of Metrics/attack/blocked_share less than block_min_gain above its mean there: neither fewer head hits nor more blocks
+#     (a zero / missing reference or a missing metric counts as no progress). Run 1 A / B / Blind were at 0.35 / 0.21 / 0.42 of
+#     their rate at 500 (by backing away, blocked share falling), A2 0.93 at 200, A2b 1.08 at 100 as it learned to stay in the
+#     ring with its blocked share flat. per_hit: one clean head hit's reward, -WEIGHTS A2 spar_head_clean x dt = 0.8 (run 1 B's
+#     2x weights double its rate, not its ratio). block_min_gain 0.02: about 3.5 standard errors of a 20-window difference.
+WATCH3 = dict(WATCH, edge_stat="median", edge_min=1.0, h_max=((50, 0.21), (100, 0.18), (150, 0.17), (300, 0.16)),
+              std_max=((50, 0.76), (100, 0.77), (150, 0.80), (300, 0.85), (500, 0.90)),
+              progress=dict(metric="Episode_Reward/spar_head_clean", per_hit=round(-WEIGHTS["A2"]["spar_head_clean"] * WATCH["dt"], 6), ref_at=50, from_at=500,
+                            max_ratio=1.0, block_metric="Metrics/attack/blocked_share", block_min_gain=0.02))
 HOME_DIM = 2   # critic-only ring_home: the start xy minus the pelvis xy in the heading frame (critic 136 -> 138; the actor stays 111)
 # stand_still (Unitree, weight -1: sum of squared deviation from the default pose while |command| <= 0.1) on every joint taxes a
 # raised guard (the default pose is the guard; at A's last iteration it cost -0.112 against spar_block's +0.040); run 2 keeps it
@@ -1006,7 +1042,8 @@ def _base():
 
 TASKS = {"R1-Spar-Attack": lambda: _attack(_base()), "R1-Spar-Block-A": lambda: _block(_base(), "A"), "R1-Spar-Block-B": lambda: _block(_base(), "B"),
          "R1-Spar-Block-Blind": lambda: _block(_base(), "A", blind=True), "R1-Spar-Block-Blind-B": lambda: _block(_base(), "B", blind=True),
-         "R1-Spar-Block2-A": lambda: _block2(_base()), "R1-Spar-Block2-Blind": lambda: _block2(_base(), blind=True)}
+         "R1-Spar-Block2-A": lambda: _block2(_base()), "R1-Spar-Block2-Blind": lambda: _block2(_base(), blind=True),
+         "R1-Spar-Block3-A": lambda: _block2(_base()), "R1-Spar-Block3-Blind": lambda: _block2(_base(), blind=True)}   # run 3: run 2b's env, RL_OVERRIDES
 
 def register():
     from mjlab.tasks.registry import register_mjlab_task
@@ -1014,6 +1051,7 @@ def register():
     from src.tasks.velocity.config.r1.rl_cfg import unitree_r1_ppo_runner_cfg
     for tid, mk in TASKS.items():
         make = mk(); rl = unitree_r1_ppo_runner_cfg(); rl.experiment_name = "r1_spar"
+        for k, v in RL_OVERRIDES.get(tid, {}).items(): assert hasattr(rl.algorithm, k), k; setattr(rl.algorithm, k, v)   # run 3: entropy_coef
         register_mjlab_task(task_id=tid, env_cfg=make(), play_env_cfg=make(play=True), rl_cfg=rl, runner_cls=VelocityOnPolicyRunner)
 
 # =============================================================================================== widen (3.1)
@@ -1137,9 +1175,14 @@ def watch(log, at, cfg=WATCH, edge=True):
     at `at`, window means of:
       E1 edge rate = sum of Episode_Reward/<t> for every t except spar_ring and is_terminated, x ep_s / (Mean episode length x dt):
          the reward per live second where the ring bonus is 0 (the other terms taken as position-independent); stop if < edge_min.
-         edge=False skips it (a log with no spar_alive: A2's, run 1's).
+         edge=False skips it (a log with no spar_alive: A2's, run 1's). cfg edge_stat "median" (run 3, WATCH3): the window's
+         median of the per-iteration rates instead (one blown-up iteration cannot stop a run; a missing length is nan, a stop).
       E2 h = (Episode_Termination ring_out + fell_over + nan, envs ended per step) / (num_envs x dt), per live second; stop if > h_max.
       E3 std = 'Mean action std' of iteration `at`; stop if > std_max.
+      E4 (run 3, cfg progress; absent: none) from iteration from_at on: ratio = clean head hits per live minute (-sum of the
+         progress metric x ep_s / (sum of Mean episode length x dt) x 60 / per_hit over the window) over the same on the window
+         ending at ref_at, gain = the window mean of block_metric less its mean there; stop if NOT ratio <= max_ratio and NOT
+         gain >= block_min_gain (a zero / missing reference or a missing metric is nan: no progress on that part).
     h_max / std_max: the entry with the largest iteration <= at (the first entry below it). ready False (never a stop) while fewer
     than `at` complete blocks exist, or at < window."""
     import re
@@ -1147,20 +1190,37 @@ def watch(log, at, cfg=WATCH, edge=True):
     blocks = [b for b in re.split(r"Learning iteration\s+\d+/\d+", txt)[1:] if "Iteration time:" in b]
     lim = lambda tab: ([v for k, v in tab if k <= at] or [tab[0][1]])[-1]
     w, ne, dt = cfg["window"], cfg["num_envs"], cfg["dt"]; max_h, max_std = lim(cfg["h_max"]), lim(cfg["std_max"])
+    pr = cfg.get("progress"); pr = pr if pr and at >= pr["from_at"] else None   # run 3's E4
     out = dict(log=str(log), at=at, iterations=len(blocks), window=w, ready=len(blocks) >= at >= w, stop=False, reasons=[],
-               edge_min=cfg["edge_min"] if edge else None, max_h=max_h, max_std=max_std)
+               edge_min=cfg["edge_min"] if edge else None, max_h=max_h, max_std=max_std, **({"edge_stat": cfg["edge_stat"]} if "edge_stat" in cfg else {}),
+               **({"max_ratio": pr["max_ratio"], "block_min_gain": pr["block_min_gain"]} if pr else {}))
     if not out["ready"]: return out
-    kv = [dict((k.strip(), float(v)) for k, v in re.findall(r"^\s*([A-Za-z_][A-Za-z0-9_/ \-]*?):\s+(-?[0-9.]+(?:[eE][-+]?\d+)?)s?\s*$", b, re.M))
-          for b in blocks[at - w:at]]
+    parse = lambda bs: [dict((k.strip(), float(v)) for k, v in re.findall(r"^\s*([A-Za-z_][A-Za-z0-9_/ \-]*?):\s+(-?[0-9.]+(?:[eE][-+]?\d+)?)s?\s*$", b, re.M))
+                        for b in bs]
+    kv = parse(blocks[at - w:at])
     mean = lambda k: sum(d.get(k, 0.0) for d in kv) / w
     ro, fo, nan = (mean("Episode_Termination/" + t) for t in ("ring_out", "fell_over", "nan")); h = (ro + fo + nan) / (ne * dt)
     std = kv[-1].get("Mean action std", float("nan")); L = mean("Mean episode length")
     keys = sorted({k for d in kv for k in d if k.startswith("Episode_Reward/")} - {"Episode_Reward/spar_ring", "Episode_Reward/is_terminated"})
-    e = sum(mean(k) for k in keys) * cfg["ep_s"] / (L * dt) if L > 0 else float("nan")
+    if cfg.get("edge_stat") == "median":   # run 3: the median of the per-iteration edge rates
+        e = float(np.median([sum(d.get(k, 0.0) for k in keys) * cfg["ep_s"] / (d["Mean episode length"] * dt) if d.get("Mean episode length", 0.0) > 0 else float("nan") for d in kv]))
+    else: e = sum(mean(k) for k in keys) * cfg["ep_s"] / (L * dt) if L > 0 else float("nan")
     out.update(edge_rate=round(e, 3), alive_logged="Episode_Reward/spar_alive" in keys, mean_ep_len=round(L, 1), h_per_live_s=round(h, 4),
                ring_out_per_live_s=round(ro / (ne * dt), 4), fell_per_live_s=round(fo / (ne * dt), 4), std=std)
+    NAN = float("nan"); p0 = p1 = ratio = b0 = b1 = gain = NAN
+    if pr:   # run 3's E4: clean head hits per live minute (window sums: time-weighted) now / at ref_at, and the blocked share's gain (nan if missing)
+        m, bm, ref = pr["metric"], pr["block_metric"], parse(blocks[pr["ref_at"] - w:pr["ref_at"]])
+        def tw(ds):   # -sum(reward) x ep_s / (sum(L) x dt) = reward per live s; x 60 / per_hit = clean head hits per live min
+            sl = sum(d.get("Mean episode length", NAN) for d in ds); return -sum(d.get(m, NAN) for d in ds) * cfg["ep_s"] / (sl * dt) * 60 / pr["per_hit"] if sl > 0 else NAN
+        p0, p1, b0, b1 = tw(ref), tw(kv), sum(d.get(bm, NAN) for d in ref) / w, sum(d.get(bm, NAN) for d in kv) / w
+        ratio = p1 / p0 if p0 > 0 else NAN; gain = b1 - b0
+        out.update(progress_metric=m, progress_ref=round(p0, 4), progress_now=round(p1, 4), progress_ratio=round(ratio, 4),
+                   block_metric=bm, block_ref=round(b0, 4), block_now=round(b1, 4), block_gain=round(gain, 4))
     out["reasons"] = [r for r, bad in ((f"E1 edge rate {e:+.3f}/s < {cfg['edge_min']}", edge and not e >= cfg["edge_min"]),
-                                        (f"E2 hazard {h:.4f}/s > {max_h}", h > max_h), (f"E3 std {std} > {max_std}", not std <= max_std)) if bad]
+                                        (f"E2 hazard {h:.4f}/s > {max_h}", h > max_h), (f"E3 std {std} > {max_std}", not std <= max_std),
+                                        (f"E4 clean head hits {p1:.3f}/live min = {ratio:.3f} x its rate to {pr and pr['ref_at']} ({p0:.3f}) > {pr and pr['max_ratio']}"
+                                         f" and blocked share gain {gain:+.4f} ({b0:.4f} -> {b1:.4f}) < {pr and pr['block_min_gain']}",
+                                         bool(pr) and not ratio <= pr["max_ratio"] and not gain >= pr["block_min_gain"])) if bad]
     out["stop"] = bool(out["reasons"]); return out
 
 # =============================================================================================== CPU calibration (2.5)
@@ -1309,11 +1369,11 @@ if __name__ == "__main__":
     if cmd == "widen": widen(sys.argv[2], sys.argv[3]); sys.exit(0)
     if cmd == "widen2": widen(sys.argv[2], sys.argv[3], critic_extra=HOME_DIM); sys.exit(0)   # run 2: critic 98 -> 138
     if cmd == "widen2b": widen(sys.argv[2], sys.argv[3], critic_extra=HOME_DIM, v_shift=ALIVE["v_shift"]); sys.exit(0)   # run 2b: + spar_alive's value
-    if cmd == "watch":   # run 2b's early stop on a training log (pod): exit 3 = stop the run, 0 = keep going (or not ready yet)
+    if cmd == "watch":   # run 2b's / run 3's early stop on a training log (pod): exit 3 = stop the run, 0 = keep going (or not ready yet)
         import argparse
         ap = argparse.ArgumentParser(); ap.add_argument("cmd"); ap.add_argument("--log", required=True); ap.add_argument("--at", type=int, required=True)
-        ap.add_argument("--no-edge", action="store_true"); a = ap.parse_args()
-        r = watch(a.log, a.at, edge=not a.no_edge); print("WATCH", json.dumps(r)); sys.exit(3 if r["stop"] else 0)
+        ap.add_argument("--no-edge", action="store_true"); ap.add_argument("--rule", choices=("2b", "3"), default="2b"); a = ap.parse_args()
+        r = watch(a.log, a.at, WATCH3 if a.rule == "3" else WATCH, edge=not a.no_edge); r["rule"] = a.rule; print("WATCH", json.dumps(r)); sys.exit(3 if r["stop"] else 0)
     if cmd == "calcheck":
         r = calibration_check(sys.argv[2] if len(sys.argv) > 2 else CALIB_FILE); print("CALCHECK", json.dumps(r)); sys.exit(0 if r["pass"] else 1)
     if cmd in ("calibrate", "m1check", "gate"):

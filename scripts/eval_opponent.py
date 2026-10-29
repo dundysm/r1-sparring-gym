@@ -9,6 +9,9 @@ Tiers (--tier):
             saturated the standard tier (guard 1.000, arms-down 0.994 on test).
   hard_r2   the hard tier on fresh episodes for sparring M2 run 2: seeds 21000+ on val, 22000+ on test (per split); its test
             split is refused until scripts/m2_verdict.py --run 2 select wrote go = true (results/sparring/m2_run2_selection.json).
+            --run 3 (sparring M2 run 3, prereg_m2_run3.json): the same tier and seeds, the guard reads m2_run3_selection.json;
+            a hard_r2 test runs once across runs (refused if a raw_test_hard_r2 file exists anywhere under results/eval_opponent
+            outside --out).
 Each episode samples the clip start time, the obs delay (0-2 steps) and the hits. The start time is drawn uniformly from
 the clean ones: those where no part of the opponent begins inside the R1 in either reference pose (REF_POSES), which
 skips 7-85% of starts in the stored (shell-contact) runs, by clip and distance (meta.start_times_skipped). Every controller sees exactly the same
@@ -59,17 +62,23 @@ TIERS = {"standard": dict(distances=[0.5, 0.55, 0.6, 0.65, 0.7], seconds=10.0, h
 TIERS["hard_r2"] = dict(TIERS["hard"], seed=21_000, seed_by_split=dict(val=21_000, test=22_000))
 R2_SELECTION = Path(__file__).resolve().parents[1] / "results" / "sparring" / "m2_run2_selection.json"
 R2_PREREG = Path(__file__).resolve().parents[1] / "results" / "sparring" / "prereg_m2_run2.json"
+# run 3 (prereg_m2_run3.json) takes over hard_r2's unused episodes (run 2 ended in training, no eval ran): --run 3 points the test
+# guard at its selection and prereg; the test split of hard_r2 runs once across runs (r2_test_spent)
+R_FILES = {2: (R2_SELECTION, R2_PREREG), 3: (R2_SELECTION.with_name("m2_run3_selection.json"), R2_PREREG.with_name("prereg_m2_run3.json"))}
+def r2_test_spent(out, root=Path(__file__).resolve().parents[1] / "results" / "eval_opponent"):
+    """hard_r2 test raw files anywhere under root (searched recursively) outside `out` itself (a test split spent by another --out)."""
+    return sorted(str(p) for p in Path(root).rglob("raw_test_hard_r2*.json") if p.parent.resolve() != Path(out).resolve())
 def text_sha16(path):
     """sha256[:16] of a text file, LF-normalised (the same on every checkout); scripts/m2_verdict.py writes the same hash."""
     return hashlib.sha256(Path(path).read_bytes().replace(b"\r\n", b"\n")).hexdigest()[:16]
-def r2_test_allowed(selection=None, prereg=None):
-    """(ok, why): run 2's test split may run only once m2_verdict.py --run 2 select wrote go = true against the current
-    prereg_m2_run2.json (its LF-normalised hash). Defaults: R2_SELECTION, R2_PREREG."""
+def r2_test_allowed(selection=None, prereg=None, run=2):
+    """(ok, why): run `run`'s test split may run only once m2_verdict.py --run <run> select wrote go = true against the current
+    prereg (its LF-normalised hash). Defaults: R2_SELECTION, R2_PREREG, run 2 (the run number only names it in the messages)."""
     selection, prereg = Path(selection or R2_SELECTION), Path(prereg or R2_PREREG)
-    if not Path(selection).exists(): return False, f"{selection} missing: run scripts/m2_verdict.py --run 2 select on val first"
+    if not Path(selection).exists(): return False, f"{selection} missing: run scripts/m2_verdict.py --run {run} select on val first"
     try: S = json.loads(Path(selection).read_bytes())
     except ValueError as e: return False, f"{selection} unreadable: {e}"
-    if S.get("go") is not True: return False, f"{selection}: go is {S.get('go')!r} (run 2 stopped at the val screen: no test run)"
+    if S.get("go") is not True: return False, f"{selection}: go is {S.get('go')!r} (run {run} stopped at the val screen: no test run)"
     if not Path(prereg).exists(): return False, f"{prereg} missing"
     if S.get("prereg_sha256_16") != text_sha16(prereg): return False, f"{selection} was made against prereg hash {S.get('prereg_sha256_16')}, {prereg} is now {text_sha16(prereg)}"
     return True, "go"
@@ -310,12 +319,14 @@ def main():
     ap.add_argument("--threads", type=int, default=8, help="threads stepping the bouts (results don't depend on it)")
     ap.add_argument("--rev_hits", type=int, default=0, help="1: also score the R1's strikes on the opponent (HitMeter reverse=True, read-only)")
     ap.add_argument("--from_raw", action="store_true", help="recompute summary_*.json from the stored raw_*.json (no simulation)")
+    ap.add_argument("--run", type=int, choices=sorted(R_FILES), default=2, help="hard_r2 test guard: 2 prereg_m2_run2.json, 3 prereg_m2_run3.json")
     ap.add_argument("--keypoints", choices=["truth", "camera"], default=None, help="opponent keypoints for widened (sparring M2) controllers: truth "
                     "(exact state, mask = in the head camera's view) or camera (M3, not implemented); default off: no controller may need them")
     a = ap.parse_args()
-    if a.tier == "hard_r2" and a.split == "test":   # run 2's test: only after its val screen said go (prereg_m2_run2.json)
-        ok, why = r2_test_allowed()
+    if a.tier == "hard_r2" and a.split == "test":   # run 2's / 3's test: only after its val screen said go (its prereg), once across runs
+        ok, why = r2_test_allowed(*R_FILES[a.run], run=a.run)
         if not ok: sys.exit(f"--tier hard_r2 --split test refused: {why}")
+        if r2_test_spent(a.out): sys.exit(f"--tier hard_r2 --split test refused: already run into {r2_test_spent(a.out)}")
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True); tier = TIERS[a.tier]; T = a.seconds or tier["seconds"]
     cfg = load_cfg(); models = {}; tag = ("" if a.tier == "standard" else f"_{a.tier}") + ("" if a.opponent == "tracked" else "_puppet") + ("_nohits" if a.no_pushes else "")
     if a.from_raw:
@@ -326,8 +337,8 @@ def main():
     aimj = json.load(open(AIM_JSON)) if AIM_JSON.exists() else {}; lag = float(aimj.get("lag_s", 0.0)) if a.opponent == "tracked" else 0.0; aim = aimj["operator"] if a.aim == "chosen" else a.aim
     if aim and a.opponent != "tracked": sys.exit("--aim needs the tracked opponent")
     cfg["opponent_aim"] = aim or ("shadow" if a.hits and a.opponent == "tracked" else "none"); base_tag = tag; tag += "_aim" if aim else ""
-    if a.tier == "hard_r2" and a.split == "test" and (out / f"raw_test{tag}.json").exists():   # run once (prereg_m2_run2.json)
-        sys.exit(f"--tier hard_r2 --split test refused: {out / f'raw_test{tag}.json'} exists (run 2's test runs once; --from_raw re-summarises)")
+    if a.tier == "hard_r2" and a.split == "test" and (out / f"raw_test{tag}.json").exists():   # run once (prereg_m2_run{a.run}.json)
+        sys.exit(f"--tier hard_r2 --split test refused: {out / f'raw_test{tag}.json'} exists (run {a.run}'s test runs once; --from_raw re-summarises)")
     clips = TEST_CLIPS if a.split == "test" else VAL_CLIPS
     ctrls = [PDStand()]
     for lp in a.policy:

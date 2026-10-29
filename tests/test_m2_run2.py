@@ -61,6 +61,36 @@ def test_test_guard(eo, tmp_path, monkeypatch):
     with pytest.raises(SystemExit, match="refused"): eo.main()
     assert not (tmp_path / "o").exists()   # refused before anything ran
 
+def test_test_guard_run3(eo, tmp_path, monkeypatch):
+    """--run 3 points the hard_r2 test guard at run 3's selection and prereg; a hard_r2 test already in another --out refuses."""
+    assert eo.R_FILES[2] == (eo.R2_SELECTION, eo.R2_PREREG) and [p.name for p in eo.R_FILES[3]] == ["m2_run3_selection.json", "prereg_m2_run3.json"]
+    root = tmp_path / "eo"; (root / "m2r3").mkdir(parents=True); assert eo.r2_test_spent(root / "m2r3", root) == []
+    (root / "m2r3" / "raw_test_hard_r2_nohits.json").write_text("{}"); assert eo.r2_test_spent(root / "m2r3", root) == []   # the aimed half of the same test
+    assert eo.r2_test_spent(root / "other", root) == [str(root / "m2r3" / "raw_test_hard_r2_nohits.json")]
+    deep = root / "old" / "m2r2x" / "raw_test_hard_r2_nohits_aim.json"; deep.parent.mkdir(parents=True); deep.write_text("{}")   # any depth under results/eval_opponent
+    assert eo.r2_test_spent(root / "m2r3", root) == [str(deep)] and eo.r2_test_spent(deep.parent, root) == [str(root / "m2r3" / "raw_test_hard_r2_nohits.json")]
+    pre, sel = tmp_path / "p3.json", tmp_path / "s3.json"; pre.write_text("{}")
+    ok, why = eo.r2_test_allowed(sel, pre, run=3); assert not ok and "m2_verdict.py --run 3 select" in why and "run 2" not in why   # messages name the run
+    sel.write_text(json.dumps(dict(go=False))); ok, why = eo.r2_test_allowed(sel, pre, run=3); assert not ok and "(run 3 stopped at the val screen" in why
+    assert "--run 2 select" in eo.r2_test_allowed(tmp_path / "none.json", pre)[1]   # default: run 2's wording unchanged
+    sel.write_text(json.dumps(dict(go=True, prereg_sha256_16=eo.text_sha16(pre))))
+    monkeypatch.setitem(eo.R_FILES, 3, (sel, pre)); monkeypatch.setattr(eo, "r2_test_spent", lambda out: ["x/raw_test_hard_r2_nohits.json"])
+    monkeypatch.setattr(sys, "argv", ["eval_opponent.py", "--tier", "hard_r2", "--split", "test", "--run", "3", "--out", str(tmp_path / "o")])
+    with pytest.raises(SystemExit, match="already run into"): eo.main()
+    monkeypatch.setattr(sys, "argv", ["eval_opponent.py", "--tier", "hard_r2", "--split", "test", "--out", str(tmp_path / "o")])   # default --run 2: no run-2 selection
+    with pytest.raises(SystemExit, match="refused"): eo.main()
+    assert not (tmp_path / "o").exists()
+
+def test_run3_roles_take_only_run3_names():
+    """m2_verdict --run 3: run 2's protocol and tier, its own prereg / outputs, and A3 / A3s / blind3 (never A2's names) in the roles."""
+    try:
+        mv.use_run(3); assert mv.PREREG.name == "prereg_m2_run3.json" and mv.SELECTION.name == "m2_run3_selection.json" and mv.RUN["tier"] == "hard_r2"
+        assert mv.RUN["seed"] == mv.RUNS[2]["seed"] and mv.find(["RL guard_fw_r", "RL A3", "RL blind3", "pd_stand"], "A2") == "RL A3"
+        assert mv.present(["RL A3s"], "A2s") and not mv.present(["RL A2s"], "A2s") and mv.find(["RL blind3"], "blind2") == "RL blind3"
+        with pytest.raises(SystemExit): mv.find(["RL A2", "RL blind2"], "A2")
+    finally: mv.use_run(1)
+    assert mv.find(["RL A2"], "A2") == "RL A2"   # run 2's names unchanged
+
 # ---- 9. m2_verdict --run 2
 @pytest.fixture
 def run2(tmp_path):

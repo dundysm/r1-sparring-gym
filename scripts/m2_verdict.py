@@ -27,10 +27,14 @@ aimed: a candidate qualifies with survival >= 0.95, survival_in_ring at most 0.0
 <= 0.80; of the qualifiers the lower head clean/min, a difference under 0.1/min picks A2; none: go = false, no test is run.
 -> results/sparring/m2_run2_selection.json (go, the prereg's LF-normalised hash). verdict refuses a selection with go false
 or made against another prereg; the rule is run 1's. -> results/sparring/m2_run2_verdict.json. Run 1 stays the default.
+--run 3 (results/sparring/prereg_m2_run3.json, section 9.7): run 2's protocol, tier hard_r2 and its unused seeds; A3 / A3s / blind3
+(R1-Spar-Block3-*) play the roles A2 / A2s / blind2, matched by their own names only (a3, a3s, blind3: no run-2 policy stands in).
+-> results/sparring/m2_run3_{selection,verdict}.json.
 
 python scripts/m2_verdict.py select  --out results/eval_opponent/m2
 python scripts/m2_verdict.py verdict --out results/eval_opponent/m2
-python scripts/m2_verdict.py --run 2 select  --out results/eval_opponent/m2r2"""
+python scripts/m2_verdict.py --run 2 select  --out results/eval_opponent/m2r2
+python scripts/m2_verdict.py --run 3 select  --out results/eval_opponent/m2r3"""
 import sys, json, math, hashlib, argparse, subprocess
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]; sys.path.insert(0, str(ROOT)); sys.path.insert(0, str(ROOT / "scripts"))
@@ -45,7 +49,12 @@ HARD = dict(distances=[0.4, 0.45, 0.5, 0.55], seconds=20.0, dr=True, seed=20_000
 # per run: prereg, eval tier, episode seeds per split (None: run 1, the tier_cfg seed), outputs, candidates (run 2: A2s optional)
 RUNS = {1: dict(prereg="prereg_m2.json", tier="hard", seed=None, selection="m2_selection.json", verdict="m2_verdict.json", cands=("A", "B"), optional=()),
         2: dict(prereg="prereg_m2_run2.json", tier="hard_r2", seed=dict(val=21_000, test=22_000), selection="m2_run2_selection.json", verdict="m2_run2_verdict.json",
-                cands=("A2", "A2s"), optional=("A2s",))}
+                cands=("A2", "A2s"), optional=("A2s",)),
+        # run 3 (prereg_m2_run3.json): run 2's protocol, tier and unused hard_r2 seeds; A3 / A3s / blind3 fill the roles A2 / A2s / blind2
+        # and only their own names match (aliases), so no run-2 controller can stand in
+        3: dict(prereg="prereg_m2_run3.json", tier="hard_r2", seed=dict(val=21_000, test=22_000), selection="m2_run3_selection.json", verdict="m2_run3_verdict.json",
+                cands=("A2", "A2s"), optional=("A2s",), aliases=dict(A2=("a3", "spar_a3", "block3_a"), A2s=("a3s", "spar_a3s", "block3_a_s", "block3_as"),
+                                                                      blind2=("blind3", "spar_blind3", "block3_blind")))}
 SCREEN_HEAD = 0.80   # run 2 screen: aimed val head clean R_warm (point) <= 0.80, besides survival and ring
 RUN_N, RUN = 1, RUNS[1]
 def use_run(n):
@@ -78,15 +87,17 @@ def norm(label):
     while s[:3].lower() == "rl ": s = s[3:].lstrip()
     return s.lower().replace("-", "_").replace(" ", "_")
 
+def aliases(role): return RUN.get("aliases", {}).get(role, ALIASES[role])   # run 3: its own names for run 2's roles
+
 def present(names, role, labels=None):
     """Whether a controller playing role is among names (an optional run-2 candidate may be absent)."""
     if labels and role in labels: return labels[role] in names or any(norm(n) == norm(labels[role]) for n in names)
-    return any(norm(n) in set(ALIASES[role]) for n in names)
+    return any(norm(n) in set(aliases(role)) for n in names)
 
 def find(names, role, labels=None):
     """The one controller in names playing role (ALIASES, or labels[role] alone: that exact name if present); exits on none or several."""
     if labels and role in labels and labels[role] in names: return labels[role]
-    want = {norm(labels[role])} if labels and role in labels else set(ALIASES[role]); hit = [n for n in names if norm(n) in want]
+    want = {norm(labels[role])} if labels and role in labels else set(aliases(role)); hit = [n for n in names if norm(n) in want]
     if len(hit) != 1: sys.exit(f"{role}: {len(hit)} controllers labelled {sorted(want)} among {sorted(names)} (--label {role}=NAME)")
     return hit[0]
 
@@ -187,7 +198,7 @@ def write(res, dest):
 def select(out, dest=None, labels=None, made_by=None):
     """The preregistered val selection between A and B (module docstring; run 2: the val screen, select2); reads the val raw files only."""
     dest = dest or SELECTION
-    if RUN_N == 2: return select2(out, dest, labels, made_by)
+    if RUN_N >= 2: return select2(out, dest, labels, made_by)
     files = {}; U, A = load(out, "val", False, files), load(out, "val", True, files)
     who = {r: find(list(A["raw"]), r, labels) for r in ("ref", "A", "B")}; bad = protocol(U, A, "val", who)
     if bad: sys.exit("not the preregistered val runs:\n  " + "\n  ".join(bad))
@@ -216,7 +227,7 @@ def select2(out, dest, labels=None, made_by=None):
                        qualifies=bool(s >= SURV_MIN - TOL and ring_ref - ring <= RING_DROP_MAX + TOL and Rw <= SCREEN_HEAD + TOL))
     pool = [r for r in roles if cand[r]["qualifies"]]; d = cand["A2"]["head_clean_pm"] - cand["A2s"]["head_clean_pm"] if "A2s" in cand else None
     pick = ("A2s" if d >= TIE_PM - TOL else "A2") if len(pool) == 2 else (pool[0] if pool else None)   # A2s only when lower by 0.1/min or more
-    return write(dict(meta=meta("select", files, made_by), run=2, rule=read(PREREG)[0]["selection"]["rule"], prereg_sha256_16=text_sha16(PREREG),
+    return write(dict(meta=meta("select", files, made_by), run=RUN_N, rule=read(PREREG)[0]["selection"]["rule"], prereg_sha256_16=text_sha16(PREREG),
                       reference=dict(label=who["ref"], survival_in_ring=ring_ref, head_clean_pm=href), candidates=cand, absent=[r for r in RUN["cands"] if r not in roles],
                       pool=pool, head_clean_pm_A2_minus_A2s=d, tie_break_to_A2=len(pool) == 2 and abs(d) < TIE_PM - TOL,
                       selected=pick, selected_label=who[pick] if pick else None, twin=TWIN[pick] if pick else None, twin_seed_matched=pick == "A2" if pick else None,
@@ -226,8 +237,8 @@ def verdict(out, selection=None, dest=None, labels=None, made_by=None):
     """The preregistered test verdict (module docstring) for the selected candidate."""
     selection, dest = Path(selection or SELECTION), dest or VERDICT
     files = {}; S, files[rel(selection)] = read(selection); pick = S["selected"]
-    if RUN_N == 2:   # run 2: only after the val screen said go, against this prereg
-        if S.get("go") is not True: sys.exit(f"{selection}: go is {S.get('go')!r}: run 2 stopped at the val screen, no test verdict")
+    if RUN_N >= 2:   # run 2 / 3: only after the val screen said go, against this prereg
+        if S.get("go") is not True: sys.exit(f"{selection}: go is {S.get('go')!r}: run {RUN_N} stopped at the val screen, no test verdict")
         if S.get("prereg_sha256_16") != text_sha16(PREREG): sys.exit(f"{selection} was made against prereg hash {S.get('prereg_sha256_16')}, {rel(PREREG)} is now {text_sha16(PREREG)}")
     if pick not in RUN["cands"]: sys.exit(f"{selection}: selected {pick!r}, not one of {list(RUN['cands'])}")
     U, A = load(out, "test", False, files), load(out, "test", True, files)
@@ -246,18 +257,18 @@ def verdict(out, selection=None, dest=None, labels=None, made_by=None):
                       ratios=dict(R_warm_head=Rw, R_blind_head=Rb, R_warm_torso=Rt), rule=parts, passed=all(p["ok"] for p in parts.values()),
                       reported_regardless=dict(aimed_rows={n: report(r) for n, r in A["raw"].items()}, unaimed_rows={n: report(r) for n, r in U["raw"].items()},
                                                scorecard=dict(aimed=scorecard_rows(out, f"raw_test_{RUN['tier']}_nohits_aim.json", A, files), unaimed=scorecard_rows(out, f"raw_test_{RUN['tier']}_nohits.json", U, files))),
-                      **({"run": 2, "twin_seed_matched": pick == "A2"} if RUN_N == 2 else {})), dest)
+                      **({"run": RUN_N, "twin_seed_matched": pick == "A2"} if RUN_N >= 2 else {})), dest)
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0]); ap.add_argument("mode", choices=["select", "verdict"])
     ap.add_argument("--out", required=True, help="scripts/eval_opponent.py --out holding the raw files"); ap.add_argument("--dest", default=None, help="output JSON (default results/sparring/m2_{selection,verdict}.json)")
-    ap.add_argument("--run", type=int, choices=sorted(RUNS), default=1, help="1: prereg_m2.json (default); 2: prereg_m2_run2.json (tier hard_r2)")
+    ap.add_argument("--run", type=int, choices=sorted(RUNS), default=1, help="1: prereg_m2.json (default); 2: prereg_m2_run2.json (tier hard_r2); 3: prereg_m2_run3.json (hard_r2)")
     ap.add_argument("--selection", default=None, help="verdict: the selection file (default: the run's)"); ap.add_argument("--label", nargs="*", default=[], help="ROLE=NAME (ref, A, B, blind, blind_b, A2, A2s, blind2)")
     a = ap.parse_args(); use_run(a.run); labels = dict(x.split("=", 1) for x in a.label); bad = set(labels) - set(ALIASES)
     if bad: sys.exit(f"--label roles {sorted(bad)}: not in {list(ALIASES)}")
     mb = "python scripts/m2_verdict.py " + " ".join(sys.argv[1:])
     r = select(a.out, a.dest or SELECTION, labels, mb) if a.mode == "select" else verdict(a.out, Path(a.selection or SELECTION), a.dest or VERDICT, labels, mb)
-    if a.mode == "select" and a.run == 2: print(f"run 2 screen: go {r['go']}; selected {r['selected']} ({r['selected_label']}); pool {r['pool']}" + ("" if r["go"] else "; no test run"))
+    if a.mode == "select" and a.run >= 2: print(f"run {a.run} screen: go {r['go']}; selected {r['selected']} ({r['selected_label']}); pool {r['pool']}" + ("" if r["go"] else "; no test run"))
     elif a.mode == "select": print(f"selected {r['selected']} ({r['selected_label']}); pool {r['pool']}; head/min A - B {r['head_clean_pm_A_minus_B']:.3f}" + ("; train Blind-B before the test" if r["train_blind_b"] else ""))
     else: print(json.dumps(jsonable(dict(passed=r["passed"], rule=r["rule"])), indent=1))
 

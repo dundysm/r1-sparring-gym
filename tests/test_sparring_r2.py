@@ -261,7 +261,7 @@ def test_block2_configs(fake_mjlab):
         assert {k: c.rewards[k].weight for k in T.WEIGHTS["A"]} == T.WEIGHTS[w] and c.rewards["stand_still"].params["asset_cfg"].joint_names == ".*"
         assert list(c.metrics) == ["spar_hits"] and len(c.observations["critic"].terms) == 14 and "spar_alive" not in c.rewards
     ck = T._attack(make, outer=1.0, check=True, sched=T.SCHED_R2)(); assert ck.commands["attack"].sched == T.SCHED_R2 and "push_robot" not in ck.events
-    assert {"R1-Spar-Block2-A", "R1-Spar-Block2-Blind", "R1-Spar-Block-A", "R1-Spar-Block-B", "R1-Spar-Block-Blind", "R1-Spar-Block-Blind-B", "R1-Spar-Attack"} == set(T.TASKS)
+    assert {"R1-Spar-Block3-A", "R1-Spar-Block3-Blind", "R1-Spar-Block2-A", "R1-Spar-Block2-Blind", "R1-Spar-Block-A", "R1-Spar-Block-B", "R1-Spar-Block-Blind", "R1-Spar-Block-Blind-B", "R1-Spar-Attack"} == set(T.TASKS)
 
 def test_stand_still_joints():
     from r1gym.model import CTRL_JOINTS
@@ -329,9 +329,11 @@ def test_widen2b(tmp_path):
         return h @ sd["mlp.6.weight"].T + sd["mlp.6.bias"]
     assert torch.allclose(V(cb["critic_state_dict"]) - V(ca["critic_state_dict"]), torch.full((64, 1), 8.0), atol=1e-4)
 
-def _watch_log(path, n, std=lambda i: 0.70, ro=lambda i: 3.0, fo=lambda i: 1.0, act=lambda i: -0.75, L=lambda i: 500.0, alive=True, ansi=False):
+def _watch_log(path, n, std=lambda i: 0.70, ro=lambda i: 3.0, fo=lambda i: 1.0, act=lambda i: -0.75, L=lambda i: 500.0, alive=True, ansi=False, hc=None, bs=None):
     """A fake rsl_rl log: n complete iterations (plus one incomplete block, ignored). Defaults: 10 s episodes, alive 4/s, action_rate
-    -1.5/s, ring 2/s, is_terminated -1/s: edge rate (2.0 - 0.75) x 20 / (500 x 0.02) = +2.5/s; h = 4 / 61.44 = 0.0651/s."""
+    -1.5/s, ring 2/s, is_terminated -1/s: edge rate (2.0 - 0.75) x 20 / (500 x 0.02) = +2.5/s; h = 4 / 61.44 = 0.0651/s. hc (run 3):
+    clean head hits per live minute, written as Episode_Reward/spar_head_clean = -hc x 0.8 / 60 x L x 0.02 / 20 (WATCH3's E4 reads
+    it back exactly: per_hit 0.8 = 40 x 0.02); bs: Metrics/attack/blocked_share (both absent by default)."""
     b = "\x1b[1m" if ansi else ""
     lines = []
     for i in range(n):
@@ -339,7 +341,8 @@ def _watch_log(path, n, std=lambda i: 0.70, ro=lambda i: 3.0, fo=lambda i: 1.0, 
                   f"Episode_Reward/action_rate_l2: {act(i):.4f}", "Episode_Reward/spar_ring: 1.0000", "Episode_Reward/is_terminated: -0.5000",
                   *(["Episode_Reward/spar_alive: 2.0000"] if alive else []), "Episode_Termination/time_out: 0.1000",
                   f"Episode_Termination/fell_over: {fo(i):.4f}", "Episode_Termination/nan: 0.0000", f"Episode_Termination/ring_out: {ro(i):.4f}",
-                  "Iteration time: 2.05s"]
+                  *([f"Episode_Reward/spar_head_clean: {-hc(i) * 0.8 / 60 * L(i) * 0.02 / 20:.6f}"] if hc else []),
+                  *([f"Metrics/attack/blocked_share: {bs(i):.4f}"] if bs else []), "Iteration time: 2.05s"]
     lines += [f"Learning iteration {7496 + n}/8996", "Mean action std: 0.99", "Episode_Termination/ring_out: 99.0"]
     path.write_text("\n".join(lines))
 
@@ -379,3 +382,105 @@ def test_watch_cli_exit_codes(tmp_path):
     ok = run("--at", "150"); assert ok.returncode == 0 and ok.stdout.startswith("WATCH ") and json.loads(ok.stdout[6:])["stop"] is False
     _watch_log(log, 160, ro=lambda i: 10.0); bad = run("--at", "150"); assert bad.returncode == 3 and json.loads(bad.stdout[6:])["reasons"][0].startswith("E2")
     _watch_log(log, 160, alive=False); assert run("--at", "100").returncode == 3 and run("--at", "100", "--no-edge").returncode == 0
+
+# ---- run 3 (doc section 9.7): R1-Spar-Block3-* = run 2b's env with entropy_coef ENT3, the early stop WATCH3
+def test_block3_tasks_and_overrides(monkeypatch):
+    """The run-3 task ids build exactly the run-2b env (_block2, same blind flag) and differ only in PPO's entropy_coef, set per
+    task in register(); every other task keeps the R1 cfg (0.01) and every other PPO setting."""
+    monkeypatch.setattr(T, "_base", lambda: "base"); monkeypatch.setattr(T, "_block2", lambda make, blind=False: ("block2", make, blind))
+    for s in ("A", "Blind"): assert T.TASKS[f"R1-Spar-Block3-{s}"]() == T.TASKS[f"R1-Spar-Block2-{s}"]() == ("block2", "base", s == "Blind")
+    assert T.ENT3 == dict(entropy_coef=0.003) and T.RL_OVERRIDES == {t: {"entropy_coef": 0.003} for t in ("R1-Spar-Block3-A", "R1-Spar-Block3-Blind")}
+    got = {}
+    def cfg(): return types.SimpleNamespace(experiment_name=None, algorithm=types.SimpleNamespace(entropy_coef=0.01, learning_rate=1e-3, desired_kl=0.01))
+    mods = {"mjlab": {}, "mjlab.tasks": {}, "mjlab.tasks.registry": dict(register_mjlab_task=lambda **k: got.__setitem__(k["task_id"], k)),
+            "src": {}, "src.tasks": {}, "src.tasks.velocity": {}, "src.tasks.velocity.rl": dict(VelocityOnPolicyRunner=object), "src.tasks.velocity.config": {},
+            "src.tasks.velocity.config.r1": {}, "src.tasks.velocity.config.r1.rl_cfg": dict(unitree_r1_ppo_runner_cfg=cfg)}
+    for k, a in mods.items(): m = types.ModuleType(k); m.__dict__.update(a); monkeypatch.setitem(sys.modules, k, m)
+    monkeypatch.setattr(T, "TASKS", {t: (lambda: (lambda play=False: None)) for t in T.TASKS}); T.register()
+    assert set(got) == set(T.TASKS) and all(k["rl_cfg"].experiment_name == "r1_spar" for k in got.values())
+    for t, k in got.items():
+        a = k["rl_cfg"].algorithm; assert (a.entropy_coef, a.learning_rate, a.desired_kl) == (0.003 if t.startswith("R1-Spar-Block3-") else 0.01, 1e-3, 0.01), t
+
+def test_ent3_std_law():
+    """The drift law behind ENT3 (doc section 9.7): per iteration 20 lr f(c - H s^2 / sigma_A), f(x) = x / sqrt(x^2 + 2 / 18432),
+    lr 2.1e-4, from the warm start's 0.6366, H 0.006-0.0077; the warm start's transient is a gradient push k = +0.0097 on c over the
+    first 20 iterations (learn review: with H 0.0077 and sigma_A 1.47 it gives A2b's 0.708 / 0.780 at 20 / 50). At c 0.01 it gives run
+    2b's rise (0.874 at 100 observed) and every path, pushed or not, is above E3's 0.77 at 100; at ENT3 every path, pushed, stays
+    0.01 (the log's 2 dp and slack) under WATCH3's E3 limits and above 0.58 for sigma_A 0.88-1.47 (A2's to A2b's early); at c 0 the
+    std decays out of every observed regime (rejected)."""
+    f = lambda x: x / math.sqrt(x * x + 2 / 18432)
+    def run(c, sa, h, n, k=0.0, s=0.6366):
+        out = [s]
+        for i in range(n): s += 20 * 2.1e-4 * f(c + (k if i < 20 else 0.0) - h * s * s / sa); out.append(s)
+        return out
+    a2b = run(0.01, 1.47, 0.0077, 50, k=0.0097); assert abs(a2b[20] - 0.708) < 0.003 and abs(a2b[50] - 0.780) < 0.003
+    assert all(0.82 < run(0.01, sa, h, 100)[-1] < 0.89 and run(0.01, sa, h, 50)[-1] > 0.73 for sa in (0.88, 1.12, 1.47) for h in (0.006, 0.0077))
+    assert all(run(0.01, sa, h, 100, k)[-1] > 0.77 + 0.05 for sa in (0.88, 1.12, 1.47) for h in (0.006, 0.0077) for k in (0.0, 0.0097))
+    lim = dict(T.WATCH3["std_max"]); assert lim[50] == 0.76
+    for sa in (0.88, 1.12, 1.47):
+        for h in (0.006, 0.0077):
+            tr = run(T.ENT3["entropy_coef"], sa, h, 1400, k=0.0097)
+            assert all(tr[at] + 0.01 < [v for k, v in sorted(lim.items()) if k <= at][-1] for at in T.WATCH3["checks"][:-1]) and min(tr) > 0.58, (sa, h)
+            assert 0.67 < tr[50] < 0.72 and all(abs(tr[at] - run(T.ENT3["entropy_coef"], sa, h, at)[-1]) < 0.06 for at in (50, 100, 500)), (sa, h)   # push: <= 0.06, fading
+    assert run(0.0, 1.12, 0.006, 300)[-1] < 0.46
+
+def test_watch3_rules(tmp_path):
+    """Run 3's early stop: WATCH's checks and window; E1 as a window median at +1.0; E2 0.21 / 0.18 / 0.17 / 0.16; E3 0.76 / 0.77 /
+    0.80 / 0.85 / 0.90; E4 from 500 against the window ending at 50: clean head hits per live minute (time-weighted, from
+    Episode_Reward/spar_head_clean) not down AND blocked share not up 0.02. A healthy ENT3 run (the pushed law's highest std path, the
+    hazard falling as A2b's did, episodes lengthening, head hits falling) is never stopped; run 2b's own rule (WATCH) is unchanged."""
+    log = tmp_path / "x.log"; W3 = T.WATCH3
+    assert {k: v for k, v in W3.items() if k not in ("edge_stat", "edge_min", "h_max", "std_max", "progress")} == {k: v for k, v in T.WATCH.items() if k not in ("edge_min", "h_max", "std_max")}
+    assert "edge_stat" not in T.WATCH and "progress" not in T.WATCH
+    assert W3["progress"] == dict(metric="Episode_Reward/spar_head_clean", per_hit=0.8, ref_at=50, from_at=500, max_ratio=1.0, block_metric="Metrics/attack/blocked_share", block_min_gain=0.02)
+    assert W3["progress"]["per_hit"] == -T.WEIGHTS["A2"]["spar_head_clean"] * W3["dt"]   # one clean head hit's reward on the run-3 tasks (_block2: WEIGHTS A2)
+    _watch_log(log, 1500, hc=lambda i: 10.0, bs=lambda i: 0.54)
+    lims = lambda at: (lambda r: (r["edge_min"], r["max_h"], r["max_std"], r.get("max_ratio"), r.get("block_min_gain")))(T.watch(str(log), at, W3))
+    assert lims(50) == (1.0, 0.21, 0.76, None, None) and lims(100) == (1.0, 0.18, 0.77, None, None) and lims(150) == lims(200) == (1.0, 0.17, 0.80, None, None)
+    assert lims(300) == lims(400) == (1.0, 0.16, 0.85, None, None) and lims(500) == lims(1500) == (1.0, 0.16, 0.90, 1.0, 0.02)
+    r = T.watch(str(log), 500, W3); assert r["edge_stat"] == "median" and r["progress_ratio"] == 1.0 and r["progress_now"] == pytest.approx(10.0, abs=1e-3) and not r["stop"]   # equal to the 31-50 level: not above
+    hi = [0.6366, 0.71, 0.73, 0.745, 0.755, 0.785, 0.815, 0.85]   # the pushed law's highest path (H 0.006, sigma_A 1.47, k 0.0097) + 2 dp: 0, 50, 100, 150, 200, 300, 500, 1000
+    std = lambda i: float(np.interp(i, [0, 50, 100, 150, 200, 300, 500, 1000, 1500], hi + [0.86]))
+    Lr = lambda i: 270.0 + 70.0 * min(i, 300) / 300   # ring-keeping: episodes 270 -> 340 steps (A2b 269 -> 333 by 100); the time-weighted rate does not move with it
+    _watch_log(log, 1500, std=std, ro=lambda i: 11.2 - 3.6 * min(i, 100) / 100, fo=lambda i: 0.5, L=Lr, hc=lambda i: 11.3 * (1.12 if i < 300 else 0.85), bs=lambda i: 0.54)   # h 0.19 -> 0.13/s
+    assert [at for at in T.WATCH["checks"][:-1] if T.watch(str(log), at, W3)["stop"]] == [] and T.watch(str(log), 500, W3)["progress_ratio"] == pytest.approx(0.85 / 1.12, abs=1e-3)
+    # E1: the median ignores one blown-up iteration that the mean does not
+    _watch_log(log, 160, act=lambda i: -2000.0 if i == 95 else -0.75)
+    assert T.watch(str(log), 100)["stop"] and T.watch(str(log), 100, W3)["edge_rate"] == pytest.approx(2.5, abs=1e-3) and not T.watch(str(log), 100, W3)["stop"]
+    _watch_log(log, 160, act=lambda i: -1.25); assert T.watch(str(log), 100, W3)["edge_rate"] == pytest.approx(1.5, abs=1e-3) and not T.watch(str(log), 100, W3)["stop"]
+    _watch_log(log, 160, act=lambda i: -1.55); assert T.watch(str(log), 100, W3)["reasons"] == ["E1 edge rate +0.900/s < 1.0"]
+    _watch_log(log, 160, act=lambda i: -1.55 if i >= 89 else -0.75); assert T.watch(str(log), 100, W3)["reasons"] == ["E1 edge rate +0.900/s < 1.0"]   # 11 of 20: the median moves
+    _watch_log(log, 160, act=lambda i: -1.55 if i >= 91 else -0.75); assert not T.watch(str(log), 100, W3)["stop"]   # 9 of 20: it does not
+    # E2: A2's 0.162 at 150 passes (0.17), its 0.182 at 200 stops; 0.16 from 300
+    _watch_log(log, 400, ro=lambda i: 8.95); assert not T.watch(str(log), 150, W3)["stop"] and T.watch(str(log), 300, W3)["reasons"] == ["E2 hazard 0.1619/s > 0.16"]
+    _watch_log(log, 220, ro=lambda i: 8.0 if i < 150 else 10.2); assert not T.watch(str(log), 100, W3)["stop"] and T.watch(str(log), 200, W3)["reasons"] == ["E2 hazard 0.1823/s > 0.17"]
+    # E3: A2b's 0.78 at 50 stops (run 2b's rule let it through to 100), the pushed ENT3 path's 0.71-0.76 does not; 0.86 passes from 500 only
+    _watch_log(log, 600, std=lambda i: 0.78, hc=lambda i: 5.0); assert T.watch(str(log), 50, W3)["reasons"] == ["E3 std 0.78 > 0.76"] and not T.watch(str(log), 50)["stop"]
+    _watch_log(log, 600, std=lambda i: 0.76, hc=lambda i: 5.0); assert not T.watch(str(log), 50, W3)["stop"] and T.watch(str(log), 100, W3)["stop"] is False
+    _watch_log(log, 600, std=lambda i: 0.77); assert T.watch(str(log), 50, W3)["reasons"] == ["E3 std 0.77 > 0.76"]
+    _watch_log(log, 600, std=lambda i: 0.86, hc=lambda i: 5.0); assert T.watch(str(log), 300, W3)["reasons"] == ["E3 std 0.86 > 0.85"] and not T.watch(str(log), 500, W3)["stop"]
+    # E4 (from 500 only): stop only if clean head hits per live min are above the 31-50 rate AND the blocked share gained less than 0.02
+    up = lambda i: 10.0 if i < 50 else 10.5
+    _watch_log(log, 600, hc=up, bs=lambda i: 0.54); assert not T.watch(str(log), 400, W3)["stop"]   # both flat: from 500 only
+    assert T.watch(str(log), 500, W3)["reasons"] == ["E4 clean head hits 10.500/live min = 1.050 x its rate to 50 (10.000) > 1.0 and blocked share gain +0.0000 (0.5400 -> 0.5400) < 0.02"]
+    _watch_log(log, 600, hc=up, bs=lambda i: 0.54 if i < 50 else 0.57); r = T.watch(str(log), 500, W3)   # hits up (ring-keeping), blocks +0.03: progress
+    assert not r["stop"] and r["progress_ratio"] == pytest.approx(1.05, abs=1e-3) and r["block_gain"] == pytest.approx(0.03, abs=1e-4)
+    _watch_log(log, 600, hc=up, bs=lambda i: 0.54 if i < 50 else 0.555); assert T.watch(str(log), 500, W3)["reasons"][0].startswith("E4")   # +0.015: not enough
+    _watch_log(log, 600, hc=lambda i: 10.0 if i < 50 else 9.9, bs=lambda i: 0.54); assert not T.watch(str(log), 500, W3)["stop"]   # healthy: hits down, blocks flat
+    _watch_log(log, 600, hc=lambda i: 10.0 if i < 50 else 9.9); assert not T.watch(str(log), 500, W3)["stop"]   # hits down: the block metric is not needed
+    # the same hits per live minute at longer episodes: Metrics/attack/head_clean_pm would rise, the time-weighted rate does not
+    _watch_log(log, 600, hc=lambda i: 10.0, L=lambda i: 270.0 if i < 50 else 340.0, bs=lambda i: 0.54); assert T.watch(str(log), 500, W3)["progress_ratio"] == pytest.approx(1.0, abs=1e-3)
+    _watch_log(log, 600, hc=up); r = T.watch(str(log), 500, W3); assert r["stop"] and r["reasons"][0].startswith("E4") and math.isnan(r["block_gain"])   # hits up, block metric missing: stop
+    _watch_log(log, 600, hc=lambda i: 0.0 if i < 50 else 1.0, bs=lambda i: 0.54); r = T.watch(str(log), 500, W3)   # zero reference: stop
+    assert r["stop"] and r["reasons"][0].startswith("E4") and r["progress_ref"] == 0.0 and math.isnan(r["progress_ratio"])
+    _watch_log(log, 600); r = T.watch(str(log), 500, W3); assert r["stop"] and r["reasons"][0].startswith("E4") and not T.watch(str(log), 500)["stop"]   # both missing
+    _watch_log(log, 600, hc=lambda i: 0.0 if i < 50 else 1.0, bs=lambda i: 0.54 if i < 50 else 0.57); assert not T.watch(str(log), 500, W3)["stop"]   # zero reference, blocks +0.03: progress
+    _watch_log(log, 600, bs=lambda i: 0.54 if i < 50 else 0.57); assert not T.watch(str(log), 500, W3)["stop"]   # hits missing, blocks +0.03: progress
+
+def test_watch_cli_rule3(tmp_path):
+    """--rule 3 picks WATCH3 (default 2b: the run-2b pod's call unchanged) and says which rule ran."""
+    import subprocess
+    log = tmp_path / "x.log"; _watch_log(log, 160, std=lambda i: 0.78)
+    run = lambda *a: subprocess.run([sys.executable, str(ROOT / "gpu" / "sparring_task.py"), "watch", "--log", str(log), *a], capture_output=True, text=True, cwd=tmp_path)
+    assert run("--at", "50").returncode == 0 and run("--at", "50", "--rule", "2b").returncode == 0
+    r = run("--at", "50", "--rule", "3"); assert r.returncode == 3 and json.loads(r.stdout[6:])["rule"] == "3" and json.loads(r.stdout[6:])["reasons"] == ["E3 std 0.78 > 0.76"]

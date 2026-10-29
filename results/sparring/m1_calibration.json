@@ -1,0 +1,447 @@
+{
+ "rule": {
+  "grid": [
+   [
+    1.5,
+    150.0,
+    0.005
+   ],
+   [
+    1.5,
+    150.0,
+    -0.02
+   ],
+   [
+    1.5,
+    80.0,
+    0.005
+   ],
+   [
+    1.0,
+    150.0,
+    0.005
+   ],
+   [
+    1.5,
+    80.0,
+    -0.02
+   ]
+  ],
+  "pass_": {
+   "impulse_Ns": [
+    1.58,
+    3.56
+   ],
+   "head_clean_pm": 7.7,
+   "speed_ratio": 0.85,
+   "agree_rate": 0.15,
+   "agree_impulse": 0.1
+  },
+  "reference": "policy_mjlab_guard_footwork_r/summary_val_hard.json: 2.37 N*s per head hit; x1.5 window"
+ },
+ "onnx": "C:\\Users\\dundy\\Downloads\\projects\\r1-sparring-gym-spar\\results\\policy_mjlab_guard_footwork_r\\policy.onnx",
+ "rows": [
+  {
+   "mass": 1.5,
+   "fmax": 150.0,
+   "delta": 0.005,
+   "geometry": "proxy",
+   "bouts": 64,
+   "secs": 20.0,
+   "seeds": [
+    0,
+    63
+   ],
+   "wall_s": 100.1,
+   "survival": 0.688,
+   "minutes_up": 18.42,
+   "hitmeter": {
+    "head_clean_pm": 14.603,
+    "head_clean_ci95": [
+     12.887,
+     16.414
+    ],
+    "torso_clean_pm": 7.437,
+    "head_landed_pm": 19.597,
+    "impulse_per_head_hit_Ns": {
+     "n": 361,
+     "median": 4.42,
+     "p90": 10.791
+    },
+    "windows": {
+     "head": 186,
+     "torso": 44,
+     "blocked": 674,
+     "miss": 254,
+     "blocked_share": 0.582
+    }
+   },
+   "strikes_pm": 62.86,
+   "glove_speed_p98": {
+    "reference": 6.365,
+    "actual": 6.3
+   },
+   "speed_ratio": 0.99,
+   "hitaccount": {
+    "head_clean_pm": 14.983,
+    "torso_clean_pm": 8.36,
+    "head_landed_pm": 20.031,
+    "median_impulse_per_head_landed_Ns": 4.385,
+    "n_head_landed": 369,
+    "blocked_share": 0.581,
+    "head_landed_vneg_share": 0.0081
+   },
+   "checks": {
+    "impulse": false,
+    "head_clean": true,
+    "speed": true,
+    "agree_rate": true,
+    "agree_impulse": true
+   },
+   "pass": false
+  },
+  {
+   "mass": 1.5,
+   "fmax": 150.0,
+   "delta": -0.02,
+   "geometry": "proxy",
+   "bouts": 64,
+   "secs": 20.0,
+   "seeds": [
+    0,
+    63
+   ],
+   "wall_s": 102.8,
+   "survival": 0.703,
+   "minutes_up": 18.62,
+   "hitmeter": {
+    "head_clean_pm": 10.69,
+    "head_clean_ci95": [
+     8.854,
+     12.463
+    ],
+    "torso_clean_pm": 6.661,
+    "head_landed_pm": 14.558,
+    "impulse_per_head_hit_Ns": {
+     "n": 271,
+     "median": 4.037,
+     "p90": 11.633
+    },
+    "windows": {
+     "head": 141,
+     "torso": 48,
+     "blocked": 739,
+     "miss": 248,
+     "blocked_share": 0.628
+    }
+   },
+   "strikes_pm": 63.17,
+   "glove_speed_p98": {
+    "reference": 6.309,
+    "actual": 6.225
+   },
+   "speed_ratio": 0.987,
+   "hitaccount": {
+    "head_clean_pm": 10.797,
+    "torso_clean_pm": 7.574,
+    "head_landed_pm": 14.773,
+    "median_impulse_per_head_landed_Ns": 3.892,
+    "n_head_landed": 275,
+    "blocked_share": 0.628,
+    "head_landed_vneg_share": 0.0036
+   },
+   "checks": {
+    "impulse": false,
+    "head_clean": true,
+    "speed": true,
+    "agree_rate": true,
+    "agree_impulse": true
+   },
+   "pass": false
+  },
+  {
+   "mass": 1.5,
+   "fmax": 80.0,
+   "delta": 0.005,
+   "geometry": "proxy",
+   "bouts": 64,
+   "secs": 20.0,
+   "seeds": [
+    0,
+    63
+   ],
+   "wall_s": 107.8,
+   "survival": 0.844,
+   "minutes_up": 19.91,
+   "hitmeter": {
+    "head_clean_pm": 14.318,
+    "head_clean_ci95": [
+     12.795,
+     15.885
+    ],
+    "torso_clean_pm": 7.988,
+    "head_landed_pm": 20.798,
+    "impulse_per_head_hit_Ns": {
+     "n": 414,
+     "median": 3.588,
+     "p90": 8.892
+    },
+    "windows": {
+     "head": 205,
+     "torso": 61,
+     "blocked": 784,
+     "miss": 198,
+     "blocked_share": 0.628
+    }
+   },
+   "strikes_pm": 62.7,
+   "glove_speed_p98": {
+    "reference": 6.217,
+    "actual": 5.51
+   },
+   "speed_ratio": 0.886,
+   "hitaccount": {
+    "head_clean_pm": 14.569,
+    "torso_clean_pm": 9.043,
+    "head_landed_pm": 21.15,
+    "median_impulse_per_head_landed_Ns": 3.505,
+    "n_head_landed": 421,
+    "blocked_share": 0.627,
+    "head_landed_vneg_share": 0.0
+   },
+   "checks": {
+    "impulse": false,
+    "head_clean": true,
+    "speed": true,
+    "agree_rate": true,
+    "agree_impulse": true
+   },
+   "pass": false
+  },
+  {
+   "mass": 1.0,
+   "fmax": 150.0,
+   "delta": 0.005,
+   "geometry": "proxy",
+   "bouts": 64,
+   "secs": 20.0,
+   "seeds": [
+    0,
+    63
+   ],
+   "wall_s": 94.1,
+   "survival": 0.734,
+   "minutes_up": 18.71,
+   "hitmeter": {
+    "head_clean_pm": 13.845,
+    "head_clean_ci95": [
+     12.146,
+     15.57
+    ],
+    "torso_clean_pm": 8.767,
+    "head_landed_pm": 19.832,
+    "impulse_per_head_hit_Ns": {
+     "n": 371,
+     "median": 3.649,
+     "p90": 10.342
+    },
+    "windows": {
+     "head": 172,
+     "torso": 52,
+     "blocked": 728,
+     "miss": 219,
+     "blocked_share": 0.622
+    }
+   },
+   "strikes_pm": 62.6,
+   "glove_speed_p98": {
+    "reference": 6.272,
+    "actual": 6.566
+   },
+   "speed_ratio": 1.047,
+   "hitaccount": {
+    "head_clean_pm": 14.219,
+    "torso_clean_pm": 9.355,
+    "head_landed_pm": 20.206,
+    "median_impulse_per_head_landed_Ns": 3.524,
+    "n_head_landed": 378,
+    "blocked_share": 0.616,
+    "head_landed_vneg_share": 0.0053
+   },
+   "checks": {
+    "impulse": false,
+    "head_clean": true,
+    "speed": true,
+    "agree_rate": true,
+    "agree_impulse": true
+   },
+   "pass": false
+  },
+  {
+   "mass": 1.5,
+   "fmax": 80.0,
+   "delta": -0.02,
+   "geometry": "proxy",
+   "bouts": 64,
+   "secs": 20.0,
+   "seeds": [
+    0,
+    63
+   ],
+   "wall_s": 100.1,
+   "survival": 0.875,
+   "minutes_up": 20.24,
+   "hitmeter": {
+    "head_clean_pm": 11.017,
+    "head_clean_ci95": [
+     9.153,
+     13.015
+    ],
+    "torso_clean_pm": 7.262,
+    "head_landed_pm": 15.907,
+    "impulse_per_head_hit_Ns": {
+     "n": 322,
+     "median": 3.52,
+     "p90": 9.218
+    },
+    "windows": {
+     "head": 166,
+     "torso": 55,
+     "blocked": 825,
+     "miss": 237,
+     "blocked_share": 0.643
+    }
+   },
+   "strikes_pm": 63.38,
+   "glove_speed_p98": {
+    "reference": 6.207,
+    "actual": 5.554
+   },
+   "speed_ratio": 0.895,
+   "hitaccount": {
+    "head_clean_pm": 11.165,
+    "torso_clean_pm": 8.201,
+    "head_landed_pm": 16.204,
+    "median_impulse_per_head_landed_Ns": 3.417,
+    "n_head_landed": 328,
+    "blocked_share": 0.641,
+    "head_landed_vneg_share": 0.0091
+   },
+   "checks": {
+    "impulse": true,
+    "head_clean": true,
+    "speed": true,
+    "agree_rate": true,
+    "agree_impulse": true
+   },
+   "pass": true
+  }
+ ],
+ "chosen": {
+  "mass": 1.5,
+  "fmax": 80.0,
+  "delta": -0.02
+ },
+ "shell_geometry": {
+  "mass": 1.5,
+  "fmax": 80.0,
+  "delta": -0.02,
+  "geometry": "shell",
+  "bouts": 64,
+  "secs": 20.0,
+  "seeds": [
+   0,
+   63
+  ],
+  "wall_s": 51.7,
+  "survival": 0.891,
+  "minutes_up": 20.4,
+  "hitmeter": {
+   "head_clean_pm": 11.765,
+   "head_clean_ci95": [
+    10.12,
+    13.487
+   ],
+   "torso_clean_pm": 7.157,
+   "head_landed_pm": 16.717,
+   "impulse_per_head_hit_Ns": {
+    "n": 341,
+    "median": 3.676,
+    "p90": 10.304
+   },
+   "windows": {
+    "head": 156,
+    "torso": 51,
+    "blocked": 842,
+    "miss": 227,
+    "blocked_share": 0.66
+   }
+  },
+  "strikes_pm": 62.55,
+  "glove_speed_p98": {
+   "reference": 6.138,
+   "actual": 5.462
+  },
+  "speed_ratio": 0.89
+ },
+ "attack_recheck": {
+  "mass": 1.5,
+  "fmax": 80.0,
+  "delta": -0.02,
+  "geometry": "proxy",
+  "bouts": 64,
+  "secs": 20.0,
+  "seeds": [
+   64,
+   127
+  ],
+  "wall_s": 100.9,
+  "survival": 0.906,
+  "minutes_up": 20.14,
+  "hitmeter": {
+   "head_clean_pm": 11.224,
+   "head_clean_ci95": [
+    9.63,
+    12.866
+   ],
+   "torso_clean_pm": 6.754,
+   "head_landed_pm": 15.296,
+   "impulse_per_head_hit_Ns": {
+    "n": 308,
+    "median": 3.231,
+    "p90": 8.538
+   },
+   "windows": {
+    "head": 144,
+    "torso": 43,
+    "blocked": 829,
+    "miss": 179,
+    "blocked_share": 0.694
+   }
+  },
+  "strikes_pm": 59.35,
+  "glove_speed_p98": {
+   "reference": 6.166,
+   "actual": 5.399
+  },
+  "speed_ratio": 0.876,
+  "hitaccount": {
+   "head_clean_pm": 11.571,
+   "torso_clean_pm": 7.499,
+   "head_landed_pm": 15.495,
+   "median_impulse_per_head_landed_Ns": 3.14,
+   "n_head_landed": 312,
+   "blocked_share": 0.693,
+   "head_landed_vneg_share": 0.0064
+  },
+  "checks": {
+   "impulse": true,
+   "head_clean": true,
+   "speed": true,
+   "agree_rate": true,
+   "agree_impulse": true
+  },
+  "pass": true
+ },
+ "constants_match": true
+}

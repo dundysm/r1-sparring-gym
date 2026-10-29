@@ -27,7 +27,11 @@ both-up exposure: the control steps the R1 was live (not yet fallen at the step'
 end (the same OPP_TILT / OPP_Z test, per step, not sticky: an opponent flagged and back up counts again), as (t_a, t_b] intervals
 (both_up_iv) and their total (both_up_s); with --hits, head / torso clean strikes whose onset falls inside them per minute of
 them (landed.*_pm_both_up, with landed.minutes); summary.opponent_falls pools the fall logs. opp_fell (stored) stays sticky. --rev_hits 1 also scores the R1's own strikes on the opponent
-(HitMeter reverse=True) into 'rev_meter' per bout and 'landed_rev' per summary."""
+(HitMeter reverse=True) into 'rev_meter' per bout and 'landed_rev' per summary.
+--keypoints truth|camera (sparring M2, docs/SPARRING_M1M2.md section 4): controllers with a widened 111-d input get the 28-d
+opponent keypoint block (r1gym/keypoints.py KeypointSource, one per bout, delayed by the bout's obs delay) appended after their
+83 inputs; a blind twin (observation_names ending opp_keypoints_blind) gets 28 zeros whatever the flag says. 83-d controllers
+and every row are unchanged; meta gains 'keypoints' only when the flag is set. A sighted widened policy without it is an error."""
 import sys, json, time, argparse, itertools, copy, hashlib, subprocess, mujoco
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -39,6 +43,7 @@ from r1gym.hits import HitMeter, landed_block, sensitivity_block, r1_zone, opp_l
 from r1gym.opponent import FightReplay
 from r1gym.perturb import make_hit, LOCATIONS
 from r1gym.policy import PDStand, load_controller, controller_cfg
+from r1gym.keypoints import KeypointSource, KP_DIM, KP_NAMES
 from r1gym.stats import wilson, paired_diff, cluster_paired_diff
 from r1gym.scenario import clean_starts, pick_start, REF_POSES, START_STEP, START_SPAN
 
@@ -113,12 +118,15 @@ def meter_row(e, ep, secs, sp, lag, both_up=None):
                    intent_closest_cm=[round(100 * it.closest_m, 1) for it in its])
     return out
 
-def run(ctrl, eps, m, cfg, T=10.0, threads=8, dr=False, meter=False, lag=0.0, rev=False, falls=False):
+def run(ctrl, eps, m, cfg, T=10.0, threads=8, dr=False, meter=False, lag=0.0, rev=False, falls=False, keypoints=None):
     # meter: main() turns it on (--hits); other callers skip its ~15%. falls: the opponent-fall log and both-up exposure
     # (main() turns it on; off, the rows are exactly the earlier ones). rev: the R1's strikes on the opponent (--rev_hits)
+    # keypoints: the opponent keypoint source ('truth' | 'camera') for a widened controller (kp_mode 'obs'); it reads the
+    # env's MjData only, on its own twin, so the bout is the same bout; kp_mode 'zeros' appends 28 zeros; None: nothing new runs
     # DR envs write their sampled parameters into the model before each step, so with DR each thread steps its own copy
     ms = [copy.deepcopy(m) for _ in range(threads)] if dr else [m] * threads
-    reps = {}; envs = []
+    reps = {}; envs = []; kpm = getattr(ctrl, "kp_mode", None)
+    if kpm == "obs" and keypoints is None: raise ValueError(f"{ctrl.name} sees opponent keypoints (observation_names ...,opp_keypoints): pass --keypoints")
     for i, ep in enumerate(eps):
         key = (ep["clip"], ep["distance"])
         if key not in reps: reps[key] = FightReplay(m, ep["clip"], distance=ep["distance"], cfg=cfg)
@@ -132,15 +140,20 @@ def run(ctrl, eps, m, cfg, T=10.0, threads=8, dr=False, meter=False, lag=0.0, re
         hits = [make_hit(k, l, imp, t, y, rng) for k, l, imp, t, y in ep["hits"]]
         o = e.reset(hits=hits, delay=ep["delay"]); q = e.r.free_q
         envs.append(dict(e=e, o=o, fell=None, at=None, start=e.d.qpos[q:q + 2].copy(), maxr=0.0, opp_fell=False, sp=[], tail=tail, rv=rv, ofall=None, bu=[]))
+        if kpm == "obs":   # after e.reset, the same delay k as the 83 proprioceptive dims, zero noise
+            envs[-1]["src"] = KeypointSource(e.m, keypoints, delay=ep["delay"]); envs[-1]["kp"] = envs[-1]["src"].reset(e.d)
+        elif kpm == "zeros": envs[-1]["kp"] = np.zeros(KP_DIM, np.float32)
+    obs = (lambda x: x["o"]) if kpm is None else (lambda x: np.concatenate([x["o"], x["kp"]]))   # widened: 83 + 28 = 111
     groups = [list(range(g, len(envs), threads)) for g in range(threads)]; pool = ThreadPoolExecutor(threads)
     for _ in range(int(T / envs[0]["e"].dt)):
         live = [i for i in range(len(envs)) if envs[i]["fell"] is None]
         if not live: break
-        A = dict(zip(live, ctrl.act(np.stack([envs[i]["o"] for i in live]))))
+        A = dict(zip(live, ctrl.act(np.stack([obs(envs[i]) for i in live]))))
         def st(g):   # one thread per model copy: its envs step one after another
             for i in g:
                 if i not in A: continue
                 x = envs[i]; e = x["e"]; x["o"], r, d, info = e.step(A[i]); q = e.r.free_q; xy = e.d.qpos[q:q + 2]
+                if "src" in x: x["kp"] = x["src"].observe(e.d)   # right after the step, as the env's own obs
                 x["maxr"] = max(x["maxr"], float(np.linalg.norm(xy - x["start"])))
                 if meter: x["sp"].append(float(np.linalg.norm(e.d.qpos[e.opp.qadr:e.opp.qadr + 2] - xy)))   # actual pelvis spacing
                 b = min(e.opp.bodies)   # opponent pelvis; deep stances reach z ~0.37, so judge by tilt
@@ -273,6 +286,8 @@ def main():
     ap.add_argument("--threads", type=int, default=8, help="threads stepping the bouts (results don't depend on it)")
     ap.add_argument("--rev_hits", type=int, default=0, help="1: also score the R1's strikes on the opponent (HitMeter reverse=True, read-only)")
     ap.add_argument("--from_raw", action="store_true", help="recompute summary_*.json from the stored raw_*.json (no simulation)")
+    ap.add_argument("--keypoints", choices=["truth", "camera"], default=None, help="opponent keypoints for widened (sparring M2) controllers: truth "
+                    "(exact state, mask = in the head camera's view) or camera (M3, not implemented); default off: no controller may need them")
     a = ap.parse_args(); out = Path(a.out); out.mkdir(parents=True, exist_ok=True); tier = TIERS[a.tier]; T = a.seconds or tier["seconds"]
     cfg = load_cfg(); models = {}; tag = ("" if a.tier == "standard" else f"_{a.tier}") + ("" if a.opponent == "tracked" else "_puppet") + ("_nohits" if a.no_pushes else "")
     if a.from_raw:
@@ -288,6 +303,9 @@ def main():
     for lp in a.policy:
         lab, path = lp.split("=", 1)
         if Path(path).exists(): ctrls.append(load_controller(f"RL {lab}={path}"))
+    need = [c.name for c in ctrls if getattr(c, "kp_mode", None) == "obs"]
+    if need and not a.keypoints: sys.exit(f"{need} see opponent keypoints: pass --keypoints truth")
+    if a.keypoints == "camera": sys.exit("--keypoints camera: the gloves-detector source comes with M3 (r1gym/keypoints.py raises NotImplementedError); use --keypoints truth")   # before any bout runs
     ccfg = {c.name: {**controller_cfg(c), "opponent_mode": cfg["opponent_mode"], "opponent_aim": cfg["opponent_aim"]} for c in ctrls}   # own contract per controller
     poses = dict(REF_POSES)
     for n, cc in ccfg.items():   # a pose outside REF_POSES changes every controller's episodes: allowed, but loudly
@@ -300,7 +318,7 @@ def main():
     for c in ctrls:
         cc = ccfg[c.name]; key = str(getattr(c, "cfg_path", "default"))
         if key not in models: models[key] = build_spec(opponent=True, cfg=cc).compile()
-        t0 = time.time(); raw[c.name] = run(c, eps, models[key], cc, T, threads=a.threads, dr=tier["dr"], meter=bool(a.hits), lag=lag, rev=bool(a.rev_hits), falls=True); summ[c.name] = summarise(raw[c.name], T, clusters, shell_solref(models[key]))
+        t0 = time.time(); raw[c.name] = run(c, eps, models[key], cc, T, threads=a.threads, dr=tier["dr"], meter=bool(a.hits), lag=lag, rev=bool(a.rev_hits), falls=True, keypoints=a.keypoints); summ[c.name] = summarise(raw[c.name], T, clusters, shell_solref(models[key]))
         print(c.name, json.dumps(summ[c.name]), f"({time.time() - t0:.0f} s)", flush=True)
     pairs(raw, summ)
     if aim:   # pair with the unaimed run of this tier: same episodes, every controller
@@ -313,6 +331,8 @@ def main():
     meta = dict(tier=a.tier, tier_cfg=tier, opponent=a.opponent, split=a.split, clips=clips, reps=a.reps, pushes=not a.no_pushes, seconds=T,
                 opponent_mode=cfg.get("opponent_mode", "puppet"), ring_m=RING_M, start_poses=list(poses), start_times_skipped=skipped,
                 hit_meter=bool(a.hits), benchmark_version="v1" + (f"+aim:{aim}" if aim else ""), opponent_aim=cfg["opponent_aim"], strike_lag_s=lag,
+                **({"keypoints": dict(source=a.keypoints, kp_dim=KP_DIM, names=list(KP_NAMES), contract="docs/SPARRING_M1M2.md 1.2-1.4, 4",
+                                      kp_mode={c.name: c.kp_mode for c in ctrls if getattr(c, "kp_mode", None)})} if a.keypoints else {}),
                 **({"aim": dict(operator=aim, from_aim_json=a.aim == "chosen", aim_json=aimj or None, paired_with=f"raw_{a.split}{base_tag}.json", paired_with_git=R["meta"].get("git_hash"))} if aim else {}),
                 **provenance(next(iter(models.values())), cfg, ccfg))
     json.dump(dict(meta=meta, summary=summ), open(out / f"summary_{a.split}{tag}.json", "w"), indent=1)

@@ -24,12 +24,15 @@ mjlab glue lives in _classes() and the cfg builders, importing mjlab only inside
 Subcommands (python sparring_task.py ...):
   widen <src.pt> <dst.pt>          warm start for R1-Spar-Block-*: zero-weight columns for the new inputs (3.1)
   widen2 <src.pt> <dst.pt>         the same for R1-Spar-Block2-* (run 2): critic 98 -> 138 (+ ring_home, 2)
+  widen2b <src.pt> <dst.pt>        widen2 plus ALIVE v_shift on the critic's output bias (run 2b: the spar_alive bonus's value)
   calibrate [--bouts 64 --secs 20 --recheck 1]  CPU replica in r1gym (R1HitEnv + the frozen warm start ONNX), HitMeter vs HitAccount (2.5)
   calcheck [m1_calibration.json]   the preregistered 'CPU calibration passes first', for ATTACK as set here (pod, before m1check)
   m1check --checkpoint model_7496.pt [--num-envs 4096 --steps 1000 --out m1_gate.json --calibration m1_calibration.json --r2 0]
                                    gate 1 (2.6); --r2 1: the run-2 attacker schedule (SCHED_R2)
   gate --m1 m1_gate.json --smoke-log smoke.log [--proxy mesh --num-envs 4096 --max-iter-s 2.0 --last 0 --prereg-envs 4096]
                                    gate 2 from a training log (run 2: A2's own log, --max-iter-s 2.2 --last 200 --prereg-envs 3072)
+  watch --log train.log --at 150 [--no-edge]
+                                   run 2b's early stop at iteration --at (WATCH; exit 3 = stop): edge rate, termination hazard, std
   <task id> [train.py flags]       training (unitree_rl_mjlab's train.main), from a unitree_rl_mjlab checkout
 Environment: SPAR_SHELL_PROXY=capsule (2.6's speed fallback), SPAR_GRAVCOMP=0 (feed-forward instead of body gravcomp),
 SPAR_CALIB_DEVIATION="<reason>" (train although the calibration did not choose ATTACK: recorded as a deviation),
@@ -118,6 +121,25 @@ HIT_R2 = dict(block_by_apex_s=0.05)
 # about -1.1 (A, train_A.log), so a ring penalty would have made ending the episode pay; a bonus keeps every live second worth more.
 RING = dict(free=0.25, out=1.0, outer=1.0, weight=2.5)
 WEIGHTS["A2"] = dict(spar_head_impulse=-20.0, spar_head_clean=-40.0, spar_torso_impulse=-5.0, spar_block=40.0, spar_clearance=0.5, spar_ring=RING["weight"])
+# Run 2b (doc section 9.6, "Run 2 restart"): A2 (stopped by hand at 266 of 1500 iterations) learned to leave the ring. With gamma
+# 0.99 per 0.02 s step (a 2 s horizon; time-outs bootstrapped) ending by ring_out or a fall (-4) pays wherever the local live rate
+# is below -2 per s; as A2's action std rose 0.65 -> 0.94 the smoothness terms' sampling-noise part took the ring edge to about
+# -3 per s (action_rate alone -2.6). spar_alive pays ALIVE weight per live second on the run-2 tasks only (0 on the step a fall /
+# ring_out / nan ends, 1 on a time-out step: mjlab's is_alive rule), so every in-ring state stays positive up to std 1.0 and every
+# termination forfeits future reward. v_shift = weight x 0.02 / (1 - 0.99) = the bonus's discounted value with no termination:
+# widen2b adds it to the warm-start critic's output bias (an over-estimate makes a termination look worse, never better, while the
+# clipped value loss moves V at most clip_param 0.2 per iteration).
+ALIVE = dict(weight=4.0, v_shift=8.0)
+# WATCH: the pod's predeclared early stop (prereg_m2_run2.json amendment), run at iteration `checks` (counted from the run's first
+# logged iteration) on the `window` iterations ending there. Stop when (E1) the edge rate, every logged reward term except
+# spar_ring and is_terminated per live second (the in-ring rate where the ring bonus is 0), is below edge_min; (E2) the termination
+# hazard (ring_out + fell_over + nan per live second) is above h_max; (E3) the iteration's 'Mean action std' is above std_max.
+# h_max / std_max: the entry with the largest iteration <= the check. A2 (20-iteration windows): hazard 0.192 at 11-30 (the warm
+# start's level), 0.171 at 31-50, 0.153 at 81-100, 0.162 at 131-150, 0.182 at 181-200; std 0.74 at 50, 0.82 at 100, 0.87 at 150,
+# 0.91 at 200. h_max from 150 is 0.17, not A2's best (0.153): no healthy log with ring_out exists and the actor cannot see its
+# position, so the floor under pushes is unknown; A2 still stops at 200 (E2 0.182, E3 0.91). The pod reports the 1500 check only.
+WATCH = dict(window=20, checks=(50, 100, 150, 200) + tuple(range(300, 1501, 100)), edge_min=0.0, h_max=((50, 0.22), (100, 0.19), (150, 0.17)),
+             std_max=((50, 0.80), (100, 0.85), (150, 0.90)), num_envs=3072, dt=0.02, ep_s=20.0)
 HOME_DIM = 2   # critic-only ring_home: the start xy minus the pelvis xy in the heading frame (critic 136 -> 138; the actor stays 111)
 # stand_still (Unitree, weight -1: sum of squared deviation from the default pose while |command| <= 0.1) on every joint taxes a
 # raised guard (the default pose is the guard; at A's last iteration it cost -0.112 against spar_block's +0.040); run 2 keeps it
@@ -692,6 +714,11 @@ def spar_ring(env, command_name="twist", free=RING["free"], out=RING["out"]):
 def spar_ring_out(env, command_name="twist", radius=RING["out"]):
     """Termination (time_out False, so is_terminated's -4 applies): the pelvis left the ring (r > radius, the CPU eval's RING_M)."""
     return _ring_r(env, command_name) > radius
+def spar_alive(env):
+    """Reward term (run 2b, weight ALIVE weight): 1 on every step that does not end by a non-time-out termination (fell_over,
+    ring_out, nan), 0 on the step that does; a time-out step pays. mjlab.envs.mdp.is_alive's rule (the env computes terminations
+    before rewards in the same step)."""
+    return (~env.termination_manager.terminated).float()
 def ring_home(env, command_name="twist"):
     """Critic term (2): the episode's start xy minus the pelvis xy, in the pelvis heading frame (the ring bonus's state)."""
     import torch
@@ -954,15 +981,18 @@ def _block2(make, blind=False):
     the attacker's SCHED_R2 (aim committed at max(onset, apex - 0.15 s); clearance only for strikes in reach), weights A2 (block
     pay 40, intercepts only: HIT_R2; the in-ring bonus spar_ring +2.5), a ring_out termination at r > 1 m (training cfg only, not
     play), ring_home on the critic (appended last: 138 inputs), stand_still on the legs and waist only, and the metrics spar_ring_r,
-    spar_arm_idle_touch and the twist command's ring_max_m. Actor unchanged (111)."""
+    spar_arm_idle_touch and the twist command's ring_max_m. Actor unchanged (111). Run 2b: the alive bonus spar_alive (ALIVE
+    weight per live second; train and play cfg)."""
     def f(play=False):
         from mjlab.managers.metrics_manager import MetricsTermCfg
         from mjlab.managers.observation_manager import ObservationTermCfg
+        from mjlab.managers.reward_manager import RewardTermCfg
         from mjlab.managers.scene_entity_config import SceneEntityCfg
         from mjlab.managers.termination_manager import TerminationTermCfg
         cfg = _block(make, "A2", blind, outer=RING["outer"], sched=SCHED_R2, hit=HIT_R2)(play)
         cfg.observations["critic"].terms["ring_home"] = ObservationTermCfg(func=ring_home, params={"command_name": "twist"})
         if not play: cfg.terminations["ring_out"] = TerminationTermCfg(func=spar_ring_out, params={"command_name": "twist", "radius": RING["out"]})
+        cfg.rewards["spar_alive"] = RewardTermCfg(func=spar_alive, weight=ALIVE["weight"])
         ss = cfg.rewards["stand_still"]; ss.params = {**ss.params, "asset_cfg": SceneEntityCfg("robot", joint_names=STAND_STILL_JOINTS)}
         cfg.commands["twist"].ring_metric = True
         cfg.metrics = {**cfg.metrics, "spar_ring_r": MetricsTermCfg(func=spar_ring_r, params={"command_name": "twist"}),
@@ -995,11 +1025,12 @@ def widen_norm(critic=False, extra=0):
     if critic and extra: mean += [0.0] * extra; std += [0.5] * extra   # run 2: ring_home (m), mean 0 std 0.5
     return mean, std
 
-def widen(src, dst, critic_extra=0):
+def widen(src, dst, critic_extra=0, v_shift=0.0):
     """Checkpoint for R1-Spar-Block-* from the warm start (rsl_rl 5.0.1 layout): actor 28 columns at 83, critic 38 at 98, first
     layer weights zero, Adam exp_avg / exp_avg_sq zero for those columns (matched by shape, asserted unique), normaliser
     mean/var/std of widen_norm (count 7.4e8: they stay put). The widened policy acts exactly as the warm start.
-    critic_extra (run 2, widen2: HOME_DIM): that many more critic columns after the 38 (ring_home: critic 98 -> 138)."""
+    critic_extra (run 2, widen2: HOME_DIM): that many more critic columns after the 38 (ring_home: critic 98 -> 138).
+    v_shift (run 2b, widen2b: ALIVE v_shift): added to the critic's output bias (mlp.6, 512-256-128 -> 1), nothing else changes."""
     import torch
     c = torch.load(src, map_location="cpu", weights_only=False)
     def ins(x, at, vals): v = torch.as_tensor(vals, dtype=x.dtype).expand(*x.shape[:-1], len(vals)); return torch.cat([x[..., :at], v, x[..., at:]], -1)
@@ -1012,6 +1043,9 @@ def widen(src, dst, critic_extra=0):
         assert len(hit) == 1, f"{key}: {len(hit)} Adam states of shape {(w.shape[0], at)}"
         for k in ("exp_avg", "exp_avg_sq"): hit[0][k] = ins(hit[0][k], at, [0.0] * n)
         rep[key] = f"{at} -> {at + n} (new inputs at {at}:{at + n}), count {float(sd['obs_normalizer.count']):.3g}"
+    if v_shift:
+        sd = c["critic_state_dict"]; b = sd["mlp.6.bias"]; assert tuple(b.shape) == (1,) and "mlp.8.weight" not in sd, tuple(b.shape)
+        sd["mlp.6.bias"] = b + v_shift; rep["critic_v_shift"] = f"{float(b):.4g} -> {float(sd['mlp.6.bias']):.4g}"
     Path(dst).parent.mkdir(parents=True, exist_ok=True); torch.save(c, dst); print("widen:", json.dumps(rep), "iter", c.get("iter"))
 
 def load_actor(path, device="cpu"):
@@ -1096,6 +1130,38 @@ def gate(m1_json, smoke_log, proxy=None, num_envs=None, max_iter_s=2.0, first=20
         s["deviation"] = d = f"speed gate passed at {num_envs} envs; {prereg_ref} says {prereg_envs}"
         if d not in j.setdefault("deviations", []): j["deviations"].append(d)
     json.dump(j, open(m1_json, "w"), indent=1); print("GATE", json.dumps(s), "overall", j["pass"]); return j
+
+def watch(log, at, cfg=WATCH, edge=True):
+    """Run 2b's early stop (doc section 9.6, WATCH) on a training log at iteration `at`, counted from the log's first logged
+    iteration as the pod's nitr() counts (complete blocks only: one with 'Iteration time:'). Over the cfg window iterations ending
+    at `at`, window means of:
+      E1 edge rate = sum of Episode_Reward/<t> for every t except spar_ring and is_terminated, x ep_s / (Mean episode length x dt):
+         the reward per live second where the ring bonus is 0 (the other terms taken as position-independent); stop if < edge_min.
+         edge=False skips it (a log with no spar_alive: A2's, run 1's).
+      E2 h = (Episode_Termination ring_out + fell_over + nan, envs ended per step) / (num_envs x dt), per live second; stop if > h_max.
+      E3 std = 'Mean action std' of iteration `at`; stop if > std_max.
+    h_max / std_max: the entry with the largest iteration <= at (the first entry below it). ready False (never a stop) while fewer
+    than `at` complete blocks exist, or at < window."""
+    import re
+    txt = re.sub(r"\x1b\[[0-9;]*m", "", open(log, errors="replace").read())
+    blocks = [b for b in re.split(r"Learning iteration\s+\d+/\d+", txt)[1:] if "Iteration time:" in b]
+    lim = lambda tab: ([v for k, v in tab if k <= at] or [tab[0][1]])[-1]
+    w, ne, dt = cfg["window"], cfg["num_envs"], cfg["dt"]; max_h, max_std = lim(cfg["h_max"]), lim(cfg["std_max"])
+    out = dict(log=str(log), at=at, iterations=len(blocks), window=w, ready=len(blocks) >= at >= w, stop=False, reasons=[],
+               edge_min=cfg["edge_min"] if edge else None, max_h=max_h, max_std=max_std)
+    if not out["ready"]: return out
+    kv = [dict((k.strip(), float(v)) for k, v in re.findall(r"^\s*([A-Za-z_][A-Za-z0-9_/ \-]*?):\s+(-?[0-9.]+(?:[eE][-+]?\d+)?)s?\s*$", b, re.M))
+          for b in blocks[at - w:at]]
+    mean = lambda k: sum(d.get(k, 0.0) for d in kv) / w
+    ro, fo, nan = (mean("Episode_Termination/" + t) for t in ("ring_out", "fell_over", "nan")); h = (ro + fo + nan) / (ne * dt)
+    std = kv[-1].get("Mean action std", float("nan")); L = mean("Mean episode length")
+    keys = sorted({k for d in kv for k in d if k.startswith("Episode_Reward/")} - {"Episode_Reward/spar_ring", "Episode_Reward/is_terminated"})
+    e = sum(mean(k) for k in keys) * cfg["ep_s"] / (L * dt) if L > 0 else float("nan")
+    out.update(edge_rate=round(e, 3), alive_logged="Episode_Reward/spar_alive" in keys, mean_ep_len=round(L, 1), h_per_live_s=round(h, 4),
+               ring_out_per_live_s=round(ro / (ne * dt), 4), fell_per_live_s=round(fo / (ne * dt), 4), std=std)
+    out["reasons"] = [r for r, bad in ((f"E1 edge rate {e:+.3f}/s < {cfg['edge_min']}", edge and not e >= cfg["edge_min"]),
+                                        (f"E2 hazard {h:.4f}/s > {max_h}", h > max_h), (f"E3 std {std} > {max_std}", not std <= max_std)) if bad]
+    out["stop"] = bool(out["reasons"]); return out
 
 # =============================================================================================== CPU calibration (2.5)
 _CAL = {}
@@ -1242,6 +1308,12 @@ if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
     if cmd == "widen": widen(sys.argv[2], sys.argv[3]); sys.exit(0)
     if cmd == "widen2": widen(sys.argv[2], sys.argv[3], critic_extra=HOME_DIM); sys.exit(0)   # run 2: critic 98 -> 138
+    if cmd == "widen2b": widen(sys.argv[2], sys.argv[3], critic_extra=HOME_DIM, v_shift=ALIVE["v_shift"]); sys.exit(0)   # run 2b: + spar_alive's value
+    if cmd == "watch":   # run 2b's early stop on a training log (pod): exit 3 = stop the run, 0 = keep going (or not ready yet)
+        import argparse
+        ap = argparse.ArgumentParser(); ap.add_argument("cmd"); ap.add_argument("--log", required=True); ap.add_argument("--at", type=int, required=True)
+        ap.add_argument("--no-edge", action="store_true"); a = ap.parse_args()
+        r = watch(a.log, a.at, edge=not a.no_edge); print("WATCH", json.dumps(r)); sys.exit(3 if r["stop"] else 0)
     if cmd == "calcheck":
         r = calibration_check(sys.argv[2] if len(sys.argv) > 2 else CALIB_FILE); print("CALCHECK", json.dumps(r)); sys.exit(0 if r["pass"] else 1)
     if cmd in ("calibrate", "m1check", "gate"):

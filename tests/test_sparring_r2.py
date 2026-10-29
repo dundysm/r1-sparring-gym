@@ -251,13 +251,15 @@ def test_block2_configs(fake_mjlab):
         assert c.rewards["stand_still"].params["asset_cfg"].joint_names == T.STAND_STILL_JOINTS and c.rewards["stand_still"].params["command_threshold"] == 0.1
         assert list(c.metrics) == ["spar_hits", "spar_ring_r", "spar_arm_idle_touch"] and "push_robot" in c.events
         cp = T._block2(make, blind=blind)(play=True); assert "ring_out" not in cp.terminations and "spar_ring" in cp.rewards and "nan" in cp.terminations
+        for cc in (c, cp):   # run 2b: spar_alive (ALIVE weight per live second), outside WEIGHTS["A2"], no params
+            al = cc.rewards["spar_alive"]; assert al.func is T.spar_alive and al.weight == T.ALIVE["weight"] == 4.0 and al.params == {}
     # run 1's tasks, built after (and from the same make): untouched
     for w, blind in (("A", False), ("B", False), ("A", True)):
         c = T._block(make, w, blind)(); tw = c.commands["twist"]
         assert tw.rel_outer_envs == 0.5 and tw.ring_metric is False and c.commands["attack"].sched == {} and c.commands["attack"].hit == {}
         assert "spar_ring" not in c.rewards and "ring_out" not in c.terminations and "ring_home" not in c.observations["critic"].terms
         assert {k: c.rewards[k].weight for k in T.WEIGHTS["A"]} == T.WEIGHTS[w] and c.rewards["stand_still"].params["asset_cfg"].joint_names == ".*"
-        assert list(c.metrics) == ["spar_hits"] and len(c.observations["critic"].terms) == 14
+        assert list(c.metrics) == ["spar_hits"] and len(c.observations["critic"].terms) == 14 and "spar_alive" not in c.rewards
     ck = T._attack(make, outer=1.0, check=True, sched=T.SCHED_R2)(); assert ck.commands["attack"].sched == T.SCHED_R2 and "push_robot" not in ck.events
     assert {"R1-Spar-Block2-A", "R1-Spar-Block2-Blind", "R1-Spar-Block-A", "R1-Spar-Block-B", "R1-Spar-Block-Blind", "R1-Spar-Block-Blind-B", "R1-Spar-Attack"} == set(T.TASKS)
 
@@ -295,3 +297,85 @@ def test_gate_reads_iterations_20_to_200(tmp_path):
     assert j["pass"] and s["mean_iter_s"] == 2.1 and s["iterations_gated"] == [20, 200] and not j.get("deviations")
     assert not T.gate(str(m1), str(log), "capsule", 3072, max_iter_s=2.0, last=200, prereg_envs=3072)["smoke"][-1]["pass_speed"]
     log.write_text("\n".join(lines + ["  Episode_Termination/nan: 0.0100"])); assert not T.gate(str(m1), str(log), "capsule", 3072, max_iter_s=2.2, last=200, prereg_envs=3072)["pass"]
+
+# ---- run 2b (doc section 9.6): the alive bonus, widen2b's critic shift, the predeclared early stop (WATCH)
+def test_spar_alive_rule():
+    """mjlab's is_alive rule: 1 unless a non-time-out termination (fell_over, ring_out, nan) ended this step; terminations are
+    computed before rewards, and a time-out is 'truncated', never 'terminated'."""
+    env = types.SimpleNamespace(termination_manager=types.SimpleNamespace(terminated=torch.tensor([False, True, False, True])))
+    assert torch.equal(T.spar_alive(env), torch.tensor([1.0, 0.0, 1.0, 0.0]))
+    assert T.ALIVE == dict(weight=4.0, v_shift=8.0) and T.ALIVE["v_shift"] == pytest.approx(T.ALIVE["weight"] * 0.02 / (1 - 0.99))
+    assert "spar_alive" not in T.WEIGHTS["A2"] and T.RING == dict(free=0.25, out=1.0, outer=1.0, weight=2.5)   # run 2's record unchanged
+
+def test_widen2b(tmp_path):
+    """widen2b = widen2 plus ALIVE v_shift on the critic's output bias; nothing else differs (actor, critic weights, normalisers,
+    optimiser state), and the critic's value is exactly v_shift higher everywhere."""
+    src = WARM_DIR / "model_7496.pt"
+    if not src.exists(): pytest.skip("model_7496.pt absent")
+    a, b = tmp_path / "a" / "model_7496.pt", tmp_path / "b" / "model_7496.pt"
+    T.widen(str(src), str(a), critic_extra=T.HOME_DIM); T.widen(str(src), str(b), critic_extra=T.HOME_DIM, v_shift=T.ALIVE["v_shift"])
+    ca, cb = (torch.load(p, map_location="cpu", weights_only=False) for p in (a, b))
+    for key in ("actor_state_dict", "critic_state_dict"):
+        assert set(ca[key]) == set(cb[key])
+        for k, v in ca[key].items():
+            if key == "critic_state_dict" and k == "mlp.6.bias": assert cb[key][k].shape == (1,) and torch.allclose(cb[key][k], v + 8.0)
+            else: assert torch.equal(cb[key][k], v), (key, k)
+    for i, st in ca["optimizer_state_dict"]["state"].items():
+        assert all(torch.equal(st[k], cb["optimizer_state_dict"]["state"][i][k]) for k in ("exp_avg", "exp_avg_sq"))
+    x = torch.randn(64, 138, generator=torch.Generator().manual_seed(1)) * 2
+    def V(sd):
+        h = (x - sd["obs_normalizer._mean"]) / (sd["obs_normalizer._std"] + 1e-2)
+        for i in (0, 2, 4): h = torch.nn.functional.elu(h @ sd[f"mlp.{i}.weight"].T + sd[f"mlp.{i}.bias"])
+        return h @ sd["mlp.6.weight"].T + sd["mlp.6.bias"]
+    assert torch.allclose(V(cb["critic_state_dict"]) - V(ca["critic_state_dict"]), torch.full((64, 1), 8.0), atol=1e-4)
+
+def _watch_log(path, n, std=lambda i: 0.70, ro=lambda i: 3.0, fo=lambda i: 1.0, act=lambda i: -0.75, L=lambda i: 500.0, alive=True, ansi=False):
+    """A fake rsl_rl log: n complete iterations (plus one incomplete block, ignored). Defaults: 10 s episodes, alive 4/s, action_rate
+    -1.5/s, ring 2/s, is_terminated -1/s: edge rate (2.0 - 0.75) x 20 / (500 x 0.02) = +2.5/s; h = 4 / 61.44 = 0.0651/s."""
+    b = "\x1b[1m" if ansi else ""
+    lines = []
+    for i in range(n):
+        lines += [f"{b}Learning iteration {7496 + i}/8996", f"Mean action std: {std(i):.2f}", f"Mean episode length: {L(i):.2f}",
+                  f"Episode_Reward/action_rate_l2: {act(i):.4f}", "Episode_Reward/spar_ring: 1.0000", "Episode_Reward/is_terminated: -0.5000",
+                  *(["Episode_Reward/spar_alive: 2.0000"] if alive else []), "Episode_Termination/time_out: 0.1000",
+                  f"Episode_Termination/fell_over: {fo(i):.4f}", "Episode_Termination/nan: 0.0000", f"Episode_Termination/ring_out: {ro(i):.4f}",
+                  "Iteration time: 2.05s"]
+    lines += [f"Learning iteration {7496 + n}/8996", "Mean action std: 0.99", "Episode_Termination/ring_out: 99.0"]
+    path.write_text("\n".join(lines))
+
+def test_watch_rules(tmp_path):
+    log = tmp_path / "x.log"
+    _watch_log(log, 160, ansi=True)
+    for at in (100, 150):
+        r = T.watch(str(log), at); assert r["ready"] and not r["stop"] and r["alive_logged"]
+        assert r["edge_rate"] == pytest.approx(2.5, abs=1e-3) and r["h_per_live_s"] == pytest.approx(4 / 61.44, abs=1e-4) and r["std"] == 0.70
+    assert not T.watch(str(log), 170)["ready"] and not T.watch(str(log), 170)["stop"]   # 160 complete blocks: 170 not reached
+    lims = lambda at: (T.watch(str(log), at)["max_h"], T.watch(str(log), at)["max_std"])
+    assert lims(20) == lims(50) == (0.22, 0.80) and lims(100) == (0.19, 0.85) and lims(150) == lims(1500) == (0.17, 0.90)
+    assert T.WATCH["checks"] == (50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500)
+    # E1: the edge rate below 0 (only the window counts: iterations 81-100 at it 100)
+    _watch_log(log, 160, act=lambda i: -2.2 if i >= 80 else -0.75)
+    r = T.watch(str(log), 100); assert r["stop"] and r["reasons"] == ["E1 edge rate -0.400/s < 0.0"]
+    assert not T.watch(str(log), 100, edge=False)["stop"]
+    # E2: hazard 11 / 61.44 = 0.179/s passes the 0.19 limit at 100, stops at 150 (limit 0.17); 10 / 61.44 = 0.163/s (A2 at 150) passes
+    _watch_log(log, 160, ro=lambda i: 10.0)
+    assert not T.watch(str(log), 100)["stop"]
+    r = T.watch(str(log), 150); assert r["stop"] and r["reasons"] == ["E2 hazard 0.1790/s > 0.17"]
+    _watch_log(log, 160, ro=lambda i: 9.0); assert not T.watch(str(log), 150)["stop"]
+    # E2 at 50: 0.2279 > 0.22 (getting worse than the warm start's 0.19); E3: std 0.86 stops at 100 (0.85), not at 150 (0.90); 0.91 at 150
+    _watch_log(log, 160, ro=lambda i: 13.0); assert T.watch(str(log), 50)["reasons"] == ["E2 hazard 0.2279/s > 0.22"]
+    _watch_log(log, 160, std=lambda i: 0.81); assert T.watch(str(log), 50)["reasons"] == ["E3 std 0.81 > 0.8"] and not T.watch(str(log), 100)["stop"]
+    _watch_log(log, 160, std=lambda i: 0.86)
+    assert T.watch(str(log), 100)["reasons"] == ["E3 std 0.86 > 0.85"] and not T.watch(str(log), 150)["stop"]
+    _watch_log(log, 160, std=lambda i: 0.91); assert T.watch(str(log), 150)["reasons"] == ["E3 std 0.91 > 0.9"]
+    # a log without spar_alive (A2's, run 1's): E1 sees the edge rate without the bonus
+    _watch_log(log, 160, alive=False); r = T.watch(str(log), 100); assert not r["alive_logged"] and r["stop"] and r["edge_rate"] == pytest.approx(-1.5, abs=1e-3)
+
+def test_watch_cli_exit_codes(tmp_path):
+    """The pod reads the exit code: 3 = stop, 0 = keep going; the watch subcommand needs no mjlab."""
+    import subprocess
+    log = tmp_path / "x.log"; _watch_log(log, 160)
+    run = lambda *a: subprocess.run([sys.executable, str(ROOT / "gpu" / "sparring_task.py"), "watch", "--log", str(log), *a], capture_output=True, text=True, cwd=tmp_path)
+    ok = run("--at", "150"); assert ok.returncode == 0 and ok.stdout.startswith("WATCH ") and json.loads(ok.stdout[6:])["stop"] is False
+    _watch_log(log, 160, ro=lambda i: 10.0); bad = run("--at", "150"); assert bad.returncode == 3 and json.loads(bad.stdout[6:])["reasons"][0].startswith("E2")
+    _watch_log(log, 160, alive=False); assert run("--at", "100").returncode == 3 and run("--at", "100", "--no-edge").returncode == 0

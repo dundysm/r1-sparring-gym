@@ -646,7 +646,8 @@ Nothing here has run on a GPU.
 
 ## 9. Run 2 (2026-10-29; preregistered in `results/sparring/prereg_m2_run2.json` before any run-2 code ran on GPU)
 
-Run 1 failed (`results/sparring/M2_RUN1.md`): both sighted defenders learned to back out of reach. Run 2 keeps run 1's pass
+Run 1 failed (`results/sparring/M2_RUN1.md`): both sighted defenders learned to back out of reach. Run 2 was restarted once,
+after A2 learned to leave the ring; section 9.6 and the prereg's "amendment" record what changed. Run 2 keeps run 1's pass
 rule and its substance, trains new task IDs (`R1-Spar-Block2-A`, `R1-Spar-Block2-Blind`), and is scored on re-seeded episodes of the same clips.
 The run-1 tasks, `SCHED`, `HIT`, `WEIGHTS` A / B and every default are unchanged bit for bit, so run 1 stays reproducible
 (`tests/test_sparring_r2.py` drives `AttackSchedule` and `HitAccount` against a frozen copy of the run-1 file,
@@ -770,7 +771,87 @@ first" through `SPAR_CALIB_DEVIATION`.
     displacement away from the opponent between t_on and t_apex, intent_closest_cm against the blocked share, ring
     creep, crouching, turning away and pinning.
 - **Critic offset:** the warm-start critic is off by about +5 because of the bonus. `fell_over` is watched over the
-  first 50 iterations; this is reported, not gated.
+  first 50 iterations; this is reported, not gated. (Run 2b: the alive bonus's value is shifted into the critic by
+  widen2b, 9.6.)
 - **Other risks:**
   - Pushes may cause some ring-outs; they are logged.
   - Blocks learned against two floating fists may not transfer to the CPU humanoid.
+
+### 9.6 Run 2 restart (2026-10-29; `prereg_m2_run2.json` "amendment", committed before the restart pod)
+
+The first run-2 pod passed gate 1 (head clean 14.46 / min, median 3.31 N*s per landed head hit) and gate 2 (2.05 s per
+iteration). A2 was then stopped by hand at 266 of 1500 iterations because it was learning to leave the ring. No A2 checkpoint
+was exported or evaluated, blind2 and A2s never trained, and no run-2 eval has run, so the hard_r2 seeds (val 21000+, test
+22000+) are unused.
+
+**Diagnosis** (A2's log, read against mjlab 1.2.0, rsl_rl 5.0.1 and unitree_rl_mjlab @1425b15). Rates are per live second;
+Episode_Reward is the episode sum / 20 s, and the episode length comes from 3072 / episode ends per step (E1 below uses
+rsl_rl's "Mean episode length", the last 100 episodes, about 5% longer at A2's end).
+
+| A2 iterations | action std | rate excl. is_terminated | at the ring edge (spar_ring 0) | episode | ends: ring_out / fell / time_out |
+|---|---|---|---|---|---|
+| 20-29 | 0.70 | +0.78 | -0.86 | 261 steps | 0.92 / 0.06 / 0.02 |
+| 95-104 | 0.82 | -0.19 | -2.07 | 316 | 0.83 / 0.14 / 0.03 |
+| 256-265 | 0.94 | -1.03 | -3.01 | 241 (4.8 s) | 0.80 / 0.20 / 0.01 |
+
+- **When ending an episode pays.** PPO's horizon is 2 s (gamma 0.99 at 0.02 s) and time-outs are bootstrapped. So a
+  termination (-4, ring_out or a fall) pays wherever the local rate is below about -2 per second; the time left in the episode
+  does not matter. The edge crossed -2 per second around iteration 90. That is where the episode length peaked (325 steps) and
+  the ring-out hazard bottomed (0.131 per second), before both turned. Run 1 B shows the same threshold: at -1.9 per second its
+  fall hazard rose from 0.03 to 0.16 per second.
+- **What drove the slide.** About 85% of the -1.81 per second slide is the smoothness tax of the rising action std.
+  action_rate_l2's sampling-noise part alone is -2.42 x std^2 per second: -2.14 of its -2.64 at the end. Nothing clamps the
+  std, and while living was net negative the extra terminations the noise caused cost nothing.
+- **Why 9.2's argument failed.** It said the bonus "keeps every live second worth more". That held only at std 0.65-0.78: a
+  bonus that tapers to 0 at the exit cannot keep the edge positive once the rest of the stream is negative.
+
+**What changes** (R1-Spar-Block2-A / -Blind only, keeping their IDs; every run-2 term above, the attacker, gates, seeds, eval,
+selection and pass rule are unchanged):
+1. **Alive bonus.** `spar_alive` pays `ALIVE` weight 4.0 per live second, in the train and play cfg. It is mjlab's is_alive
+   rule: 0 on the step a fall, ring_out or nan ends the episode, 1 otherwise, including the time-out step.
+   - At A2's measured rates the mean state becomes +2.97 and the edge +0.99 per second (+2.5 and +0.5 projected at std 1.0).
+   - So a termination forfeits a positive stream in both the discounted and the undiscounted frame. The edge stays >= 0 up to
+     std about 1.05 and above -2 up to about 1.28.
+   - The bonus pays the same per live second whether the defender blocks, slips or absorbs, but it raises the cost of a fall
+     (about 9 instead of 4), which favours fall-avoiding evasion or a lean over a block. A block stays worth it while it adds
+     fewer than about 0.3 falls per stopped strike; A2 had about 0.04 falls per strike in total.
+2. **`widen2b`.** It is widen2 plus `ALIVE` v_shift +8.0 (= 4.0 x 0.02 / 0.01) on the critic's output bias.
+   - With a critic that starts too low by D, a terminal transition looks about 0.83 D better than it is. The clipped value
+     loss (0.2 per iteration) would take about 40 iterations to remove that.
+   - 8.0 is the bonus's value with no termination, so the critic starts 0-2 too high: the safe side.
+   - spar_ring's own offset is left as in run 2. Its sign at the warm start is unknown: the bonus raises V, while the shorter
+     episodes and the hit costs lower it.
+3. **Predeclared early stop** (`WATCH`, `python gpu/sparring_task.py watch --log <log> --at N`, exit 3 = stop).
+   - **When:** at N = 50, 100, 150, 200, 300, ..., 1500, on the 20 iterations ending at N.
+   - **Stop if any of:**
+     - E1: the edge rate (every logged reward term except spar_ring and is_terminated, per live second) is below 0;
+     - E2: the termination hazard (ring_out + fell_over + nan per live second) is above 0.22 at 50, 0.19 at 100, or 0.17
+       from 150 on;
+     - E3: the action std is above 0.80 at 50, 0.85 at 100, or 0.90 from 150 on.
+   - **Applies to:** A2 and A2s. blind2, the control, is watched and reported but always trains 1500 iterations.
+   - **Consequences:** a stopped A2 ends run 2 with no eval. A stopped A2s is no candidate, and the screen runs on A2 alone.
+   - **Thresholds:** they come from A2's own windows in the same task and push regime. The warm start's hazard was 0.192;
+     A2's best was 0.150 (iterations 80-89); A2 had 0.162 at 131-150. E2's late bar is 0.17, not A2's best: no healthy log
+     with ring_out exists and the actor cannot see its position, so the ring-out floor under pushes is unknown.
+   - **Replayed:** the rule stops A2 at 200 (E2 0.182, E3 0.91), never stops run 1's A or Blind, and stops run 1's B at 100
+     (std 0.86).
+   - **E1** is a wiring and premise check, not a guard: with the bonus logged it trips only near std 1.05, after E3.
+   - The 1500 check is reported only; in A2 and A2s a watch error is a stop.
+   - **Cost:** a stop costs about 0.18-0.26 USD, against about 2.5 USD for a full pod.
+
+**Not chosen.** A std cap at 0.75 would need a custom rsl_rl distribution on the training path, untested off the pod, and it
+would cap exploration below the std at which run 1 learned (0.76-0.81). Dropping ring_out for a soft ring would train against a
+weaker constraint than the eval's "never more than 1 m from the start".
+
+**Disclosed.** A2's aborted 266-iteration log was seen before this restart was designed. The restart reuses the task IDs and run
+names; the aborted A2 produced no export.
+
+**Not verified.**
+- That the std stops rising once terminations cost reward (E3 bounds it).
+- That GPU pushes leave a hazard floor below 0.17 per second by iteration 150. A2 reached 0.150 under a weak incentive; a
+  healthy run that hovers at the floor could still be stopped. E2 also lets a run at 0.16 per second through late on, where
+  few 20 s bouts last; the eval reports that.
+- Training's fall is tilt above 70 degrees only; the eval also counts pelvis z below 0.45 m or tilt above 60. The bonus pays
+  crouched or 60-70 degree states, so a hard-to-push-over crouch earns more than in run 2 (stand_still on the legs taxes it).
+- The critic transient.
+- Section 9.5's risks (late lean, block transfer) stand.

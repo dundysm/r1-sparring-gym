@@ -621,3 +621,23 @@ Nothing here has run on a GPU.
     (0.73 for 1.0 kg), so training is closer to the eval opponent. Its margin to 3.56 N*s is thin (3.52): the rerun of
     `calibrate` with this `ATTACK` writes its second seed set as `attack_recheck` (reported, never gating), and the GPU gate
     1 re-measures the median on the pod.
+
+**Gate 1 on the GPU (2026-10-29, pod 1; written before pod 2 and before any M2 training).**
+
+29. **The CPU-calibrated attacker fails gate 1 on the GPU, so a GPU retune grid is fixed here.** Pod 1 (`m1check`, 4096
+    envs x 1000 steps, mesh proxies, gravcomp on, `ATTACK` = (1.5 kg, 80 N, -2 cm)): head clean 11.81 / min (passes
+    >= 7.7), median impulse per head landed hit **3.945 N·s (fails [1.58, 3.56])**, mean 4.90, torso clean 9.21 / min,
+    blocked share 0.624, signed-closing-speed < 0 share 0.008, 0.31 falls / min. The CPU replica gave 3.52 (3.23 on the
+    second seed set) for the same row, so MuJoCo Warp's contacts land about 12% harder than CPU MuJoCo's. 2.6 has no
+    gate-1 fallback; this adds one, before any M2 training and without looking at any M2 outcome:
+    - `pod_m1m2.sh` runs gate 1 with `ATTACK`; if it fails, it tries these rows in this order, `SPAR_ATTACK="mass,fmax,delta"`:
+      (1.5, 70, -2 cm), (1.5, 60, -2 cm), (1.0, 80, -2 cm), (1.0, 60, -2 cm), (1.5, 50, -2 cm). Order: CPU calibration put
+      the force cap and the mass as the strong levers (4.42 -> 3.59 N·s for 150 -> 80 N; 4.42 -> 3.65 for 1.5 -> 1.0 kg) and
+      the aim depth as weak (3.59 -> 3.52 for +5 mm -> -2 cm), so the grid steps the cap down first, then the mass.
+    - The first row that passes gate 1 (both criteria, unchanged) is the attacker for gate 2 and all three trainings; its
+      values stay exported. If none passes: `FAILED m1_gate_grid_exhausted`, nothing is trained.
+    - A retuned row is a deviation from "CPU calibration passes first": the pod sets `SPAR_CALIB_DEVIATION`, so
+      `m1_gate.json` lists it and the run ends `M1_GATE_PASSED_DEVIATION`. Every row tried keeps its own
+      `m1_gate_<proxy>_<row>.json` and log in the download. The M2 write-up reports the row and this deviation.
+    - The pass rule of the preregistration is unchanged: the CPU eval opponent is the same, only the training attacker
+      changes.

@@ -25,7 +25,8 @@ Subcommands (python sparring_task.py ...):
   gate --m1 m1_gate.json --smoke-log smoke.log [--proxy mesh --num-envs 4096]               gate 2 from the smoke log
   <task id> [train.py flags]       training (unitree_rl_mjlab's train.main), from a unitree_rl_mjlab checkout
 Environment: SPAR_SHELL_PROXY=capsule (2.6's speed fallback), SPAR_GRAVCOMP=0 (feed-forward instead of body gravcomp),
-SPAR_CALIB_DEVIATION="<reason>" (train although the calibration did not choose ATTACK: recorded as a deviation)."""
+SPAR_CALIB_DEVIATION="<reason>" (train although the calibration did not choose ATTACK: recorded as a deviation),
+SPAR_ATTACK="mass,fmax,delta" (overrides ATTACK's three calibrated values: gate 1's GPU retune grid, section 8 item 29)."""
 import os, sys, json, math, time, hashlib
 from pathlib import Path
 import numpy as np
@@ -64,6 +65,8 @@ ATT_JOINTS = tuple(f"att_{s}_{j}" for s, _ in SIDES for j in ("x", "y", "z", "ya
 # passes: median 3.52 N*s, head clean 11.0 / min, survival 0.88 (results/sparring/m1_calibration.json, section 8 item 28).
 ATTACK = dict(mass=1.5, fmax=80.0, delta=-0.02, kp=1500.0, rot_kp=60.0, rot_kv=3.0, rot_fmax=30.0, rot_armature=0.01, radius=0.045,
               link_mass=0.01, link_inertia=1e-5, capsule=(-0.195, 0.03))
+if os.environ.get("SPAR_ATTACK"):   # gate 1's GPU retune (section 8 item 29): "mass,fmax,delta" from pod_m1m2.sh's predeclared grid
+    ATTACK.update(zip(("mass", "fmax", "delta"), map(float, os.environ["SPAR_ATTACK"].split(","))))
 def slide_kv(mass, kp=ATTACK["kp"]): return 2.0 * math.sqrt(kp * (mass + 2 * ATTACK["link_mass"]))   # critical on the z slide's load (95.5 at 1.5 kg)
 CALIB_GRID = ((1.5, 150.0, 0.005), (1.5, 150.0, -0.02), (1.5, 80.0, 0.005), (1.0, 150.0, 0.005), (1.5, 80.0, -0.02))
 CALIB_PASS = dict(impulse_Ns=(1.58, 3.56), head_clean_pm=7.7, speed_ratio=0.85, agree_rate=0.15, agree_impulse=0.10)

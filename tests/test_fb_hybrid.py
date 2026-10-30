@@ -1,8 +1,8 @@
 """Full-body M2 v2 defender actor and export (M2V2_PLAN_v3 M7; gpu/hybrid_actor.py, scripts/export_hybrid_fb.py): stage A = H(arms)/M3s
 (fb_actions.compose with the same nets; P1's M3sHybrid arithmetic with the donors' ONNX plugged in), leg dims without gradient, stage B
 at init = stage A bit for bit, the anchor's gradient on the residual only, the ONNX = the actor's float64 reference bit for bit through
-r1gym's MjlabPolicy, checkpoint round trip, and t9b's seed guard. Rows: the donors' normalizer mean + std x N(0, 1) (no simulation).
-The recorded-row gates run in scripts/fb_m7_check.py."""
+r1gym's MjlabPolicy, checkpoint round trip, t9b's seed guard and a 1 s t9b bout (60400). Rows: the donors' normalizer mean + std x
+N(0, 1) (no simulation outside the t9b bout). The recorded-row gates run in scripts/fb_m7_check.py."""
 import sys, json, copy
 from pathlib import Path
 import numpy as np, pytest, torch
@@ -98,6 +98,23 @@ def test_checkpoint_round_trip(env, tmp_path):
     torch.save({"actor_state_dict": a.state_dict()}, tmp_path / "model_1.pt"); b = EX.build(ckpt=tmp_path / "model_1.pt"); x = env[2]
     with torch.no_grad(): assert b.stage == "B" and eq(b.mean(x), a.eval().mean(x))
 
+def test_blind_flag_is_stored_and_asserted(env, tmp_path):
+    """A9.2: every state dict carries blind_flag; build() refuses a --blind that disagrees with it and a checkpoint without it;
+    ckpt_blind reads it (selection / test read the flag, never an argument)."""
+    for blind in (False, True):
+        a = actor(env, blind); torch.save({"actor_state_dict": a.state_dict()}, tmp_path / f"m{int(blind)}.pt"); assert HA.stored_blind(a.state_dict()) is blind
+        assert EX.ckpt_blind(tmp_path / f"m{int(blind)}.pt") is blind and EX.build(blind, tmp_path / f"m{int(blind)}.pt").blind is blind
+        with pytest.raises(AssertionError): EX.build(not blind, tmp_path / f"m{int(blind)}.pt")
+    sd = actor(env).state_dict(); sd.pop("blind_flag"); torch.save({"actor_state_dict": sd}, tmp_path / "old.pt")
+    with pytest.raises(AssertionError): EX.build(False, tmp_path / "old.pt")
+
 def test_t9b_refuses_other_seeds_before_any_bout():
     for s in ([22000], [21000], [60399], [60416], [60000]):
         with pytest.raises(SeedRefused): EX.t9b_episodes(s)
+
+def test_t9b_one_second_bout_is_identical(tmp_path):
+    """t9b end to end on 60400 for 1 s (role 't9', in role): EO.run with the start ONNX = the replica with the torch composition, rows
+    and served controller rows; a --blind that disagrees with the export's manifest is refused."""
+    EX.export(tmp_path, actor=EX.build()); r = EX.t9b(tmp_path / "policy.onnx", workers=1, seconds=1.0, seeds=(60400,))
+    assert r["ok"] and r["identical"] == 1 and r["ctrl_rows"]["onnx"] == r["ctrl_rows"]["torch"] == r["same_state"]["rows"] == 50 and r["same_state"]["bit_mismatch"] == 0
+    with pytest.raises(AssertionError): EX.t9b(tmp_path / "policy.onnx", blind=True, workers=1, seconds=1.0, seeds=(60400,))

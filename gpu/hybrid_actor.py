@@ -17,7 +17,9 @@ Nets are rsl_rl 5.0.1 MLPModel actors (state-dict keys obs_normalizer._mean/_var
 weights (std + 0.01 summed in float32: the constant the ONNX folds) and rounds the action to float32: the function export_onnx writes.
 export_onnx: one stateless graph, input 'obs' [1, 111] float32 (the donors' fixed batch 1: MjlabPolicy runs it row by row, so the action
 of a row never depends on the batch), output 'actions' [1, 24] float32, G + M3s + arm net (+ residual), compute dtype float64 (default)
-or float32, donor metadata (the arm donor's, observation_names ending ',opp_keypoints' / ',opp_keypoints_blind') plus 'fb_hybrid'."""
+or float32, donor metadata (the arm donor's, observation_names ending ',opp_keypoints' / ',opp_keypoints_blind') plus 'fb_hybrid'.
+Blind flag (A9.2): the buffer blind_flag rides in every state dict, so every rsl_rl checkpoint states whether its arms were trained on
+the 28 zeros; scripts/export_hybrid_fb.build asserts it equals --blind, and stored_blind() is what selection / test scripts read."""
 import copy, json
 import numpy as np, torch
 from torch import nn
@@ -84,6 +86,7 @@ class HybridActor(nn.Module):
         self.std_param = nn.Parameter(arm_sd["distribution.std_param"].detach().clone())     # 24-d, the arm donor's
         self.register_buffer("scale", torch.as_tensor(np.asarray(scale, np.float64))); self.clip = float(clip)
         self.blind, self.width, self.obs_groups = bool(blind), ("zeros" if blind else 111), tuple(obs_groups)
+        self.register_buffer("blind_flag", torch.tensor(bool(blind)))   # A9.2: stored in every checkpoint (actor_state_dict), asserted by export
         self.stage, self.residual, self.res_norm, self._plug, self._dist, self.r = "A", None, None, None, None, None
 
     @classmethod
@@ -170,6 +173,11 @@ class HybridActor(nn.Module):
     def detach_hidden_state(self, dones=None): pass
 
 # ---- export
+def stored_blind(sd):
+    """The blind flag an actor state dict carries (A9.2); a state dict without it (pre-A9 or not a HybridActor) is refused."""
+    assert "blind_flag" in sd, "no stored blind flag (A9.2): not a fullbody HybridActor checkpoint"
+    return bool(sd["blind_flag"])
+
 def _np(t, dt): return t.detach().cpu().numpy().astype(dt)
 
 def onnx_model(actor, meta, dtype="float64", ir_version=None, opset=18):

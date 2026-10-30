@@ -10,7 +10,8 @@ dr.body_mass / dr.body_com_offset would recompute them (set_const), so this writ
 act_delay is drawn by fb_events.fb_draw_latency, not here (the eval draws it last from the same stream: sample_np consumes it).
 
 DRIndex       defender index sets from a compiled model, as R1HitEnv._dr_init: bodies (sorted), pelvis, torso, foot geoms, dofs,
-              actuators in CTRL_JOINTS order.
+              actuators in CTRL_JOINTS order (named '<prefix><joint minus _joint>' in the eval model, '<prefix><joint>' in mjlab's). In
+              mjlab's model pass is_defender (names 'robot/...') and prefix 'robot/' explicitly (M4_VERIFY 4.2; fullbody_task.fb_dr).
 sample        torch draws for N envs; sample_np: one env's draws from a numpy Generator in the eval's order (replay checks).
 write         fields: {name: tensor [N, ...]} (mjlab's per-world model fields, or an MjModel's arrays wrapped as N = 1); nominal:
               {name: tensor [...]}; writes only FIELDS, only for envs ids."""
@@ -24,7 +25,8 @@ class DRIndex:
         nb = [m.body(b).name for b in range(m.nbody)]; r1 = {b for b in range(1, m.nbody) if is_defender(nb[b])}
         self.bodies = np.array(sorted(r1)); self.pel, self.torso = m.body(prefix + "pelvis").id, m.body(prefix + "torso_link").id
         self.feet = np.array([g for g in range(m.ngeom) if "foot" in (m.geom(g).name or "") and m.geom_bodyid[g] in r1], dtype=np.int64)
-        self.dofs = np.flatnonzero(np.isin(m.dof_bodyid, list(r1))); self.act = np.array([m.actuator(prefix + j.replace("_joint", "")).id for j in ctrl_joints])
+        self.dofs = np.flatnonzero(np.isin(m.dof_bodyid, list(r1))); an = [m.actuator(a).name for a in range(m.nu)]
+        self.act = np.array([an.index(next(x for x in (prefix + j.replace("_joint", ""), prefix + j) if x in an)) for j in ctrl_joints])   # eval: '<joint>' minus _joint; mjlab: the joint's name
         self.nb, self.nd, self.na = len(self.bodies), len(self.dofs), len(self.act)
 
 def _u(lo_hi, shape, gen, dtype, device): lo, hi = lo_hi; return lo + (hi - lo) * torch.rand(shape, dtype=dtype, device=device, generator=gen)

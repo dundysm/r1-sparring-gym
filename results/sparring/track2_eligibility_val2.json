@@ -1,0 +1,225 @@
+{
+ "about": "Track 2 eligibility (M2V2_PLAN_v3 6.2 item 3, T2-3), SEALED for val2/test2: every clip of a split of results/sparring/",
+ "split": "val2",
+ "split_sha256": "6a30c05307d2187bfb56cfc338795d5a714b77f975fd4a1303f8d407c8768ed2",
+ "rule": {
+  "kept_min_s": 4.0,
+  "head_min": 2,
+  "stay_up_min": 0.9,
+  "starts": 24,
+  "seconds": 10.0,
+  "alone_distance_m": 4.0,
+  "tracker": "model_13749.pt float32",
+  "cut_pre_s": 0.8,
+  "cut_post_s": 0.1,
+  "cluster_gap_s": 1.0,
+  "max_cut_rounds": 3,
+  "head_band": [
+   1.02,
+   1.23
+  ]
+ },
+ "val2_head_band_hand_strikes_min": 30,
+ "bookkeeping_seeds": [
+  24950,
+  24989
+ ],
+ "seed_note": "tracker-alone worlds are seed-free; ids checked by fb_seeds role track2",
+ "wall_s": 48.0,
+ "sealed": true,
+ "per_clip": {
+  "kfab_235": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_237": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_239": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_240": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_242": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_332": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_333": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_535": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_539": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_541": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_543": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_544": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_546": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_547": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_548": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_549": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_550": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_552": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_553": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_554": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_555": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_557": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_558": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_559": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_560": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_561": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_562": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_564": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_1424": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_1426": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_1427": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_1428": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_1430": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_1431": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_1433": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_1434": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_1435": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_1436": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_1437": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_1438": {
+   "eligible_hand": false,
+   "eligible_any": false
+  }
+ },
+ "aggregate": {
+  "clips": 40,
+  "errors": 0,
+  "measured": 0,
+  "eligible_hand": {
+   "eligible": 0,
+   "head_band_hand_strikes": 0,
+   "head_band_strikes": 0
+  },
+  "eligible_any": {
+   "eligible": 0,
+   "head_band_hand_strikes": 0,
+   "head_band_strikes": 0
+  },
+  "fails": {
+   "kept_ok": 32,
+   "hand_ok": 39,
+   "any_ok": 39,
+   "stay_up_ok": 40
+  },
+  "all_clips_first_round": {
+   "kept_s": 100.1,
+   "head_band_hand_strikes": 15,
+   "head_band_strikes": 15,
+   "clips_kept_ok": 9
+  },
+  "val2_head_band_hand_strikes_min": 30,
+  "val2_ok": {
+   "eligible_hand": false,
+   "eligible_any": false
+  }
+ },
+ "errors": []
+}

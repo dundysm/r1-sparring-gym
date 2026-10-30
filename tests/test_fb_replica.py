@@ -35,7 +35,7 @@ def test_reduced_hulls_and_switches(ccfg, m_eval):
     P = RP.hull_points("mix", m_eval); G = [g for g in range(m.ngeom) if m.geom_type[g] == mujoco.mjtGeom.mjGEOM_MESH and (m.geom_contype[g], m.geom_conaffinity[g]) in ((0, 4), (4, 0))]
     assert len(G) == 64
     for g in G[::5]:
-        name = m.mesh(m.geom_dataid[g]).name; base = name[len("fbhull_"):]; base = base[4:] if base.startswith("opp_") else base
+        name = m.mesh(m.geom_dataid[g]).name; base = name[4:] if name.startswith("opp_") else name
         V, _ = XH.hull(m, g); W, _ = XH.hull_of(P[base]); d = np.abs(np.sort(V.round(9), 0) - np.sort(W.round(9), 0)).max(); assert len(V) == len(W) and d < 1e-9, (name, d)
     m6, _ = RP.build_model(ccfg, RP.conf(self_collision=True)); ch = [g for g in range(m6.ngeom) if m6.geom_contype[g] != m_eval.geom_contype[g] or m6.geom_conaffinity[g] != m_eval.geom_conaffinity[g]]
     assert ch and all((m6.geom_contype[g], m6.geom_conaffinity[g]) == (8, 9) and (m_eval.geom_contype[g], m_eval.geom_conaffinity[g]) == (0, 1) and not m6.body(m6.geom_bodyid[g]).name.startswith("opp_") for g in ch)

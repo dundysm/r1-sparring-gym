@@ -2,7 +2,8 @@
 in the eval's order by its own loop, one bout at a time (N = 1 per process), with the M2-M5 modules plugged in.
 Switches (conf, EVAL = the eval):
   hulls     'full' (the eval's mesh shells) | 'mix' (fb_hulls.npz: 256-point hulls on head, waist_yaw, elbows, wrists, 64 elsewhere,
-            plan 2.1) | 'all256' (256 everywhere, export_attacks.fps_sample of the full hull, as export_fb_hulls): both robots' shells
+            plan 2.1) | 'all256' (256 everywhere, export_attacks.fps_sample of the full hull, as export_fb_hulls): both robots' shells; a hull mesh takes
+            its original's name (the original is renamed fborig_<mesh>; A10: r1_zone / zone_of key on mesh names)
   solver    (iterations, ls_iterations): (100, 50) eval; the 3.2 fallback list 10/20 -> 25/30 -> 50/50 -> 100/50 (Newton, cone,
             impratio, ccd_iterations 35 stay the eval's)
   reset     'eo' (the episode as EO.run resets it: R1HitEnv's rng from env_seed draws DR, act_delay and the obs noise; t0 and k from
@@ -22,6 +23,10 @@ Switches (conf, EVAL = the eval):
             float32, as Tracker.act feeds it)
   ref       'fb' (the driver's reference from fb_motion.npz) | 'eval' (diagnostic: the eval Tracker's own reference arrays, its ONNX
             initializers at Tracker.frame, in place of fb_motion's)
+  motion    (optional key, torch backends) 'fb' (default: fb_motion.npz, the train originals) | 'l1' (fb_population.FbMotion: the
+            originals then the L1 rows; an episode's 'row' names the L1 row, 'clip' its host; M8b contract, A9.4: the driver is
+            fb_mirror-conjugated with mask = the row's npz conj, set at reset, and fed the row's npz reference; the aim is
+            fb_population.SwapAim, inert unless the episode sets 'jitter')
 Outer loops (face the opponent's pelvis bearing, hold the spot), the 83's arithmetic for the numpy backend and the eval's DR draws are
 R1HitEnv's own functions (borrowed, not copied); the per-step bookkeeping (falls, opponent fall log via EO.ContactTail, both-up
 intervals, ring, spacing) and the row are EO.run's. Each conf compiles one model per process (cached).
@@ -34,7 +39,7 @@ ROOT = Path(__file__).resolve().parents[1]
 for p in (ROOT, ROOT / "gpu", ROOT / "scripts"):
     if str(p) not in sys.path: sys.path.insert(0, str(p))
 import numpy as np, mujoco, torch
-import fb_opponent as FO, fb_obs as OB, fb_actions as AC, fb_events as EV, fb_dr as DR, fb_hits as HT
+import fb_opponent as FO, fb_obs as OB, fb_actions as AC, fb_events as EV, fb_dr as DR, fb_hits as HT, fb_population as POP
 
 HULLS, RESETS, SCORERS, BACKENDS, VMODES, ACTORS, REFS = ("full", "mix", "all256"), ("eo", "train"), ("hitmeter", "account"), ("numpy", "torch64", "torch32"), ("pos", "site", "com", "point"), ("mlp", "onnx"), ("fb", "eval")
 EVAL = dict(hulls="full", solver=(100, 50), reset="eo", scorer="hitmeter", backend="numpy", self_collision=False, vmode="pos", actor="mlp", ref="fb")
@@ -44,12 +49,14 @@ SELF_BIT = 8                                       # R6: defender capsule self-c
 K_SLOTS, LEAD_S = 8, 0.8                           # account window slots (AimOp's ring); intents visible from t_on - lead_s
 SITE_OF = dict(hand="palm", forearm=None, foot="foot", shin=None)   # vmode 'site': the limb's site (else its body COM)
 DT_T = {"torch64": torch.float64, "torch32": torch.float32}
+MOTIONS = ("fb", "l1")
 
 def conf(**kw):
     c = dict(EVAL, **kw); c["solver"] = tuple(int(x) for x in c["solver"])
     for k, opts in (("hulls", HULLS), ("reset", RESETS), ("scorer", SCORERS), ("backend", BACKENDS), ("vmode", VMODES), ("actor", ACTORS), ("ref", REFS)): assert c[k] in opts, (k, c[k])
     assert not (c["reset"] == "train" and c["backend"] == "numpy"), "the training reset needs a torch backend (bout heading)"
     assert not ((c["actor"] == "onnx" or c["ref"] == "eval") and c["backend"] == "numpy"), "actor onnx / ref eval are torch-backend diagnostics"
+    assert c.get("motion", "fb") in MOTIONS and not (c.get("motion", "fb") == "l1" and (c["backend"] == "numpy" or c["actor"] != "mlp" or c["ref"] != "fb")), "motion l1: torch backends, mlp actor, fb ref"
     return c
 
 def conf_key(c): return json.dumps({k: list(v) if isinstance(v, tuple) else v for k, v in sorted(c.items())})
@@ -79,10 +86,10 @@ def build_model(ccfg, c, sensors=False):
     sp = build_spec(opponent=True, cfg=ccfg); m0 = None
     if c["hulls"] != "full":
         m0 = sp.compile(); P = hull_points(c["hulls"], m0); sp = build_spec(opponent=True, cfg=ccfg)
-        for g in shell_geoms(sp):
-            base = g.meshname[4:] if g.meshname.startswith("opp_") else g.meshname
-            sp.add_mesh(name=f"fbhull_{g.meshname}", uservert=np.asarray(P[base], np.float64).ravel().tolist())
-            g.meshname = f"fbhull_{g.meshname}"; g.pos = [0.0, 0.0, 0.0]; g.quat = [1.0, 0.0, 0.0, 0.0]
+        for g in shell_geoms(sp):   # A10: the hull takes the original mesh name (r1_zone / zone_of key on it), the original becomes fborig_<mesh>
+            mn = g.meshname; base = mn[4:] if mn.startswith("opp_") else mn; sp.mesh(mn).name = f"fborig_{mn}"
+            sp.add_mesh(name=mn, uservert=np.asarray(P[base], np.float64).ravel().tolist())
+            g.meshname = mn; g.pos = [0.0, 0.0, 0.0]; g.quat = [1.0, 0.0, 0.0, 0.0]
     if c["self_collision"]:
         for g in sp.geoms:
             if g.name.endswith("_collision") and not g.name.startswith("opp_") and (g.contype, g.conaffinity) == (0, 1): g.contype, g.conaffinity = SELF_BIT, 1 | SELF_BIT
@@ -199,6 +206,19 @@ class Sensors:
 # ---- one bout
 from r1gym.env import R1HitEnv as _E
 
+def opp_modules(n, dt, c):
+    """(Motion, TrackerDriver, AimOp, mirror policy or None) for n bouts: motion 'fb' as M6 built them; 'l1' FbMotion, the driver
+    conjugated per bout (fb_population.driver) and SwapAim around the AimOp (A9.4)."""
+    if c.get("motion", "fb") == "fb":
+        M = FO.Motion(); return M, FO.TrackerDriver(n, dt, motion=M), FO.AimOp(n, dt, motion=M, slots=K_SLOTS, skip_idle=True), None
+    M = POP.FbMotion(); drv, _, pol = POP.driver(n, M, dt)
+    return M, drv, POP.SwapAim(FO.AimOp(n, dt, motion=M, slots=K_SLOTS, skip_idle=True), gen=torch.Generator().manual_seed(0)), pol
+
+def opp_clip(M, pol, ids, ep):
+    """The episode's clip index in M; on L1 (pol set) the bouts' conjugation mask = the row's npz conj (M8b contract)."""
+    if pol is None: return FO.TRAIN.index(ep["clip"])
+    ci = M.index(ep.get("row", ep["clip"])); assert M.host[ci] == ep["clip"], (ep, M.host[ci]); pol.set(ids, bool(M.conj[ci])); return ci
+
 class Bout:
     """One bout at a time in a private MjData of the conf's model. Attribute names follow R1HitEnv so its outer loops, _raw_obs and DR
     draws run unchanged (borrowed below)."""
@@ -223,8 +243,7 @@ class Bout:
         if self.torch:
             dt = DT_T[c["backend"]]; self.tdt = dt
             if slot is None:
-                self.M = FO.Motion(); self.drv = FO.TrackerDriver(1, dt, motion=self.M)
-                self.aim = FO.AimOp(1, dt, motion=self.M, slots=K_SLOTS, skip_idle=True); self.lat = EV.Latency(1)
+                self.M, self.drv, self.aim, self.pol = opp_modules(1, dt, c); self.lat = EV.Latency(1)
                 self.obs = OB.EvalActorObs(1, self.lat, OB.noise_halfwidths(cfg), kp_dtype=dt, out_dtype=torch.float32 if dt == torch.float32 else torch.float64)
                 self.act = AC.HybridDelayedAction(1, self.lat, self.home, self.scale, self.clip, dtype=dt); self.od = EV.OppDown(1)
             self.ids6 = [m.body(nm).id for nm in OB.body_names()]; self.ix = DR.DRIndex(m, CTRL_JOINTS); self.F = DR.model_fields(m)[0]; self.nom = NOMINAL[id(m)]
@@ -267,14 +286,14 @@ class Bout:
         self.a_prev = np.zeros(24, np.float32); rp = self.replay(ep["clip"], ep["distance"]); self.opp_rp = rp
         if train:
             from r1gym.scenario import START_STEP
-            M = self.M; j = int(np.flatnonzero(np.isclose(M.distances.numpy(), ep["distance"]))[0]); ci = FO.TRAIN.index(ep["clip"]); idx = np.flatnonzero(M.clean[ci, j].numpy())
+            M = self.M; j = int(np.flatnonzero(np.isclose(M.distances.numpy(), ep["distance"]))[0]); ci = opp_clip(M, self.pol, [0], ep); idx = np.flatnonzero(M.clean[ci, j].numpy())
             self.opp_t0 = round(float(idx[int(torch.randint(len(idx), (1,), generator=g))] * START_STEP), 3)
         else: self.opp_t0 = ep["t0"]
         if self.torch:
-            ci = FO.TRAIN.index(ep["clip"]); o = self.oi
+            ci = opp_clip(self.M, self.pol, [0], ep); o = self.oi
             qp, qv = self.drv.reset(None, ci, self.opp_t0, ep["distance"], *((torch.zeros(1, 2, dtype=torch.float64), self.heading) if train else ()))
             d.qpos[o.qadr:o.qadr + 31] = qp[0].numpy(); d.qvel[o.vadr:o.vadr + 30] = qv[0].numpy(); mujoco.mj_forward(m, d)
-            self.aim.reset(None, ci, ep["distance"], aimed=self.mode != "shadow", jitter=False); self.alog = {}
+            self.aim.reset(None, ci, ep["distance"], aimed=self.mode != "shadow", jitter=bool(ep.get("jitter", False))); self.alog = {}
             self.od.reset([0]); self.obs.reset([0]); self.act.reset([0]); self.opp = o; self.opp_state = {}; self.obs.gen = self.gen if train else None
             if c["actor"] == "onnx": self.drv.mlp = self._onnx_actor()
             if c["ref"] == "eval": self.drv.reference = self._eval_ref
@@ -499,18 +518,18 @@ class Batch:
         self.dk = mujoco.MjData(m); self.S = [Bout(ctrl, ccfg, c, m, native, seconds, lag, slot=self.dk) for _ in range(k)]; B = self.S[0]
         self.tdt = dt = B.tdt; self.mode = B.mode; self.kpm = B.kpm; rp = {}
         for s in self.S: s.replays = rp
-        self.M = FO.Motion(); self.mods = {}; self.tm = {}; self.probe = None   # tm: wall s per phase; probe(i, slot, action) after each live step
+        self.mods = {}; self.tm = {}; self.probe = None   # tm: wall s per phase; probe(i, slot, action) after each live step
 
     def _modules(self, n):
         """The torch modules for n bouts (cached per n)."""
         if n not in self.mods:
-            dt, B = self.tdt, self.S[0]; lat = EV.Latency(n); drv = FO.TrackerDriver(n, dt, motion=self.M)
+            dt, B = self.tdt, self.S[0]; lat = EV.Latency(n); M, drv, aim, pol = opp_modules(n, dt, self.c)
             if self.rowwise: mlp = drv.mlp; drv.mlp = lambda x: torch.cat([mlp(x[i:i + 1]) for i in range(len(x))]); drv.face = rowwise_face(drv)
             obs = OB.EvalActorObs(n, lat, OB.noise_halfwidths(self.cfg), kp_dtype=dt, out_dtype=torch.float32 if dt == torch.float32 else torch.float64)
             act = AC.HybridDelayedAction(n, lat, B.home, B.scale, B.clip, dtype=dt); accts = {}
             if self.c["scorer"] == "account":
                 s = B.sens.s; accts[(self.c["vmode"], str(dt).split(".")[-1])] = HT.FullBodyHitAccount(n, s.zone_idx, s.bzone_idx, slots=K_SLOTS, dtype=dt, log=[], block=s.block_idx)
-            self.mods[n] = dict(lat=lat, drv=drv, aim=FO.AimOp(n, dt, motion=self.M, slots=K_SLOTS, skip_idle=True), obs=obs, act=act, od=EV.OppDown(n), accts=accts)
+            self.mods[n] = dict(M=M, lat=lat, drv=drv, aim=aim, pol=pol, obs=obs, act=act, od=EV.OppDown(n), accts=accts)
         self.__dict__.update(self.mods[n]); self.acct = next(iter(self.accts.values()), None)
 
     @staticmethod
@@ -531,13 +550,13 @@ class Batch:
         B.drp = {k: getattr(m, k).copy() for k in DR.FIELDS}; rp = B.replay(ep["clip"], ep["distance"]); B.opp_rp = rp
         if train:
             from r1gym.scenario import START_STEP
-            M = self.M; j = int(np.flatnonzero(np.isclose(M.distances.numpy(), ep["distance"]))[0]); ci = FO.TRAIN.index(ep["clip"]); idx = np.flatnonzero(M.clean[ci, j].numpy())
+            M = self.M; j = int(np.flatnonzero(np.isclose(M.distances.numpy(), ep["distance"]))[0]); ci = opp_clip(M, self.pol, [i], ep); idx = np.flatnonzero(M.clean[ci, j].numpy())
             B.opp_t0 = round(float(idx[int(torch.randint(len(idx), (1,), generator=g))] * START_STEP), 3)
         else: B.opp_t0 = ep["t0"]
-        ci = FO.TRAIN.index(ep["clip"]); o = B.oi
+        ci = opp_clip(self.M, self.pol, [i], ep); o = B.oi
         qp, qv = self.drv.reset([i], ci, B.opp_t0, ep["distance"], *((torch.zeros(1, 2, dtype=torch.float64), B.heading) if train else ()))
         d.qpos[o.qadr:o.qadr + 31] = qp[0].numpy(); d.qvel[o.vadr:o.vadr + 30] = qv[0].numpy(); mujoco.mj_forward(m, d)
-        self.aim.reset([i], ci, ep["distance"], aimed=self.mode != "shadow", jitter=False); B.alog = {}
+        self.aim.reset([i], ci, ep["distance"], aimed=self.mode != "shadow", jitter=bool(ep.get("jitter", False))); B.alog = {}
         self.od.reset([i]); self.obs.reset([i]); self.act.reset([i]); B.opp = o; B.opp_state = {}
         B.turning = False; B.returning = False; B.spot = d.qpos[B.r.free_q:B.r.free_q + 2].copy()
         import eval_opponent as EO

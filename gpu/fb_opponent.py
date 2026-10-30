@@ -314,12 +314,13 @@ class AimOp:
                arm-target offset (commit time and depth still jittered). T0 rows are not touched. Per slot: warped T1 steps, guarded
                steps, the sum of s and F'-converged steps (intents()). Slot overflow (a live intent overwritten) is counted; ik_calls
                counts the IK runs.
+    skip_idle (CPU replica, M6): no IK on a step where no limb has a live aimed intent (one host sync; outputs unchanged).
     dtype is the inputs' and outputs' (the sim state, the reference shown); compute (default float64) is the aim's own arithmetic:
     the 5x5 damped IK is ill-conditioned near the clip bounds, and float32 arithmetic moves its result by up to 0.03 rad where a
     float64 IK on the same float32 inputs moves it by 2e-3 (scripts/fb_m3_check.py). debug keeps the last step's IK (and the reach
     step's nominal, jittered and corrected deltas, palm x, the F' shift and convergence, the guard flag and s) in self.dbg."""
-    def __init__(self, n, dtype=torch.float32, device="cpu", motion=None, kin=None, p=AIM_P, slots=8, seed=0, log_ik=False, compute=torch.float64, debug=False, reach="A3"):
-        assert reach in REACH, reach
+    def __init__(self, n, dtype=torch.float32, device="cpu", motion=None, kin=None, p=AIM_P, slots=8, seed=0, log_ik=False, compute=torch.float64, debug=False, reach="A3", skip_idle=False):
+        assert reach in REACH, reach; self.skip_idle = skip_idle
         pin_precision(); self.io, dtype = dtype, compute or dtype; self.n, self.dtype, self.device, self.K, self.p, self.log_ik, self.debug, self.reach_mode = n, dtype, device, slots, p, log_ik, debug, reach
         M = motion or Motion(device=device); S = M.strikes; kin = kin or ArmKinematics.from_model(dtype=dtype, device=device)
         self.kin = kin if kin.dtype == dtype else ArmKinematics(kin.C, dtype, device)
@@ -433,7 +434,8 @@ class AimOp:
         j = torch.where((wl == wmax[..., None]) & (wl > 0), self.seq[:, None, :], torch.full_like(self.seq[:, None, :], 1 << 62)).argmin(-1)
         rq5 = rq[:, self.ix]; tw = self.target_w.gather(1, j[..., None].expand(n, 2, 3))
         p_t = torch.einsum("nji,nkj->nki", opp_R, tw - opp_x[:, None]); p_t = torch.cat([self.kin.fk(rq5)[..., :1], p_t[..., 1:]], -1)
-        qa = self.ik(rq5, p_t); d5 = torch.where(has[..., None], wmax.to(self.dtype)[..., None] * (qa - rq5), torch.zeros_like(rq5))
+        qa = rq5 if self.skip_idle and not bool(has.any()) else self.ik(rq5, p_t)   # skip_idle (CPU replica, a host sync): no limb warps, d5 is 0 either way
+        d5 = torch.where(has[..., None], wmax.to(self.dtype)[..., None] * (qa - rq5), torch.zeros_like(rq5))
         if self.debug: self.dbg = dict(rq5=rq5, p_t=p_t, qa=qa, has=has, w=wmax, slot=j)
         if self.any_jit and self.reach_mode != "raw": d5 = self._reach(rq5, p_t, d5, has, wmax, j, opp_x, opp_R)
         delta = torch.zeros_like(rq).index_copy(1, self.ix.reshape(-1), d5.reshape(n, 10))

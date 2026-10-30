@@ -31,3 +31,10 @@ def test_chunk_files_and_manifest(tmp_path):
     assert not list(tmp_path.rglob("*.tmp*"))
     D.manifest(tmp_path, "look_rule", "reps"); D.manifest(tmp_path, "look_rule", "reps")
     with pytest.raises(AssertionError): D.manifest(tmp_path, "look_rule", "shards_ceil")
+
+def test_batched_configuration():
+    """A7.1 / A7.2: torch-backend confs run BATCH = 64 bouts in lockstep, row-wise on the batch-variant ops; the eval conf one at a time;
+    both are in each chunk's meta, so a resume never mixes them."""
+    assert (D.BATCH, D.ROWWISE) == (64, True) and D.batch_of(D.REQ_CONF) == (64, True) and D.batch_of({}) == (1, False)
+    assert D.batch_of(D.R2_STEPS["d_reset"]) == (64, True) and D.batch_of(D.R2_STEPS["b_hulls"]) == (1, False)
+    m = D.cmeta("req", "t", "G", "shard_000", D.REQ_CONF, [1], 20.0); assert (m["batch"], m["rowwise"]) == (64, True) and 192 % D.BATCH == 0

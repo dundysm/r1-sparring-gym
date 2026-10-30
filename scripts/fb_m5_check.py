@@ -24,6 +24,10 @@ eval's own code:
           zero again); fb_down_approach / fb_down_contact zero while both are up; the tangle impulse = the per-substep sum of |F| dt over
           the pelvis + leg body-sensor entries (independent numpy). Reported: the re-recorded rows vs R4-pre's G rows, and (A4.2) the
           knockdowns before EARLY_S.
+          A5.1 (A7.3): W_eps = 10 x max |W_f32 - W_f64| over every live step of the 144 w0_r4pre bouts (w_eps: the torch account and
+          attribution ring in float32 and float64 on the same recorded rows), frozen in fb_rewards.W_EPS (asserted equal); the charge
+          needs W > W_eps, and an edge at t <= fb_rewards.START_S (0.5 s) is never charged (charge_rule). Scripted cases for both
+          (w_eps_floor, start_window); the charged counts under the final rule and under M5's rule are reported per block.
 Run in the repo: python scripts/fb_m5_check.py --out m5_check.json --rec m5rec.npz --rec-w0 w0rec.npz --p1 p1_eval.py [--r4pre DIR]
                  [--workers 4] [--reuse]"""
 import sys, gc, json, time, argparse
@@ -178,13 +182,14 @@ def model():
     m, cfg, r, _ = C4.model_cfg(); return m, cfg
 
 # ---- replay
-def replay(R, idx, m, vmode="com", reverse=False, w0=1.0, dtype=torch.float64, slots=TOL["slots"]):
-    """FullBodyHitAccount + FbRewards over bouts idx of the recording, batched. -> dict(log, values {term: (N, T)}, live (N, T), edges, ...)."""
+def replay(R, idx, m, vmode="com", reverse=False, w0=1.0, dtype=torch.float64, slots=TOL["slots"], eps=None):
+    """FullBodyHitAccount + FbRewards over bouts idx of the recording, batched. -> dict(log, values {term: (N, T)}, live (N, T), edges, ...).
+    eps: the charge's W floor (default fb_rewards.W_EPS)."""
     sens = HT.MjContactSensors(m, reverse=reverse); P, Pb = len(sens.prim), len(sens.bprim); B = [R["meta"]["bouts"][i] for i in idx]; N = len(idx)
     hk, bk = ("rhit", "rbody") if reverse else ("hit", "body"); H = [R[f"{i}/{hk}"] for i in idx]; Bd = [R[f"{i}/{bk}"] for i in idx]; Po = [R[f"{i}/post"] for i in idx]
     T = max(len(p) for p in Po); log = []
     acc = HT.FullBodyHitAccount(N, sens.zone_idx, sens.bzone_idx, slots=0 if reverse else slots, dtype=dtype, log=log, block=sens.block_idx)
-    rew = RW.FbRewards(N, w0=w0, dtype=dtype); od = EV.OppDown(N); vcol = slice(7, 10) if vmode == "com" else slice(10, 13)
+    rew = RW.FbRewards(N, w0=w0, dtype=dtype, eps=eps); od = EV.OppDown(N); vcol = slice(7, 10) if vmode == "com" else slice(10, 13)
     hs = [np.searchsorted(h[:, 0] // 4, np.arange(T + 1)) for h in H]; bs = [np.searchsorted(b[:, 0] // 4, np.arange(T + 1)) for b in Bd]
     its = [[] if reverse else b["intents"] for b in B]; vis = [0] * N; last = [len(p) - 1 for p in Po]
     sid, son, sap, ssd = (np.full((N, slots), -1, np.int64), np.zeros((N, slots)), np.zeros((N, slots)), np.zeros((N, slots), np.int64))
@@ -273,6 +278,25 @@ def compare_rev(R, idx, rp):
     return dict(bouts=len(B), landed_ours=n[0], landed_hm=n[1], count_mismatch_bouts=bad)
 
 # ---- G0-12: W0 and the recorded bouts
+def charge_rule(e, w0, eps=None, start=True):
+    """The charge on a replay edge: W >= w0, W > 0, W > eps (A5.1 (a); None: fb_rewards.W_EPS, 0: M5's rule), t > START_S (A5.1 (b); start
+    False: M5's rule), no landed strike within LAND_GATE_S."""
+    eps = RW.W_EPS if eps is None else eps
+    return w0 is not None and e["W"] >= w0 and e["W"] > 0 and e["W"] > eps and (not start or e["t"] > RW.START_S + 1e-9) and not e["land_dt"] <= RW.LAND_GATE_S + 1e-9
+
+def w_eps(R, m, role=W0_ROLE):
+    """A5.1 (a): W_eps = 10 x max |W_f32 - W_f64| over every live step of role's G bouts, the account and the attribution ring run in float32
+    and in float64 on the same recorded rows (replay; the eps passed there does not enter W)."""
+    idx = [i for i, b in enumerate(R["meta"]["bouts"]) if b["role"] == role and b["ctrl"] == "G"]
+    r64, r32 = (replay(R, idx, m, "com", dtype=dt, eps=1.0) for dt in (torch.float64, torch.float32)); L = r64["live"]; assert np.array_equal(L, r32["live"])
+    W64, W32 = r64["values"]["W"], r32["values"]["W"]; D = np.where(L, np.abs(W32 - W64), 0.0); n, s = np.unravel_index(int(np.argmax(D)), D.shape); mx = float(D[n, s])
+    B = R["meta"]["bouts"]; E = r64["edges"]; eps = 10.0 * mx; fz = RW.W_EPS
+    return dict(role=role, bouts=len(idx), live_steps=int(L.sum()), max_abs=mx, at=dict(seed=B[idx[n]]["episode"]["seed"], step=int(s), W64=float(W64[n, s]), W32=float(W32[n, s])),
+                max_rel=float(np.max(np.where(L & (W64 > 0), D / np.maximum(W64, 1e-300), 0.0))), W64_max=float((W64 * L).max()), w_eps=eps,
+                edges_W_pos_le_eps=sum(0 < e["W"] <= eps for e in E), edges_W_pos=sum(e["W"] > 0 for e in E), frozen=fz, frozen_ok=fz is not None and abs(fz - eps) <= 1e-6 * eps,
+                edge_W_f32_vs_f64=dict(n=len(E), equal_edges=[(e["n"], e["step"]) for e in E] == [(e["n"], e["step"]) for e in r32["edges"]],
+                                       max_abs=max((abs(a["W"] - b["W"]) for a, b in zip(E, r32["edges"])), default=0.0)))
+
 def calibrate_w0(R, m, role=W0_ROLE):
     """W0 = P10 of W over role's G knockdown edges with contact; n_ok iff >= W0_MIN_N of them; edges_eo: every bout has one edge iff EO's
     opp_fell, at EO's opp_fall time."""
@@ -309,9 +333,10 @@ def early_kd(R, cal, rows, early=EARLY_S, role=W0_ROLE):
         out.append(dict(seed=e["seed"], clip=B[i]["episode"]["clip"], distance=B[i]["episode"]["distance"], t0=B[i]["episode"]["t0"], act_delay=r["act_delay"], t=e["t"], W=round(e["W"], 4),
                         contact=e["contact"], first_contact_s=t_first, contact_at_first_substep=k0 == 0, eo_contact_0p5s=e["eo_contact_0p5s"], cause=(B[i]["row"].get("opp_fall") or {}).get("cause"),
                         opp_up_z_step1=round(float(post[0, 2]), 4), fell_s=B[i]["row"]["fell_s"]))
-    w0 = cal["w0"]; ch = lambda e: w0 is not None and e["W"] >= w0 and e["W"] > 0 and not e["land_dt"] <= RW.LAND_GATE_S + 1e-9   # the charge rule at the calibrated W0
+    w0 = cal["w0"]; ch = lambda e: charge_rule(e, w0, eps=0.0, start=False); fin = lambda e: charge_rule(e, w0)   # M5's rule at the calibrated W0; the final (A5.1) rule
     return dict(early_s=early, knockdowns=len(cal["edges"]), early=len(out), early_with_contact=sum(x["contact"] for x in out), charged=sum(map(ch, cal["edges"])),
-                early_charged=sum(ch(e) for e in cal["edges"] if e["t"] < early), early_contact_at_first_substep=sum(x["contact_at_first_substep"] for x in out), bouts=out)
+                early_charged=sum(ch(e) for e in cal["edges"] if e["t"] < early), early_contact_at_first_substep=sum(x["contact_at_first_substep"] for x in out),
+                charged_final_rule=sum(map(fin, cal["edges"])), edges_at_start_s=sum(abs(e["t"] - RW.START_S) < 1e-9 for e in cal["edges"]), bouts=out)
 
 def recorded_checks(R, m, w0):
     res = {}; dt = 0.02; he = RW.WEIGHTS["A"]["fb_knockdown"] * dt
@@ -322,7 +347,7 @@ def recorded_checks(R, m, w0):
             rp = replay(R, idx, m, "com", w0=w0); V, L = rp["values"], rp["live"]; dn = V["down_now"] > 0
             kd = V["fb_knockdown"] * L; E = rp["edges"]; ev_steps = {(e["n"], e["step"]) for e in E}
             ch = [(n, s) for n, s in zip(*np.nonzero(kd))]
-            kd_ok = all((n, s) in ev_steps for n, s in ch) and all(e["charged"] == (e["W"] >= w0 and e["W"] > 0 and not e["land_dt"] <= RW.LAND_GATE_S + 1e-9) for e in E) \
+            kd_ok = all((n, s) in ev_steps for n, s in ch) and all(e["charged"] == charge_rule(e, w0) for e in E) \
                 and np.all(kd[kd != 0] == 1.0) and np.allclose(RW.WEIGHTS["A"]["fb_knockdown"] * kd[kd != 0] * dt, -2.4)
             dnv = V["fb_down_neutral"] * L; up = L & ~dn
             neutral_ok = bool(np.all(dnv[up] == 0) and np.all(dnv[L & dn] > 0))
@@ -335,6 +360,8 @@ def recorded_checks(R, m, w0):
                 if len(b): np.add.at(ref, (b[:, 0] // 4).astype(int), np.linalg.norm(b[:, 2:5], axis=1) * HT.DT * tz[b[:, 1].astype(int)])
                 terr = max(terr, float(np.abs(ref - V["tangle_Ns"][n] * L[n]).max()))
             res[f"{role}/{ctrl}"] = dict(bouts=len(idx), knockdown_edges=len(E), charged=int((kd != 0).sum()), charged_reward=round(float(he), 4), kd_ok=bool(kd_ok),
+                                        charged_m5_rule=sum(charge_rule(e, w0, eps=0.0, start=False) for e in E), not_charged_start_window=sum(charge_rule(e, w0, start=False) and not charge_rule(e, w0) for e in E),
+                                        not_charged_w_eps=sum(charge_rule(e, w0, eps=0.0, start=False) and not charge_rule(e, w0, start=False) for e in E),
                                         down_steps=int((L & dn).sum()), got_up_bouts=int(got_up), neutral_ok=neutral_ok, approach_contact_zero_when_up=ac_ok,
                                         approach_when_down_s=round(float((V["fb_down_approach"] * L).sum() * dt), 3), contact_when_down_Ns=round(float((V["fb_down_contact"] * L).sum() * dt), 3),
                                         tangle_Ns_per_min=round(float((V["tangle_Ns"] * L).sum() / (L.sum() * dt / 60)), 2), tangle_maxdiff=terr, tangle_ok=terr <= 1e-9,
@@ -440,9 +467,26 @@ def scripted(m=None):
         for _ in range(30): sc.step(Fb=Fb, vb=vb)
         return rw(sc.step(down=True, Fb=Fb, vb=vb)[1], "fb_knockdown"), float(sc.rew.attr.W()[0])
     fz = dict(alone=frozen(0.0, 0.0), no_work=frozen(100.0, 0.0), backing=frozen(100.0, -0.2), tiny_work=frozen(1.0, 1e-3))
-    want = -2.4 if fz["tiny_work"][1] >= RW.W0 else 0.0   # W0 = 0: any positive work is charged
+    want = -2.4 if fz["tiny_work"][1] >= RW.W0 and fz["tiny_work"][1] > RW.W_EPS else 0.0   # W0 = 0: any positive work above W_EPS (A5.1) is charged
     out["frozen_w0"] = dict(w0=RW.W0, cases=fz, ok=fz["alone"][0] == fz["no_work"][0] == fz["backing"][0] == 0.0 and fz["no_work"][1] == fz["backing"][1] == 0.0
                             and fz["tiny_work"][1] > 0 and abs(fz["tiny_work"][0] - want) < 1e-12)
+    # 11. A5.1 (a): a knockdown with positive work below W_EPS (0.5x, 0.99x) gives 0, above it (2x) -2.4 (edge at 0.62 s, no landed strike)
+    def floor(target):
+        sc = Script(w0=RW.W0, m=m); _, Fb = sc.z(); vb = torch.zeros_like(Fb); q = sc.bprim("leg"); Fb[:, q, :, 0] = 1.0; vb[:, q, :, 0] = target / 4.0 / HT.DT
+        sc.step(Fb=Fb, vb=vb)
+        for _ in range(29): sc.step()
+        return rw(sc.step(down=True)[1], "fb_knockdown"), float(sc.rew.attr.W()[0]), sc.t
+    fl = dict(half=floor(0.5 * RW.W_EPS), below=floor(0.99 * RW.W_EPS), above=floor(2.0 * RW.W_EPS))
+    out["w_eps_floor"] = dict(w_eps=RW.W_EPS, cases=fl, ok=fl["half"][0] == 0.0 == fl["below"][0] and abs(fl["above"][0] + 2.4) < 1e-12 and 0 < fl["half"][1] < RW.W_EPS < fl["above"][1]
+                              and fl["below"][1] < RW.W_EPS and all(c[2] > RW.START_S for c in fl.values()))
+    # 12. A5.1 (b): an attributed knockdown (positive work, no landed strike) with its edge in the first 0.5 s gives 0 (0.02, 0.12, 0.48, 0.50 s), after it -2.4 (0.52, 0.82 s)
+    def early(steps):
+        sc = Script(w0=RW.W0, m=m); _, Fb = sc.z(); vb = torch.zeros_like(Fb); q = sc.bprim("leg"); Fb[:, q, :, 0] = 100.0; vb[:, q, :, 0] = 0.2
+        for _ in range(steps): sc.step(Fb=Fb, vb=vb)
+        return rw(sc.step(down=True, Fb=Fb, vb=vb)[1], "fb_knockdown"), round(sc.t, 4), float(sc.rew.attr.W()[0])
+    ew = {f"t_{st * 0.02 + 0.02:.2f}": early(st) for st in (0, 5, 23, 24, 25, 40)}
+    out["start_window"] = dict(start_s=RW.START_S, cases=ew, ok=all(v[0] == 0.0 for v in ew.values() if v[1] <= RW.START_S + 1e-9) and all(abs(v[0] + 2.4) < 1e-12 for v in ew.values() if v[1] > RW.START_S + 1e-9)
+                              and all(v[2] > RW.W_EPS for v in ew.values()) and sum(v[1] <= RW.START_S + 1e-9 for v in ew.values()) == 4)
     # weights and stages
     out["stages"] = dict(ok=("spar_clearance" in RW.WEIGHTS["A"] and "spar_clearance" not in RW.WEIGHTS["B"] and RW.res_l2_weight(0) == -0.5 and abs(RW.res_l2_weight(2000) + 0.1) < 1e-12
                              and RW.WEIGHTS["A"]["fb_knockdown"] * 0.02 == -2.4 and RW.WEIGHTS["A"]["spar_head_clean"] * 0.02 == -RW.HE))
@@ -464,11 +508,11 @@ def main():
     cal = calibrate_w0(R, m, W0_ROLE); w0 = cal["w0"] if cal["n_ok"] and cal["edges_equal_eo"] else None   # fewer than W0_MIN_N: stop, no W0
     res = dict(meta=dict(rec=a.rec, rec_w0=a.rec_w0, wall_record_s=R["meta"]["wall_s"], bouts=len(R["meta"]["bouts"]), seeds={k: [min(v), max(v), len(v)] for k, v in R["meta"]["seeds"].items()}),
                w0_list=wl, w0=cal, w0_60300_report=calibrate_w0(R, m, "w0_calib"), r4pre_match=r4pre_match(R, rows))
-    res["early_kd_report"] = early_kd(R, cal, rows)
+    res["early_kd_report"] = early_kd(R, cal, rows); res["w_eps"] = w_eps(R, m)
     res["g0_11"] = g0_11(R, m); res["g0_12_scripted"] = scripted(m)
     res["g0_12_recorded"] = recorded_checks(R, m, w0) if w0 is not None else dict(ok=False, why=f"W0 not calibrated: {cal['with_contact']} G knockdowns with contact (need >= {W0_MIN_N}), edges = EO: {cal['edges_equal_eo']}")
     res["w0"]["frozen_ok"] = RW.W0 is not None and w0 is not None and abs(RW.W0 - w0) <= 1e-4 * max(1.0, w0)
-    res["g0_12_ok"] = bool(res["g0_12_scripted"]["ok"] and res["g0_12_recorded"]["ok"] and res["w0"]["frozen_ok"])
+    res["g0_12_ok"] = bool(res["g0_12_scripted"]["ok"] and res["g0_12_recorded"]["ok"] and res["w0"]["frozen_ok"] and res["w_eps"]["frozen_ok"])
     res["ok"] = dict(G011_on_EO_states=res["g0_11"]["ok"], G012=res["g0_12_ok"]); res["wall_s"] = round(time.time() - t0, 1)
     s = json.dumps(res, indent=1, default=lambda x: x.item() if hasattr(x, "item") else str(x)); print(json.dumps(res["ok"]))
     print(json.dumps(dict(w0=cal["w0"], knockdowns=cal["knockdowns"], with_contact=cal["with_contact"], with_work=cal["with_work"], n_ok=cal["n_ok"], edges_equal_eo=cal["edges_equal_eo"])))

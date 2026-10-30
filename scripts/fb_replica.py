@@ -138,9 +138,31 @@ class Sensors:
         self.F[:] = 0; self.fo[:] = 0; self.Fb[:] = 0; self.vb[:] = 0; self.j = 0
         for v in self.V.values(): v[:] = 0
     def _vel(self, d, b, p):
-        mujoco.mj_objectVelocity(self.m, d, mujoco.mjtObj.mjOBJ_BODY, int(b), self.v6, 0); return self.v6[3:] + np.cross(self.v6[:3], p - d.xipos[b])
+        """Velocity of body b at point p (np.cross's arithmetic, written out: the same products and differences)."""
+        mujoco.mj_objectVelocity(self.m, d, mujoco.mjtObj.mjOBJ_BODY, int(b), self.v6, 0); w0, w1, w2 = self.v6[:3].tolist(); r0, r1, r2 = (p - d.xipos[b]).tolist()
+        return self.v6[3:] + np.array([w1 * r2 - w2 * r1, w2 * r0 - w0 * r2, w0 * r1 - w1 * r0])
+    def _read(self, d):
+        """MjContactSensors.read (its loop, operation for operation) computing the strongest-contact velocities only for vmodes 'com' /
+        'point' (A7.1 profiling: they were most of the sensor time); F, found, Fb, vb bit-equal to read's (tests)."""
+        s, m, P, Pb = self.s, self.m, self.P, self.Pb; F, fo, Fb, vb = np.zeros((8, P, 3)), np.zeros((8, P)), np.zeros((Pb, 3)), np.zeros((Pb, 3)); n = d.ncon
+        strong = "com" in self.vmodes or "point" in self.vmodes; vcom, vpt, best = np.zeros((8, P, 3)), np.zeros((8, P, 3)), np.full((8, P), -1.0)
+        if n:
+            g1, g2 = d.contact.geom1[:n], d.contact.geom2[:n]; f6 = s.f6
+            for i in np.flatnonzero((s.is_tg[g1] & s.is_st[g2]) | (s.is_tg[g2] & s.is_st[g1])):
+                a, b = int(g1[i]), int(g2[i]); t, st = (a, b) if s.is_tg[a] else (b, a); p = s.pix[t]
+                if p < 0: continue
+                mujoco.mj_contactForce(m, d, int(i), f6); f = (1.0 if t == a else -1.0) * (f6[:3] @ d.contact.frame[i].reshape(3, 3)); q = s.bix[t]
+                if q >= 0: Fb[q] += f
+                l = s.limb[st]
+                if l < 0: continue
+                F[l, p] += f; fo[l, p] += 1
+                if strong and abs(float(f6[0])) >= best[l, p]:
+                    best[l, p] = abs(float(f6[0])); bs, bt = m.geom_bodyid[st], m.geom_bodyid[t]; pt = d.contact.pos[i]
+                    vpt[l, p] = s._vel(d, bs, pt) - s._vel(d, bt, pt); vcom[l, p] = s._vel(d, s.limb_body[l]) - s._vel(d, bt)
+        for q in np.flatnonzero(np.any(Fb != 0, 1)): vb[q] = s._vel(d, m.geom_bodyid[s.bprim[q]])
+        return F, fo, vcom, vpt, Fb, vb
     def substep(self, m, d):
-        s, j = self.s, self.j; F, fo, vcom, vpt, Fb, vb = s.read(d); self.F[:, :, j], self.fo[:, :, j], self.Fb[:, j], self.vb[:, j] = F, fo, Fb, vb
+        s, j = self.s, self.j; F, fo, vcom, vpt, Fb, vb = self._read(d); self.F[:, :, j], self.fo[:, :, j], self.Fb[:, j], self.vb[:, j] = F, fo, Fb, vb
         for vm, V in self.V.items():
             if vm == "com": V[:, :, j] = vcom
             elif vm == "point": V[:, :, j] = vpt
@@ -183,10 +205,12 @@ class Bout:
     FACE_GAIN, FACE_MAX, HOLD_VX, HOLD_VY = _E.FACE_GAIN, _E.FACE_MAX, _E.HOLD_VX, _E.HOLD_VY
     _raw_obs, _face, _hold, true_bearing, _dr_init, _dr_sample_into_model = _E._raw_obs, _E._face, _E._hold, _E.true_bearing, _E._dr_init, _E._dr_sample_into_model
 
-    def __init__(self, ctrl, ccfg, c, m, native=None, seconds=20.0, lag=0.0, vmodes_report=(), acct_dtypes=None, log_vmodes=()):
+    def __init__(self, ctrl, ccfg, c, m, native=None, seconds=20.0, lag=0.0, vmodes_report=(), acct_dtypes=None, log_vmodes=(), slot=None):
+        """slot: a Batch's bout (its own MjData, rng, outer loops, sensors and meters; the torch modules and accounts are the Batch's;
+        slot = the Batch's shared kinematics twin)."""
         from r1gym.model import R1Robot, HOME, action_scale, CTRL_JOINTS
         self.ctrl, self.cfg, self.c, self.m, self.native, self.seconds, self.lag = ctrl, ccfg, c, m, native, seconds, lag
-        self.d = mujoco.MjData(m); self.dk = mujoco.MjData(m); self.r = R1Robot(m, ccfg); cfg = ccfg
+        self.d = mujoco.MjData(m); self.dk = mujoco.MjData(m) if slot is None else slot; self.r = R1Robot(m, ccfg); cfg = ccfg
         self.nsub = int(round(cfg["model"]["control_dt"] / cfg["model"]["timestep"])); self.dt = cfg["model"]["control_dt"]
         n = cfg["sensors"]["noise"]; self.contract = cfg.get("contract", "residual"); assert self.contract == "mjlab"
         self.noise = np.concatenate([np.full(3, n["ang_vel"]), np.full(3, n["gravity"]), np.zeros(5), np.full(24, n["joint_pos"]), np.full(24, n["joint_vel"]), np.zeros(24)])
@@ -197,10 +221,12 @@ class Bout:
         self.kpm = getattr(ctrl, "kp_mode", None); self.oi = OppIdx(m); self.replays = {}; self.torch = c["backend"] != "numpy"; self.shadow = None   # shadow: same-state reference hooks (checks)
         self.mode = cfg.get("opponent_aim", "none"); assert self.mode in ("standoff+armwarp_vz", "shadow"), self.mode
         if self.torch:
-            dt = DT_T[c["backend"]]; self.tdt = dt; self.M = FO.Motion(); self.drv = FO.TrackerDriver(1, dt, motion=self.M)
-            self.aim = FO.AimOp(1, dt, motion=self.M, slots=K_SLOTS, skip_idle=True); self.lat = EV.Latency(1)
-            self.obs = OB.EvalActorObs(1, self.lat, OB.noise_halfwidths(cfg), kp_dtype=dt, out_dtype=torch.float32 if dt == torch.float32 else torch.float64)
-            self.act = AC.HybridDelayedAction(1, self.lat, self.home, self.scale, self.clip, dtype=dt); self.od = EV.OppDown(1)
+            dt = DT_T[c["backend"]]; self.tdt = dt
+            if slot is None:
+                self.M = FO.Motion(); self.drv = FO.TrackerDriver(1, dt, motion=self.M)
+                self.aim = FO.AimOp(1, dt, motion=self.M, slots=K_SLOTS, skip_idle=True); self.lat = EV.Latency(1)
+                self.obs = OB.EvalActorObs(1, self.lat, OB.noise_halfwidths(cfg), kp_dtype=dt, out_dtype=torch.float32 if dt == torch.float32 else torch.float64)
+                self.act = AC.HybridDelayedAction(1, self.lat, self.home, self.scale, self.clip, dtype=dt); self.od = EV.OppDown(1)
             self.ids6 = [m.body(nm).id for nm in OB.body_names()]; self.ix = DR.DRIndex(m, CTRL_JOINTS); self.F = DR.model_fields(m)[0]; self.nom = NOMINAL[id(m)]
             from r1gym.aim import _gate_geoms
             self.g_opp, self.g_r1 = _gate_geoms(m)
@@ -208,6 +234,7 @@ class Bout:
         self.acct, self.accts = None, {}
         if c["scorer"] == "account":   # the primary account (conf vmode, first dtype) and report-only ones on the same contacts
             vms = (c["vmode"],) + tuple(v for v in vmodes_report if v != c["vmode"]); self.sens = Sensors(m, vms, native); s = self.sens.s
+            if slot is not None: return
             dts = tuple(acct_dtypes or (self.tdt if self.torch else torch.float64,))
             for vm in vms:
                 for dt in dts: self.accts[(vm, str(dt).split(".")[-1])] = HT.FullBodyHitAccount(1, s.zone_idx, s.bzone_idx, slots=K_SLOTS, dtype=dt, log=[], block=s.block_idx)
@@ -398,39 +425,229 @@ def world(name, c, p1=None, sensors=False):
         NOMINAL[id(m)] = DR.model_fields(m)[1]; _E._dr_init(SimpleNamespace(m=m, r=R1Robot(m, cfg)))   # nominal DR fields, before any bout writes them
     return _W[k]
 
+class _Book:
+    """EO.run's per-bout bookkeeping (displacement, spacing, falls, opponent fall log, both-up and down runs) after each step."""
+    def __init__(self, B): q = B.r.free_q; self.start = B.d.qpos[q:q + 2].copy(); self.maxr, self.sp, self.fell, self.at, self.opp_fell, self.ofall, self.bu, self.down = 0.0, [], None, None, False, None, [], []
+    def step(self, B, fallen, dn=None):
+        """dn: OppDown's flag this step (torch backends), asserted equal to EO:86."""
+        import eval_opponent as EO
+        d = B.d; q = B.r.free_q; xy = d.qpos[q:q + 2]
+        self.maxr = max(self.maxr, float(np.linalg.norm(xy - self.start))); self.sp.append(float(np.linalg.norm(d.qpos[B.oi.qadr:B.oi.qadr + 2] - xy)))
+        b = B.oi.pel; tl, ht = bool(d.xmat[b][8] < EO.OPP_TILT), bool(d.xpos[b][2] < EO.OPP_Z); assert dn is None or dn == (tl or ht)
+        if tl or ht:
+            self.opp_fell = True
+            if self.ofall is None: self.ofall = dict(t_s=round(B.t * B.dt, 3), cause="tilt+height" if tl and ht else "tilt" if tl else "height", up_z=round(float(d.xmat[b][8]), 3),
+                                                     pelvis_z=round(float(d.xpos[b][2]), 3), r1_contact_0p5s=B.tail.snap(float(d.time))); B.tail.done = True
+            if self.down and self.down[-1][1] == B.t - 1: self.down[-1][1] = B.t
+            else: self.down.append([B.t, B.t])
+        else:
+            if self.bu and self.bu[-1][1] == B.t - 1: self.bu[-1][1] = B.t
+            else: self.bu.append([B.t, B.t])
+        if fallen: self.fell = B.t * B.dt; self.at = xy.copy()
+
+def _finish(B, ep, k, acct=None):
+    """The bout's EO-format row and info from its bookkeeping k; acct(secs, both_up, A) -> an account's summary (B.acct_summary)."""
+    import eval_opponent as EO
+    q, T = B.r.free_q, B.seconds; p = (k.at if k.at is not None else B.d.qpos[q:q + 2]) - k.start; secs = k.fell or T; dt = B.dt; biv = [((k0 - 1) * dt, k1 * dt) for k0, k1 in k.bu]
+    sh = type("E", (), {})(); sh.substep_hooks, sh.opp, sh.opp_state = [B.hm], B.opp_rp, {"aim": _AimShim(B.intents()) if B.torch else B.opp_state.get("aim")}
+    row = dict(clip=ep["clip"], distance=ep["distance"], fell_s=k.fell, opp_fell=k.opp_fell, drift_m=round(float(np.linalg.norm(p)), 3), back_m=round(float(-p[0]), 3),
+               max_disp_m=round(k.maxr, 3), ring_out=k.maxr > EO.RING_M, hit_meter=EO.meter_row(sh, ep, secs, k.sp, B.lag, biv), opp_fall=k.ofall,
+               both_up_s=round(sum(k1 - k0 + 1 for k0, k1 in k.bu) * dt, 3), both_up_iv=[[round(a, 3), round(c, 3)] for a, c in biv])
+    info = dict(act_delay=int(B.act_delay), dt=float(dt), down=k.down, t0=B.opp_t0, k=B.k)
+    if acct is not None: info["acct"], info["accts"] = acct(secs, biv)
+    return row, info
+
 def run_bout(B, ep, probe=None):
     """One bout through B (Bout) -> (EO-format row, probe info)."""
-    import eval_opponent as EO
-    e, T = B, B.seconds; o = B.reset(ep); q = B.r.free_q; start = B.d.qpos[q:q + 2].copy(); maxr, sp, fell, at, opp_fell, ofall, bu, down = 0.0, [], None, None, False, None, [], []
+    o = B.reset(ep); k = _Book(B)
     if probe: probe(B, "reset", None)
-    for _ in range(int(T / B.dt)):
-        a = B.ctrl.act(o[None])[0]; o, fallen = B.step(a); d = B.d; xy = d.qpos[q:q + 2]
-        maxr = max(maxr, float(np.linalg.norm(xy - start))); sp.append(float(np.linalg.norm(d.qpos[B.oi.qadr:B.oi.qadr + 2] - xy)))
-        b = B.oi.pel
-        if B.torch: B.od.update(torch.tensor([d.xpos[b][2]]), EV.up_z(torch.from_numpy(d.xquat[b].copy()))[None]); dn = bool(B.od.now[0]); tl, ht = bool(d.xmat[b][8] < EO.OPP_TILT), bool(d.xpos[b][2] < EO.OPP_Z); assert dn == (tl or ht)
-        else: tl, ht = bool(d.xmat[b][8] < EO.OPP_TILT), bool(d.xpos[b][2] < EO.OPP_Z)
-        if tl or ht:
-            opp_fell = True
-            if ofall is None: ofall = dict(t_s=round(B.t * B.dt, 3), cause="tilt+height" if tl and ht else "tilt" if tl else "height", up_z=round(float(d.xmat[b][8]), 3),
-                                           pelvis_z=round(float(d.xpos[b][2]), 3), r1_contact_0p5s=B.tail.snap(float(d.time))); B.tail.done = True
-            if down and down[-1][1] == B.t - 1: down[-1][1] = B.t
-            else: down.append([B.t, B.t])
-        else:
-            if bu and bu[-1][1] == B.t - 1: bu[-1][1] = B.t
-            else: bu.append([B.t, B.t])
-        if fallen: fell = B.t * B.dt; at = xy.copy()
+    for _ in range(int(B.seconds / B.dt)):
+        a = B.ctrl.act(o[None])[0]; o, fallen = B.step(a); d, b = B.d, B.oi.pel; dn = None
+        if B.torch: B.od.update(torch.tensor([d.xpos[b][2]]), EV.up_z(torch.from_numpy(d.xquat[b].copy()))[None]); dn = bool(B.od.now[0])
+        k.step(B, fallen, dn)
         if probe: probe(B, "step", a)
-        if fell is not None: break
-    p = (at if at is not None else B.d.qpos[q:q + 2]) - start; secs = fell or T; dt = B.dt; biv = [((k0 - 1) * dt, k1 * dt) for k0, k1 in bu]
-    sh = type("E", (), {})(); sh.substep_hooks, sh.opp, sh.opp_state = [B.hm], B.opp_rp, {"aim": _AimShim(B.intents()) if B.torch else B.opp_state.get("aim")}
-    row = dict(clip=ep["clip"], distance=ep["distance"], fell_s=fell, opp_fell=opp_fell, drift_m=round(float(np.linalg.norm(p)), 3), back_m=round(float(-p[0]), 3),
-               max_disp_m=round(maxr, 3), ring_out=maxr > EO.RING_M, hit_meter=EO.meter_row(sh, ep, secs, sp, B.lag, biv), opp_fall=ofall,
-               both_up_s=round(sum(k1 - k0 + 1 for k0, k1 in bu) * dt, 3), both_up_iv=[[round(a, 3), round(c, 3)] for a, c in biv])
-    info = dict(act_delay=int(B.act_delay), dt=float(dt), down=down, t0=B.opp_t0, k=B.k)
-    if B.acct is not None:
-        info["acct"] = B.acct_summary(secs, biv); info["accts"] = {f"{vm}/{dt}": B.acct_summary(secs, biv, A) for (vm, dt), A in B.accts.items() if A is not B.acct}
+        if k.fell is not None: break
+    acct = None if B.acct is None else lambda secs, biv: (B.acct_summary(secs, biv), {f"{vm}/{dt}": B.acct_summary(secs, biv, A) for (vm, dt), A in B.accts.items() if A is not B.acct})
+    row, info = _finish(B, ep, k, acct)
     if probe: probe(B, "end", None)
     return row, info
+
+# ---- K bouts in lockstep (A7.1)
+def _atan2_rows(y, x): return torch.cat([torch.atan2(y[i:i + 1], x[i:i + 1]) for i in range(len(y))])
+
+def rowwise_face(drv):
+    """TrackerDriver.face (fb_opponent, operation for operation: want = bearing - pi, yaw += wrap(want - yaw) x min(1, dt / FACE_TAU)) with its
+    atan2 calls one row at a time, as at batch 1 (tests: equal to the module's face at n = 1)."""
+    def face(target, pel_xy):
+        to = target - pel_xy; want = _atan2_rows(to[:, 1], to[:, 0]) - np.pi; y0 = torch.where(drv.yaw_set, drv.yaw, want); x = want - y0
+        drv.yaw = y0 + _atan2_rows(torch.sin(x), torch.cos(x)) * min(1.0, drv.dt / FO.FACE_TAU); drv.yaw_set[:] = True; return drv.yaw
+    return face
+
+class Batch:
+    """K bouts in lockstep in one process, torch backends (A7.1): each bout is a Bout slot (its own MjData, rng, R1HitEnv outer loops,
+    sensors, HitMeter, ContactTail, bookkeeping); the torch modules (TrackerDriver, AimOp, EvalActorObs, HybridDelayedAction, OppDown,
+    fell_eval, the accounts) run once per step on the batch, as on the GPU; the controller acts on the live bouts' stacked obs (as
+    EO.run). The bouts share the model: each writes its DR draws into it before its own MuJoCo calls (EO's _dr_apply), and one
+    kinematics twin serves the keypoints (xpos / xquat do not read the DR fields). A finished bout keeps its frozen state in the batch
+    (its outputs unread, its account closed and summarised at its end). Rows equal run_bout's in form; bitwise equality with N = 1 is
+    reported (fb_m6b_check.py), not assumed. rowwise: the batch-variant ops one row at a time, the tracker MLP (float32 sgemm at batch K
+    differs from batch 1 in every call) and the facing's float32 atan2 (vectorised at batch K, scalar at batch 1: 1-ulp differences),
+    which fb_m6b_check found to be the only sources (rowwise_face)."""
+    def __init__(self, ctrl, ccfg, c, m, k, native=None, seconds=20.0, lag=0.0, rowwise=False):
+        assert c["backend"] != "numpy" and c["actor"] == "mlp" and c["ref"] == "fb", "Batch runs the deployed torch modules"
+        self.ctrl, self.cfg, self.c, self.m, self.K, self.seconds, self.lag, self.rowwise = ctrl, ccfg, c, m, k, seconds, lag, rowwise
+        self.dk = mujoco.MjData(m); self.S = [Bout(ctrl, ccfg, c, m, native, seconds, lag, slot=self.dk) for _ in range(k)]; B = self.S[0]
+        self.tdt = dt = B.tdt; self.mode = B.mode; self.kpm = B.kpm; rp = {}
+        for s in self.S: s.replays = rp
+        self.M = FO.Motion(); self.mods = {}; self.tm = {}; self.probe = None   # tm: wall s per phase; probe(i, slot, action) after each live step
+
+    def _modules(self, n):
+        """The torch modules for n bouts (cached per n)."""
+        if n not in self.mods:
+            dt, B = self.tdt, self.S[0]; lat = EV.Latency(n); drv = FO.TrackerDriver(n, dt, motion=self.M)
+            if self.rowwise: mlp = drv.mlp; drv.mlp = lambda x: torch.cat([mlp(x[i:i + 1]) for i in range(len(x))]); drv.face = rowwise_face(drv)
+            obs = OB.EvalActorObs(n, lat, OB.noise_halfwidths(self.cfg), kp_dtype=dt, out_dtype=torch.float32 if dt == torch.float32 else torch.float64)
+            act = AC.HybridDelayedAction(n, lat, B.home, B.scale, B.clip, dtype=dt); accts = {}
+            if self.c["scorer"] == "account":
+                s = B.sens.s; accts[(self.c["vmode"], str(dt).split(".")[-1])] = HT.FullBodyHitAccount(n, s.zone_idx, s.bzone_idx, slots=K_SLOTS, dtype=dt, log=[], block=s.block_idx)
+            self.mods[n] = dict(lat=lat, drv=drv, aim=FO.AimOp(n, dt, motion=self.M, slots=K_SLOTS, skip_idle=True), obs=obs, act=act, od=EV.OppDown(n), accts=accts)
+        self.__dict__.update(self.mods[n]); self.acct = next(iter(self.accts.values()), None)
+
+    @staticmethod
+    def _dr(B):
+        """The bout's DR fields into the shared model (EO's _dr_apply)."""
+        for k, v in B.drp.items(): getattr(B.m, k)[:] = v
+
+    def _reset(self, i, B, ep):
+        """Bout.reset's torch path for bout i (module rows i)."""
+        m, d, c = B.m, B.d, B.c; B.ep = ep; train = c["reset"] == "train"
+        if train: g = B.gen = torch.Generator().manual_seed(int(ep["seed"])); EV.draw_latency(self.lat, [i], g)
+        B.rng = np.random.default_rng(ep.get("env_seed", ep["seed"]))
+        B.r.reset(m, d)
+        if train: B.heading = float((2 * torch.rand(1, generator=g, dtype=torch.float64) - 1) * np.pi); d.qpos[B.r.free_q + 3:B.r.free_q + 7] = [np.cos(B.heading / 2), 0, 0, np.sin(B.heading / 2)]; mujoco.mj_forward(m, d)
+        B.t = 0; B.k = int(self.lat.k[i]) if train else int(ep["delay"])
+        if train: p = DR.sample(1, B.ix, generator=g); DR.write(B.F, B.nom, B.ix, p); B.act_delay = int(self.lat.act_delay[i])
+        else: p, ad = DR.sample_np(B.rng, B.ix); DR.write(B.F, B.nom, B.ix, p); self.lat.k[i] = B.k; self.lat.act_delay[i] = ad; B.act_delay = int(ad)
+        B.drp = {k: getattr(m, k).copy() for k in DR.FIELDS}; rp = B.replay(ep["clip"], ep["distance"]); B.opp_rp = rp
+        if train:
+            from r1gym.scenario import START_STEP
+            M = self.M; j = int(np.flatnonzero(np.isclose(M.distances.numpy(), ep["distance"]))[0]); ci = FO.TRAIN.index(ep["clip"]); idx = np.flatnonzero(M.clean[ci, j].numpy())
+            B.opp_t0 = round(float(idx[int(torch.randint(len(idx), (1,), generator=g))] * START_STEP), 3)
+        else: B.opp_t0 = ep["t0"]
+        ci = FO.TRAIN.index(ep["clip"]); o = B.oi
+        qp, qv = self.drv.reset([i], ci, B.opp_t0, ep["distance"], *((torch.zeros(1, 2, dtype=torch.float64), B.heading) if train else ()))
+        d.qpos[o.qadr:o.qadr + 31] = qp[0].numpy(); d.qvel[o.vadr:o.vadr + 30] = qv[0].numpy(); mujoco.mj_forward(m, d)
+        self.aim.reset([i], ci, ep["distance"], aimed=self.mode != "shadow", jitter=False); B.alog = {}
+        self.od.reset([i]); self.obs.reset([i]); self.act.reset([i]); B.opp = o; B.opp_state = {}
+        B.turning = False; B.returning = False; B.spot = d.qpos[B.r.free_q:B.r.free_q + 2].copy()
+        import eval_opponent as EO
+        from r1gym.hits import HitMeter
+        B.hm = HitMeter(m, self.cfg.get("hit_metric")); B.tail = EO.ContactTail(m); B.hooks = [B.hm, B.tail] + ([B.sens] if B.sens is not None else [])
+        for h in B.hooks: h.reset()
+        B._face(); B._hold()
+
+    def _obs(self, live):
+        """Bout._obs_t for the batch: proprio83, keypoints (the shared twin), the eval's rng noise ('eo') or the bout generator's, one
+        EvalActorObs.compute; -> the live bouts' obs rows."""
+        S, dt, n = self.S, self.tdt, self.n; T = lambda x: torch.from_numpy(np.asarray(x, np.float64)).to(dt); B0 = S[0]; f, v = B0.r.free_q, B0.r.free_v
+        p = OB.proprio83(T([S[i].d.qpos[f + 3:f + 7] for i in range(n)]), T([S[i].d.qvel[v + 3:v + 6] for i in range(n)]), T([S[i].d.qpos[S[i].r.qadr] for i in range(n)]),
+                         T([S[i].d.qvel[S[i].r.vadr] for i in range(n)]), B0.home, T([S[i].command for i in range(n)]), torch.tensor([S[i].t for i in range(n)]), self.act.applied)
+        if self.kpm == "obs":
+            X, Q, dk = np.zeros((n, 6, 3)), np.zeros((n, 6, 4)), self.dk
+            for i in range(n): dk.qpos[:] = S[i].d.qpos; mujoco.mj_kinematics(self.m, dk); X[i], Q[i] = dk.xpos[B0.ids6], dk.xquat[B0.ids6]
+            P_T, y, vv = OB.kp_state(T(X), T(Q))
+        else: P_T, y, vv = torch.zeros(n, 5, 3, dtype=dt), torch.zeros(n, dtype=dt), torch.zeros(n, 5, dtype=torch.bool)
+        od = self.obs.out_dtype; nz = torch.zeros(n, OB.OBS_DIM, dtype=od)
+        for i in live:
+            B = S[i]
+            if self.c["reset"] == "eo": nz[i, :83] = torch.from_numpy(B.rng.uniform(-1, 1, 83) * B.noise).to(od)
+            else: nz[i] = (2 * torch.rand(1, OB.OBS_DIM, dtype=od, generator=B.gen) - 1)[0] * self.obs.noise
+        o = self.obs.compute(p, P_T, y, vv, noise=nz, blind=self.kpm != "obs").double().numpy()
+        return {i: o[i] if self.kpm in ("obs", "zeros") else o[i, :83] for i in live}
+
+    def _opp(self, live):
+        """Bout._opp_t for the batch: TrackerDriver + AimOp on the kinematics just computed, targets into each live bout's d.ctrl."""
+        S, n = self.S, self.n; st = lambda f: torch.from_numpy(np.stack([f(S[i]) for i in range(n)]).astype(np.float64))
+        t = np.array([S[i].d.time + S[i].opp_t0 + S[i].dt for i in range(n)]); fi = self.drv.clock(t); rq, rdq, _, _ = self.drv.reference(fi)
+        o, r = S[0].oi, S[0].r
+        rq, rdq, dist = self.aim.step(fi, torch.tensor([S[i].d.time + S[i].dt for i in range(n)], dtype=torch.float64), rq, rdq, st(lambda B: B.d.xpos[o.torso]), st(lambda B: B.d.xmat[o.torso].reshape(3, 3)),
+                                      st(lambda B: B.d.xpos[r.torso]), st(lambda B: B.d.xmat[r.torso].reshape(3, 3)), torch.tensor([S[i]._touching() for i in range(n)]), q_act=st(lambda B: B.d.qpos[o.qadr + 7:o.qadr + 31]))
+        tg, info = self.drv.step(t, st(lambda B: B.d.xpos[r.pel][:2]), st(lambda B: B.d.xpos[o.pel][:2]), st(lambda B: B.d.xpos[o.torso]), st(lambda B: B.d.xquat[o.torso]), st(lambda B: B.d.qvel[o.vadr + 3:o.vadr + 6]),
+                                 st(lambda B: B.d.qpos[o.qadr + 7:o.qadr + 31]), st(lambda B: B.d.qvel[o.vadr + 6:o.vadr + 30]), torso_mat=st(lambda B: B.d.xmat[o.torso].reshape(3, 3)), ref=(rq, rdq), dist=dist)
+        tg = tg.double().numpy(); A = self.aim; V = A.valid[:, :A.K].numpy(); assert not A.overflow[list(live)].any(), "aim slot overflow"
+        for i in live: S[i].d.ctrl[o.act] = tg[i]
+        ix = [(i, k) for i, k in zip(*np.nonzero(V)) if i in live]
+        if ix:   # Bout._aim_log for the live bouts: the live intent slots by sequence number
+            I, Kk = (np.array(x) for x in zip(*ix)); g = lambda x: x[I, Kk].tolist(); seq, lb, on, ap, en, ga, cl = g(A.seq), g(A.limb), g(A.t_on), g(A.t_apex), g(A.t_end), g(A.gated), g(A.closest.double())
+            for j, (i, k) in enumerate(ix): S[i].alog[seq[j]] = dict(limb=FO.LIMBS[lb[j]], t_on=on[j], t_apex=ap[j], t_end=en[j], gated=("", "tilt", "touch")[ga[j]], closest_m=cl[j], slot=int(k))
+
+    def _score(self, live):
+        S, n, A = self.S, self.n, self.aim; K = A.K; v = A.valid[:, :K]
+        w = dict(id=torch.where(v, A.seq[:, :K], -1), on=torch.where(v, A.t_on[:, :K], 0.0), apex=torch.where(v, A.t_apex[:, :K], 0.0), side=torch.where(v, A.limb[:, :K], 0))
+        Z = lambda x: np.zeros_like(x); t = [S[i].d.time for i in range(n)]
+        for (vm, _), Ac in self.accts.items():
+            dt = Ac.dtype; st = lambda f: torch.from_numpy(np.stack([f(S[i].sens) if i in live else Z(f(S[i].sens)) for i in range(n)])).to(dt)
+            Ac.process(st(lambda s: s.F), torch.tensor(t, dtype=dt), v_rel=st(lambda s: s.V[vm]), found=st(lambda s: s.fo), win=dict(w, on=w["on"].to(dt), apex=w["apex"].to(dt)),
+                       body=(st(lambda s: s.Fb), st(lambda s: s.vb)))
+
+    def _summary(self, i, secs, biv):
+        """Bout.acct_summary for bout i: close its episodes and windows now, its log entries only."""
+        out = []
+        for Ac in self.accts.values():
+            Ac.close_envs([i]); L = [x for x in Ac.log if x["env"] == i]; E = [x for x in L if x["kind"] == "episode" and x["landed"]]; W = [x for x in L if x["kind"] == "window"]
+            cl = [x for x in E if x["clean"]]; inb = lambda t: any(a + 1e-9 < t <= b + 1e-9 for a, b in biv)
+            out.append(dict(secs=round(secs, 3), n=dict(head_landed=sum(x["zone"] == "head" for x in E), head_clean=sum(x["zone"] == "head" for x in cl), torso_landed=sum(x["zone"] == "torso" for x in E),
+                                                        torso_clean=sum(x["zone"] == "torso" for x in cl)),
+                            n_both_up={f"{z}_clean": sum(x["zone"] == z and inb(x["t0"]) for x in cl) for z in ("head", "torso")},
+                            windows={o: sum(x["outcome"] == o for x in W) for o in HT.OUTCOMES}, paid=sum(x["paid"] for x in W), log=[dict(x, env=0) for x in L]))
+        return out[0], {}
+
+    def run(self, eps):
+        """[(row, info)] of eps in order, K at a time in lockstep (torch inference mode: no autograd bookkeeping, the same kernels)."""
+        out = []
+        with torch.inference_mode():
+            for j in range(0, len(eps), self.K): out += self._chunk(eps[j:j + self.K])
+        return out
+
+    def _chunk(self, eps):
+        n = self.n = len(eps); self._modules(n); S = self.S
+        for Ac in self.accts.values(): Ac.reset(list(range(n))); Ac.log.clear()
+        for i, ep in enumerate(eps): self._reset(i, S[i], ep)
+        live = list(range(n)); bk = [_Book(S[i]) for i in range(n)]; res = [None] * n; o = self._obs(live); f, b = S[0].r.free_q, S[0].oi.pel
+        tm = self.tm; c = [time.perf_counter()]
+        def tick(k): t = time.perf_counter(); tm[k] = tm.get(k, 0.0) + t - c[0]; c[0] = t
+        tick("reset")
+        for _ in range(int(self.seconds / S[0].dt)):
+            if not live: break
+            A = dict(zip(live, self.ctrl.act(np.stack([o[i] for i in live])))); Af = torch.zeros(n, 24); tick("ctrl")
+            for i in live: Af[i] = torch.as_tensor(np.asarray(A[i], np.float32))
+            tg = self.act.process(Af).double().numpy()
+            for i in live: B = S[i]; self._dr(B); B.d.ctrl[B.r.act] = tg[i]; mujoco.mj_kinematics(B.m, B.d)
+            tick("act_kin"); self._opp(live); tick("opp")
+            for i in live:
+                B = S[i]; d = B.d; self._dr(B)
+                if B.sens is not None: B.sens.begin()
+                for _ in range(B.nsub):
+                    d.xfrc_applied[:] = 0; mujoco.mj_step(B.m, d)
+                    for h in B.hooks: h.substep(B.m, d)
+                d.xfrc_applied[:] = 0; B.t += 1
+            tick("physics_hooks"); P = lambda x: torch.from_numpy(np.stack([x(S[i].d) for i in range(n)]).copy())
+            fallen = EV.fell_eval(torch.tensor([S[i].d.xpos[S[i].r.pel][2] for i in range(n)]), EV.up_z(P(lambda d: d.xquat[S[0].r.pel]))).tolist()
+            if self.acct is not None: self._score(live)
+            tick("score")
+            for i in live: S[i]._face(); S[i]._hold()
+            o = self._obs(live); tick("obs")
+            self.od.update(torch.tensor([S[i].d.xpos[b][2] for i in range(n)]), EV.up_z(P(lambda d: d.xquat[b]))); dn = self.od.now.tolist()
+            for i in list(live):
+                bk[i].step(S[i], fallen[i], dn[i])
+                if self.probe: self.probe(i, S[i], A[i])
+                if bk[i].fell is not None: res[i] = self._end(i, eps[i], bk[i]); live.remove(i)
+            tick("book")
+        for i in live: res[i] = self._end(i, eps[i], bk[i])
+        tick("end"); return res
+
+    def _end(self, i, ep, k):
+        return _finish(self.S[i], ep, k, None if self.acct is None else lambda secs, biv: self._summary(i, secs, biv))
 
 def rep_row(ep, row, info, T, c):
     """fb_r0eo.bout_row (asserts the down runs against the row's both-up intervals) with the replica's own t0 / k (training reset), the
@@ -443,12 +660,18 @@ def rep_row(ep, row, info, T, c):
     if "acct" in info: out["acct"] = {k: v for k, v in info["acct"].items() if k != "log"}; out["hm"] = dict(n=row["hit_meter"]["n"], n_both_up=row["hit_meter"]["n_both_up"])
     return out
 
-def run(name, eps, c, seconds=20.0, p1=None, sensors=False, probe=None, keep_info=False):
-    """Rows (fb_r0eo format) of controller `name` on eps under conf c, one bout at a time."""
-    torch.set_num_threads(1); sensors = sensors or (c["scorer"] == "account" and c["vmode"] == "pos"); ctrl, cfg, lag, m, names = world(name, c, p1, sensors)
-    B = Bout(ctrl, cfg, c, m, native=names, seconds=seconds, lag=lag); out = []
-    for ep in eps:
-        row, info = run_bout(B, ep, probe); r = rep_row(ep, row, info, seconds, c)
+_BATCH = {}
+def run(name, eps, c, seconds=20.0, p1=None, sensors=False, probe=None, keep_info=False, batch=1, rowwise=False):
+    """Rows (fb_r0eo format) of controller `name` on eps under conf c, one bout at a time (batch 1) or `batch` bouts in lockstep
+    (Batch, torch backends; cached per process)."""
+    torch.set_num_threads(1); sensors = sensors or (c["scorer"] == "account" and c["vmode"] == "pos"); ctrl, cfg, lag, m, names = world(name, c, p1, sensors); out = []
+    if batch > 1:
+        assert probe is None, "probes run at batch 1"; k = (name, conf_key(c), sensors, batch, seconds, rowwise)
+        if k not in _BATCH: _BATCH.clear(); _BATCH[k] = Batch(ctrl, cfg, c, m, batch, native=names, seconds=seconds, lag=lag, rowwise=rowwise)
+        res = _BATCH[k].run(eps)
+    else: B = Bout(ctrl, cfg, c, m, native=names, seconds=seconds, lag=lag); res = (run_bout(B, ep, probe) for ep in eps)
+    for ep, (row, info) in zip(eps, res):
+        r = rep_row(ep, row, info, seconds, c)
         if keep_info: r["_info"] = info
         out.append(r)
     return out

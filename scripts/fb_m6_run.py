@@ -13,6 +13,9 @@ Stages:
         up-minute, replica (req rows) and EO (R0-EO rows), per controller.
   r6    R6 (report) on 67000-67767 vs step 0: defender self-collision on (eval config + self_collision), the eval solver vs the chosen one
         (eval config with REQ_CONF's solver; = R2 (c) when that is 10/20).
+Batched (A7.1, A7.2): every torch-backend conf runs BATCH bouts in lockstep per process (fb_replica.Batch, ROWWISE: the tracker MLP one row
+at a time); the batch is part of each chunk's meta and of the manifest, so a resume never mixes batch configurations. The numpy (eval)
+conf runs one bout at a time, as M6 R1 proved it.
 --dry: every stage on 8 bouts (60100-60107, role 'identity'), step 0 / the EO side = the eval-mode replica (bit identical to EO.run, M6
 R1), looks (4, 8): plumbing only, no gate meaning.
 Usage: python -I scripts/fb_m6_run.py {req|r2|t1c|topp|r6|all} --out DIR [--workers 2] [--r0eo DIR] [--conf JSON] [--seconds 20] [--dry]
@@ -32,6 +35,8 @@ DEPLOYED_VMODE = "site"   # A4.3 as frozen, read literally (fb_m6_check g011: po
 REQ_CONF = dict(hulls="mix", solver=(10, 20), backend="torch32", reset="eo", scorer="account", vmode=DEPLOYED_VMODE)   # 3.2's list: first entry
 R2_STEPS = dict(a_torch32=dict(backend="torch32"), b_hulls=dict(hulls="mix"), c_solver=dict(solver=(10, 20)), d_reset=dict(backend="torch64", reset="train"),
                 e_scorer=dict(scorer="account", vmode=DEPLOYED_VMODE))
+BATCH, ROWWISE = 64, True   # A7.1: K = 64 by measurement (fb_m6b_check speed: 1.0-1.2x EO per 20-s bout per worker; 128 no faster, twice the memory); A7.2: rowwise = the
+# batch-variant ops (tracker MLP sgemm, facing atan2) one row at a time, the rest batched (fb_m6b_check invariance; M6b_NOTES)
 DRY = dict(role="identity", seeds=tuple(range(60100, 60108)), looks=(4, 8))
 
 def write_atomic(p, data):
@@ -41,7 +46,13 @@ def write_atomic(p, data):
 
 def read(p): return json.loads(gzip.decompress(Path(p).read_bytes()).decode("utf-8"))
 def cpath(out, stage, tag, ctrl, chunk): return Path(out) / stage / tag / ctrl / f"{chunk}.json.gz"
-def cmeta(stage, tag, ctrl, chunk, conf, seeds, seconds): return dict(fmt=FMT, stage=stage, tag=tag, ctrl=ctrl, chunk=chunk, conf=conf, seeds=list(seeds), seconds=seconds)
+def batch_of(conf):
+    """(batch, rowwise) a conf runs with: BATCH / ROWWISE for the torch backends, (1, False) for the numpy (eval) conf."""
+    import fb_replica as RP
+    return (BATCH, ROWWISE) if RP.conf(**conf)["backend"] != "numpy" else (1, False)
+
+def cmeta(stage, tag, ctrl, chunk, conf, seeds, seconds):
+    b, rw = batch_of(conf); return dict(fmt=FMT, stage=stage, tag=tag, ctrl=ctrl, chunk=chunk, conf=conf, seeds=list(seeds), seconds=seconds, batch=b, rowwise=rw)
 
 def chunk_ok(out, stage, tag, ctrl, chunk, conf, seeds, seconds):
     p = cpath(out, stage, tag, ctrl, chunk)
@@ -72,7 +83,7 @@ def work(args):
     stage, tag, ctrl, chunk, conf, seeds, seconds, out, p1, role, dry = args
     if (Path(out) / "STOP").exists(): return dict(stage=stage, tag=tag, ctrl=ctrl, chunk=chunk, skipped="STOP")
     import torch, fb_replica as RP
-    torch.set_num_threads(1); c = RP.conf(**conf); eps = block_eps(role, dry); t0 = time.time(); rows = RP.run(ctrl, [eps[s] for s in seeds], c, seconds, p1=p1)
+    torch.set_num_threads(1); c = RP.conf(**conf); eps = block_eps(role, dry); t0 = time.time(); b, rw = batch_of(conf); rows = RP.run(ctrl, [eps[s] for s in seeds], c, seconds, p1=p1, batch=b, rowwise=rw)
     write_atomic(cpath(out, stage, tag, ctrl, chunk), gzip.compress(json.dumps(dict(meta=cmeta(stage, tag, ctrl, chunk, conf, seeds, seconds), rows=rows), sort_keys=True).encode("utf-8"), mtime=0))
     return dict(stage=stage, tag=tag, ctrl=ctrl, chunk=chunk, n=len(rows), falls=sum(not r["survived"] for r in rows), kd=sum(r["kd"] for r in rows), wall_s=round(time.time() - t0, 1), pid=os.getpid())
 
@@ -214,7 +225,7 @@ def main():
     ap.add_argument("--workers", type=int, default=2); ap.add_argument("--r0eo", default=str(R0EO)); ap.add_argument("--conf", default=None); ap.add_argument("--seconds", type=float, default=SECONDS)
     ap.add_argument("--p1", default=None); ap.add_argument("--dry", action="store_true"); a = ap.parse_args()
     if a.cmd == "status": status(a.out); return
-    conf = dict(REQ_CONF, **(json.loads(a.conf) if a.conf else {})); Path(a.out).mkdir(parents=True, exist_ok=True); (Path(a.out) / "run.pid").write_text(str(os.getpid())); res = {}
+    conf = dict(REQ_CONF, **(json.loads(a.conf) if a.conf else {})); Path(a.out).mkdir(parents=True, exist_ok=True); manifest(a.out, "batch", dict(batch=BATCH, rowwise=ROWWISE)); (Path(a.out) / "run.pid").write_text(str(os.getpid())); res = {}
     for st in (("req", "t1c", "topp", "r2", "r6") if a.cmd == "all" else (a.cmd,)):
         t0 = time.time(); r = dict(req=lambda: stage_req(a, conf), r2=lambda: stage_r2(a), t1c=lambda: stage_t1c(a, conf), topp=lambda: stage_topp(a, conf), r6=lambda: stage_r6(a, conf))[st]()
         r = dict(r, wall_s=round(time.time() - t0, 1), dry=a.dry, seconds=a.seconds); res[st] = r

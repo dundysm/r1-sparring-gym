@@ -3,13 +3,17 @@
             H(A3s)/M3s on 60100-60115 (fb_seeds role 'identity'; fb_record's seed -> episode map): every row bit identical to
             eval_opponent.run (threads 1, DR, meter, falls, keypoints truth, aim.json's lag) on the same episodes (fell_s and every
             HitMeter count, the whole row).
-  f64       the torch float64 modules (TrackerDriver + AimOp, EvalActorObs, HybridDelayedAction, fb_dr, fb_events) as deployed vs the
-            numpy replica on the same bouts: per-step qpos max |diff| <= 1e-9 over the steps before the first defender-opponent shell
-            contact (either run); then same-state checks on the torch run's own states (a shadow runs the eval's code on them each step:
+  f64       A6.5: the torch float64 modules (TrackerDriver + AimOp, EvalActorObs, HybridDelayedAction, fb_dr, fb_events) in the
+            DIAGNOSTIC configuration (the eval's own tracker session, actor 'onnx', and reference arrays, ref 'eval', plugged into the
+            torch driver: the eval's tracker is a float32 ONNX the task may not read, so no float64 chain can meet 1e-9 against it) vs
+            the numpy replica on the same bouts: per-step qpos max |diff| <= 1e-9 over the steps before the first defender-opponent shell
+            contact (either run); then same-state checks on that run's own states (a shadow runs the eval's code on them each step:
             Aim.reference, Tracker.act's 132-d obs and targets, R1HitEnv._raw_obs + DelayedNoisyObs + KeypointSource with the eval's
-            rng, R1HitEnv's action arithmetic, R1.fallen / EO:86, _dr_sample_into_model) <= 1e-9. Diagnostics (reported): the same
-            run with the eval's own tracker session (actor 'onnx') and reference arrays (ref 'eval') in the torch driver; the
-            tracker MLP float64 vs the ONNX graph in float64 on the eval's obs rows (G0-1's reference, scripts/fb_m2_check.onnx_f64).
+            rng, R1HitEnv's action arithmetic, R1.fallen / EO:86, _dr_sample_into_model) <= 1e-9, except the aim's rdq (and the obs
+            dims that carry it) gated at <= 1e-9 x RDQ_AMP (50: rdq is the warp's finite difference / 0.02 s) and reported.
+            Reported, not gated here: the DEPLOYED configuration (TrackerMLP float64, fb_motion's reference) with the same shadow (it
+            is gated by M2 G0-1 / G0-2, M3 and distributionally by R-EQ), and the tracker MLP float64 vs the ONNX graph in float64 on
+            the eval's obs rows (G0-1's reference, scripts/fb_m2_check.onnx_f64).
   g011      M5 G0-11 on the replica: eval mode, scorer 'account' with native contact sensors (found / force / pos, netforce, as mjlab
             builds them), 60200-60263 (role 'hit_scoring'), G and H. A4.3 probe on every substep: the sensor's pos within 1 cm of the
             MuJoCo contact position on >= 99% of contacts (strike-limb secondaries vs defender shells) -> deployed closing-speed
@@ -27,8 +31,10 @@ import numpy as np, torch, mujoco
 import fb_replica as RP
 
 TOL = dict(qpos=1e-9, same=1e-9, pos_m=0.01, pos_share=0.99, clean_agree=0.95, med_imp=0.10)
+RDQ_AMP = 50   # A6.5: the aim rdq gate is TOL['same'] x 50 (rdq = (delta - prev) / 0.02 s, r1gym/aim.py; the IK's measured amplification)
 ID_SEEDS, HIT_SEEDS, CTRLS = tuple(range(60100, 60116)), tuple(range(60200, 60264)), ("G", "H")
 ANCHOR = slice(48, 57)   # the tracker obs' anchor position (3) and orientation (6): fb_motion's export vs the ONNX initializers (M2 G0-2 (b))
+RDQ = slice(24, 48)      # the tracker obs' reference joint velocities (the aim's rdq)
 VMODES = ("pos", "site", "com", "point")
 M5REC = Path(r"C:\Users\dundy\AppData\Local\Temp\claude\C--Users-dundy-Downloads\96df40a6-a649-4bd5-bef4-75678b326b3c\scratchpad\m1m2\fullbody\build\verify_m5\rec\fb_m5rec_60200-60363.npz")
 J = lambda x: json.dumps(x, sort_keys=True, default=str)
@@ -74,9 +80,10 @@ class Trace:
 
 class Shadow:
     """The eval's own code on the torch replica's states, every step (module outputs vs the eval's, max |diff|)."""
-    KEYS = ("dr_fields", "act_delay", "aim_rq", "aim_rdq", "aim_dist", "obs132_other", "obs132_anchor", "mlp_vs_graph64", "targets_vs_onnx32", "proprio83", "delayed83_noise",
+    KEYS = ("dr_fields", "act_delay", "aim_rq", "aim_rdq", "aim_dist", "obs132_other", "obs132_rdq", "obs132_anchor", "mlp_vs_graph64", "targets_vs_onnx32", "proprio83", "delayed83_noise",
             "keypoints", "action_targets", "applied", "fell", "opp_down", "yaw_spot_axis")
-    def __init__(self, f64graph): self.g64 = f64graph; self.mx = {k: 0.0 for k in self.KEYS}; self.n = 0
+    RDQ_KEYS = ("aim_rdq", "obs132_rdq")   # gated at TOL['same'] x RDQ_AMP (A6.5)
+    def __init__(self, f64graph, mlp64=None): self.g64 = f64graph; self.mlp64 = mlp64; self.mx = {k: 0.0 for k in self.KEYS}; self.n = 0
     def _u(self, k, a, b): a, b = np.asarray(a, np.float64), np.asarray(b, np.float64); self.mx[k] = max(self.mx[k], float(np.abs(a - b).max()) if a.size else 0.0)
     def reset(self, B):
         from r1gym.env import R1HitEnv as E
@@ -110,9 +117,9 @@ class Shadow:
         self.obs64 = npr.last.copy(); self.ctrl32 = d.ctrl[B.oi.act].copy()
     def opp_after(self, B, rq, rdq, dist, tg, info):
         self._u("aim_rq", rq[0].numpy(), self.cap["rq"]); self._u("aim_rdq", rdq[0].numpy(), self.cap["rdq"]); self._u("aim_dist", float(dist[0]), self.es.get("dist", B.opp_rp.distance))
-        o = info["obs"][0].numpy(); m = np.ones(132, bool); m[ANCHOR] = False
-        self._u("obs132_other", o[m], self.obs64[m]); self._u("obs132_anchor", o[ANCHOR], self.obs64[ANCHOR])
-        x = torch.from_numpy(self.obs64[None]); self._u("mlp_vs_graph64", B.drv.mlp(x)[0].numpy(), self.g64(self.obs64[None])[0]); self._u("targets_vs_onnx32", tg[0].numpy(), self.ctrl32)
+        o = info["obs"][0].numpy(); m = np.ones(132, bool); m[ANCHOR] = False; m[RDQ] = False
+        self._u("obs132_other", o[m], self.obs64[m]); self._u("obs132_rdq", o[RDQ], self.obs64[RDQ]); self._u("obs132_anchor", o[ANCHOR], self.obs64[ANCHOR])
+        x = torch.from_numpy(self.obs64[None]); self._u("mlp_vs_graph64", (self.mlp64 or B.drv.mlp)(x)[0].numpy(), self.g64(self.obs64[None])[0]); self._u("targets_vs_onnx32", tg[0].numpy(), self.ctrl32)
         self._u("yaw_spot_axis", [float(B.drv.yaw[0]), *B.drv.spot[0].tolist(), *B.drv.axis[0].tolist()], [self.es["yaw"], *self.es["spot"], *self.es["axis"]])
     def obs(self, B, p, o):
         raw = B._raw_obs(); self._u("proprio83", p[0].numpy(), raw)
@@ -129,13 +136,14 @@ class Shadow:
 def _f64(args):
     name, seeds, p1 = args; torch.set_num_threads(1)
     import fb_m2_check as M2
-    g64, _ = M2.onnx_f64(M2.onnx_path()); eps = RP.episodes("identity", seeds); out = []; BB = {}
+    import fb_opponent as FO
+    g64, _ = M2.onnx_f64(M2.onnx_path()); mlp64 = FO.TrackerMLP(dtype=torch.float64); eps = RP.episodes("identity", seeds); out = []; BB = {}
     for tag, kw in (("numpy", {}), ("torch64", dict(backend="torch64")), ("torch64_onnx_evalref", dict(backend="torch64", actor="onnx", ref="eval"))):
         c = RP.conf(**kw); ctrl, cfg, lag, m, names = RP.world(name, c, p1); BB[tag] = RP.Bout(ctrl, cfg, c, m, seconds=20.0, lag=lag)
     for ep in eps:
         rec = {}
         for tag, B in BB.items():
-            tr = Trace(); B.shadow = Shadow(g64) if tag == "torch64" else None
+            tr = Trace(); B.shadow = Shadow(g64, mlp64) if tag != "numpy" else None
             row, info = RP.run_bout(B, ep, tr); rec[tag] = dict(q=np.array(tr.q), first=tr.first, ctrl=np.array(tr.ctrl), row=row, shadow=B.shadow)
         n0 = rec["numpy"]; r = dict(ctrl=name, seed=ep["seed"], first_contact_step=n0["first"], fell=n0["row"]["fell_s"])
         for tag in ("torch64", "torch64_onnx_evalref"):
@@ -144,18 +152,24 @@ def _f64(args):
             r[tag] = dict(steps_compared=int(k), first_contact_step=x["first"], qpos_max=float(D.max()) if len(D) else 0.0, first_step_over=int(over[0]) if len(over) else None,
                           qpos_at=[float(D[i]) for i in (1, 2, 5, 10, 25) if i < len(D)], ctrl_step1_max=float(C), opp_ctrl_step1_max=float(np.abs(n0["ctrl"][0][-24:] - x["ctrl"][0][-24:]).max()),
                           def_ctrl_step1_max=float(np.abs(n0["ctrl"][0][:24] - x["ctrl"][0][:24]).max()))
-        r["same_state"] = dict(rec["torch64"]["shadow"].mx, steps=rec["torch64"]["shadow"].n); out.append(r)
+        r["same_state"] = dict(rec["torch64"]["shadow"].mx, steps=rec["torch64"]["shadow"].n); r["same_state_diag"] = dict(rec["torch64_onnx_evalref"]["shadow"].mx, steps=rec["torch64_onnx_evalref"]["shadow"].n); out.append(r)
     return out
 
 def f64(workers=2, p1=None, seeds=ID_SEEDS):
     jobs = [(n, list(seeds[i::workers]), p1) for n in CTRLS for i in range(workers)]; res = sorted(sum(_pool(_f64, jobs, workers), []), key=lambda x: (x["ctrl"], x["seed"]))
     ss = {k: max(x["same_state"][k] for x in res) for k in Shadow.KEYS}; f = lambda tag, k: max(x[tag][k] for x in res)
+    sd = {k: max(x["same_state_diag"][k] for x in res) for k in Shadow.KEYS}; tol = lambda k: TOL["same"] * (RDQ_AMP if k in Shadow.RDQ_KEYS else 1)
+    gated = [k for k in Shadow.KEYS if k != "mlp_vs_graph64"]   # the deployed MLP vs the graph: M2 G0-1's (reported)
     imp = ("obs132_anchor", "mlp_vs_graph64", "targets_vs_onnx32")   # reported against their own gates (M1/M2), see the notes
     return dict(bouts=len(res), per_bout=res, qpos=dict(deployed=dict(max=f("torch64", "qpos_max"), bouts_over=sum(x["torch64"]["qpos_max"] > TOL["qpos"] for x in res),
                                                                          opp_ctrl_step1_max=f("torch64", "opp_ctrl_step1_max"), def_ctrl_step1_max=f("torch64", "def_ctrl_step1_max")),
                                                           onnx_evalref=dict(max=f("torch64_onnx_evalref", "qpos_max"), bouts_over=sum(x["torch64_onnx_evalref"]["qpos_max"] > TOL["qpos"] for x in res),
                                                                             opp_ctrl_step1_max=f("torch64_onnx_evalref", "opp_ctrl_step1_max"))),
                 same_state=ss, same_state_steps=sum(x["same_state"]["steps"] for x in res),
+                diag=dict(qpos_max=f("torch64_onnx_evalref", "qpos_max"), qpos_bouts_over=sum(x["torch64_onnx_evalref"]["qpos_max"] > TOL["qpos"] for x in res),
+                          same_state=sd, same_state_steps=sum(x["same_state_diag"]["steps"] for x in res), tol={k: tol(k) for k in gated},
+                          over=[k for k in gated if sd[k] > tol(k)], rdq=dict(aim_rdq=sd["aim_rdq"], obs132_rdq=sd["obs132_rdq"], gate=TOL["same"] * RDQ_AMP, deployed_aim_rdq=ss["aim_rdq"])),
+                ok=bool(all(x["torch64_onnx_evalref"]["qpos_max"] <= TOL["qpos"] for x in res) and all(sd[k] <= tol(k) for k in gated)),
                 ok_qpos_deployed=bool(all(x["torch64"]["qpos_max"] <= TOL["qpos"] for x in res)), ok_qpos_onnx_evalref=bool(all(x["torch64_onnx_evalref"]["qpos_max"] <= TOL["qpos"] for x in res)),
                 ok_same_state_all=bool(all(v <= TOL["same"] for v in ss.values())), ok_same_state_but_tracker_actor_ref=bool(all(v <= TOL["same"] for k, v in ss.items() if k not in imp)))
 
@@ -232,7 +246,7 @@ def main():
         t0 = time.time(); r = dict(identity=lambda: identity(a.workers, a.p1), f64=lambda: f64(a.workers, a.p1), g011=lambda: g011(a.workers, a.p1, m5rec=a.m5rec, save=str(out / "g011_bouts.npz")))[cmd]()
         r["wall_s"] = round(time.time() - t0, 1); res[cmd] = r; (out / f"m6_{cmd}.json").write_text(json.dumps(r, indent=1, default=str), encoding="utf-8")
         print(json.dumps({cmd: {k: v for k, v in r.items() if k in ("ok", "per_ctrl", "qpos", "same_state", "ok_qpos_deployed", "ok_qpos_onnx_evalref", "ok_same_state_all",
-                                                                       "ok_same_state_but_tracker_actor_ref", "a43_probe", "deployed_vmode", "wall_s", "vs_m5_recording_rows")}}, default=str), flush=True)
+                                                                       "ok_same_state_but_tracker_actor_ref", "diag", "a43_probe", "deployed_vmode", "wall_s", "vs_m5_recording_rows")}}, default=str), flush=True)
     return res
 
 if __name__ == "__main__": main()

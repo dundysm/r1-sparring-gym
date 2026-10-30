@@ -83,3 +83,32 @@ def test_aim_skip_idle_changes_nothing():
     for skip in (True, False):
         B = RP.Bout(ctrl, ccfg, cc, mm, seconds=1.5, lag=lag); B.aim.skip_idle = skip; tr = C6.Trace(); RP.run_bout(B, eps[0], tr); Q.append(np.array(tr.q))
     assert np.array_equal(Q[0], Q[1]) and len(Q[0]) == 76
+
+def test_sensor_read_equals_contact_sensors(ccfg, m_eval):
+    """Sensors._read (A7.1's leaner loop) = MjContactSensors.read on F, found, Fb, vb, and on the velocities it computes; _vel = np.cross's."""
+    from test_fb_hits import _contact_states
+    S = RP.Sensors(m_eval, ("site",)); S2 = RP.Sensors(m_eval, ("com", "point")); d = mujoco.MjData(m_eval); n = 0
+    for q, v in _contact_states(m_eval, n=10, seed=4):
+        d.qpos[:] = q; d.qvel[:] = v; mujoco.mj_forward(m_eval, d); ref = S.s.read(d); a, b = S._read(d), S2._read(d); n += int(ref[1].sum() > 0)
+        for k in (0, 1, 4, 5): assert np.array_equal(a[k], ref[k]) and np.array_equal(b[k], ref[k])
+        assert np.array_equal(b[2], ref[2]) and np.array_equal(b[3], ref[3])
+        for bd in (3, 17):
+            p = d.xpos[bd] + 0.1; mujoco.mj_objectVelocity(m_eval, d, mujoco.mjtObj.mjOBJ_BODY, bd, S.v6, 0); w = S.v6.copy()
+            assert np.array_equal(S._vel(d, bd, p), w[3:] + np.cross(w[:3], p - d.xipos[bd]))
+    assert n >= 3
+
+def test_batch_rows_equal_n1_rowwise():
+    """Batch (K bouts in lockstep, A7.1) with the tracker MLP row by row gives the N = 1 rows bit for bit (account scorer, torch32, 1 s);
+    finished bouts keep the batch running (one bout falls or not, rows equal either way)."""
+    import fb_m6_run as D
+    c = RP.conf(**D.REQ_CONF); eps = RP.episodes("identity", [60104, 60105, 60106])
+    a = RP.run("G", eps, c, 1.0); b = RP.run("G", eps, c, 1.0, batch=3, rowwise=True); c2 = RP.run("G", eps[:2], c, 1.0, batch=2)
+    J = lambda r: json.dumps(r, sort_keys=True); assert [J(x) for x in a] == [J(x) for x in b] and len(c2) == 2 and all("acct" in r for r in b)
+
+def test_rowwise_face_is_the_drivers_face():
+    """Batch's rowwise face = TrackerDriver.face at n = 1, row by row and over consecutive steps (yaw set and unset), bit for bit."""
+    import torch, fb_opponent as FO
+    g = torch.Generator().manual_seed(0); n = 37; A = FO.TrackerDriver(n, torch.float32); A.face = RP.rowwise_face(A); ones = [FO.TrackerDriver(1, torch.float32, motion=A.M) for _ in range(n)]
+    for _ in range(4):
+        t, p = torch.randn(n, 2, generator=g), torch.randn(n, 2, generator=g); y = A.face(t, p)
+        assert torch.equal(y, torch.cat([d.face(t[i:i + 1], p[i:i + 1]) for i, d in enumerate(ones)]))

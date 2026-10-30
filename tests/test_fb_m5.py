@@ -2,21 +2,24 @@
 8 s) through eval_opponent.run with the read-only hooks (rows identical, asserted in the recorder); the recorder refuses seeds outside
 its blocks; replayed with the HitMeter's contact-point closing speeds, FullBodyHitAccount's landed counts, clean calls and intent
 window outcomes equal the HitMeter's, its paid windows the python HIT_R2 + m2 reference; the tangle is the per-substep sum. The full
-gates (2 x 64 bouts per controller, W0) run in scripts/fb_m5_check.py."""
+gates (2 x 64 bouts per controller, W0) run in scripts/fb_m5_check.py. A4.1: one listed R4-pre G knockdown bout (67602, role 'w0_r4pre',
+1 s) re-recorded through the same recorder is R4-pre's episode and has its one knockdown edge at EO's and R4-pre's opp_fall time; the
+recorder refuses unlisted seeds and other controllers in that role."""
 import sys
 from pathlib import Path
 import numpy as np, pytest
 ROOT = Path(__file__).resolve().parents[1]; sys.path.insert(0, str(ROOT)); sys.path.insert(0, str(ROOT / "gpu")); sys.path.insert(0, str(ROOT / "scripts"))
 import fb_m5_check as C
-from fb_seeds import SeedRefused
+from fb_seeds import SeedRefused, W0_R4PRE
 
 @pytest.fixture(scope="module")
 def rec():
     R = C.record(seeds={"hit_scoring": [60200]}, seconds=8.0, workers=1, ctrls=("G",)); return R, C.model()[0]
 
 def test_recorder_refuses_other_blocks():
-    for role, s in (("hit_scoring", 60264), ("w0_calib", 60299), ("hit_scoring", 21000), ("w0_calib", 22000), ("hit_scoring", 60300)):
+    for role, s in (("hit_scoring", 60264), ("w0_calib", 60299), ("hit_scoring", 21000), ("w0_calib", 22000), ("hit_scoring", 60300), (C.W0_ROLE, 67003), (C.W0_ROLE, 60300)):
         with pytest.raises(SeedRefused): C.record(seeds={role: [s]}, seconds=0.1, workers=1, ctrls=("G",))
+    with pytest.raises(SeedRefused, match="G only"): C.record(seeds={C.W0_ROLE: [67602]}, seconds=0.1, workers=1, ctrls=("H",))
 
 def test_account_equals_hitmeter_on_a_recorded_bout(rec):
     R, m = rec; b = R["meta"]["bouts"][0]; assert b["episode"]["seed"] == 60200 and len(R["0/post"]) == 400 and len(R["0/hit"]) > 0
@@ -30,3 +33,11 @@ def test_recorded_terms(rec):
     b = R["0/body"]; tz = np.array([C.HT.ZONES[z] in C.HT.TANGLE_ZONES for z in rp["bzone_idx"]]); ref = np.zeros(L.shape[1])
     np.add.at(ref, (b[:, 0] // 4).astype(int), np.linalg.norm(b[:, 2:5], axis=1) * C.HT.DT * tz[b[:, 1].astype(int)])
     assert np.abs(ref - V["tangle_Ns"][0]).max() <= 1e-9
+
+def test_w0_r4pre_bout_is_the_r4pre_knockdown():
+    s = 67602; assert s in W0_R4PRE; R = C.record(seeds={C.W0_ROLE: [s]}, seconds=1.0, workers=1, ctrls=("G",)); m = C.model()[0]
+    b = R["meta"]["bouts"][0]; e = C.r4pre_episodes([s])[0]; assert b["episode"] == e and b["role"] == C.W0_ROLE and b["ctrl"] == "G"
+    cal = C.calibrate_w0(R, m); assert cal["knockdowns"] == 1 and cal["bouts_with_kd"] == 1 and cal["edges_equal_eo"], cal
+    if not C.R4PRE.exists(): pytest.skip("R4-pre run files not present")
+    lst, rows, _ = C.r4pre_list(); r = rows[s]; assert lst == sorted(W0_R4PRE) and all(e[k] == r[k] for k in ("clip", "distance", "t0", "delay"))
+    assert abs(cal["edges"][0]["t"] - r["opp_fell"]["t"]) < 1e-9

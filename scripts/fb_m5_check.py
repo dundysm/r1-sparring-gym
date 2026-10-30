@@ -14,12 +14,18 @@ eval's own code:
           per (limb, zone) exact vs the HitMeter on every bout; clean-vs-not agreement >= 0.95 over landed episodes (unmatched count as
           disagreements); median landed head impulse within 10%. Reported: 'point', window outcomes and pay vs the HitMeter /
           python reference, all-zone counts, the reverse direction (R1 -> opponent) vs HitMeter(reverse=True).
-  G0-12   scripted events (scripted()) and the recorded EO bouts: W0 = the 10th percentile of W over G's 60300-60363 knockdowns with
-          contact (a defender torso / pelvis / leg shell touched the opponent in the last 1 s), frozen in fb_rewards.W0 (asserted equal); on every recorded bout: each charged knockdown is one step of
-          -2.4 at a rising edge with W >= W0 and no landed strike within 0.3 s; fb_down_neutral nonzero only while opp_down_now (and
-          after the opponent got up, zero again); fb_down_approach / fb_down_contact zero while both are up; the tangle impulse = the
-          per-substep sum of |F| dt over the pelvis + leg body-sensor entries (independent numpy).
-Run in the repo: python scripts/fb_m5_check.py --out m5_check.json --rec m5rec.npz --p1 p1_eval.py [--workers 4] [--reuse]"""
+  G0-12   scripted events (scripted()) and the recorded EO bouts: W0 (A4.1) = the 10th percentile of W over G's knockdowns with contact
+          (a defender torso / pelvis / leg shell touched the opponent in the last 1 s) on the R4-pre G knockdown bouts re-recorded with
+          contact logs (role 'w0_r4pre': fb_seeds.W0_R4PRE, re-derived from r4pre/runs/G_*.pkl and asserted equal; R4-pre's own episodes,
+          fb_r0eo.episodes; G only; each bout hooked = plain), at least W0_MIN_N such knockdowns (else stop: no W0), frozen in
+          fb_rewards.W0 (asserted equal); every listed bout has exactly one knockdown edge at EO's opp_fall time; the 60300-60363 value
+          is report only. On every recorded bout (60200, 60300, w0_r4pre): each charged knockdown is one step of -2.4 at a rising edge
+          with W >= W0 and no landed strike within 0.3 s; fb_down_neutral nonzero only while opp_down_now (and after the opponent got up,
+          zero again); fb_down_approach / fb_down_contact zero while both are up; the tangle impulse = the per-substep sum of |F| dt over
+          the pelvis + leg body-sensor entries (independent numpy). Reported: the re-recorded rows vs R4-pre's G rows, and (A4.2) the
+          knockdowns before EARLY_S.
+Run in the repo: python scripts/fb_m5_check.py --out m5_check.json --rec m5rec.npz --rec-w0 w0rec.npz --p1 p1_eval.py [--r4pre DIR]
+                 [--workers 4] [--reuse]"""
 import sys, gc, json, time, argparse
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]; sys.path.insert(0, str(ROOT)); sys.path.insert(0, str(ROOT / "gpu")); sys.path.insert(0, str(ROOT / "scripts"))
@@ -28,6 +34,9 @@ import fb_hits as HT, fb_rewards as RW, fb_events as EV
 
 TOL = dict(clean_agree=0.95, med_imp=0.10, w0_pct=10.0, slots=8)
 BLOCKS = dict(hit_scoring=(60200, 60263), w0_calib=(60300, 60363)); TRAIN = ("kfab_200", "kfab_201", "kfab_203"); CTRLS = ("G", "H")
+W0_ROLE, W0_MIN_N, EARLY_S = "w0_r4pre", 30, 0.5   # A4.1 (W0 on the R4-pre G knockdown bouts, >= 30 with contact), A4.2 (report)
+R4PRE_BLOCKS = dict(main=(67000, 64, (0.4, 0.45, 0.5, 0.55)), close=(68000, 128, (0.4, 0.45)))   # r4pre_eval.episodes(seed0, reps, dists)
+R4PRE = Path(r"C:\Users\dundy\AppData\Local\Temp\claude\C--Users-dundy-Downloads\96df40a6-a649-4bd5-bef4-75678b326b3c\scratchpad\m1m2\fullbody\r4pre")
 HIT_COLS = 13   # k (substep), sensor, primary, found, F (3), v_com (3), v_pt (3)
 BODY_COLS = 8   # k (substep), primary, F (3), v (3)
 POST = ("time", "opp_z", "opp_up", "def_x", "def_y", "def_vx", "def_vy", "def_vz", "opp_x", "opp_y", "up_x", "up_y", "up_z", "fallen")
@@ -77,6 +86,23 @@ def block_touches(hit, post, block_idx):
     bk = np.asarray(block_idx, bool); h = hit[bk[hit[:, 2].astype(int)] & (hit[:, 3] > 0)] if len(hit) else hit
     return {(int(r[1]), round(float(post[int(r[0]) // 4, 0]) - (3 - int(r[0]) % 4) * HT.DT, 4)) for r in h}
 
+_R4E = {}
+def r4pre_episodes(seeds):
+    """R4-pre's own episodes (fb_r0eo.episodes = r4pre_eval.episodes on both blocks, R0E check (2)) of the given seeds."""
+    if not _R4E:
+        import fb_r0eo as R0
+        for s0, reps, ds in R4PRE_BLOCKS.values(): _R4E.update({e["seed"]: e for e in R0.episodes(s0, reps, ds)})
+    return [_R4E[int(s)] for s in seeds]
+
+def r4pre_list(r4pre=R4PRE):
+    """A4.1's list from R4-pre's G run files: (sorted seeds where G's bout had a knockdown, {seed: R4-pre G row}, {file: sha256})."""
+    import pickle, hashlib
+    rows, sha = {}, {}
+    for t in R4PRE_BLOCKS:
+        b = (Path(r4pre) / "runs" / f"G_{t}.pkl").read_bytes(); sha[f"G_{t}.pkl"] = hashlib.sha256(b).hexdigest(); d = pickle.loads(b)
+        assert d["meta"]["ctrl"] == "guard_fw_r" and d["meta"]["variant"] == "plain"; rows.update({r["seed"]: r for r in d["rows"]})
+    return sorted(s for s, r in rows.items() if r["knockdown"]), rows, sha
+
 def work(args):
     jobs, seconds, p1 = args
     torch.set_num_threads(1)
@@ -85,8 +111,8 @@ def work(args):
     from r1gym.hits import STRIKE_LIMBS
     out = []
     for ctrl, role, seeds in jobs:
-        check(seeds, role, TRAIN); c, cfg, m = C4.setup(ctrl, p1); kp = "truth" if ctrl == "H" else None
-        for ep in REC.episodes(seeds, seconds):
+        check(seeds, role, TRAIN, ctrl=ctrl); c, cfg, m = C4.setup(ctrl, p1); kp = "truth" if ctrl == "H" else None
+        for ep in (r4pre_episodes(seeds) if role == W0_ROLE else REC.episodes(seeds, seconds)):
             kw = dict(threads=1, dr=True, meter=True, falls=True, rev=True, keypoints=kp)
             plain = EO.run(c, [ep], m, cfg, seconds, **kw)[0]
             S = dict(hit=[], body=[], rhit=[], rbody=[], post=[]); install, remove = _hooks(S); install()
@@ -111,10 +137,11 @@ def work(args):
     return out
 
 def record(blocks=tuple(BLOCKS), seconds=20.0, workers=4, p1=None, ctrls=CTRLS, seeds=None):
-    """seeds: {role: [seeds]} (default: every seed of each block)."""
-    from fb_seeds import check
-    assert workers <= 4; t0 = time.time(); seeds = seeds or {r: list(range(BLOCKS[r][0], BLOCKS[r][1] + 1)) for r in blocks}
-    for r, s in seeds.items(): check(s, r, TRAIN)
+    """seeds: {role: [seeds]} (default: every seed of each block; W0_ROLE: fb_seeds.W0_R4PRE)."""
+    from fb_seeds import check, W0_R4PRE
+    assert workers <= 4; t0 = time.time(); seeds = seeds or {r: list(W0_R4PRE) if r == W0_ROLE else list(range(BLOCKS[r][0], BLOCKS[r][1] + 1)) for r in blocks}
+    for r, s in seeds.items():
+        for c in ctrls: check(s, r, TRAIN, ctrl=c)
     jobs = [(c, r, [s]) for r in seeds for c in ctrls for s in seeds[r]]; sl = [jobs[i::workers] for i in range(workers) if jobs[i::workers]]
     if len(sl) == 1: parts = [work((sl[0], seconds, p1))]
     else:
@@ -133,6 +160,18 @@ def save(R, path):
 def load(path):
     with np.load(path, allow_pickle=False) as z: R = {k: z[k] for k in z.files}
     R["meta"] = json.loads(str(R["meta"])); return R
+
+def merge(*Rs):
+    """One recording from several: bouts concatenated in order, arrays renumbered."""
+    out = dict(meta=dict(seeds={k: v for R in Rs for k, v in R["meta"]["seeds"].items()}, seconds=Rs[0]["meta"]["seconds"], wall_s=sum(R["meta"]["wall_s"] for R in Rs),
+                         ctrls=sorted({c for R in Rs for c in R["meta"]["ctrls"]}, key=lambda c: CTRLS.index(c)), bouts=[]))
+    assert all(R["meta"]["seconds"] == out["meta"]["seconds"] for R in Rs); n = 0
+    for R in Rs:
+        out["meta"]["bouts"] += R["meta"]["bouts"]
+        for k, v in R.items():
+            if k != "meta": i, f = k.split("/", 1); out[f"{int(i) + n}/{f}"] = v
+        n += len(R["meta"]["bouts"])
+    return out
 
 def model():
     import fb_m4_check as C4
@@ -234,17 +273,49 @@ def compare_rev(R, idx, rp):
     return dict(bouts=len(B), landed_ours=n[0], landed_hm=n[1], count_mismatch_bouts=bad)
 
 # ---- G0-12: W0 and the recorded bouts
-def calibrate_w0(R, m, role="w0_calib"):
+def calibrate_w0(R, m, role=W0_ROLE):
+    """W0 = P10 of W over role's G knockdown edges with contact; n_ok iff >= W0_MIN_N of them; edges_eo: every bout has one edge iff EO's
+    opp_fell, at EO's opp_fall time."""
     idx = [i for i, b in enumerate(R["meta"]["bouts"]) if b["role"] == role and b["ctrl"] == "G"]; rp = replay(R, idx, m, "com")
     E = rp["edges"]; Wc = np.array([e["W"] for e in E if e["contact"]]); w0 = float(np.percentile(Wc, TOL["w0_pct"])) if len(Wc) else None
-    W = np.array([e["W"] for e in E if e["W"] > 0])
-    return dict(bouts=len(idx), knockdowns=len(E), with_contact=int(len(Wc)), with_work=int(len(W)), W_all=[round(e["W"], 4) for e in E], w0=w0, w0_frozen=RW.W0,
+    W = np.array([e["W"] for e in E if e["W"] > 0]); B = R["meta"]["bouts"]; ne = {i: sum(e["bout"] == i for e in E) for i in idx}
+    eo_t = {i: (B[i]["row"].get("opp_fall") or {}).get("t_s") for i in idx}
+    edges_eo = all(ne[i] == int(eo_t[i] is not None) for i in idx) and all(abs(e["t"] - eo_t[e["bout"]]) < 1e-6 for e in E)
+    return dict(role=role, bouts=len(idx), knockdowns=len(E), with_contact=int(len(Wc)), with_work=int(len(W)), n_min=W0_MIN_N, n_ok=bool(len(Wc) >= W0_MIN_N),
+                bouts_with_kd=sum(v > 0 for v in ne.values()), edges_equal_eo=bool(edges_eo), W_all=[round(e["W"], 4) for e in E], w0=w0, w0_frozen=RW.W0,
                 w0_variant_work_only=float(np.percentile(W, TOL["w0_pct"])) if len(W) else None,
+                W_contact_quantiles={q: round(float(np.percentile(Wc, q)), 4) for q in (0, 5, 10, 25, 50, 75, 90, 100)} if len(Wc) else None,
+                contact_W0_share=round(float((Wc == 0).mean()), 4) if len(Wc) else None,
                 edges=[{k: v for k, v in e.items() if k != "opp_fall"} | dict(eo_contact_0p5s=(e["opp_fall"] or {}).get("r1_contact_0p5s", {}).get("contact")) for e in E])
+
+def r4pre_match(R, rows, role=W0_ROLE):
+    """The re-recorded EO rows vs R4-pre's G rows (p1_eval = EO bout): per field, how many bouts are equal."""
+    B = [b for b in R["meta"]["bouts"] if b["role"] == role]; J = lambda x: json.dumps(x, sort_keys=True); f = dict(fell_s=0, opp_fell_t=0, hit_counts=0, max_disp_m=0, r1_contact=0, act_delay_key=0)
+    for b in B:
+        e, r = b["row"], rows[b["episode"]["seed"]]; of = e.get("opp_fall") or {}
+        f["fell_s"] += e["fell_s"] == r["fell_s"]; f["opp_fell_t"] += of.get("t_s") == (r["opp_fell"] or {}).get("t"); f["hit_counts"] += J(e["hit_meter"]["n"]) == J(r["n"])
+        f["max_disp_m"] += e["max_disp_m"] == r["max_disp_m"]; f["r1_contact"] += J(of.get("r1_contact_0p5s")) == J((r["opp_fell"] or {}).get("r1_contact"))
+        f["act_delay_key"] += all(b["episode"][k] == r[k] for k in ("clip", "distance", "t0", "delay"))
+    return dict(bouts=len(B), equal=f, all_equal=bool(B) and all(v == len(B) for v in f.values()))
+
+def early_kd(R, cal, rows, early=EARLY_S, role=W0_ROLE):
+    """A4.2 (report): the knockdowns before `early` s among the re-recorded R4-pre G bouts: W, contact, the first R1-opponent contact
+    (any logged sensor: opponent strike limbs on the R1, R1 shells on the opponent, both ways) and whether it was at the first substep."""
+    B = R["meta"]["bouts"]; out = []
+    for e in cal["edges"]:
+        if e["t"] >= early: continue
+        i = e["bout"]; ks = [int(R[f"{i}/{k}"][0, 0]) for k in ("hit", "body", "rhit", "rbody") if len(R[f"{i}/{k}"])]; k0 = min(ks) if ks else None; post = R[f"{i}/post"]
+        t_first = None if k0 is None else round(float(post[k0 // 4, 0]) - (3 - k0 % 4) * HT.DT, 4); r = rows[e["seed"]]
+        out.append(dict(seed=e["seed"], clip=B[i]["episode"]["clip"], distance=B[i]["episode"]["distance"], t0=B[i]["episode"]["t0"], act_delay=r["act_delay"], t=e["t"], W=round(e["W"], 4),
+                        contact=e["contact"], first_contact_s=t_first, contact_at_first_substep=k0 == 0, eo_contact_0p5s=e["eo_contact_0p5s"], cause=(B[i]["row"].get("opp_fall") or {}).get("cause"),
+                        opp_up_z_step1=round(float(post[0, 2]), 4), fell_s=B[i]["row"]["fell_s"]))
+    w0 = cal["w0"]; ch = lambda e: w0 is not None and e["W"] >= w0 and e["W"] > 0 and not e["land_dt"] <= RW.LAND_GATE_S + 1e-9   # the charge rule at the calibrated W0
+    return dict(early_s=early, knockdowns=len(cal["edges"]), early=len(out), early_with_contact=sum(x["contact"] for x in out), charged=sum(map(ch, cal["edges"])),
+                early_charged=sum(ch(e) for e in cal["edges"] if e["t"] < early), early_contact_at_first_substep=sum(x["contact_at_first_substep"] for x in out), bouts=out)
 
 def recorded_checks(R, m, w0):
     res = {}; dt = 0.02; he = RW.WEIGHTS["A"]["fb_knockdown"] * dt
-    for role in BLOCKS:
+    for role in (*BLOCKS, W0_ROLE):
         for ctrl in CTRLS:
             idx = [i for i, b in enumerate(R["meta"]["bouts"]) if b["role"] == role and b["ctrl"] == ctrl]
             if not idx: continue
@@ -363,26 +434,44 @@ def scripted(m=None):
     out["push_mask"] = dict(masked_steps=len(msk), after_nonzero=some, knockdown_inside_mask=kd_in,
                             ok=zero and all(some[k] for k in ("spar_head_impulse", "spar_head_clean", "fb_leg_tangle", "fb_down_approach", "fb_down_contact", "fb_knockdown"))
                             and kd_in["knockdown"] == 0.0 and kd_in["W"] >= 1.0 and kd_in["down_neutral"] > 0)
+    # 10. the frozen W0 (A4.1): a tracker-alone fall and a knockdown with contact but no positive work give 0; any positive work, -2.4
+    def frozen(F, v):
+        sc = Script(w0=RW.W0, m=m); _, Fb = sc.z(); vb = torch.zeros_like(Fb); q = sc.bprim("leg"); Fb[:, q, :, 0] = F; vb[:, q, :, 0] = v
+        for _ in range(30): sc.step(Fb=Fb, vb=vb)
+        return rw(sc.step(down=True, Fb=Fb, vb=vb)[1], "fb_knockdown"), float(sc.rew.attr.W()[0])
+    fz = dict(alone=frozen(0.0, 0.0), no_work=frozen(100.0, 0.0), backing=frozen(100.0, -0.2), tiny_work=frozen(1.0, 1e-3))
+    want = -2.4 if fz["tiny_work"][1] >= RW.W0 else 0.0   # W0 = 0: any positive work is charged
+    out["frozen_w0"] = dict(w0=RW.W0, cases=fz, ok=fz["alone"][0] == fz["no_work"][0] == fz["backing"][0] == 0.0 and fz["no_work"][1] == fz["backing"][1] == 0.0
+                            and fz["tiny_work"][1] > 0 and abs(fz["tiny_work"][0] - want) < 1e-12)
     # weights and stages
     out["stages"] = dict(ok=("spar_clearance" in RW.WEIGHTS["A"] and "spar_clearance" not in RW.WEIGHTS["B"] and RW.res_l2_weight(0) == -0.5 and abs(RW.res_l2_weight(2000) + 0.1) < 1e-12
                              and RW.WEIGHTS["A"]["fb_knockdown"] * 0.02 == -2.4 and RW.WEIGHTS["A"]["spar_head_clean"] * 0.02 == -RW.HE))
     out["ok"] = all(v["ok"] for v in out.values()); return out
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--out", default=""); ap.add_argument("--rec", required=True); ap.add_argument("--p1", required=True)
-    ap.add_argument("--workers", type=int, default=4); ap.add_argument("--seconds", type=float, default=20.0); ap.add_argument("--reuse", action="store_true"); a = ap.parse_args()
-    t0 = time.time()
+    ap = argparse.ArgumentParser(); ap.add_argument("--out", default=""); ap.add_argument("--rec", required=True); ap.add_argument("--rec-w0", required=True); ap.add_argument("--p1", required=True)
+    ap.add_argument("--r4pre", default=str(R4PRE)); ap.add_argument("--workers", type=int, default=4); ap.add_argument("--seconds", type=float, default=20.0)
+    ap.add_argument("--reuse", action="store_true"); a = ap.parse_args()
+    import fb_seeds as SD
+    t0 = time.time(); lst, rows, src = r4pre_list(a.r4pre)   # A4.1: the list, re-derived from R4-pre's outputs, equals the frozen one before anything runs
+    wl = dict(n=len(lst), derived_equals_frozen=lst == sorted(SD.W0_R4PRE), sha256=SD.list_sha(lst), frozen_sha256=SD.W0_R4PRE_SHA256, sources_sha256=src)
+    wl["ok"] = bool(wl["derived_equals_frozen"] and wl["sha256"] == wl["frozen_sha256"]); assert wl["ok"], wl
     if a.reuse and Path(a.rec).exists(): R = load(a.rec)
     else: R = record(seconds=a.seconds, workers=a.workers, p1=a.p1); save(R, a.rec)
-    m, _ = model(); torch.set_num_threads(4)
-    cal = calibrate_w0(R, m); w0 = cal["w0"]
-    res = dict(meta=dict(rec=a.rec, wall_record_s=R["meta"]["wall_s"], bouts=len(R["meta"]["bouts"]), seeds=R["meta"]["seeds"]), w0=cal)
+    if a.reuse and Path(a.rec_w0).exists(): Rw = load(a.rec_w0)
+    else: Rw = record(blocks=(W0_ROLE,), seconds=a.seconds, workers=a.workers, p1=a.p1, ctrls=("G",)); save(Rw, a.rec_w0)
+    R = merge(R, Rw); m, _ = model(); torch.set_num_threads(min(4, a.workers))
+    cal = calibrate_w0(R, m, W0_ROLE); w0 = cal["w0"] if cal["n_ok"] and cal["edges_equal_eo"] else None   # fewer than W0_MIN_N: stop, no W0
+    res = dict(meta=dict(rec=a.rec, rec_w0=a.rec_w0, wall_record_s=R["meta"]["wall_s"], bouts=len(R["meta"]["bouts"]), seeds={k: [min(v), max(v), len(v)] for k, v in R["meta"]["seeds"].items()}),
+               w0_list=wl, w0=cal, w0_60300_report=calibrate_w0(R, m, "w0_calib"), r4pre_match=r4pre_match(R, rows))
+    res["early_kd_report"] = early_kd(R, cal, rows)
     res["g0_11"] = g0_11(R, m); res["g0_12_scripted"] = scripted(m)
-    res["g0_12_recorded"] = recorded_checks(R, m, w0) if w0 else dict(ok=False, why="no G knockdown with contact and W0 > 0")
+    res["g0_12_recorded"] = recorded_checks(R, m, w0) if w0 is not None else dict(ok=False, why=f"W0 not calibrated: {cal['with_contact']} G knockdowns with contact (need >= {W0_MIN_N}), edges = EO: {cal['edges_equal_eo']}")
     res["w0"]["frozen_ok"] = RW.W0 is not None and w0 is not None and abs(RW.W0 - w0) <= 1e-4 * max(1.0, w0)
     res["g0_12_ok"] = bool(res["g0_12_scripted"]["ok"] and res["g0_12_recorded"]["ok"] and res["w0"]["frozen_ok"])
     res["ok"] = dict(G011_on_EO_states=res["g0_11"]["ok"], G012=res["g0_12_ok"]); res["wall_s"] = round(time.time() - t0, 1)
-    s = json.dumps(res, indent=1, default=lambda x: x.item() if hasattr(x, "item") else str(x)); print(json.dumps(res["ok"])); print(json.dumps(dict(w0=cal["w0"], knockdowns=cal["knockdowns"], with_contact=cal["with_contact"], with_work=cal["with_work"])))
+    s = json.dumps(res, indent=1, default=lambda x: x.item() if hasattr(x, "item") else str(x)); print(json.dumps(res["ok"]))
+    print(json.dumps(dict(w0=cal["w0"], knockdowns=cal["knockdowns"], with_contact=cal["with_contact"], with_work=cal["with_work"], n_ok=cal["n_ok"], edges_equal_eo=cal["edges_equal_eo"])))
     if a.out: Path(a.out).write_text(s, encoding="utf-8")
     return 0 if all(res["ok"].values()) else 1
 

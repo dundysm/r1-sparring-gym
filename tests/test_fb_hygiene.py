@@ -1,5 +1,6 @@
 """Full-body M2 v2 held-out hygiene (M2V2_PLAN_v3 M0; scripts/fb_seeds.py): no banned name in any fullbody task input, the
-B7 seed guard per role (val/test/screen/Track 2 blocks, ledger blocks, clip sets, the test-once guard), and a disjoint ledger.
+B7 seed guard per role (val/test/screen/Track 2 blocks, ledger blocks, clip sets, the test-once guard, A4.1's listed G-only role
+w0_r4pre), and a disjoint ledger (the declared re-runs of used blocks excepted).
 FB_SEED_LEDGER=<path to SEED_LEDGER.md> also audits the workstream's ledger file (skipped without it)."""
 import os, sys, json, hashlib
 from pathlib import Path
@@ -82,6 +83,16 @@ def test_ledger_blocks_are_disjoint_and_the_check_sees_an_overlap(monkeypatch):
     monkeypatch.setitem(F.ROLES, "late", ([(60010, 60020)], ("sub", F.TRAIN))); assert any("late" in p for p in F.ledger_problems())
     monkeypatch.setitem(F.ROLES, "late", ([(68000, 68010)], ("sub", F.TRAIN))); assert any("used" in p for p in F.ledger_problems())
     monkeypatch.setitem(F.ROLES, "late", ([(57100, 57110)], ("sub", F.TRAIN))); assert len(F.ledger_problems()) == 2   # retired and legacy zone
+
+def test_w0_r4pre_role_takes_only_the_listed_g_bouts(monkeypatch):
+    L = F.W0_R4PRE; assert len(L) == len(set(L)) == 144 and F.list_sha(L) == F.W0_R4PRE_SHA256 and set(L) <= set(range(67000, 67768)) | set(range(68000, 68768))
+    assert F.check(L, "w0_r4pre", TRAIN_CLIPS, ctrl="G") == sorted(L) and F.ROLES["w0_r4pre"][0] == F.REUSE["w0_r4pre"]
+    for seeds, ctrl, why in (([67000], "G", "list"), ([67002], "H", "G only"), ([67002], "A3", "G only"), ([67002], None, "G only"), ([60300], "G", "block"), ([70000], "G", "block")):
+        with pytest.raises(F.SeedRefused, match=why): F.check(seeds, "w0_r4pre", TRAIN_CLIPS, ctrl=ctrl)
+    with pytest.raises(F.SeedRefused): F.check([67002], "w0_r4pre", VAL_CLIPS, ctrl="G")
+    monkeypatch.setitem(F.LISTS, "w0_r4pre", L + (67000,))
+    with pytest.raises(F.SeedRefused, match="sha256"): F.check([67000], "w0_r4pre", TRAIN_CLIPS, ctrl="G")
+    monkeypatch.setitem(F.ROLES, "late", ([(67000, 67767)], ("sub", F.TRAIN))); assert any("late" in p for p in F.ledger_problems())   # not a declared re-run
 
 def test_ledger_audit_flags_an_unknown_block(tmp_path):
     p = tmp_path / "L.md"; p.write_text("| date | block |\n|---|---|\n| 2026-10-29 | 67000-67767 (768) | x |\n| 2026-10-30 | 60000-60015 (16) | M2 |\n", encoding="utf-8")

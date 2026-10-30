@@ -22,8 +22,9 @@ import math, torch
 
 HE, STEP_DT = 0.8, 0.02
 WORK_WINDOW_S, LAND_GATE_S, PUSH_MASK_S, LEAN_FREE_DEG = 1.0, 0.3, 0.5, 5.0
-W0 = 0.29906465943470145   # J, frozen by scripts/fb_m5_check.py G0-12: the 10th percentile of W over G's EO knockdowns with contact on
-# 60300-60363 (4 knockdowns, 2 with contact: W 0 and 2.9906 J). n is tiny (M5_NOTES): the main session decides before M11's hash
+W0 = 0.0   # J, frozen by scripts/fb_m5_check.py G0-12 (A4.1): the 10th percentile of W over the 98 of 144 R4-pre G knockdowns (role w0_r4pre,
+# re-recorded) with contact; 32 of the 98 have W = 0, so P10 = 0 and the charge's W > 0 clause is the operative threshold (M5W_NOTES).
+# The 60300-60363 value (0.29906 J, n = 2) is report only
 ROWS = ("t0_nominal", "t0_shadow", "t1", "t1_dr")   # population rows (2.2), the down-neutral EMA's keys (m4)
 WEIGHTS = {"A": dict(spar_head_clean=-40.0, spar_head_impulse=-20.0, spar_torso_impulse=-5.0, spar_block=40.0, spar_clearance=0.5, spar_ring=2.5, spar_alive=4.0,
                      fb_knockdown=-120.0, fb_down_neutral=-HE, fb_down_approach=-2.0, fb_down_contact=-0.1, fb_leg_tangle=-0.05)}
@@ -74,7 +75,7 @@ class DownNeutral:
 class FbRewards:
     """The fb term values for N envs, one control step at a time (step); total(values, stage, it_b) applies WEIGHTS x step_dt."""
     def __init__(self, n, w0=None, dt=STEP_DT, dtype=torch.float32, device="cpu", down=None):
-        w0 = W0 if w0 is None else w0; assert w0 is not None and w0 > 0, "W0 is frozen by the M5 calibration"
+        w0 = W0 if w0 is None else w0; assert w0 is not None and w0 >= 0, "W0 is frozen by the M5 calibration"   # W > 0 is required anyway (charge)
         self.n, self.dt, self.dtype = n, dt, dtype; self.attr = KnockdownAttribution(n, w0, dt, dtype, device); self.down = down or DownNeutral(device=device)
         self.events = torch.zeros(n, dtype=torch.long, device=device)   # charged knockdowns this episode
     def reset(self, ids): self.attr.reset(ids); self.events[ids] = 0

@@ -1,0 +1,423 @@
+{
+ "outputs": {
+  "fb_hulls.npz": "bbe073fc5c5b312e0fef98f3e7a3153dee4ab184bfb1ad2115d51ee4320a08f7"
+ },
+ "sources": {
+  "r1gym/assets/r1/r1.xml": "19c2291ce675217cc193092e59726bbd8d21c53bd5b2599912b60fe538f2de5f",
+  "configs/r1_assumptions.yaml": "eb101651ab857cabf9e91dec73701b56c60193b8a4a30156276ead9efb6ce0e6",
+  "r1gym/model.py": "7950039beacecb65de7750f63931c5648e0bb8554d30883c611164a83123dec0",
+  "gpu/export_attacks.py": "acf2f66453b22166245020430cd8f9d0b69776fba5e60825f065ea7e953a5307",
+  "gpu/export_fb_hulls.py": "27836735fbb3c1ec1614ba3c0f27527ebec0b38100951c7de423f7f4b413acd6",
+  "gpu/export_fb_motion.py": "7b1a8bc24fa3979f59946a20337f0bd114592da1a55cd2093ab410a37f101848"
+ },
+ "git": "b81fa16e304c41048c96b1be06d019a987f1d839",
+ "versions": {
+  "mujoco": "3.17.0",
+  "numpy": "2.5.4",
+  "python": "3.12.13"
+ },
+ "rules": {
+  "fine": [
+   "head_pitch_link",
+   "head_yaw_link",
+   "waist_yaw_link",
+   "left_elbow_link",
+   "right_elbow_link",
+   "left_wrist_roll_link",
+   "right_wrist_roll_link"
+  ],
+  "n_fine": 256,
+  "n_coarse": 64,
+  "tol_fine_m": 0.003,
+  "tol_coarse_m": 0.01,
+  "sample": "export_attacks.fps_sample of the full hull's vertices (body frame); whole hull if smaller",
+  "maxhullvert": "never",
+  "sha256": "text sources LF-normalised, binaries raw"
+ },
+ "gate": {
+  "head_pitch_link": {
+   "hausdorff_m": 0.000288,
+   "tol_m": 0.003,
+   "full_n": 532,
+   "n": 256
+  },
+  "head_yaw_link": {
+   "hausdorff_m": 0.002519,
+   "tol_m": 0.003,
+   "full_n": 3811,
+   "n": 256
+  },
+  "imu_in_pelvis_link": {
+   "hausdorff_m": 0.0,
+   "tol_m": 0.01,
+   "full_n": 42,
+   "n": 42
+  },
+  "left_ankle_constraint_A_link": {
+   "hausdorff_m": 0.000218,
+   "tol_m": 0.01,
+   "full_n": 624,
+   "n": 64
+  },
+  "left_ankle_constraint_B_link": {
+   "hausdorff_m": 0.000237,
+   "tol_m": 0.01,
+   "full_n": 624,
+   "n": 64
+  },
+  "left_ankle_pitch_link": {
+   "hausdorff_m": 0.000437,
+   "tol_m": 0.01,
+   "full_n": 120,
+   "n": 64
+  },
+  "left_ankle_roll_link": {
+   "hausdorff_m": 0.003912,
+   "tol_m": 0.01,
+   "full_n": 1200,
+   "n": 64
+  },
+  "left_elbow_link": {
+   "hausdorff_m": 0.002287,
+   "tol_m": 0.003,
+   "full_n": 845,
+   "n": 256
+  },
+  "left_hip_pitch_link": {
+   "hausdorff_m": 0.003295,
+   "tol_m": 0.01,
+   "full_n": 927,
+   "n": 64
+  },
+  "left_hip_roll_link": {
+   "hausdorff_m": 0.005513,
+   "tol_m": 0.01,
+   "full_n": 1151,
+   "n": 64
+  },
+  "left_hip_yaw_link": {
+   "hausdorff_m": 0.004109,
+   "tol_m": 0.01,
+   "full_n": 816,
+   "n": 64
+  },
+  "left_knee_link": {
+   "hausdorff_m": 0.008239,
+   "tol_m": 0.01,
+   "full_n": 843,
+   "n": 64
+  },
+  "left_shoulder_pitch_link": {
+   "hausdorff_m": 0.006017,
+   "tol_m": 0.01,
+   "full_n": 1438,
+   "n": 64
+  },
+  "left_shoulder_roll_link": {
+   "hausdorff_m": 0.004558,
+   "tol_m": 0.01,
+   "full_n": 936,
+   "n": 64
+  },
+  "left_shoulder_yaw_link": {
+   "hausdorff_m": 0.004659,
+   "tol_m": 0.01,
+   "full_n": 735,
+   "n": 64
+  },
+  "left_wrist_roll_link": {
+   "hausdorff_m": 0.001049,
+   "tol_m": 0.003,
+   "full_n": 619,
+   "n": 256
+  },
+  "opp_head_pitch_link": {
+   "hausdorff_m": 0.000288,
+   "tol_m": 0.003,
+   "full_n": 532,
+   "n": 256
+  },
+  "opp_head_yaw_link": {
+   "hausdorff_m": 0.002519,
+   "tol_m": 0.003,
+   "full_n": 3811,
+   "n": 256
+  },
+  "opp_imu_in_pelvis_link": {
+   "hausdorff_m": 0.0,
+   "tol_m": 0.01,
+   "full_n": 42,
+   "n": 42
+  },
+  "opp_left_ankle_constraint_A_link": {
+   "hausdorff_m": 0.000218,
+   "tol_m": 0.01,
+   "full_n": 624,
+   "n": 64
+  },
+  "opp_left_ankle_constraint_B_link": {
+   "hausdorff_m": 0.000237,
+   "tol_m": 0.01,
+   "full_n": 624,
+   "n": 64
+  },
+  "opp_left_ankle_pitch_link": {
+   "hausdorff_m": 0.000437,
+   "tol_m": 0.01,
+   "full_n": 120,
+   "n": 64
+  },
+  "opp_left_ankle_roll_link": {
+   "hausdorff_m": 0.003912,
+   "tol_m": 0.01,
+   "full_n": 1200,
+   "n": 64
+  },
+  "opp_left_elbow_link": {
+   "hausdorff_m": 0.002287,
+   "tol_m": 0.003,
+   "full_n": 845,
+   "n": 256
+  },
+  "opp_left_hip_pitch_link": {
+   "hausdorff_m": 0.003295,
+   "tol_m": 0.01,
+   "full_n": 927,
+   "n": 64
+  },
+  "opp_left_hip_roll_link": {
+   "hausdorff_m": 0.005513,
+   "tol_m": 0.01,
+   "full_n": 1151,
+   "n": 64
+  },
+  "opp_left_hip_yaw_link": {
+   "hausdorff_m": 0.004109,
+   "tol_m": 0.01,
+   "full_n": 816,
+   "n": 64
+  },
+  "opp_left_knee_link": {
+   "hausdorff_m": 0.008239,
+   "tol_m": 0.01,
+   "full_n": 843,
+   "n": 64
+  },
+  "opp_left_shoulder_pitch_link": {
+   "hausdorff_m": 0.006017,
+   "tol_m": 0.01,
+   "full_n": 1438,
+   "n": 64
+  },
+  "opp_left_shoulder_roll_link": {
+   "hausdorff_m": 0.004558,
+   "tol_m": 0.01,
+   "full_n": 936,
+   "n": 64
+  },
+  "opp_left_shoulder_yaw_link": {
+   "hausdorff_m": 0.004659,
+   "tol_m": 0.01,
+   "full_n": 735,
+   "n": 64
+  },
+  "opp_left_wrist_roll_link": {
+   "hausdorff_m": 0.001049,
+   "tol_m": 0.003,
+   "full_n": 619,
+   "n": 256
+  },
+  "opp_pelvis_link": {
+   "hausdorff_m": 0.009366,
+   "tol_m": 0.01,
+   "full_n": 1843,
+   "n": 64
+  },
+  "opp_right_ankle_constraint_A_link": {
+   "hausdorff_m": 0.00036,
+   "tol_m": 0.01,
+   "full_n": 628,
+   "n": 64
+  },
+  "opp_right_ankle_constraint_B_link": {
+   "hausdorff_m": 0.000375,
+   "tol_m": 0.01,
+   "full_n": 632,
+   "n": 64
+  },
+  "opp_right_ankle_pitch_link": {
+   "hausdorff_m": 0.000437,
+   "tol_m": 0.01,
+   "full_n": 120,
+   "n": 64
+  },
+  "opp_right_ankle_roll_link": {
+   "hausdorff_m": 0.00426,
+   "tol_m": 0.01,
+   "full_n": 1202,
+   "n": 64
+  },
+  "opp_right_elbow_link": {
+   "hausdorff_m": 0.002094,
+   "tol_m": 0.003,
+   "full_n": 800,
+   "n": 256
+  },
+  "opp_right_hip_pitch_link": {
+   "hausdorff_m": 0.003295,
+   "tol_m": 0.01,
+   "full_n": 928,
+   "n": 64
+  },
+  "opp_right_hip_roll_link": {
+   "hausdorff_m": 0.004833,
+   "tol_m": 0.01,
+   "full_n": 1145,
+   "n": 64
+  },
+  "opp_right_hip_yaw_link": {
+   "hausdorff_m": 0.004109,
+   "tol_m": 0.01,
+   "full_n": 807,
+   "n": 64
+  },
+  "opp_right_knee_link": {
+   "hausdorff_m": 0.008299,
+   "tol_m": 0.01,
+   "full_n": 835,
+   "n": 64
+  },
+  "opp_right_shoulder_pitch_link": {
+   "hausdorff_m": 0.004874,
+   "tol_m": 0.01,
+   "full_n": 1433,
+   "n": 64
+  },
+  "opp_right_shoulder_roll_link": {
+   "hausdorff_m": 0.004859,
+   "tol_m": 0.01,
+   "full_n": 923,
+   "n": 64
+  },
+  "opp_right_shoulder_yaw_link": {
+   "hausdorff_m": 0.004602,
+   "tol_m": 0.01,
+   "full_n": 736,
+   "n": 64
+  },
+  "opp_right_wrist_roll_link": {
+   "hausdorff_m": 0.001049,
+   "tol_m": 0.003,
+   "full_n": 610,
+   "n": 256
+  },
+  "opp_waist_roll_link": {
+   "hausdorff_m": 0.004041,
+   "tol_m": 0.01,
+   "full_n": 1293,
+   "n": 64
+  },
+  "opp_waist_yaw_link": {
+   "hausdorff_m": 0.002971,
+   "tol_m": 0.003,
+   "full_n": 1153,
+   "n": 256
+  },
+  "pelvis_link": {
+   "hausdorff_m": 0.009366,
+   "tol_m": 0.01,
+   "full_n": 1843,
+   "n": 64
+  },
+  "right_ankle_constraint_A_link": {
+   "hausdorff_m": 0.00036,
+   "tol_m": 0.01,
+   "full_n": 628,
+   "n": 64
+  },
+  "right_ankle_constraint_B_link": {
+   "hausdorff_m": 0.000375,
+   "tol_m": 0.01,
+   "full_n": 632,
+   "n": 64
+  },
+  "right_ankle_pitch_link": {
+   "hausdorff_m": 0.000437,
+   "tol_m": 0.01,
+   "full_n": 120,
+   "n": 64
+  },
+  "right_ankle_roll_link": {
+   "hausdorff_m": 0.00426,
+   "tol_m": 0.01,
+   "full_n": 1202,
+   "n": 64
+  },
+  "right_elbow_link": {
+   "hausdorff_m": 0.002094,
+   "tol_m": 0.003,
+   "full_n": 800,
+   "n": 256
+  },
+  "right_hip_pitch_link": {
+   "hausdorff_m": 0.003295,
+   "tol_m": 0.01,
+   "full_n": 928,
+   "n": 64
+  },
+  "right_hip_roll_link": {
+   "hausdorff_m": 0.004833,
+   "tol_m": 0.01,
+   "full_n": 1145,
+   "n": 64
+  },
+  "right_hip_yaw_link": {
+   "hausdorff_m": 0.004109,
+   "tol_m": 0.01,
+   "full_n": 807,
+   "n": 64
+  },
+  "right_knee_link": {
+   "hausdorff_m": 0.008299,
+   "tol_m": 0.01,
+   "full_n": 835,
+   "n": 64
+  },
+  "right_shoulder_pitch_link": {
+   "hausdorff_m": 0.004874,
+   "tol_m": 0.01,
+   "full_n": 1433,
+   "n": 64
+  },
+  "right_shoulder_roll_link": {
+   "hausdorff_m": 0.004859,
+   "tol_m": 0.01,
+   "full_n": 923,
+   "n": 64
+  },
+  "right_shoulder_yaw_link": {
+   "hausdorff_m": 0.004602,
+   "tol_m": 0.01,
+   "full_n": 736,
+   "n": 64
+  },
+  "right_wrist_roll_link": {
+   "hausdorff_m": 0.001049,
+   "tol_m": 0.003,
+   "full_n": 610,
+   "n": 256
+  },
+  "waist_roll_link": {
+   "hausdorff_m": 0.004041,
+   "tol_m": 0.01,
+   "full_n": 1293,
+   "n": 64
+  },
+  "waist_yaw_link": {
+   "hausdorff_m": 0.002971,
+   "tol_m": 0.003,
+   "full_n": 1153,
+   "n": 256
+  }
+ }
+}

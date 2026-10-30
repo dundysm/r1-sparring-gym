@@ -1,0 +1,84 @@
+{
+ "clips": [
+  "kfab_200",
+  "kfab_201",
+  "kfab_203"
+ ],
+ "outputs": {
+  "fb_motion.npz": "b66f0f7e7d5aba7f5801cba4c6c319b16e1be13e4c1f4e7f56d2304692d70efa"
+ },
+ "sources": {
+  "configs/r1_assumptions.yaml": "eb101651ab857cabf9e91dec73701b56c60193b8a4a30156276ead9efb6ce0e6",
+  "gpu/export_fb_motion.py": "7b1a8bc24fa3979f59946a20337f0bd114592da1a55cd2093ab410a37f101848",
+  "gpu/export_motion.py": "d927a0c1a7ff6e1e4e7b0cc4bd5df9f2bd063183fd03017ee738753fe5074833",
+  "r1gym/assets/motions/kfab_200.npz": "5b58768c54bad29a151ccf830ad00d6c1e68312067b7c21f6aa23ee4eed58679",
+  "r1gym/assets/motions/kfab_201.npz": "b4dc1aea86ca1f73ba350acba9beed657edd30f4c2c6a3b7d6c82b0f05eefdcb",
+  "r1gym/assets/motions/kfab_203.npz": "7b250c1daefba3f5bcdfac3d17667875c7492bae91ad491373861018b8865073",
+  "r1gym/assets/motions/r1_kfab_200.npy": "708f5b24b6159668c6d18135bb27f6fdee9784779048a779c67fcd84097ccf0c",
+  "r1gym/assets/motions/r1_kfab_201.npy": "7c48c174b592ac8750f0a5c4c5209f67f62761a1ebab75aa475bddaca5259a04",
+  "r1gym/assets/motions/r1_kfab_203.npy": "70ce6fecb651480f7f7713628df184783f879ae116058e665af95e6f11aad2ae",
+  "r1gym/assets/motions/strikes.json": "c6ae024f5fd47881bfcf7013a6741f302c6c2cfaa74593a14723236dea4820cd",
+  "r1gym/assets/motions/style_cuts.json": "2bcc7ff2f326a53b99852d9cdc53002f5da13b5092dcc27ed19962fabf2cbe32",
+  "r1gym/assets/motions/tracker_cuts.json": "d027d8b11d80d45a2a65f8c3eb97fb23e3f1154e0ba3a893d52edacfc60cf83b",
+  "r1gym/assets/r1/r1.xml": "19c2291ce675217cc193092e59726bbd8d21c53bd5b2599912b60fe538f2de5f",
+  "r1gym/env.py": "610590390ae590b87efa59121c5614aa5f6379cba7ed115fbc125387694371a9",
+  "r1gym/model.py": "7950039beacecb65de7750f63931c5648e0bb8554d30883c611164a83123dec0",
+  "r1gym/opponent.py": "c63e1348527dc99d1374a19ea30150f56c66f2d33fd0ab77c264f3d39073fc30",
+  "r1gym/scenario.py": "a646cc90e4e2a452960daf92726c7ea062dde0193b9744269ce40f8588517116",
+  "r1gym/strikes.py": "83af4735900bff1b105a8ab002d62055e169cb8f665cf345bb221961b32437c6",
+  "results/opponent_tracker/motion_index.json": "df8e898d586ac3bae382789123ee3c079a7b22a45ef22b19150b51746ef3c5d2"
+ },
+ "git": "b81fa16e304c41048c96b1be06d019a987f1d839",
+ "versions": {
+  "mujoco": "3.17.0",
+  "numpy": "2.5.4",
+  "python": "3.12.13"
+ },
+ "rules": {
+  "clips": "TRAIN_CLIPS only",
+  "q": "FightReplay(distance=0).q (strikes.motion); a bout at distance d: q + (d, 0) in xy",
+  "ref": "export_motion CSV (%.6f) -> csv_to_npz float32 on CUDA at each frame's tracker motion row (Tracker.frame); rows cross-faded with a non-train clip taken unblended",
+  "clean": "clean_starts(eval cfg, opponent_aim none, REF_POSES ['home', 'guard']), yaw 0",
+  "strikes": "strikes.json train rows",
+  "sha256": "text sources LF-normalised, binaries raw"
+ },
+ "frames": {
+  "kfab_200": 250,
+  "kfab_201": 722,
+  "kfab_203": 276
+ },
+ "distances": [
+  0.35,
+  0.36,
+  0.37,
+  0.38,
+  0.39,
+  0.4,
+  0.41,
+  0.42,
+  0.43,
+  0.44,
+  0.45,
+  0.46,
+  0.47,
+  0.48,
+  0.49,
+  0.5,
+  0.51,
+  0.52,
+  0.53,
+  0.54,
+  0.55,
+  0.56,
+  0.57,
+  0.58,
+  0.59,
+  0.6,
+  0.61,
+  0.62,
+  0.63,
+  0.64,
+  0.65
+ ],
+ "clean_starts": true
+}

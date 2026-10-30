@@ -171,7 +171,7 @@ MKEYS = ("fmt", "block", "reps", "shard_reps", "clips", "distances", "seconds", 
 
 def run(out, workers=4, ctrls=tuple(CTRLS), shards=range(NSHARD), seconds=SECONDS, p1=P1, log=print):
     """Every (controller, shard) not finished yet, on a spawn pool of `workers` processes; returns the task summaries."""
-    assert workers <= 4, "at most 4 worker processes"
+    assert workers <= int(os.environ.get("FB_MAX_WORKERS", 4)), "at most FB_MAX_WORKERS (default 4) worker processes"
     out = Path(out); out.mkdir(parents=True, exist_ok=True); eps = episodes(); (out / "run.pid").write_text(str(os.getpid()))
     M = manifest(eps, ctrls, seconds, p1); mp_ = out / "manifest.json"
     if mp_.exists():

@@ -89,7 +89,7 @@ def work(args):
 
 def run_tasks(tasks, out, workers, log=print):
     """Every task whose chunk is not finished, on a spawn pool; returns the summaries."""
-    assert workers <= 4, "at most 4 worker processes"
+    assert workers <= int(os.environ.get("FB_MAX_WORKERS", 4)), "at most FB_MAX_WORKERS (default 4) worker processes"
     todo = [t for t in tasks if not chunk_ok(t[7], t[0], t[1], t[2], t[3], t[4], t[5], t[6])]
     log(json.dumps(dict(event="tasks", todo=len(todo), of=len(tasks))), flush=True); res, t0 = [], time.time()
     if not todo: return res

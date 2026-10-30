@@ -1,0 +1,232 @@
+{
+ "fps": 50,
+ "joints": [
+  "left_hip_pitch_joint",
+  "left_hip_roll_joint",
+  "left_hip_yaw_joint",
+  "left_knee_joint",
+  "left_ankle_pitch_joint",
+  "left_ankle_roll_joint",
+  "right_hip_pitch_joint",
+  "right_hip_roll_joint",
+  "right_hip_yaw_joint",
+  "right_knee_joint",
+  "right_ankle_pitch_joint",
+  "right_ankle_roll_joint",
+  "waist_roll_joint",
+  "waist_yaw_joint",
+  "left_shoulder_pitch_joint",
+  "left_shoulder_roll_joint",
+  "left_shoulder_yaw_joint",
+  "left_elbow_joint",
+  "left_wrist_roll_joint",
+  "right_shoulder_pitch_joint",
+  "right_shoulder_roll_joint",
+  "right_shoulder_yaw_joint",
+  "right_elbow_joint",
+  "right_wrist_roll_joint"
+ ],
+ "frames": 27306,
+ "blend_frames": 20,
+ "loco_drop": null,
+ "rows": {
+  "kfab_200": {
+   "start_frame": 0,
+   "frames": 250,
+   "group": "original",
+   "conj": false
+  },
+  "kfab_201": {
+   "start_frame": 480,
+   "frames": 722,
+   "group": "original",
+   "conj": false
+  },
+  "kfab_203": {
+   "start_frame": 1904,
+   "frames": 276,
+   "group": "original",
+   "conj": false
+  },
+  "l1_warp_kfab_200_o0": {
+   "start_frame": 2436,
+   "frames": 255,
+   "group": "warp",
+   "conj": false
+  },
+  "l1_warp_kfab_200_o1": {
+   "start_frame": 2926,
+   "frames": 258,
+   "group": "warp",
+   "conj": false
+  },
+  "l1_warp_kfab_200_m0": {
+   "start_frame": 3422,
+   "frames": 253,
+   "group": "warp",
+   "conj": true
+  },
+  "l1_warp_kfab_200_m1": {
+   "start_frame": 3908,
+   "frames": 261,
+   "group": "warp",
+   "conj": true
+  },
+  "l1_warp_kfab_201_o0": {
+   "start_frame": 4410,
+   "frames": 746,
+   "group": "warp",
+   "conj": false
+  },
+  "l1_warp_kfab_201_o1": {
+   "start_frame": 5882,
+   "frames": 725,
+   "group": "warp",
+   "conj": false
+  },
+  "l1_warp_kfab_201_m0": {
+   "start_frame": 7312,
+   "frames": 738,
+   "group": "warp",
+   "conj": true
+  },
+  "l1_warp_kfab_201_m1": {
+   "start_frame": 8768,
+   "frames": 751,
+   "group": "warp",
+   "conj": true
+  },
+  "l1_warp_kfab_203_o0": {
+   "start_frame": 10250,
+   "frames": 299,
+   "group": "warp",
+   "conj": false
+  },
+  "l1_warp_kfab_203_o1": {
+   "start_frame": 10828,
+   "frames": 286,
+   "group": "warp",
+   "conj": false
+  },
+  "l1_warp_kfab_203_m0": {
+   "start_frame": 11380,
+   "frames": 288,
+   "group": "warp",
+   "conj": true
+  },
+  "l1_warp_kfab_203_m1": {
+   "start_frame": 11936,
+   "frames": 283,
+   "group": "warp",
+   "conj": true
+  },
+  "l1_reangle_kfab_200_o0": {
+   "start_frame": 12482,
+   "frames": 250,
+   "group": "reangle",
+   "conj": false
+  },
+  "l1_reangle_kfab_200_o1": {
+   "start_frame": 12962,
+   "frames": 250,
+   "group": "reangle",
+   "conj": false
+  },
+  "l1_reangle_kfab_200_m0": {
+   "start_frame": 13442,
+   "frames": 250,
+   "group": "reangle",
+   "conj": true
+  },
+  "l1_reangle_kfab_200_m1": {
+   "start_frame": 13922,
+   "frames": 250,
+   "group": "reangle",
+   "conj": true
+  },
+  "l1_reangle_kfab_201_o0": {
+   "start_frame": 14402,
+   "frames": 722,
+   "group": "reangle",
+   "conj": false
+  },
+  "l1_reangle_kfab_201_o1": {
+   "start_frame": 15826,
+   "frames": 722,
+   "group": "reangle",
+   "conj": false
+  },
+  "l1_reangle_kfab_201_m0": {
+   "start_frame": 17250,
+   "frames": 722,
+   "group": "reangle",
+   "conj": true
+  },
+  "l1_reangle_kfab_201_m1": {
+   "start_frame": 18674,
+   "frames": 722,
+   "group": "reangle",
+   "conj": true
+  },
+  "l1_reangle_kfab_203_o0": {
+   "start_frame": 20098,
+   "frames": 276,
+   "group": "reangle",
+   "conj": false
+  },
+  "l1_reangle_kfab_203_o1": {
+   "start_frame": 20630,
+   "frames": 276,
+   "group": "reangle",
+   "conj": false
+  },
+  "l1_reangle_kfab_203_m0": {
+   "start_frame": 21162,
+   "frames": 276,
+   "group": "reangle",
+   "conj": true
+  },
+  "l1_reangle_kfab_203_m1": {
+   "start_frame": 21694,
+   "frames": 276,
+   "group": "reangle",
+   "conj": true
+  },
+  "l1_combo_kfab_200_o0": {
+   "start_frame": 22226,
+   "frames": 271,
+   "group": "combo",
+   "conj": false
+  },
+  "l1_combo_kfab_200_m0": {
+   "start_frame": 22748,
+   "frames": 250,
+   "group": "combo",
+   "conj": true
+  },
+  "l1_combo_kfab_201_o0": {
+   "start_frame": 23228,
+   "frames": 743,
+   "group": "combo",
+   "conj": false
+  },
+  "l1_combo_kfab_201_m0": {
+   "start_frame": 24694,
+   "frames": 743,
+   "group": "combo",
+   "conj": true
+  },
+  "l1_combo_kfab_203_o0": {
+   "start_frame": 26160,
+   "frames": 307,
+   "group": "combo",
+   "conj": false
+  },
+  "l1_combo_kfab_203_m0": {
+   "start_frame": 26754,
+   "frames": 276,
+   "group": "combo",
+   "conj": true
+  }
+ }
+}

@@ -3,7 +3,7 @@
 # Batched GPU path (thousands of parallel copies)
 
 The CPU gym here (`r1gym/`) is the reference: model, hit model, sensor delay/noise, eval harness. It runs about 4.2k env-steps/s on
-8 vCPUs (measured). To train at Zoon scale, you run the same physics on GPU through **MuJoCo Warp**. Three ready stacks, all
+8 vCPUs (measured). To train at scale, you run the same physics on GPU through **MuJoCo Warp**. Three ready stacks, all
 built on the same `r1.xml` we use:
 
 | stack | what it gives you | R1 support |

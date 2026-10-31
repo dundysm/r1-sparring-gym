@@ -1,0 +1,154 @@
+{
+ "fps": 50,
+ "joints": [
+  "left_hip_pitch_joint",
+  "left_hip_roll_joint",
+  "left_hip_yaw_joint",
+  "left_knee_joint",
+  "left_ankle_pitch_joint",
+  "left_ankle_roll_joint",
+  "right_hip_pitch_joint",
+  "right_hip_roll_joint",
+  "right_hip_yaw_joint",
+  "right_knee_joint",
+  "right_ankle_pitch_joint",
+  "right_ankle_roll_joint",
+  "waist_roll_joint",
+  "waist_yaw_joint",
+  "left_shoulder_pitch_joint",
+  "left_shoulder_roll_joint",
+  "left_shoulder_yaw_joint",
+  "left_elbow_joint",
+  "left_wrist_roll_joint",
+  "right_shoulder_pitch_joint",
+  "right_shoulder_roll_joint",
+  "right_shoulder_yaw_joint",
+  "right_elbow_joint",
+  "right_wrist_roll_joint"
+ ],
+ "frames": 18356,
+ "blend_frames": 20,
+ "loco_drop": "kfab_203",
+ "rows": {
+  "kfab_200": {
+   "start_frame": 0,
+   "frames": 250,
+   "group": "original",
+   "conj": false
+  },
+  "kfab_201": {
+   "start_frame": 480,
+   "frames": 722,
+   "group": "original",
+   "conj": false
+  },
+  "l1_warp_kfab_200_o0": {
+   "start_frame": 1904,
+   "frames": 255,
+   "group": "warp",
+   "conj": false
+  },
+  "l1_warp_kfab_200_o1": {
+   "start_frame": 2394,
+   "frames": 258,
+   "group": "warp",
+   "conj": false
+  },
+  "l1_warp_kfab_200_m0": {
+   "start_frame": 2890,
+   "frames": 253,
+   "group": "warp",
+   "conj": true
+  },
+  "l1_warp_kfab_200_m1": {
+   "start_frame": 3376,
+   "frames": 261,
+   "group": "warp",
+   "conj": true
+  },
+  "l1_warp_kfab_201_o0": {
+   "start_frame": 3878,
+   "frames": 746,
+   "group": "warp",
+   "conj": false
+  },
+  "l1_warp_kfab_201_o1": {
+   "start_frame": 5350,
+   "frames": 725,
+   "group": "warp",
+   "conj": false
+  },
+  "l1_warp_kfab_201_m0": {
+   "start_frame": 6780,
+   "frames": 738,
+   "group": "warp",
+   "conj": true
+  },
+  "l1_warp_kfab_201_m1": {
+   "start_frame": 8236,
+   "frames": 751,
+   "group": "warp",
+   "conj": true
+  },
+  "l1_reangle_kfab_200_o0": {
+   "start_frame": 9718,
+   "frames": 250,
+   "group": "reangle",
+   "conj": false
+  },
+  "l1_reangle_kfab_200_o1": {
+   "start_frame": 10198,
+   "frames": 250,
+   "group": "reangle",
+   "conj": false
+  },
+  "l1_reangle_kfab_200_m0": {
+   "start_frame": 10678,
+   "frames": 250,
+   "group": "reangle",
+   "conj": true
+  },
+  "l1_reangle_kfab_200_m1": {
+   "start_frame": 11158,
+   "frames": 250,
+   "group": "reangle",
+   "conj": true
+  },
+  "l1_reangle_kfab_201_o0": {
+   "start_frame": 11638,
+   "frames": 722,
+   "group": "reangle",
+   "conj": false
+  },
+  "l1_reangle_kfab_201_o1": {
+   "start_frame": 13062,
+   "frames": 722,
+   "group": "reangle",
+   "conj": false
+  },
+  "l1_reangle_kfab_201_m0": {
+   "start_frame": 14486,
+   "frames": 722,
+   "group": "reangle",
+   "conj": true
+  },
+  "l1_reangle_kfab_201_m1": {
+   "start_frame": 15910,
+   "frames": 722,
+   "group": "reangle",
+   "conj": true
+  },
+  "l1_combo_kfab_200_o0": {
+   "start_frame": 17334,
+   "frames": 271,
+   "group": "combo",
+   "conj": false
+  },
+  "l1_combo_kfab_200_m0": {
+   "start_frame": 17856,
+   "frames": 250,
+   "group": "combo",
+   "conj": true
+  }
+ }
+}

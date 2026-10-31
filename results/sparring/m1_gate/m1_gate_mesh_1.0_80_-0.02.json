@@ -1,0 +1,80 @@
+{
+ "m1": {
+  "task": "R1-Spar-Attack (m1check: outer loops on every env, no push_robot / shove)",
+  "checkpoint": "/root/model_7496.pt",
+  "num_envs": 4096,
+  "steps": 1000,
+  "env_minutes": 1365.3,
+  "shell_proxy": "mesh",
+  "gravcomp": true,
+  "attack": {
+   "mass": 1.0,
+   "fmax": 80.0,
+   "delta": -0.02,
+   "kp": 1500.0,
+   "rot_kp": 60.0,
+   "rot_kv": 3.0,
+   "rot_fmax": 30.0,
+   "rot_armature": 0.01,
+   "radius": 0.045,
+   "link_mass": 0.01,
+   "link_inertia": 1e-05,
+   "capsule": [
+    -0.195,
+    0.03
+   ]
+  },
+  "head_clean_pm": 11.829,
+  "torso_clean_pm": 9.66,
+  "head_landed_pm": 16.448,
+  "median_impulse_per_head_landed_Ns": 3.579,
+  "mean_impulse_per_head_landed_Ns": 4.614,
+  "impulse_ring_n": 4096,
+  "blocked_share": 0.648,
+  "windows": 85262,
+  "head_landed_vneg_share": 0.0065,
+  "falls_per_min": 0.2798,
+  "wall_s": 68.6,
+  "pass_head_clean": true,
+  "pass_impulse": false,
+  "calibration": {
+   "file": "/root/m1_calibration.json",
+   "attack": [
+    1.0,
+    80.0,
+    -0.02
+   ],
+   "sha256_16": "3c28ff91fb099739",
+   "chosen": {
+    "mass": 1.5,
+    "fmax": 80.0,
+    "delta": -0.02
+   },
+   "constants_match": true,
+   "attack_row": null,
+   "attack_recheck": {
+    "seeds": [
+     64,
+     127
+    ],
+    "pass_": true,
+    "median_Ns": 3.231,
+    "checks": {
+     "impulse": true,
+     "head_clean": true,
+     "speed": true,
+     "agree_rate": true,
+     "agree_impulse": true
+    }
+   },
+   "match": false,
+   "deviation": "gate 1 GPU retune (section 8 item 29): the CPU-calibrated row 1.5,80,-0.02 failed gate 1 on the GPU; 1.0,80,-0.02 is the first row of the predeclared grid that passes",
+   "pass": true
+  },
+  "pass_calibration": true,
+  "pass": false
+ },
+ "deviations": [
+  "calibration: ATTACK [1.0, 80.0, -0.02] is not the calibration's chosen row {'mass': 1.5, 'fmax': 80.0, 'delta': -0.02}: gate 1 GPU retune (section 8 item 29): the CPU-calibrated row 1.5,80,-0.02 failed gate 1 on the GPU; 1.0,80,-0.02 is the first row of the predeclared grid that passes"
+ ]
+}

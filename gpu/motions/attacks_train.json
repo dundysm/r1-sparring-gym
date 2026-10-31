@@ -1,0 +1,393 @@
+{
+ "rule": {
+  "split": "train",
+  "limbs": "hand",
+  "pad_frames": 12,
+  "fps": 50,
+  "frame": "H: forward toward the defender, the opponent's left, up; origin on the floor at the spot (strikes.py: H = P * [-1, -1, 1] of the in-place motion)",
+  "keypoints": {
+   "l_glove": [
+    "left_wrist_roll_link",
+    [
+     0.08,
+     0.0,
+     0.0
+    ]
+   ],
+   "r_glove": [
+    "right_wrist_roll_link",
+    [
+     0.08,
+     0.0,
+     0.0
+    ]
+   ],
+   "l_elbow": [
+    "left_elbow_link",
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "r_elbow": [
+    "right_elbow_link",
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "head": [
+    "torso_link",
+    [
+     0.01,
+     0.0,
+     0.357
+    ]
+   ]
+  },
+  "yaw": "wrap(torso_link heading - pi), unwrapped per segment",
+  "seg": "start, n, onset, apex, end (segment-local), hand (0 left, 1 right)",
+  "guard": "per hand, median over its segments of their first and last frames",
+  "elbow_to_glove_m": 0.195
+ },
+ "git": "583a0bcf810cfbcf41cb3dc518dba36074c9e25a+dirty",
+ "n": 37,
+ "frames": 1423,
+ "segments": [
+  {
+   "clip": "kfab_200",
+   "onset": 8,
+   "limb": "l_hand",
+   "band": "torso",
+   "type": "downward",
+   "rise_s": 0.26,
+   "peak_speed": 5.251
+  },
+  {
+   "clip": "kfab_200",
+   "onset": 31,
+   "limb": "r_hand",
+   "band": "torso",
+   "type": "hook",
+   "rise_s": 0.18,
+   "peak_speed": 5.022
+  },
+  {
+   "clip": "kfab_200",
+   "onset": 105,
+   "limb": "l_hand",
+   "band": "torso",
+   "type": "hook",
+   "rise_s": 0.18,
+   "peak_speed": 2.882
+  },
+  {
+   "clip": "kfab_200",
+   "onset": 141,
+   "limb": "r_hand",
+   "band": "torso",
+   "type": "hook",
+   "rise_s": 0.12,
+   "peak_speed": 8.837
+  },
+  {
+   "clip": "kfab_200",
+   "onset": 176,
+   "limb": "r_hand",
+   "band": "torso",
+   "type": "hook",
+   "rise_s": 0.24,
+   "peak_speed": 1.555
+  },
+  {
+   "clip": "kfab_200",
+   "onset": 187,
+   "limb": "l_hand",
+   "band": "torso",
+   "type": "hook",
+   "rise_s": 0.38,
+   "peak_speed": 3.703
+  },
+  {
+   "clip": "kfab_200",
+   "onset": 222,
+   "limb": "l_hand",
+   "band": "low",
+   "type": "uppercut",
+   "rise_s": 0.12,
+   "peak_speed": 3.023
+  },
+  {
+   "clip": "kfab_200",
+   "onset": 240,
+   "limb": "r_hand",
+   "band": "low",
+   "type": "hook",
+   "rise_s": 0.12,
+   "peak_speed": 3.26
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 1,
+   "limb": "r_hand",
+   "band": "low",
+   "type": "hook",
+   "rise_s": 0.4,
+   "peak_speed": 2.317
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 62,
+   "limb": "l_hand",
+   "band": "torso",
+   "type": "hook",
+   "rise_s": 0.18,
+   "peak_speed": 5.091
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 101,
+   "limb": "r_hand",
+   "band": "torso",
+   "type": "uppercut",
+   "rise_s": 0.3,
+   "peak_speed": 6.522
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 124,
+   "limb": "l_hand",
+   "band": "torso",
+   "type": "downward",
+   "rise_s": 0.16,
+   "peak_speed": 3.077
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 138,
+   "limb": "r_hand",
+   "band": "torso",
+   "type": "straight",
+   "rise_s": 0.12,
+   "peak_speed": 4.086
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 183,
+   "limb": "r_hand",
+   "band": "head",
+   "type": "uppercut",
+   "rise_s": 0.36,
+   "peak_speed": 2.157
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 237,
+   "limb": "l_hand",
+   "band": "torso",
+   "type": "hook",
+   "rise_s": 0.06,
+   "peak_speed": 5.436
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 287,
+   "limb": "r_hand",
+   "band": "low",
+   "type": "downward",
+   "rise_s": 0.36,
+   "peak_speed": 4.609
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 384,
+   "limb": "r_hand",
+   "band": "head",
+   "type": "uppercut",
+   "rise_s": 0.2,
+   "peak_speed": 8.338
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 408,
+   "limb": "r_hand",
+   "band": "torso",
+   "type": "downward",
+   "rise_s": 0.24,
+   "peak_speed": 2.405
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 451,
+   "limb": "l_hand",
+   "band": "torso",
+   "type": "hook",
+   "rise_s": 0.12,
+   "peak_speed": 3.535
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 462,
+   "limb": "r_hand",
+   "band": "low",
+   "type": "hook",
+   "rise_s": 0.16,
+   "peak_speed": 4.077
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 493,
+   "limb": "l_hand",
+   "band": "low",
+   "type": "straight",
+   "rise_s": 0.3,
+   "peak_speed": 1.738
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 537,
+   "limb": "l_hand",
+   "band": "torso",
+   "type": "hook",
+   "rise_s": 0.08,
+   "peak_speed": 5.708
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 540,
+   "limb": "r_hand",
+   "band": "low",
+   "type": "downward",
+   "rise_s": 0.38,
+   "peak_speed": 6.71
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 557,
+   "limb": "l_hand",
+   "band": "low",
+   "type": "straight",
+   "rise_s": 0.4,
+   "peak_speed": 7.624
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 658,
+   "limb": "r_hand",
+   "band": "head",
+   "type": "straight",
+   "rise_s": 0.4,
+   "peak_speed": 3.78
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 710,
+   "limb": "r_hand",
+   "band": "torso",
+   "type": "hook",
+   "rise_s": 0.1,
+   "peak_speed": 3.617
+  },
+  {
+   "clip": "kfab_201",
+   "onset": 715,
+   "limb": "l_hand",
+   "band": "head",
+   "type": "hook",
+   "rise_s": 0.1,
+   "peak_speed": 6.166
+  },
+  {
+   "clip": "kfab_203",
+   "onset": 0,
+   "limb": "l_hand",
+   "band": "low",
+   "type": "straight",
+   "rise_s": 0.4,
+   "peak_speed": 4.04
+  },
+  {
+   "clip": "kfab_203",
+   "onset": 0,
+   "limb": "r_hand",
+   "band": "low",
+   "type": "downward",
+   "rise_s": 0.36,
+   "peak_speed": 3.607
+  },
+  {
+   "clip": "kfab_203",
+   "onset": 37,
+   "limb": "r_hand",
+   "band": "torso",
+   "type": "hook",
+   "rise_s": 0.16,
+   "peak_speed": 4.307
+  },
+  {
+   "clip": "kfab_203",
+   "onset": 55,
+   "limb": "r_hand",
+   "band": "low",
+   "type": "downward",
+   "rise_s": 0.18,
+   "peak_speed": 5.401
+  },
+  {
+   "clip": "kfab_203",
+   "onset": 81,
+   "limb": "r_hand",
+   "band": "low",
+   "type": "hook",
+   "rise_s": 0.28,
+   "peak_speed": 3.571
+  },
+  {
+   "clip": "kfab_203",
+   "onset": 99,
+   "limb": "l_hand",
+   "band": "torso",
+   "type": "hook",
+   "rise_s": 0.34,
+   "peak_speed": 6.892
+  },
+  {
+   "clip": "kfab_203",
+   "onset": 120,
+   "limb": "l_hand",
+   "band": "head",
+   "type": "hook",
+   "rise_s": 0.02,
+   "peak_speed": 6.648
+  },
+  {
+   "clip": "kfab_203",
+   "onset": 139,
+   "limb": "l_hand",
+   "band": "torso",
+   "type": "downward",
+   "rise_s": 0.4,
+   "peak_speed": 5.716
+  },
+  {
+   "clip": "kfab_203",
+   "onset": 214,
+   "limb": "l_hand",
+   "band": "torso",
+   "type": "downward",
+   "rise_s": 0.2,
+   "peak_speed": 3.258
+  },
+  {
+   "clip": "kfab_203",
+   "onset": 221,
+   "limb": "r_hand",
+   "band": "torso",
+   "type": "straight",
+   "rise_s": 0.4,
+   "peak_speed": 2.827
+  }
+ ]
+}

@@ -247,6 +247,79 @@ python scripts/demo.py --headcam --offaxis 40                              # med
 ```
 Wall times are from the stored `cost.wall_s` on the machine above.
 
+## Gloves: finding the opponent's fists (sparring plan)
+The opponent can wear green gloves (`RenderTwin(gloves=True)` or `set_gloves()`): its two hand meshes
+(`wrist_roll_link`, where the fist keypoint sits) are drawn in `GLOVE_RGBA` (0.2, 0.8, 0.2), hue 120°. Nothing else in the
+nominal scene is near that hue. Only the twin's `geom_rgba` changes, so the physics model is bit-identical, and so is a bout
+with a gloved twin rendering at 30 Hz (`tests/test_perception_gloves.py`). Gloves are off by default, and the M1 scene and
+results are unchanged.
+
+`ColorKeyDetector(spec, cfg, gloves=True)` returns the same dict as before, bit for bit, plus `gloves` =
+{`left`, `right`}: the opponent's own hands, or None.
+- **Mask:** hue 95–145°, with the same saturation and value floors as the body. Blobs of at least 4 px; a blob within 3 px
+  of a kept one joins it as a fragment. At most two are kept.
+- **Per glove:**
+  - `u`, `v`: the pixel centroid;
+  - `n_px`: the blob's pixel count;
+  - `edge`: the blob touches the image border, so part of the glove may be cut off;
+  - `bearing` and `elevation`: the direction in the head frame (torso_link axes from the lens);
+  - `range`: lens to glove, from the blob's solid angle and one area constant (`GLOVE_AREA` = 0.007045 m², fitted on train
+    frames);
+  - `xyz`: the glove's position in the pelvis heading frame.
+- **Side:** the opponent faces the R1, so its left hand is on the image's right. `GloveTracker` (one per stream) can relabel
+  the sides by continuity instead.
+- **The body bearing:** the existing bearing still uses the orange mask, so with gloves on the hands no longer count toward
+  it. On val that moves it by a median of 0.56° (90th percentile 4.3°).
+
+**Accuracy** (`scripts/glove_check.py` → `results/perception/gloves_check.json`):
+- **Frames:** the footwork guard against the aimed opponent (`standoff+armwarp_vz`), no scripted hits, at 0.40, 0.475, 0.55
+  and 0.65 m. Each bout is 8 s, sampled every 40 ms.
+- **Development** (fragment merge, tracker settings, `GLOVE_AREA`) used the train clips only, 2400 frames. The numbers
+  below are from the val clip `kfab_204`: 2400 frames, 462 of them inside 134 aimed hand-strike windows.
+- **Truth:** the fist keypoint projected through the camera.
+
+| val, against the fist keypoint | all frames | strike frames |
+|---|---|---|
+| detected when the fist is in FOV | 88.3% | 90.2% |
+| detected when ≥ 4 glove px are visible (segmentation) | 99.2% | 99.8% |
+| angle error, median / p90 | 0.93° / 7.8° | 1.23° / 11.6° |
+| the same, blobs off the image border (79% of detections) | 0.75° / 4.7° | 0.87° / 6.4° |
+| range error, relative, median / p90 (off the border) | 7.9% / 61% | 8.9% / 90% |
+| 3D position error, median (off the border) | 4.1 cm | 4.4 cm |
+| side label correct: image side / tracker | 91.9% / 91.4% | 93.4% / 91.9% |
+
+- **Against the wrist joint:** the median error is 7.3°. The glove's centroid is the hand's centre, 8 cm beyond the wrist.
+- **Edge blobs** are much worse: a median of 5.8° and a 90th percentile of 21°, and a median relative range error of 74% (mostly
+  too far: a cut-off glove looks smaller). In a close guard the opponent's gloves sit at the top of the image, so the `edge` flag
+  matters.
+- **Touching gloves** (within 3 px in the image) merge into one blob with one centroid between the fists: on val, 39 of the 696
+  frames with both gloves visible gave a single detection.
+- **Range constant:** `GLOVE_AREA` was fitted on all matched train detections, cut-off ones included, so range runs slightly short
+  (about 2 cm off the border on val).
+- **Body bearing with gloves on:** the hands drop out of the orange mask, so the M1 body estimate shifts on gloved frames: val
+  median 0.56°, p90 4.3°; train p90 10.2° with 7 presence flips. Ungloved images are bit-identical to before.
+- **False detections:**
+  - none on the same 2400 frames rendered with gloves off;
+  - none with the opponent parked 5 m behind the R1;
+  - 21 detections matched to a glove with no visible pixel: in 9 of them a single detection was assigned to the wrong fist by the
+    angle matcher (the other fist was visible); the rest are unexplained.
+- **Sides:** on train the fists cross in the image in 21% of the frames where both are in view (5% on val). No image-side rule
+  can label those. The tracker helped on train (85.3% vs 82.8%) but not on val, so treat the side labels as about 90% right.
+- **Cost:** a frame took 13 ms to render and detect (median).
+
+**Limitations:**
+- This is the same colour-key shortcut as M1. It finds green gloves because nothing else in the sim is green.
+- Ranging assumes one glove size.
+- Every frame stands alone, apart from the optional tracker.
+- The truth proprioception feeds `mount_fk`, so `xyz` has no sensor noise.
+- Only one val clip, one defender policy and one aim operator were measured.
+- Nothing consumes the glove output yet: no policy observes it, and `PerceptStream` doesn't carry it.
+
+```bash
+python scripts/glove_check.py --split train   # fits GLOVE_AREA (train.fit), ~5 min
+python scripts/glove_check.py --split val     # the measurement (val block, raw rows), ~4 min
+```
+
 ## Next: M2
 **M2** builds the image dataset that a learned estimator needs.
 - **Labels:** keypoints, presence, bearing, range and the opponent's relative heading, with the camera pose from sensed

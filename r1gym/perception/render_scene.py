@@ -12,7 +12,9 @@ Appearance changes per frame touch only geom_matid, geom_rgba, mat_*, light_* an
 episode only geom_pos/geom_size. Nothing recompiles and no texture is uploaded again.
 
 Geom groups (MjvOption.geomgroup): 0 room and floor, 1 R1, 2 opponent, 3 collision shapes (never drawn), 4 R1 head shell,
-5 opponent head shell. Each robot's own head shell is hidden from its own camera (the lens sits at the visor)."""
+5 opponent head shell. Each robot's own head shell is hidden from its own camera (the lens sits at the visor).
+Gloves (set_gloves, off by default): the opponent's hand meshes (wrist_roll_link, the R1's last arm link) drawn in GLOVE_RGBA,
+so the head camera can find its fists (detect_colorkey.py gloves=True). geom_rgba only: same geometry, physics untouched."""
 from __future__ import annotations
 import copy, numpy as np, mujoco
 from pathlib import Path
@@ -37,16 +39,19 @@ KP_LINKS = {"head": ("head",), "chest": ("torso_link",), "pelvis": ("pelvis", "w
 NOMINAL_ROOM = dict(size=(6.0, 6.0), center=(0.0, 0.0), height=3.0, ceiling=False, props=())   # the M1 colour-key scene
 BANK = 36
 HIDDEN_Z = -50.0   # hidden room geoms are parked under the floor (robust for rgb, depth and seg alike)
+GLOVE_RGBA = (0.2, 0.8, 0.2, 1.0)   # ASSUMPTION: green gloves, hue 120; the nominal scene's other colours are orange (10), red (0),
+                                    # blue (240) or unsaturated (silver R1, grey walls, blue-grey floor), so a hue key separates them
 
 def _q(R): q = np.zeros(4); mujoco.mju_mat2Quat(q, np.asarray(R, float).ravel()); return q
 def _qmul(a, b): q = np.zeros(4); mujoco.mju_mulQuat(q, a, b); return q
 
 class RenderTwin:
-    def __init__(self, cfg=None, physics: mujoco.MjModel | None = None, spec: HeadCameraSpec | None = None, lod=True, lod_dir=None, room=True, **cam):
+    def __init__(self, cfg=None, physics: mujoco.MjModel | None = None, spec: HeadCameraSpec | None = None, lod=True, lod_dir=None, room=True, gloves=False, **cam):
         """cfg: the physics config (same tree; G1 opponents keep full meshes). physics: the physics model to check the
         layout against. spec / **cam: the head camera (configs/r1_camera.yaml; overrides such as head_pitch_deg=-20).
         lod: swap in render_lod meshes (False: Unitree's full meshes, for the LOD gate and benchmark). A passed spec is
-        copied: set_head_pitch writes the twin's own pitch, never the caller's (or another twin's) spec."""
+        copied: set_head_pitch writes the twin's own pitch, never the caller's (or another twin's) spec. gloves: the opponent
+        in GLOVE_RGBA gloves (set_gloves); False leaves the twin exactly as before."""
         cfg = cfg or load_cfg(); self.spec = copy.copy(spec) if spec else HeadCameraSpec(gym_cfg=cfg, **cam); s = build_spec(opponent=True, cfg=cfg)
         lod_dir = Path(lod_dir or LOD_DIR); self.lod = bool(lod)
         for me in s.meshes if lod else []:
@@ -71,10 +76,11 @@ class RenderTwin:
         self._nom = {k: getattr(m, k).copy() for k in ("geom_matid", "geom_rgba", "geom_pos", "geom_size", "mat_rgba", "mat_texid", "mat_texrepeat",
                      "mat_specular", "mat_shininess", "light_active", "light_diffuse", "light_ambient", "light_specular", "light_pos", "light_dir", "light_castshadow")}
         self._hl = (m.vis.headlight.ambient.copy(), m.vis.headlight.diffuse.copy())
-        self._opt = mujoco.MjvOption(); self._rn = {}; self.pitch = None
+        self._opt = mujoco.MjvOption(); self._rn = {}; self.pitch = None; self.gloves = None
         if physics is not None: self.check_layout(physics)
         if room: self.set_room(**NOMINAL_ROOM)
         self.set_head_pitch(self.spec.pitch_deg)
+        if gloves: self.set_gloves()
 
     # ---- state
     def check_layout(self, m):
@@ -166,11 +172,24 @@ class RenderTwin:
         self._fwd()
 
     def nominal_appearance(self):
-        """The physics scene's colours (silver R1, orange opponent, grey floor) and lights (build_spec's two)."""
+        """The physics scene's colours (silver R1, orange opponent, grey floor) and lights (build_spec's two); gloves, if set, stay on."""
         m = self.m
         for k in ("geom_matid", "geom_rgba", "mat_rgba", "mat_texid", "mat_texrepeat", "mat_specular", "mat_shininess",
                   "light_active", "light_diffuse", "light_ambient", "light_specular", "light_pos", "light_dir", "light_castshadow"): getattr(m, k)[:] = self._nom[k]
-        m.vis.headlight.ambient[:], m.vis.headlight.diffuse[:] = self._hl; self._fwd()
+        m.vis.headlight.ambient[:], m.vis.headlight.diffuse[:] = self._hl
+        if self.gloves: self.set_gloves(*self.gloves)
+        self._fwd()
+
+    def glove_geoms(self, prefix="opp_"):
+        """{"left": ids, "right": ids}: one robot's drawn hand geoms (the wrist_roll_link visual mesh: the fist keypoint's link)."""
+        grp = G_OPP if prefix else G_R1
+        return {s: np.flatnonzero((self.m.geom_bodyid == self.m.body(f"{prefix}{s}_wrist_roll_link").id) & (self.m.geom_group == grp)) for s in ("left", "right")}
+
+    def set_gloves(self, rgba=GLOVE_RGBA, prefix="opp_"):
+        """Paint one robot's hands as gloves (geom_rgba of glove_geoms only); rgba None: back to the nominal colour. randomize_appearance
+        (robots=True) repaints them like the rest of the robot."""
+        ids = np.concatenate(list(self.glove_geoms(prefix).values())); self.m.geom_rgba[ids] = self._nom["geom_rgba"][ids] if rgba is None else rgba
+        self.gloves = None if rgba is None else (tuple(rgba), prefix)
 
     # ---- rendering
     def renderer(self, w, h):

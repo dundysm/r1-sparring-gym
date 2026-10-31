@@ -1,0 +1,50 @@
+{
+ "about": "Preregistered pass rule for sparring M2 (docs/SPARRING_M1M2.md section 5): a defender that sees the opponent's keypoints (R1-Spar-Block, weightings A and B) and its blind twin, warm-started from results/policy_mjlab_guard_footwork_r/model_7496.pt (guard_fw_r). Written before any M1/M2 code, pod or eval.",
+ "written": "2026-10-28, before any M1/M2 implementation, pod or eval",
+ "spec": "docs/SPARRING_M1M2.md",
+ "candidates": {
+  "A": "R1-Spar-Block-A, 1500 iterations from the widened model_7496.pt, final checkpoint",
+  "B": "R1-Spar-Block-B, same",
+  "blind": "R1-Spar-Block-Blind (weighting A, keypoint inputs zeroed); R1-Spar-Block-Blind-B is trained before the test if B is selected",
+  "reference": "guard_fw_r = results/policy_mjlab_guard_footwork_r/policy.onnx (the warm start, its own baseline row)"
+ },
+ "eval": {
+  "script": "scripts/eval_opponent.py",
+  "tier": "hard",
+  "pushes": false,
+  "flags": "--tier hard --no_pushes --hits 1 --keypoints truth; unaimed run first (required for pairing), then --aim chosen in the same --out",
+  "opponent": "tracked, aimed: --aim chosen (results/opponent_tracker/aim.json operator)",
+  "keypoints": "truth source (r1gym/keypoints.py), no noise, mask = in head-camera view, delayed with the episode's obs delay; blind gets zeros",
+  "gym_json": "every candidate uses the warm start's gym.json unchanged",
+  "bouts": 128,
+  "selection_split": "val (--split val --reps 32: 1 clip x 4 distances x 32)",
+  "test_split": "test (--split test --reps 16: 2 clips x 4 distances x 16), run once, after selection",
+  "test_controllers": "guard_fw_r, the selected candidate and its blind twin in one invocation (identical episodes)"
+ },
+ "selection": {
+  "rule": "On val, aimed run: among A and B, those with survival >= 0.95 and survival_in_ring drop vs guard_fw_r <= 0.05; of those (of both if none qualifies) the lower exposure-weighted head clean strikes/min; a difference under 0.1/min picks A. If B is selected, train Blind-B before the test.",
+  "uses_test": false
+ },
+ "statistics": {
+  "source": "raw_test_hard_nohits_aim.json (hit_meter rows)",
+  "rate": "exposure-weighted: sum of counts / sum of minutes until the R1 fell (hit_meter.n.<zone>_clean, hit_meter.secs / 60)",
+  "ratio": "R = rate(candidate) / rate(reference), point estimate on all bouts",
+  "ci": "95% percentile interval of R over 4000 cluster-bootstrap resamples (seed 0) of (clip, t0) clusters, the two controllers' bouts resampled jointly (paired); a resample with a zero reference rate counts as R = inf"
+ },
+ "rule": {
+  "head_vs_warm": "head clean strikes/min received: R_warm <= 0.60 and CI upper bound of R_warm < 0.80",
+  "head_vs_blind": "CI upper bound of R_blind (candidate / blind twin, head clean/min) < 0.90",
+  "torso_vs_warm": "torso clean strikes/min: R_warm(torso) <= 1.5 (point estimate)",
+  "survival": "aimed-run survival >= 0.95",
+  "ring": "survival_in_ring (up and within 1 m): guard_fw_r minus candidate <= 0.05",
+  "pass": "all five"
+ },
+ "reported_regardless": ["every HitMeter rule (sensitivity block)", "intent-window outcomes and blocked share", "impulse per head hit", "the unaimed rows", "later: the camera keypoint source"],
+ "m1_gate_before_training": {
+  "frozen_warm_start_on_gpu": "head clean strikes/min >= 7.7 and median impulse per head landed hit within x1.5 of 2.37 N*s ([1.58, 3.56])",
+  "speed": "<= 2.0 s per iteration at 4096 envs (iterations 20-200 of R1-Spar-Block-A)",
+  "stability": "no NaN terminations in 200 iterations",
+  "cpu_calibration": "results/sparring/m1_calibration.json (gpu/sparring_task.py calibrate) passes first"
+ },
+ "verdict_script": "scripts/m2_verdict.py -> results/sparring/m2_verdict.json"
+}

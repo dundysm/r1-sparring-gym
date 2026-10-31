@@ -1,0 +1,10 @@
+{
+ "face_opponent": true,
+ "hold_position": true,
+ "hold_deadband": [
+  0.25,
+  0.08
+ ],
+ "_why_hold": "chosen on validation (scripts/face_ab.py --hold): best up-and-within-1 m among settings within one bout of the best survival; hard val off/hold/hold_tight survival 0.953/0.938/0.922, within 1 m 0.266/0.719/0.734",
+ "_why_face": "turn command on, chosen on validation with hold on (results/face_opponent_ab.json): hard val off/on/deadband survival 0.938/0.969/0.938, within 1 m 0.719/0.766/0.781; facing error 28.7/17.8/20.4 deg"
+}

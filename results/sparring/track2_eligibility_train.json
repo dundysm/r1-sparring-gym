@@ -1,0 +1,8075 @@
+{
+ "about": "Track 2 eligibility (M2V2_PLAN_v3 6.2 item 3, T2-3), SEALED for val2/test2: every clip of a split of results/sparring/",
+ "split": "train",
+ "split_sha256": "6a30c05307d2187bfb56cfc338795d5a714b77f975fd4a1303f8d407c8768ed2",
+ "rule": {
+  "kept_min_s": 4.0,
+  "head_min": 2,
+  "stay_up_min": 0.9,
+  "starts": 24,
+  "seconds": 10.0,
+  "alone_distance_m": 4.0,
+  "tracker": "model_13749.pt float32",
+  "cut_pre_s": 0.8,
+  "cut_post_s": 0.1,
+  "cluster_gap_s": 1.0,
+  "max_cut_rounds": 3,
+  "head_band": [
+   1.02,
+   1.23
+  ]
+ },
+ "val2_head_band_hand_strikes_min": 30,
+ "bookkeeping_seeds": [
+  24900,
+  24932
+ ],
+ "seed_note": "tracker-alone worlds are seed-free; ids checked by fb_seeds role track2",
+ "wall_s": 215.5,
+ "sealed": false,
+ "per_clip": [
+  {
+   "ok": true,
+   "clip": "kfab_78",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 4.76,
+     "frames": 238,
+     "head_hands": 0,
+     "hands": 8,
+     "head_any": 0,
+     "strikes": 8
+    }
+   ],
+   "info": {
+    "frames_clean": 353,
+    "clean": {
+     "frames_in": 646,
+     "frames_out": 353,
+     "repaired_frames": 0,
+     "cut_frames": 263,
+     "pieces": 3
+    },
+    "style_cuts": [
+     [
+      92,
+      111
+     ],
+     [
+      287,
+      336
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 80,
+     "apex": 92,
+     "apex_m": [
+      0.621,
+      0.306,
+      0.569
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 83,
+     "apex": 87,
+     "apex_m": [
+      0.257,
+      0.338,
+      0.756
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 97,
+     "apex": 107,
+     "apex_m": [
+      0.275,
+      0.219,
+      0.914
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "band": "low",
+     "onset": 123,
+     "apex": 132,
+     "apex_m": [
+      0.407,
+      0.043,
+      0.786
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 135,
+     "apex": 150,
+     "apex_m": [
+      0.464,
+      -0.146,
+      0.959
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 143,
+     "apex": 151,
+     "apex_m": [
+      0.46,
+      0.313,
+      1.005
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 174,
+     "apex": 189,
+     "apex_m": [
+      0.592,
+      0.263,
+      0.849
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 187,
+     "apex": 197,
+     "apex_m": [
+      0.799,
+      0.141,
+      0.784
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 0,
+   "head_any": 0,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 8.881784197001252e-16,
+    "quat": 3.3306690738754696e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_230",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 7.2,
+     "frames": 360,
+     "head_hands": 2,
+     "hands": 6,
+     "head_any": 2,
+     "strikes": 8,
+     "fell": [
+      1.92,
+      1.4,
+      1.46,
+      0.74,
+      2.28,
+      0.96,
+      3.28,
+      3.06,
+      0.92,
+      1.8,
+      2.06,
+      3.16,
+      5.18,
+      0.94,
+      0.36,
+      1.76,
+      1.46,
+      1.36,
+      3.36,
+      0.6,
+      0.54,
+      2.52,
+      2.22,
+      1.84
+     ],
+     "stay_up": 0.0
+    },
+    {
+     "cuts": [
+      [
+       37,
+       129
+      ]
+     ],
+     "kept_s": 4.62,
+     "frames": 231,
+     "head_hands": 2,
+     "hands": 5,
+     "head_any": 2,
+     "strikes": 6,
+     "fell": [
+      1.64,
+      2.0,
+      2.04,
+      1.66,
+      3.42,
+      3.14,
+      1.04,
+      6.0,
+      2.04,
+      0.38,
+      1.72,
+      1.56,
+      1.34,
+      1.32,
+      4.66,
+      3.78,
+      1.06,
+      0.52,
+      3.4,
+      3.8,
+      2.84,
+      2.56,
+      2.46,
+      2.18
+     ],
+     "stay_up": 0.0
+    },
+    {
+     "cuts": [
+      [
+       37,
+       129
+      ],
+      [
+       224,
+       397
+      ]
+     ],
+     "kept_s": 0.54,
+     "frames": 27,
+     "head_hands": 0,
+     "hands": 0,
+     "head_any": 0,
+     "strikes": 0
+    }
+   ],
+   "info": {
+    "frames_clean": 428,
+    "clean": {
+     "frames_in": 428,
+     "frames_out": 428,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      31,
+      69
+     ]
+    ]
+   },
+   "strikes": [],
+   "kept_ok": false,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 0,
+   "head_any": 0,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 4.440892098500626e-16,
+    "quat": 3.3306690738754696e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_231",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 6.2,
+     "frames": 310,
+     "head_hands": 3,
+     "hands": 8,
+     "head_any": 3,
+     "strikes": 8,
+     "fell": [
+      1.2,
+      3.98,
+      6.02,
+      6.46,
+      3.18,
+      2.98,
+      2.76,
+      5.08,
+      3.62,
+      1.4,
+      2.14,
+      1.42,
+      0.62,
+      1.14,
+      0.68,
+      2.52,
+      2.32,
+      8.84,
+      3.16,
+      4.24,
+      3.02,
+      7.46,
+      4.56,
+      9.82
+     ],
+     "stay_up": 0.0
+    },
+    {
+     "cuts": [
+      [
+       409,
+       585
+      ]
+     ],
+     "kept_s": 3.4,
+     "frames": 170,
+     "head_hands": 2,
+     "hands": 4,
+     "head_any": 2,
+     "strikes": 4
+    }
+   ],
+   "info": {
+    "frames_clean": 620,
+    "clean": {
+     "frames_in": 620,
+     "frames_out": 620,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      8,
+      27
+     ],
+     [
+      53,
+      70
+     ],
+     [
+      110,
+      126
+     ],
+     [
+      138,
+      172
+     ],
+     [
+      184,
+      218
+     ],
+     [
+      293,
+      320
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "head",
+     "onset": 13,
+     "apex": 19,
+     "apex_m": [
+      0.3,
+      -0.236,
+      1.079
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 59,
+     "apex": 66,
+     "apex_m": [
+      0.493,
+      0.02,
+      0.535
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 97,
+     "apex": 107,
+     "apex_m": [
+      0.374,
+      -0.483,
+      0.927
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 139,
+     "apex": 152,
+     "apex_m": [
+      0.364,
+      -0.235,
+      1.144
+     ]
+    }
+   ],
+   "kept_ok": false,
+   "hand_ok": true,
+   "any_ok": true,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 2,
+   "head_any": 2,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 4.440892098500626e-16,
+    "quat": 4.440892098500626e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_292",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 19.44,
+     "frames": 972,
+     "head_hands": 1,
+     "hands": 14,
+     "head_any": 1,
+     "strikes": 15
+    }
+   ],
+   "info": {
+    "frames_clean": 2178,
+    "clean": {
+     "frames_in": 2178,
+     "frames_out": 2178,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      2,
+      95
+     ],
+     [
+      147,
+      169
+     ],
+     [
+      228,
+      268
+     ],
+     [
+      336,
+      365
+     ],
+     [
+      423,
+      441
+     ],
+     [
+      534,
+      564
+     ],
+     [
+      891,
+      929
+     ],
+     [
+      1040,
+      1074
+     ],
+     [
+      1155,
+      1243
+     ],
+     [
+      1262,
+      1293
+     ],
+     [
+      1346,
+      1371
+     ],
+     [
+      1504,
+      1548
+     ],
+     [
+      1595,
+      1660
+     ],
+     [
+      1608,
+      1688
+     ],
+     [
+      1736,
+      1789
+     ],
+     [
+      1747,
+      1802
+     ],
+     [
+      1816,
+      1927
+     ],
+     [
+      1934,
+      1955
+     ],
+     [
+      1992,
+      2046
+     ],
+     [
+      2005,
+      2176
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "low",
+     "onset": 80,
+     "apex": 86,
+     "apex_m": [
+      0.351,
+      -0.206,
+      0.777
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 169,
+     "apex": 180,
+     "apex_m": [
+      0.448,
+      -0.073,
+      0.828
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 255,
+     "apex": 264,
+     "apex_m": [
+      0.445,
+      -0.222,
+      0.742
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 318,
+     "apex": 336,
+     "apex_m": [
+      0.51,
+      -0.078,
+      0.97
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 384,
+     "apex": 391,
+     "apex_m": [
+      0.526,
+      -0.06,
+      0.761
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 398,
+     "apex": 414,
+     "apex_m": [
+      0.444,
+      -0.297,
+      0.815
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 454,
+     "apex": 462,
+     "apex_m": [
+      0.454,
+      -0.281,
+      0.849
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 487,
+     "apex": 497,
+     "apex_m": [
+      0.5,
+      -0.263,
+      0.798
+     ]
+    },
+    {
+     "limb": "l_foot",
+     "type": "uppercut",
+     "band": "low",
+     "onset": 515,
+     "apex": 535,
+     "apex_m": [
+      0.377,
+      0.016,
+      0.307
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 528,
+     "apex": 539,
+     "apex_m": [
+      0.467,
+      -0.231,
+      1.215
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 568,
+     "apex": 580,
+     "apex_m": [
+      0.469,
+      0.186,
+      1.014
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 613,
+     "apex": 625,
+     "apex_m": [
+      0.347,
+      -0.332,
+      0.84
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "low",
+     "onset": 653,
+     "apex": 662,
+     "apex_m": [
+      0.435,
+      -0.018,
+      0.78
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 672,
+     "apex": 679,
+     "apex_m": [
+      0.422,
+      0.343,
+      1.019
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 717,
+     "apex": 733,
+     "apex_m": [
+      0.542,
+      0.006,
+      0.768
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 1,
+   "head_any": 1,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 6.661338147750939e-16,
+    "quat": 4.440892098500626e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_481",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 7.96,
+     "frames": 398,
+     "head_hands": 1,
+     "hands": 2,
+     "head_any": 1,
+     "strikes": 2
+    }
+   ],
+   "info": {
+    "frames_clean": 1680,
+    "clean": {
+     "frames_in": 1680,
+     "frames_out": 1680,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      0,
+      64
+     ],
+     [
+      41,
+      205
+     ],
+     [
+      200,
+      304
+     ],
+     [
+      220,
+      387
+     ],
+     [
+      414,
+      463
+     ],
+     [
+      616,
+      767
+     ],
+     [
+      658,
+      683
+     ],
+     [
+      804,
+      905
+     ],
+     [
+      919,
+      1032
+     ],
+     [
+      1052,
+      1081
+     ],
+     [
+      1214,
+      1256
+     ],
+     [
+      1263,
+      1293
+     ],
+     [
+      1284,
+      1326
+     ],
+     [
+      1384,
+      1490
+     ],
+     [
+      1429,
+      1487
+     ],
+     [
+      1526,
+      1552
+     ],
+     [
+      1611,
+      1678
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 151,
+     "apex": 158,
+     "apex_m": [
+      0.444,
+      -0.22,
+      0.969
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 155,
+     "apex": 162,
+     "apex_m": [
+      0.352,
+      0.246,
+      1.053
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 1,
+   "head_any": 1,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 6.661338147750939e-16,
+    "quat": 6.661338147750939e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_482",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 17.34,
+     "frames": 867,
+     "head_hands": 1,
+     "hands": 6,
+     "head_any": 1,
+     "strikes": 7
+    }
+   ],
+   "info": {
+    "frames_clean": 2563,
+    "clean": {
+     "frames_in": 2563,
+     "frames_out": 2563,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      2,
+      39
+     ],
+     [
+      95,
+      118
+     ],
+     [
+      108,
+      139
+     ],
+     [
+      225,
+      330
+     ],
+     [
+      272,
+      323
+     ],
+     [
+      353,
+      411
+     ],
+     [
+      429,
+      454
+     ],
+     [
+      481,
+      633
+     ],
+     [
+      500,
+      574
+     ],
+     [
+      660,
+      677
+     ],
+     [
+      811,
+      922
+     ],
+     [
+      823,
+      1156
+     ],
+     [
+      951,
+      1046
+     ],
+     [
+      1068,
+      1117
+     ],
+     [
+      1195,
+      1211
+     ],
+     [
+      1336,
+      1392
+     ],
+     [
+      1338,
+      1365
+     ],
+     [
+      1385,
+      1466
+     ],
+     [
+      1426,
+      1526
+     ],
+     [
+      1555,
+      1605
+     ],
+     [
+      1620,
+      1657
+     ],
+     [
+      1625,
+      1654
+     ],
+     [
+      1730,
+      1766
+     ],
+     [
+      1738,
+      1766
+     ],
+     [
+      1853,
+      1898
+     ],
+     [
+      1990,
+      2019
+     ],
+     [
+      2085,
+      2106
+     ],
+     [
+      2115,
+      2149
+     ],
+     [
+      2258,
+      2375
+     ],
+     [
+      2271,
+      2318
+     ],
+     [
+      2339,
+      2366
+     ],
+     [
+      2502,
+      2561
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 1,
+     "apex": 11,
+     "apex_m": [
+      0.291,
+      -0.415,
+      0.97
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "band": "torso",
+     "onset": 42,
+     "apex": 60,
+     "apex_m": [
+      0.499,
+      0.038,
+      0.929
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "band": "head",
+     "onset": 256,
+     "apex": 262,
+     "apex_m": [
+      0.356,
+      0.175,
+      1.105
+     ]
+    },
+    {
+     "limb": "l_foot",
+     "type": "uppercut",
+     "band": "low",
+     "onset": 389,
+     "apex": 400,
+     "apex_m": [
+      0.535,
+      0.363,
+      0.611
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 462,
+     "apex": 471,
+     "apex_m": [
+      0.44,
+      -0.121,
+      0.788
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 528,
+     "apex": 539,
+     "apex_m": [
+      0.477,
+      0.057,
+      0.919
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 654,
+     "apex": 667,
+     "apex_m": [
+      0.478,
+      -0.008,
+      0.724
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 1,
+   "head_any": 1,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 8.881784197001252e-16,
+    "quat": 4.440892098500626e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_497",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 14.4,
+     "frames": 720,
+     "head_hands": 0,
+     "hands": 11,
+     "head_any": 0,
+     "strikes": 12
+    }
+   ],
+   "info": {
+    "frames_clean": 1410,
+    "clean": {
+     "frames_in": 1410,
+     "frames_out": 1410,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      2,
+      95
+     ],
+     [
+      117,
+      193
+     ],
+     [
+      126,
+      182
+     ],
+     [
+      208,
+      251
+     ],
+     [
+      291,
+      314
+     ],
+     [
+      300,
+      326
+     ],
+     [
+      378,
+      411
+     ],
+     [
+      379,
+      466
+     ],
+     [
+      475,
+      492
+     ],
+     [
+      511,
+      548
+     ],
+     [
+      644,
+      670
+     ],
+     [
+      999,
+      1041
+     ],
+     [
+      1258,
+      1311
+     ],
+     [
+      1387,
+      1408
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 26,
+     "apex": 36,
+     "apex_m": [
+      0.276,
+      0.421,
+      0.944
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 32,
+     "apex": 38,
+     "apex_m": [
+      0.485,
+      -0.038,
+      0.833
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 70,
+     "apex": 78,
+     "apex_m": [
+      0.544,
+      0.185,
+      0.966
+     ]
+    },
+    {
+     "limb": "r_foot",
+     "type": "uppercut",
+     "band": "low",
+     "onset": 191,
+     "apex": 210,
+     "apex_m": [
+      0.69,
+      -0.005,
+      0.743
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 231,
+     "apex": 242,
+     "apex_m": [
+      0.263,
+      -0.026,
+      1.007
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 313,
+     "apex": 322,
+     "apex_m": [
+      0.436,
+      -0.011,
+      0.735
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 457,
+     "apex": 465,
+     "apex_m": [
+      0.551,
+      -0.146,
+      0.923
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 464,
+     "apex": 484,
+     "apex_m": [
+      0.557,
+      -0.081,
+      0.868
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 581,
+     "apex": 596,
+     "apex_m": [
+      0.489,
+      -0.105,
+      0.921
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 629,
+     "apex": 634,
+     "apex_m": [
+      0.528,
+      -0.254,
+      0.82
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 649,
+     "apex": 663,
+     "apex_m": [
+      0.455,
+      0.132,
+      0.86
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 659,
+     "apex": 668,
+     "apex_m": [
+      0.382,
+      -0.264,
+      0.793
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 0,
+   "head_any": 0,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 6.661338147750939e-16,
+    "quat": 4.440892098500626e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_498",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 8.52,
+     "frames": 426,
+     "head_hands": 1,
+     "hands": 8,
+     "head_any": 1,
+     "strikes": 9
+    }
+   ],
+   "info": {
+    "frames_clean": 833,
+    "clean": {
+     "frames_in": 1045,
+     "frames_out": 833,
+     "repaired_frames": 0,
+     "cut_frames": 197,
+     "pieces": 2
+    },
+    "style_cuts": [
+     [
+      128,
+      156
+     ],
+     [
+      299,
+      340
+     ],
+     [
+      374,
+      416
+     ],
+     [
+      374,
+      428
+     ],
+     [
+      483,
+      512
+     ],
+     [
+      540,
+      577
+     ],
+     [
+      631,
+      744
+     ],
+     [
+      646,
+      697
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 18,
+     "apex": 30,
+     "apex_m": [
+      0.539,
+      -0.086,
+      0.984
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "head",
+     "onset": 46,
+     "apex": 56,
+     "apex_m": [
+      0.37,
+      0.085,
+      1.036
+     ]
+    },
+    {
+     "limb": "r_foot",
+     "type": "uppercut",
+     "band": "low",
+     "onset": 46,
+     "apex": 64,
+     "apex_m": [
+      0.714,
+      -0.197,
+      0.784
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 196,
+     "apex": 210,
+     "apex_m": [
+      0.4,
+      0.048,
+      0.906
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 253,
+     "apex": 265,
+     "apex_m": [
+      0.5,
+      -0.198,
+      0.832
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 293,
+     "apex": 298,
+     "apex_m": [
+      0.403,
+      -0.327,
+      0.479
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 313,
+     "apex": 319,
+     "apex_m": [
+      0.52,
+      -0.29,
+      0.97
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "low",
+     "onset": 327,
+     "apex": 331,
+     "apex_m": [
+      0.502,
+      -0.315,
+      0.71
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 356,
+     "apex": 361,
+     "apex_m": [
+      0.399,
+      0.089,
+      1.014
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 1,
+   "head_any": 1,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 6.661338147750939e-16,
+    "quat": 4.440892098500626e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_918",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 16.7,
+     "frames": 835,
+     "head_hands": 2,
+     "hands": 15,
+     "head_any": 2,
+     "strikes": 18,
+     "fell": [
+      3.78,
+      4.94,
+      2.0,
+      2.52,
+      1.8,
+      1.4,
+      1.4,
+      0.78,
+      1.4,
+      0.88,
+      3.04,
+      2.34,
+      1.62,
+      0.58,
+      9.06,
+      4.0,
+      3.58,
+      2.8,
+      2.06,
+      1.34,
+      0.84,
+      4.82,
+      5.8,
+      6.32
+     ],
+     "stay_up": 0.0
+    },
+    {
+     "cuts": [
+      [
+       246,
+       470
+      ]
+     ],
+     "kept_s": 12.68,
+     "frames": 634,
+     "head_hands": 2,
+     "hands": 13,
+     "head_any": 2,
+     "strikes": 15,
+     "fell": [
+      2.88,
+      2.26,
+      1.9,
+      1.38,
+      1.02,
+      0.42,
+      3.1,
+      2.38,
+      1.8,
+      3.54,
+      3.08,
+      4.64,
+      4.14,
+      8.74,
+      3.26,
+      7.8,
+      1.76,
+      1.7,
+      0.68,
+      0.7,
+      5.18,
+      4.68,
+      3.98,
+      3.5
+     ],
+     "stay_up": 0.0
+    },
+    {
+     "cuts": [
+      [
+       246,
+       470
+      ],
+      [
+       481,
+       545
+      ]
+     ],
+     "kept_s": 11.18,
+     "frames": 559,
+     "head_hands": 1,
+     "hands": 11,
+     "head_any": 1,
+     "strikes": 11
+    }
+   ],
+   "info": {
+    "frames_clean": 1478,
+    "clean": {
+     "frames_in": 1478,
+     "frames_out": 1478,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      2,
+      70
+     ],
+     [
+      106,
+      164
+     ],
+     [
+      368,
+      400
+     ],
+     [
+      440,
+      504
+     ],
+     [
+      614,
+      638
+     ],
+     [
+      747,
+      763
+     ],
+     [
+      763,
+      794
+     ],
+     [
+      798,
+      815
+     ],
+     [
+      847,
+      872
+     ],
+     [
+      880,
+      921
+     ],
+     [
+      924,
+      950
+     ],
+     [
+      960,
+      977
+     ],
+     [
+      1089,
+      1128
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 22,
+     "apex": 42,
+     "apex_m": [
+      0.388,
+      0.197,
+      0.865
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 37,
+     "apex": 47,
+     "apex_m": [
+      0.363,
+      -0.146,
+      0.812
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 93,
+     "apex": 104,
+     "apex_m": [
+      0.505,
+      -0.3,
+      1.009
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 270,
+     "apex": 290,
+     "apex_m": [
+      0.403,
+      0.087,
+      0.94
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 312,
+     "apex": 325,
+     "apex_m": [
+      0.511,
+      0.177,
+      1.036
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 314,
+     "apex": 329,
+     "apex_m": [
+      0.396,
+      -0.363,
+      0.936
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "low",
+     "onset": 342,
+     "apex": 348,
+     "apex_m": [
+      0.398,
+      -0.326,
+      0.783
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 395,
+     "apex": 400,
+     "apex_m": [
+      0.588,
+      -0.015,
+      0.855
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "torso",
+     "onset": 400,
+     "apex": 413,
+     "apex_m": [
+      0.445,
+      -0.08,
+      0.793
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 538,
+     "apex": 547,
+     "apex_m": [
+      0.406,
+      0.288,
+      0.818
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 538,
+     "apex": 546,
+     "apex_m": [
+      0.431,
+      -0.281,
+      0.832
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 1,
+   "head_any": 1,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 6.661338147750939e-16,
+    "quat": 4.440892098500626e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1021",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 15.58,
+     "frames": 779,
+     "head_hands": 5,
+     "hands": 17,
+     "head_any": 5,
+     "strikes": 17,
+     "fell": [
+      null,
+      1.12,
+      null,
+      null,
+      7.22,
+      null,
+      3.08,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      7.98,
+      null,
+      null,
+      8.5,
+      null,
+      7.16,
+      null,
+      null,
+      null,
+      9.3
+     ],
+     "stay_up": 0.7083333333333334
+    },
+    {
+     "cuts": [
+      [
+       130,
+       190
+      ]
+     ],
+     "kept_s": 14.18,
+     "frames": 709,
+     "head_hands": 5,
+     "hands": 16,
+     "head_any": 5,
+     "strikes": 16,
+     "fell": [
+      null,
+      null,
+      null,
+      0.84,
+      null,
+      7.78,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      5.64,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "stay_up": 0.875
+    },
+    {
+     "cuts": [
+      [
+       130,
+       190
+      ],
+      [
+       257,
+       303
+      ]
+     ],
+     "kept_s": 12.96,
+     "frames": 648,
+     "head_hands": 4,
+     "hands": 14,
+     "head_any": 4,
+     "strikes": 14,
+     "fell": [
+      null,
+      0.52,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      1.94,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "stay_up": 0.9166666666666666
+    }
+   ],
+   "info": {
+    "frames_clean": 1118,
+    "clean": {
+     "frames_in": 1118,
+     "frames_out": 1118,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      17,
+      58
+     ],
+     [
+      111,
+      129
+     ],
+     [
+      296,
+      349
+     ],
+     [
+      361,
+      385
+     ],
+     [
+      443,
+      463
+     ],
+     [
+      684,
+      720
+     ],
+     [
+      774,
+      797
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "head",
+     "onset": 1,
+     "apex": 14,
+     "apex_m": [
+      0.353,
+      -0.055,
+      1.043
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 26,
+     "apex": 30,
+     "apex_m": [
+      0.521,
+      -0.078,
+      0.944
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 31,
+     "apex": 41,
+     "apex_m": [
+      0.602,
+      -0.005,
+      0.86
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 89,
+     "apex": 96,
+     "apex_m": [
+      0.399,
+      0.093,
+      0.798
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "low",
+     "onset": 104,
+     "apex": 124,
+     "apex_m": [
+      0.445,
+      -0.06,
+      0.778
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 168,
+     "apex": 187,
+     "apex_m": [
+      0.553,
+      -0.067,
+      0.957
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 296,
+     "apex": 313,
+     "apex_m": [
+      0.4,
+      0.184,
+      1.112
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 424,
+     "apex": 432,
+     "apex_m": [
+      0.377,
+      0.234,
+      0.734
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 439,
+     "apex": 451,
+     "apex_m": [
+      0.296,
+      -0.14,
+      0.923
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 462,
+     "apex": 466,
+     "apex_m": [
+      0.478,
+      0.158,
+      0.838
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "head",
+     "onset": 469,
+     "apex": 482,
+     "apex_m": [
+      0.544,
+      -0.244,
+      1.025
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 574,
+     "apex": 589,
+     "apex_m": [
+      0.406,
+      0.053,
+      1.058
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 594,
+     "apex": 614,
+     "apex_m": [
+      0.443,
+      0.343,
+      0.895
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 626,
+     "apex": 639,
+     "apex_m": [
+      0.35,
+      0.443,
+      0.833
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": true,
+   "any_ok": true,
+   "stay_up": 0.9166666666666666,
+   "stay_up_ok": true,
+   "head_hands": 4,
+   "head_any": 4,
+   "eligible_hand": true,
+   "eligible_any": true,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 6.661338147750939e-16,
+    "quat": 4.440892098500626e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1022",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 26.6,
+     "frames": 1330,
+     "head_hands": 2,
+     "hands": 37,
+     "head_any": 2,
+     "strikes": 37,
+     "fell": [
+      2.38,
+      2.56,
+      1.06,
+      1.36,
+      3.84,
+      1.66,
+      0.5,
+      0.48,
+      3.28,
+      0.82,
+      null,
+      0.68,
+      0.52,
+      null,
+      null,
+      9.58,
+      8.04,
+      null,
+      5.1,
+      8.22,
+      5.36,
+      5.88,
+      5.26,
+      3.7
+     ],
+     "stay_up": 0.16666666666666666
+    },
+    {
+     "cuts": [
+      [
+       226,
+       317
+      ]
+     ],
+     "kept_s": 25.0,
+     "frames": 1250,
+     "head_hands": 2,
+     "hands": 34,
+     "head_any": 2,
+     "strikes": 34,
+     "fell": [
+      2.46,
+      1.56,
+      2.68,
+      2.22,
+      1.02,
+      1.06,
+      4.44,
+      2.42,
+      2.36,
+      0.58,
+      1.24,
+      0.58,
+      null,
+      null,
+      9.34,
+      8.9,
+      0.86,
+      9.94,
+      8.6,
+      0.74,
+      2.66,
+      2.36,
+      0.88,
+      3.42
+     ],
+     "stay_up": 0.08333333333333333
+    },
+    {
+     "cuts": [
+      [
+       226,
+       317
+      ],
+      [
+       429,
+       489
+      ]
+     ],
+     "kept_s": 23.92,
+     "frames": 1196,
+     "head_hands": 2,
+     "hands": 34,
+     "head_any": 2,
+     "strikes": 34,
+     "fell": [
+      5.3,
+      3.62,
+      0.64,
+      1.24,
+      0.54,
+      3.58,
+      5.1,
+      2.48,
+      2.1,
+      0.58,
+      0.46,
+      null,
+      null,
+      null,
+      8.7,
+      8.32,
+      6.68,
+      5.64,
+      4.48,
+      3.78,
+      3.3,
+      7.64,
+      5.86,
+      9.98
+     ],
+     "stay_up": 0.125
+    },
+    {
+     "cuts": [
+      [
+       226,
+       317
+      ],
+      [
+       429,
+       489
+      ],
+      [
+       745,
+       830
+      ]
+     ],
+     "kept_s": 21.92,
+     "frames": 1096,
+     "head_hands": 2,
+     "hands": 29,
+     "head_any": 2,
+     "strikes": 29,
+     "fell": [
+      7.48,
+      2.38,
+      5.66,
+      2.24,
+      3.2,
+      1.8,
+      0.72,
+      0.68,
+      1.24,
+      1.62,
+      null,
+      null,
+      null,
+      1.26,
+      null,
+      null,
+      null,
+      null,
+      4.92,
+      3.36,
+      6.98,
+      7.88,
+      9.28,
+      8.4
+     ],
+     "stay_up": 0.2916666666666667
+    }
+   ],
+   "info": {
+    "frames_clean": 3153,
+    "clean": {
+     "frames_in": 3153,
+     "frames_out": 3153,
+     "repaired_frames": 29,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      5,
+      41
+     ],
+     [
+      81,
+      114
+     ],
+     [
+      190,
+      220
+     ],
+     [
+      224,
+      310
+     ],
+     [
+      348,
+      373
+     ],
+     [
+      418,
+      443
+     ],
+     [
+      453,
+      496
+     ],
+     [
+      516,
+      550
+     ],
+     [
+      578,
+      597
+     ],
+     [
+      642,
+      679
+     ],
+     [
+      846,
+      907
+     ],
+     [
+      949,
+      1038
+     ],
+     [
+      1227,
+      1250
+     ],
+     [
+      1289,
+      1453
+     ],
+     [
+      1496,
+      1519
+     ],
+     [
+      1552,
+      1587
+     ],
+     [
+      1643,
+      1693
+     ],
+     [
+      1781,
+      1820
+     ],
+     [
+      1829,
+      1854
+     ],
+     [
+      1952,
+      1988
+     ],
+     [
+      2007,
+      2131
+     ],
+     [
+      2175,
+      2211
+     ],
+     [
+      2233,
+      2273
+     ],
+     [
+      2339,
+      2365
+     ],
+     [
+      2441,
+      2462
+     ],
+     [
+      2477,
+      2500
+     ],
+     [
+      2605,
+      2650
+     ],
+     [
+      2637,
+      2684
+     ],
+     [
+      2700,
+      2753
+     ],
+     [
+      2831,
+      2867
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 22,
+     "apex": 29,
+     "apex_m": [
+      0.495,
+      -0.075,
+      1.003
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "low",
+     "onset": 26,
+     "apex": 35,
+     "apex_m": [
+      0.271,
+      -0.402,
+      0.505
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "low",
+     "onset": 53,
+     "apex": 72,
+     "apex_m": [
+      0.439,
+      -0.109,
+      0.692
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 55,
+     "apex": 71,
+     "apex_m": [
+      0.424,
+      0.018,
+      0.726
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 123,
+     "apex": 137,
+     "apex_m": [
+      0.303,
+      0.358,
+      0.867
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 140,
+     "apex": 157,
+     "apex_m": [
+      0.44,
+      -0.286,
+      0.946
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 159,
+     "apex": 167,
+     "apex_m": [
+      0.621,
+      0.063,
+      0.984
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 168,
+     "apex": 188,
+     "apex_m": [
+      0.462,
+      -0.024,
+      0.814
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 321,
+     "apex": 324,
+     "apex_m": [
+      0.599,
+      0.064,
+      0.935
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 334,
+     "apex": 348,
+     "apex_m": [
+      0.446,
+      -0.431,
+      0.981
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 358,
+     "apex": 376,
+     "apex_m": [
+      0.332,
+      -0.206,
+      0.814
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 362,
+     "apex": 375,
+     "apex_m": [
+      0.366,
+      0.184,
+      0.834
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 486,
+     "apex": 490,
+     "apex_m": [
+      0.44,
+      0.077,
+      0.894
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 486,
+     "apex": 503,
+     "apex_m": [
+      0.552,
+      -0.002,
+      0.699
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 500,
+     "apex": 514,
+     "apex_m": [
+      0.442,
+      0.233,
+      0.862
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 539,
+     "apex": 545,
+     "apex_m": [
+      0.526,
+      0.069,
+      1.175
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 548,
+     "apex": 565,
+     "apex_m": [
+      0.426,
+      -0.151,
+      0.82
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "band": "head",
+     "onset": 587,
+     "apex": 601,
+     "apex_m": [
+      0.603,
+      -0.081,
+      1.063
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 589,
+     "apex": 604,
+     "apex_m": [
+      0.483,
+      -0.429,
+      0.85
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "low",
+     "onset": 717,
+     "apex": 726,
+     "apex_m": [
+      0.502,
+      -0.227,
+      0.67
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 803,
+     "apex": 812,
+     "apex_m": [
+      0.446,
+      0.085,
+      0.928
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 827,
+     "apex": 834,
+     "apex_m": [
+      0.539,
+      0.191,
+      0.968
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 831,
+     "apex": 840,
+     "apex_m": [
+      0.584,
+      -0.154,
+      0.743
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 907,
+     "apex": 912,
+     "apex_m": [
+      0.522,
+      0.053,
+      1.015
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 912,
+     "apex": 922,
+     "apex_m": [
+      0.5,
+      -0.271,
+      0.559
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 1002,
+     "apex": 1015,
+     "apex_m": [
+      0.594,
+      0.07,
+      0.837
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "band": "torso",
+     "onset": 1034,
+     "apex": 1044,
+     "apex_m": [
+      0.405,
+      -0.072,
+      0.941
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 1058,
+     "apex": 1064,
+     "apex_m": [
+      0.536,
+      0.171,
+      0.912
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 1064,
+     "apex": 1076,
+     "apex_m": [
+      0.539,
+      -0.099,
+      0.632
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": true,
+   "any_ok": true,
+   "stay_up": 0.2916666666666667,
+   "stay_up_ok": false,
+   "head_hands": 2,
+   "head_any": 2,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 1.7763568394002505e-15,
+    "quat": 4.440892098500626e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1080",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 5.18,
+     "frames": 259,
+     "head_hands": 0,
+     "hands": 7,
+     "head_any": 0,
+     "strikes": 7
+    }
+   ],
+   "info": {
+    "frames_clean": 515,
+    "clean": {
+     "frames_in": 515,
+     "frames_out": 515,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      22,
+      38
+     ],
+     [
+      261,
+      295
+     ],
+     [
+      302,
+      340
+     ],
+     [
+      387,
+      444
+     ],
+     [
+      404,
+      433
+     ],
+     [
+      478,
+      513
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 9,
+     "apex": 12,
+     "apex_m": [
+      0.417,
+      0.191,
+      0.733
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 10,
+     "apex": 27,
+     "apex_m": [
+      0.42,
+      -0.227,
+      0.85
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 51,
+     "apex": 68,
+     "apex_m": [
+      0.477,
+      -0.054,
+      0.836
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 55,
+     "apex": 60,
+     "apex_m": [
+      0.314,
+      0.309,
+      0.975
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 129,
+     "apex": 137,
+     "apex_m": [
+      0.299,
+      0.209,
+      0.298
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 163,
+     "apex": 169,
+     "apex_m": [
+      0.464,
+      0.047,
+      0.821
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 186,
+     "apex": 206,
+     "apex_m": [
+      0.388,
+      0.238,
+      0.837
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 0,
+   "head_any": 0,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 4.440892098500626e-16,
+    "quat": 3.3306690738754696e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1081",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 9.06,
+     "frames": 453,
+     "head_hands": 2,
+     "hands": 13,
+     "head_any": 2,
+     "strikes": 16,
+     "fell": [
+      1.04,
+      0.72,
+      8.24,
+      7.88,
+      6.5,
+      0.94,
+      0.14,
+      5.42,
+      5.06,
+      3.98,
+      8.14,
+      3.64,
+      4.84,
+      3.24,
+      3.68,
+      4.4,
+      0.98,
+      3.96,
+      2.76,
+      1.94,
+      1.78,
+      1.28,
+      0.5,
+      1.46
+     ],
+     "stay_up": 0.0
+    },
+    {
+     "cuts": [
+      [
+       643,
+       824
+      ]
+     ],
+     "kept_s": 5.88,
+     "frames": 294,
+     "head_hands": 1,
+     "hands": 8,
+     "head_any": 1,
+     "strikes": 10
+    }
+   ],
+   "info": {
+    "frames_clean": 835,
+    "clean": {
+     "frames_in": 835,
+     "frames_out": 835,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      2,
+      170
+     ],
+     [
+      191,
+      229
+     ],
+     [
+      317,
+      337
+     ],
+     [
+      395,
+      412
+     ],
+     [
+      605,
+      626
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 43,
+     "apex": 52,
+     "apex_m": [
+      0.354,
+      0.296,
+      0.793
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 47,
+     "apex": 56,
+     "apex_m": [
+      0.445,
+      -0.115,
+      0.895
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 94,
+     "apex": 107,
+     "apex_m": [
+      0.497,
+      -0.121,
+      0.843
+     ]
+    },
+    {
+     "limb": "r_foot",
+     "type": "uppercut",
+     "band": "low",
+     "onset": 106,
+     "apex": 118,
+     "apex_m": [
+      0.769,
+      -0.332,
+      0.727
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 117,
+     "apex": 133,
+     "apex_m": [
+      0.435,
+      -0.033,
+      0.809
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "band": "torso",
+     "onset": 119,
+     "apex": 126,
+     "apex_m": [
+      0.459,
+      0.267,
+      0.853
+     ]
+    },
+    {
+     "limb": "r_foot",
+     "type": "uppercut",
+     "band": "low",
+     "onset": 177,
+     "apex": 197,
+     "apex_m": [
+      0.705,
+      0.134,
+      0.762
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "band": "head",
+     "onset": 178,
+     "apex": 198,
+     "apex_m": [
+      0.427,
+      0.185,
+      1.106
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 234,
+     "apex": 240,
+     "apex_m": [
+      0.492,
+      0.122,
+      0.872
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 265,
+     "apex": 278,
+     "apex_m": [
+      0.322,
+      0.093,
+      0.753
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 1,
+   "head_any": 1,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 4.440892098500626e-16,
+    "quat": 3.3306690738754696e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1082",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 4.16,
+     "frames": 208,
+     "head_hands": 1,
+     "hands": 9,
+     "head_any": 1,
+     "strikes": 9
+    }
+   ],
+   "info": {
+    "frames_clean": 400,
+    "clean": {
+     "frames_in": 400,
+     "frames_out": 400,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      72,
+      113
+     ],
+     [
+      150,
+      172
+     ],
+     [
+      263,
+      309
+     ],
+     [
+      377,
+      398
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 11,
+     "apex": 18,
+     "apex_m": [
+      0.458,
+      0.035,
+      0.659
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 58,
+     "apex": 71,
+     "apex_m": [
+      0.514,
+      0.169,
+      0.856
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "low",
+     "onset": 63,
+     "apex": 83,
+     "apex_m": [
+      0.491,
+      -0.155,
+      0.661
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 87,
+     "apex": 93,
+     "apex_m": [
+      0.572,
+      0.252,
+      0.826
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 102,
+     "apex": 105,
+     "apex_m": [
+      0.543,
+      -0.061,
+      0.633
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 118,
+     "apex": 128,
+     "apex_m": [
+      0.43,
+      0.052,
+      0.952
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 154,
+     "apex": 162,
+     "apex_m": [
+      0.277,
+      0.492,
+      0.979
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 170,
+     "apex": 178,
+     "apex_m": [
+      0.447,
+      -0.214,
+      0.877
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 173,
+     "apex": 180,
+     "apex_m": [
+      0.424,
+      0.161,
+      1.08
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 1,
+   "head_any": 1,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 5.551115123125783e-16,
+    "quat": 3.3306690738754696e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1084",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 2.88,
+     "frames": 144,
+     "head_hands": 1,
+     "hands": 6,
+     "head_any": 1,
+     "strikes": 6
+    }
+   ],
+   "info": {
+    "frames_clean": 237,
+    "clean": {
+     "frames_in": 478,
+     "frames_out": 237,
+     "repaired_frames": 0,
+     "cut_frames": 241,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      99,
+      119
+     ],
+     [
+      173,
+      201
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 9,
+     "apex": 13,
+     "apex_m": [
+      0.418,
+      0.016,
+      0.991
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 35,
+     "apex": 55,
+     "apex_m": [
+      0.399,
+      0.092,
+      0.962
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 73,
+     "apex": 88,
+     "apex_m": [
+      0.558,
+      -0.229,
+      0.798
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 98,
+     "apex": 109,
+     "apex_m": [
+      0.303,
+      0.161,
+      0.87
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 123,
+     "apex": 128,
+     "apex_m": [
+      0.414,
+      0.145,
+      0.945
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "head",
+     "onset": 124,
+     "apex": 131,
+     "apex_m": [
+      0.457,
+      -0.166,
+      1.112
+     ]
+    }
+   ],
+   "kept_ok": false,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 1,
+   "head_any": 1,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 3.9898639947466563e-16,
+    "quat": 3.3306690738754696e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1086",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 2.44,
+     "frames": 122,
+     "head_hands": 1,
+     "hands": 5,
+     "head_any": 1,
+     "strikes": 5
+    }
+   ],
+   "info": {
+    "frames_clean": 171,
+    "clean": {
+     "frames_in": 200,
+     "frames_out": 171,
+     "repaired_frames": 0,
+     "cut_frames": 29,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      99,
+      118
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 6,
+     "apex": 11,
+     "apex_m": [
+      0.525,
+      -0.173,
+      0.999
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 20,
+     "apex": 35,
+     "apex_m": [
+      0.435,
+      0.242,
+      0.96
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 40,
+     "apex": 46,
+     "apex_m": [
+      0.427,
+      0.167,
+      0.856
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 70,
+     "apex": 77,
+     "apex_m": [
+      0.48,
+      -0.0,
+      0.973
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "head",
+     "onset": 84,
+     "apex": 104,
+     "apex_m": [
+      0.462,
+      -0.429,
+      1.041
+     ]
+    }
+   ],
+   "kept_ok": false,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 1,
+   "head_any": 1,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 4.440892098500626e-16,
+    "quat": 3.3306690738754696e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1088",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 3.16,
+     "frames": 158,
+     "head_hands": 3,
+     "hands": 7,
+     "head_any": 3,
+     "strikes": 7
+    }
+   ],
+   "info": {
+    "frames_clean": 173,
+    "clean": {
+     "frames_in": 240,
+     "frames_out": 173,
+     "repaired_frames": 0,
+     "cut_frames": 67,
+     "pieces": 1
+    },
+    "style_cuts": []
+   },
+   "strikes": [
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "low",
+     "onset": 8,
+     "apex": 25,
+     "apex_m": [
+      0.576,
+      0.122,
+      0.758
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 50,
+     "apex": 57,
+     "apex_m": [
+      0.413,
+      -0.083,
+      1.055
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 52,
+     "apex": 66,
+     "apex_m": [
+      0.361,
+      0.21,
+      0.766
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 68,
+     "apex": 76,
+     "apex_m": [
+      0.499,
+      -0.153,
+      0.81
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 105,
+     "apex": 119,
+     "apex_m": [
+      0.313,
+      -0.248,
+      1.092
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 127,
+     "apex": 140,
+     "apex_m": [
+      0.397,
+      -0.022,
+      1.073
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 132,
+     "apex": 139,
+     "apex_m": [
+      0.329,
+      -0.447,
+      0.922
+     ]
+    }
+   ],
+   "kept_ok": false,
+   "hand_ok": true,
+   "any_ok": true,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 3,
+   "head_any": 3,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 4.440892098500626e-16,
+    "quat": 4.440892098500626e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1305",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 5.1,
+     "frames": 255,
+     "head_hands": 1,
+     "hands": 5,
+     "head_any": 1,
+     "strikes": 5
+    }
+   ],
+   "info": {
+    "frames_clean": 420,
+    "clean": {
+     "frames_in": 420,
+     "frames_out": 420,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      0,
+      23
+     ],
+     [
+      137,
+      159
+     ],
+     [
+      198,
+      221
+     ],
+     [
+      286,
+      323
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 88,
+     "apex": 104,
+     "apex_m": [
+      0.501,
+      0.148,
+      0.746
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "head",
+     "onset": 124,
+     "apex": 131,
+     "apex_m": [
+      0.338,
+      0.063,
+      1.143
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 169,
+     "apex": 176,
+     "apex_m": [
+      0.564,
+      -0.172,
+      0.768
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 171,
+     "apex": 182,
+     "apex_m": [
+      0.527,
+      0.163,
+      0.565
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "low",
+     "onset": 241,
+     "apex": 244,
+     "apex_m": [
+      0.367,
+      -0.474,
+      0.79
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 1,
+   "head_any": 1,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 1.1102230246251565e-15,
+    "quat": 4.440892098500626e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1306",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 8.22,
+     "frames": 411,
+     "head_hands": 1,
+     "hands": 10,
+     "head_any": 1,
+     "strikes": 11
+    }
+   ],
+   "info": {
+    "frames_clean": 578,
+    "clean": {
+     "frames_in": 578,
+     "frames_out": 578,
+     "repaired_frames": 11,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      5,
+      27
+     ],
+     [
+      9,
+      40
+     ],
+     [
+      147,
+      173
+     ],
+     [
+      312,
+      338
+     ],
+     [
+      493,
+      508
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 0,
+     "apex": 12,
+     "apex_m": [
+      0.446,
+      -0.086,
+      0.806
+     ]
+    },
+    {
+     "limb": "r_foot",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 22,
+     "apex": 42,
+     "apex_m": [
+      0.567,
+      -0.372,
+      0.809
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 85,
+     "apex": 97,
+     "apex_m": [
+      0.474,
+      -0.279,
+      0.817
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 103,
+     "apex": 112,
+     "apex_m": [
+      0.309,
+      -0.044,
+      0.776
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 140,
+     "apex": 149,
+     "apex_m": [
+      0.506,
+      0.017,
+      0.723
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 168,
+     "apex": 177,
+     "apex_m": [
+      0.416,
+      -0.05,
+      0.899
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 168,
+     "apex": 178,
+     "apex_m": [
+      0.391,
+      -0.37,
+      0.953
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 245,
+     "apex": 254,
+     "apex_m": [
+      0.524,
+      0.166,
+      0.972
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "band": "low",
+     "onset": 308,
+     "apex": 318,
+     "apex_m": [
+      0.485,
+      0.49,
+      0.675
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 321,
+     "apex": 338,
+     "apex_m": [
+      0.464,
+      0.325,
+      1.029
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 372,
+     "apex": 383,
+     "apex_m": [
+      0.409,
+      0.177,
+      0.75
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 1,
+   "head_any": 1,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 1.3322676295501878e-15,
+    "quat": 3.3306690738754696e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1307",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 73.7,
+     "frames": 3685,
+     "head_hands": 6,
+     "hands": 29,
+     "head_any": 6,
+     "strikes": 31,
+     "fell": [
+      2.6,
+      7.9,
+      5.04,
+      1.94,
+      5.6,
+      4.82,
+      7.78,
+      3.44,
+      0.7,
+      1.2,
+      8.5,
+      3.28,
+      2.18,
+      1.02,
+      9.48,
+      8.52,
+      3.06,
+      null,
+      null,
+      7.88,
+      0.8,
+      1.58,
+      0.8,
+      0.9
+     ],
+     "stay_up": 0.08333333333333333
+    },
+    {
+     "cuts": [
+      [
+       2995,
+       3051
+      ]
+     ],
+     "kept_s": 73.26,
+     "frames": 3663,
+     "head_hands": 6,
+     "hands": 30,
+     "head_any": 6,
+     "strikes": 32,
+     "fell": [
+      2.6,
+      9.46,
+      4.78,
+      1.8,
+      6.0,
+      9.18,
+      6.36,
+      5.46,
+      3.26,
+      5.64,
+      4.18,
+      2.88,
+      2.04,
+      1.82,
+      4.02,
+      2.26,
+      3.34,
+      2.36,
+      null,
+      7.46,
+      4.64,
+      1.5,
+      0.76,
+      0.86
+     ],
+     "stay_up": 0.041666666666666664
+    },
+    {
+     "cuts": [
+      [
+       2995,
+       3051
+      ],
+      [
+       13515,
+       13572
+      ]
+     ],
+     "kept_s": 72.64,
+     "frames": 3632,
+     "head_hands": 6,
+     "hands": 30,
+     "head_any": 6,
+     "strikes": 32,
+     "fell": [
+      2.6,
+      null,
+      5.26,
+      2.48,
+      null,
+      4.74,
+      6.56,
+      4.12,
+      null,
+      3.22,
+      8.04,
+      6.76,
+      2.24,
+      1.04,
+      5.66,
+      2.78,
+      3.68,
+      2.44,
+      null,
+      6.54,
+      6.56,
+      3.18,
+      0.72,
+      0.86
+     ],
+     "stay_up": 0.16666666666666666
+    },
+    {
+     "cuts": [
+      [
+       2995,
+       3051
+      ],
+      [
+       13515,
+       13572
+      ],
+      [
+       13854,
+       13928
+      ]
+     ],
+     "kept_s": 71.42,
+     "frames": 3571,
+     "head_hands": 6,
+     "hands": 30,
+     "head_any": 6,
+     "strikes": 32,
+     "fell": [
+      2.6,
+      9.4,
+      4.96,
+      2.7,
+      6.16,
+      4.7,
+      8.92,
+      5.32,
+      3.84,
+      0.96,
+      4.94,
+      2.0,
+      3.0,
+      1.84,
+      6.56,
+      3.52,
+      6.4,
+      2.34,
+      null,
+      7.1,
+      4.28,
+      4.6,
+      1.18,
+      6.06
+     ],
+     "stay_up": 0.041666666666666664
+    }
+   ],
+   "info": {
+    "frames_clean": 15793,
+    "clean": {
+     "frames_in": 15793,
+     "frames_out": 15793,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      2,
+      160
+     ],
+     [
+      72,
+      142
+     ],
+     [
+      201,
+      396
+     ],
+     [
+      326,
+      667
+     ],
+     [
+      422,
+      641
+     ],
+     [
+      696,
+      718
+     ],
+     [
+      745,
+      845
+     ],
+     [
+      882,
+      982
+     ],
+     [
+      989,
+      1015
+     ],
+     [
+      1043,
+      1150
+     ],
+     [
+      1269,
+      1299
+     ],
+     [
+      1311,
+      1508
+     ],
+     [
+      1607,
+      1633
+     ],
+     [
+      1646,
+      1808
+     ],
+     [
+      1922,
+      2245
+     ],
+     [
+      2331,
+      2567
+     ],
+     [
+      2433,
+      2469
+     ],
+     [
+      2586,
+      2671
+     ],
+     [
+      2767,
+      2963
+     ],
+     [
+      2877,
+      2903
+     ],
+     [
+      3176,
+      3198
+     ],
+     [
+      3216,
+      3366
+     ],
+     [
+      3382,
+      3578
+     ],
+     [
+      3518,
+      3580
+     ],
+     [
+      3602,
+      3724
+     ],
+     [
+      3744,
+      3944
+     ],
+     [
+      3747,
+      3763
+     ],
+     [
+      3778,
+      3974
+     ],
+     [
+      3978,
+      4037
+     ],
+     [
+      4097,
+      4149
+     ],
+     [
+      4257,
+      4284
+     ],
+     [
+      4297,
+      4378
+     ],
+     [
+      4450,
+      4500
+     ],
+     [
+      4528,
+      4698
+     ],
+     [
+      4787,
+      4819
+     ],
+     [
+      4832,
+      4943
+     ],
+     [
+      4984,
+      5091
+     ],
+     [
+      5110,
+      5167
+     ],
+     [
+      5187,
+      5260
+     ],
+     [
+      5239,
+      5308
+     ],
+     [
+      5275,
+      5312
+     ],
+     [
+      5356,
+      5409
+     ],
+     [
+      5432,
+      5529
+     ],
+     [
+      5449,
+      5514
+     ],
+     [
+      5546,
+      5597
+     ],
+     [
+      5624,
+      5699
+     ],
+     [
+      5767,
+      5838
+     ],
+     [
+      5939,
+      5970
+     ],
+     [
+      6015,
+      6181
+     ],
+     [
+      6041,
+      6091
+     ],
+     [
+      6199,
+      6257
+     ],
+     [
+      6272,
+      6310
+     ],
+     [
+      6335,
+      6468
+     ],
+     [
+      6467,
+      6515
+     ],
+     [
+      6513,
+      6621
+     ],
+     [
+      6637,
+      6704
+     ],
+     [
+      6653,
+      6681
+     ],
+     [
+      6811,
+      6837
+     ],
+     [
+      6860,
+      7008
+     ],
+     [
+      6987,
+      7039
+     ],
+     [
+      7042,
+      7155
+     ],
+     [
+      7197,
+      7262
+     ],
+     [
+      7203,
+      7244
+     ],
+     [
+      7276,
+      7324
+     ],
+     [
+      7390,
+      7414
+     ],
+     [
+      7407,
+      7422
+     ],
+     [
+      7507,
+      7567
+     ],
+     [
+      7657,
+      7685
+     ],
+     [
+      7676,
+      7706
+     ],
+     [
+      7759,
+      7804
+     ],
+     [
+      7819,
+      7849
+     ],
+     [
+      7838,
+      7904
+     ],
+     [
+      7945,
+      8077
+     ],
+     [
+      8015,
+      8044
+     ],
+     [
+      8067,
+      8082
+     ],
+     [
+      8138,
+      8161
+     ],
+     [
+      8220,
+      8353
+     ],
+     [
+      8297,
+      8394
+     ],
+     [
+      8450,
+      8474
+     ],
+     [
+      8508,
+      8534
+     ],
+     [
+      8545,
+      8597
+     ],
+     [
+      8661,
+      8705
+     ],
+     [
+      8721,
+      8811
+     ],
+     [
+      8879,
+      8929
+     ],
+     [
+      8939,
+      9066
+     ],
+     [
+      9100,
+      9225
+     ],
+     [
+      9270,
+      9435
+     ],
+     [
+      9431,
+      9491
+     ],
+     [
+      9467,
+      9583
+     ],
+     [
+      9508,
+      9530
+     ],
+     [
+      9533,
+      9564
+     ],
+     [
+      9622,
+      9671
+     ],
+     [
+      9623,
+      9657
+     ],
+     [
+      9692,
+      9720
+     ],
+     [
+      9744,
+      9886
+     ],
+     [
+      9767,
+      9907
+     ],
+     [
+      9955,
+      10047
+     ],
+     [
+      10002,
+      10095
+     ],
+     [
+      10083,
+      10187
+     ],
+     [
+      10342,
+      10437
+     ],
+     [
+      10549,
+      10575
+     ],
+     [
+      10603,
+      10773
+     ],
+     [
+      10862,
+      10895
+     ],
+     [
+      10912,
+      11057
+     ],
+     [
+      11056,
+      11122
+     ],
+     [
+      11188,
+      11300
+     ],
+     [
+      11366,
+      11422
+     ],
+     [
+      11525,
+      11593
+     ],
+     [
+      11658,
+      11758
+     ],
+     [
+      11813,
+      11857
+     ],
+     [
+      11882,
+      11913
+     ],
+     [
+      11956,
+      12007
+     ],
+     [
+      11963,
+      12039
+     ],
+     [
+      12188,
+      12259
+     ],
+     [
+      12275,
+      12302
+     ],
+     [
+      12401,
+      12421
+     ],
+     [
+      12401,
+      12472
+     ],
+     [
+      12457,
+      12503
+     ],
+     [
+      12633,
+      12670
+     ],
+     [
+      12700,
+      12740
+     ],
+     [
+      12793,
+      12824
+     ],
+     [
+      12865,
+      12892
+     ],
+     [
+      13021,
+      13077
+     ],
+     [
+      13107,
+      13156
+     ],
+     [
+      13190,
+      13281
+     ],
+     [
+      13330,
+      13367
+     ],
+     [
+      13330,
+      13390
+     ],
+     [
+      13477,
+      13543
+     ],
+     [
+      13577,
+      13694
+     ],
+     [
+      13597,
+      13699
+     ],
+     [
+      13712,
+      13740
+     ],
+     [
+      13738,
+      13828
+     ],
+     [
+      13849,
+      13892
+     ],
+     [
+      13908,
+      13950
+     ],
+     [
+      14062,
+      14196
+     ],
+     [
+      14090,
+      14199
+     ],
+     [
+      14325,
+      14442
+     ],
+     [
+      14480,
+      14520
+     ],
+     [
+      14551,
+      14600
+     ],
+     [
+      14614,
+      14832
+     ],
+     [
+      14734,
+      14774
+     ],
+     [
+      14799,
+      14832
+     ],
+     [
+      14847,
+      15032
+     ],
+     [
+      14975,
+      15067
+     ],
+     [
+      15066,
+      15496
+     ],
+     [
+      15252,
+      15347
+     ],
+     [
+      15524,
+      15552
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 0,
+     "apex": 5,
+     "apex_m": [
+      0.486,
+      0.113,
+      0.884
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 27,
+     "apex": 44,
+     "apex_m": [
+      0.417,
+      -0.263,
+      1.024
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 75,
+     "apex": 82,
+     "apex_m": [
+      0.458,
+      -0.161,
+      0.934
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 192,
+     "apex": 206,
+     "apex_m": [
+      0.388,
+      -0.049,
+      1.029
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 276,
+     "apex": 296,
+     "apex_m": [
+      0.52,
+      0.101,
+      0.984
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 544,
+     "apex": 555,
+     "apex_m": [
+      0.48,
+      0.185,
+      0.898
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "torso",
+     "onset": 544,
+     "apex": 548,
+     "apex_m": [
+      0.511,
+      -0.093,
+      0.872
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 725,
+     "apex": 731,
+     "apex_m": [
+      0.329,
+      -0.153,
+      0.888
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "band": "head",
+     "onset": 863,
+     "apex": 883,
+     "apex_m": [
+      0.424,
+      0.107,
+      1.058
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 1243,
+     "apex": 1248,
+     "apex_m": [
+      0.337,
+      0.321,
+      1.079
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 1243,
+     "apex": 1249,
+     "apex_m": [
+      0.29,
+      -0.303,
+      0.772
+     ]
+    },
+    {
+     "limb": "l_foot",
+     "type": "uppercut",
+     "band": "low",
+     "onset": 1345,
+     "apex": 1359,
+     "apex_m": [
+      0.473,
+      0.491,
+      0.706
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 1372,
+     "apex": 1379,
+     "apex_m": [
+      0.402,
+      0.053,
+      0.885
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 1423,
+     "apex": 1431,
+     "apex_m": [
+      0.337,
+      -0.38,
+      0.805
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 1486,
+     "apex": 1497,
+     "apex_m": [
+      0.367,
+      -0.256,
+      0.949
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 1605,
+     "apex": 1613,
+     "apex_m": [
+      0.318,
+      -0.225,
+      0.688
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 1632,
+     "apex": 1641,
+     "apex_m": [
+      0.354,
+      0.103,
+      0.978
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 1717,
+     "apex": 1725,
+     "apex_m": [
+      0.433,
+      -0.093,
+      0.849
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 1777,
+     "apex": 1785,
+     "apex_m": [
+      0.422,
+      -0.003,
+      0.81
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 1879,
+     "apex": 1887,
+     "apex_m": [
+      0.426,
+      0.182,
+      0.877
+     ]
+    },
+    {
+     "limb": "l_foot",
+     "type": "uppercut",
+     "band": "low",
+     "onset": 1984,
+     "apex": 1995,
+     "apex_m": [
+      0.465,
+      0.445,
+      0.543
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 1985,
+     "apex": 1991,
+     "apex_m": [
+      0.333,
+      -0.287,
+      0.819
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 2235,
+     "apex": 2255,
+     "apex_m": [
+      0.564,
+      -0.136,
+      0.963
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 2287,
+     "apex": 2307,
+     "apex_m": [
+      0.348,
+      0.309,
+      0.875
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 2359,
+     "apex": 2379,
+     "apex_m": [
+      0.508,
+      -0.147,
+      0.616
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 2366,
+     "apex": 2384,
+     "apex_m": [
+      0.459,
+      -0.477,
+      0.719
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 2549,
+     "apex": 2569,
+     "apex_m": [
+      0.346,
+      0.093,
+      1.18
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 2787,
+     "apex": 2795,
+     "apex_m": [
+      0.303,
+      -0.227,
+      0.753
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "head",
+     "onset": 2845,
+     "apex": 2850,
+     "apex_m": [
+      0.436,
+      -0.276,
+      1.05
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "low",
+     "onset": 2995,
+     "apex": 3001,
+     "apex_m": [
+      0.274,
+      -0.394,
+      0.742
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 3153,
+     "apex": 3158,
+     "apex_m": [
+      0.567,
+      0.08,
+      0.802
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 3293,
+     "apex": 3303,
+     "apex_m": [
+      0.425,
+      -0.207,
+      0.862
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": true,
+   "any_ok": true,
+   "stay_up": 0.041666666666666664,
+   "stay_up_ok": false,
+   "head_hands": 6,
+   "head_any": 6,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 1.7763568394002505e-15,
+    "quat": 4.440892098500626e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1308",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 2.26,
+     "frames": 113,
+     "head_hands": 0,
+     "hands": 0,
+     "head_any": 0,
+     "strikes": 0
+    }
+   ],
+   "info": {
+    "frames_clean": 1060,
+    "clean": {
+     "frames_in": 1060,
+     "frames_out": 1060,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      2,
+      452
+     ],
+     [
+      223,
+      300
+     ],
+     [
+      517,
+      694
+     ],
+     [
+      745,
+      821
+     ],
+     [
+      832,
+      876
+     ],
+     [
+      908,
+      949
+     ],
+     [
+      911,
+      962
+     ],
+     [
+      987,
+      1058
+     ]
+    ]
+   },
+   "strikes": [],
+   "kept_ok": false,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 0,
+   "head_any": 0,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 4.440892098500626e-16,
+    "quat": 3.3306690738754696e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1315",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 20.82,
+     "frames": 1041,
+     "head_hands": 3,
+     "hands": 17,
+     "head_any": 3,
+     "strikes": 20,
+     "fell": [
+      5.34,
+      4.7,
+      3.58,
+      2.76,
+      1.96,
+      1.76,
+      0.4,
+      2.94,
+      2.54,
+      null,
+      1.46,
+      null,
+      9.64,
+      8.78,
+      7.84,
+      7.0,
+      6.14,
+      5.24,
+      4.38,
+      3.5,
+      2.86,
+      1.86,
+      0.94,
+      3.5
+     ],
+     "stay_up": 0.08333333333333333
+    },
+    {
+     "cuts": [
+      [
+       1476,
+       1577
+      ]
+     ],
+     "kept_s": 19.7,
+     "frames": 985,
+     "head_hands": 2,
+     "hands": 16,
+     "head_any": 2,
+     "strikes": 19,
+     "fell": [
+      5.34,
+      4.54,
+      3.68,
+      3.08,
+      2.26,
+      1.5,
+      0.34,
+      null,
+      null,
+      2.34,
+      null,
+      2.0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      7.98,
+      9.44,
+      8.62,
+      1.34,
+      6.98,
+      3.3
+     ],
+     "stay_up": 0.375
+    },
+    {
+     "cuts": [
+      [
+       367,
+       430
+      ],
+      [
+       1476,
+       1577
+      ]
+     ],
+     "kept_s": 18.14,
+     "frames": 907,
+     "head_hands": 2,
+     "hands": 15,
+     "head_any": 2,
+     "strikes": 17,
+     "fell": [
+      null,
+      6.0,
+      5.4,
+      4.64,
+      null,
+      null,
+      null,
+      1.8,
+      null,
+      null,
+      1.78,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      5.7,
+      4.06,
+      8.98,
+      3.38
+     ],
+     "stay_up": 0.625
+    },
+    {
+     "cuts": [
+      [
+       367,
+       430
+      ],
+      [
+       629,
+       710
+      ],
+      [
+       1476,
+       1577
+      ]
+     ],
+     "kept_s": 16.52,
+     "frames": 826,
+     "head_hands": 1,
+     "hands": 13,
+     "head_any": 1,
+     "strikes": 14
+    }
+   ],
+   "info": {
+    "frames_clean": 1668,
+    "clean": {
+     "frames_in": 1668,
+     "frames_out": 1668,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      2,
+      107
+     ],
+     [
+      252,
+      274
+     ],
+     [
+      390,
+      418
+     ],
+     [
+      511,
+      547
+     ],
+     [
+      652,
+      693
+     ],
+     [
+      760,
+      812
+     ],
+     [
+      878,
+      902
+     ],
+     [
+      1077,
+      1112
+     ],
+     [
+      1166,
+      1195
+     ],
+     [
+      1324,
+      1352
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "band": "torso",
+     "onset": 28,
+     "apex": 36,
+     "apex_m": [
+      0.439,
+      -0.064,
+      0.91
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "low",
+     "onset": 35,
+     "apex": 46,
+     "apex_m": [
+      0.257,
+      -0.35,
+      0.724
+     ]
+    },
+    {
+     "limb": "r_foot",
+     "type": "uppercut",
+     "band": "low",
+     "onset": 50,
+     "apex": 62,
+     "apex_m": [
+      0.342,
+      0.149,
+      0.35
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 107,
+     "apex": 113,
+     "apex_m": [
+      0.435,
+      -0.096,
+      0.788
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 128,
+     "apex": 137,
+     "apex_m": [
+      0.577,
+      -0.059,
+      0.849
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "torso",
+     "onset": 157,
+     "apex": 177,
+     "apex_m": [
+      0.376,
+      -0.515,
+      0.849
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 211,
+     "apex": 231,
+     "apex_m": [
+      0.342,
+      -0.075,
+      0.914
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "head",
+     "onset": 273,
+     "apex": 290,
+     "apex_m": [
+      0.397,
+      -0.398,
+      1.072
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "low",
+     "onset": 317,
+     "apex": 337,
+     "apex_m": [
+      0.484,
+      -0.337,
+      0.757
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "low",
+     "onset": 444,
+     "apex": 456,
+     "apex_m": [
+      0.389,
+      -0.112,
+      0.647
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "low",
+     "onset": 479,
+     "apex": 499,
+     "apex_m": [
+      0.381,
+      -0.551,
+      0.738
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 605,
+     "apex": 615,
+     "apex_m": [
+      0.485,
+      -0.349,
+      0.934
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 793,
+     "apex": 806,
+     "apex_m": [
+      0.469,
+      0.093,
+      0.854
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 813,
+     "apex": 822,
+     "apex_m": [
+      0.505,
+      -0.133,
+      0.856
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 1,
+   "head_any": 1,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 8.881784197001252e-16,
+    "quat": 4.440892098500626e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1316",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 2.1,
+     "frames": 105,
+     "head_hands": 0,
+     "hands": 4,
+     "head_any": 0,
+     "strikes": 4
+    }
+   ],
+   "info": {
+    "frames_clean": 362,
+    "clean": {
+     "frames_in": 362,
+     "frames_out": 362,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      19,
+      45
+     ],
+     [
+      111,
+      143
+     ],
+     [
+      153,
+      200
+     ],
+     [
+      213,
+      243
+     ],
+     [
+      292,
+      327
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 9,
+     "apex": 23,
+     "apex_m": [
+      0.54,
+      0.023,
+      0.658
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 52,
+     "apex": 58,
+     "apex_m": [
+      0.49,
+      0.053,
+      0.737
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 85,
+     "apex": 95,
+     "apex_m": [
+      0.387,
+      0.313,
+      0.845
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 85,
+     "apex": 94,
+     "apex_m": [
+      0.449,
+      -0.264,
+      0.889
+     ]
+    }
+   ],
+   "kept_ok": false,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 0,
+   "head_any": 0,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 4.440892098500626e-16,
+    "quat": 3.3306690738754696e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1317",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 23.32,
+     "frames": 1166,
+     "head_hands": 2,
+     "hands": 29,
+     "head_any": 2,
+     "strikes": 32,
+     "fell": [
+      4.74,
+      3.76,
+      2.86,
+      1.92,
+      1.56,
+      0.72,
+      1.04,
+      5.14,
+      2.98,
+      3.38,
+      3.62,
+      1.04,
+      0.36,
+      null,
+      null,
+      null,
+      null,
+      7.92,
+      null,
+      9.62,
+      5.28,
+      4.58,
+      3.66,
+      2.84
+     ],
+     "stay_up": 0.20833333333333334
+    },
+    {
+     "cuts": [
+      [
+       368,
+       466
+      ]
+     ],
+     "kept_s": 21.8,
+     "frames": 1090,
+     "head_hands": 1,
+     "hands": 27,
+     "head_any": 1,
+     "strikes": 29
+    }
+   ],
+   "info": {
+    "frames_clean": 1918,
+    "clean": {
+     "frames_in": 1918,
+     "frames_out": 1918,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      2,
+      128
+     ],
+     [
+      271,
+      299
+     ],
+     [
+      633,
+      665
+     ],
+     [
+      759,
+      781
+     ],
+     [
+      877,
+      936
+     ],
+     [
+      1007,
+      1041
+     ],
+     [
+      1169,
+      1215
+     ],
+     [
+      1366,
+      1389
+     ],
+     [
+      1405,
+      1420
+     ],
+     [
+      1464,
+      1541
+     ],
+     [
+      1472,
+      1537
+     ],
+     [
+      1601,
+      1640
+     ],
+     [
+      1759,
+      1795
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 35,
+     "apex": 50,
+     "apex_m": [
+      0.378,
+      -0.045,
+      1.201
+     ]
+    },
+    {
+     "limb": "r_foot",
+     "type": "uppercut",
+     "band": "low",
+     "onset": 54,
+     "apex": 66,
+     "apex_m": [
+      0.379,
+      0.195,
+      0.351
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 68,
+     "apex": 83,
+     "apex_m": [
+      0.388,
+      0.024,
+      0.81
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "torso",
+     "onset": 68,
+     "apex": 87,
+     "apex_m": [
+      0.322,
+      -0.149,
+      1.008
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 105,
+     "apex": 125,
+     "apex_m": [
+      0.371,
+      0.024,
+      0.889
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 106,
+     "apex": 112,
+     "apex_m": [
+      0.385,
+      -0.046,
+      0.816
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 148,
+     "apex": 167,
+     "apex_m": [
+      0.526,
+      -0.081,
+      0.94
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 152,
+     "apex": 157,
+     "apex_m": [
+      0.361,
+      0.311,
+      0.895
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "low",
+     "onset": 185,
+     "apex": 191,
+     "apex_m": [
+      0.384,
+      0.348,
+      0.691
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 222,
+     "apex": 227,
+     "apex_m": [
+      0.515,
+      -0.013,
+      1.013
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 321,
+     "apex": 336,
+     "apex_m": [
+      0.422,
+      -0.335,
+      0.856
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 360,
+     "apex": 369,
+     "apex_m": [
+      0.498,
+      0.189,
+      0.856
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 367,
+     "apex": 372,
+     "apex_m": [
+      0.339,
+      -0.488,
+      0.893
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 379,
+     "apex": 383,
+     "apex_m": [
+      0.436,
+      -0.329,
+      0.898
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "torso",
+     "onset": 387,
+     "apex": 406,
+     "apex_m": [
+      0.521,
+      -0.017,
+      0.95
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "band": "torso",
+     "onset": 481,
+     "apex": 486,
+     "apex_m": [
+      0.589,
+      -0.011,
+      0.885
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 488,
+     "apex": 500,
+     "apex_m": [
+      0.372,
+      -0.268,
+      0.869
+     ]
+    },
+    {
+     "limb": "r_foot",
+     "type": "hook",
+     "band": "low",
+     "onset": 497,
+     "apex": 514,
+     "apex_m": [
+      0.744,
+      -0.094,
+      0.644
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 532,
+     "apex": 552,
+     "apex_m": [
+      0.388,
+      0.269,
+      0.983
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "low",
+     "onset": 655,
+     "apex": 670,
+     "apex_m": [
+      0.461,
+      -0.14,
+      0.59
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 676,
+     "apex": 695,
+     "apex_m": [
+      0.388,
+      0.134,
+      0.899
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 752,
+     "apex": 759,
+     "apex_m": [
+      0.365,
+      0.152,
+      0.993
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 864,
+     "apex": 874,
+     "apex_m": [
+      0.483,
+      -0.311,
+      0.807
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "low",
+     "onset": 905,
+     "apex": 917,
+     "apex_m": [
+      0.463,
+      -0.066,
+      0.739
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "low",
+     "onset": 936,
+     "apex": 952,
+     "apex_m": [
+      0.569,
+      0.115,
+      0.634
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 942,
+     "apex": 962,
+     "apex_m": [
+      0.37,
+      0.5,
+      0.682
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "low",
+     "onset": 964,
+     "apex": 968,
+     "apex_m": [
+      0.562,
+      0.148,
+      0.722
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 1001,
+     "apex": 1009,
+     "apex_m": [
+      0.453,
+      0.227,
+      0.756
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "high",
+     "onset": 1064,
+     "apex": 1078,
+     "apex_m": [
+      0.273,
+      -0.34,
+      1.298
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 1,
+   "head_any": 1,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 8.881784197001252e-16,
+    "quat": 4.440892098500626e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1318",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 4.54,
+     "frames": 227,
+     "head_hands": 0,
+     "hands": 5,
+     "head_any": 0,
+     "strikes": 5
+    }
+   ],
+   "info": {
+    "frames_clean": 443,
+    "clean": {
+     "frames_in": 443,
+     "frames_out": 443,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      79,
+      103
+     ],
+     [
+      218,
+      260
+     ],
+     [
+      272,
+      321
+     ],
+     [
+      387,
+      416
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 87,
+     "apex": 101,
+     "apex_m": [
+      0.387,
+      -0.48,
+      0.928
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 136,
+     "apex": 144,
+     "apex_m": [
+      0.596,
+      0.0,
+      0.761
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 158,
+     "apex": 173,
+     "apex_m": [
+      0.46,
+      0.027,
+      0.739
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 215,
+     "apex": 224,
+     "apex_m": [
+      0.443,
+      0.297,
+      0.826
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 215,
+     "apex": 224,
+     "apex_m": [
+      0.463,
+      -0.248,
+      0.838
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 0,
+   "head_any": 0,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 4.440892098500626e-16,
+    "quat": 4.440892098500626e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1420",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 12.04,
+     "frames": 602,
+     "head_hands": 0,
+     "hands": 2,
+     "head_any": 0,
+     "strikes": 2
+    }
+   ],
+   "info": {
+    "frames_clean": 2393,
+    "clean": {
+     "frames_in": 2393,
+     "frames_out": 2393,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      3,
+      159
+     ],
+     [
+      5,
+      20
+     ],
+     [
+      44,
+      90
+     ],
+     [
+      157,
+      234
+     ],
+     [
+      189,
+      294
+     ],
+     [
+      282,
+      381
+     ],
+     [
+      321,
+      358
+     ],
+     [
+      425,
+      578
+     ],
+     [
+      441,
+      567
+     ],
+     [
+      662,
+      710
+     ],
+     [
+      662,
+      763
+     ],
+     [
+      748,
+      920
+     ],
+     [
+      915,
+      1001
+     ],
+     [
+      950,
+      993
+     ],
+     [
+      1080,
+      1168
+     ],
+     [
+      1338,
+      1395
+     ],
+     [
+      1415,
+      1436
+     ],
+     [
+      1549,
+      1569
+     ],
+     [
+      1582,
+      1699
+     ],
+     [
+      1661,
+      1712
+     ],
+     [
+      1743,
+      1912
+     ],
+     [
+      2016,
+      2103
+     ],
+     [
+      2137,
+      2172
+     ],
+     [
+      2220,
+      2309
+     ],
+     [
+      2354,
+      2391
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "band": "low",
+     "onset": 36,
+     "apex": 44,
+     "apex_m": [
+      0.286,
+      0.359,
+      0.508
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 432,
+     "apex": 444,
+     "apex_m": [
+      0.5,
+      -0.009,
+      0.82
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 0,
+   "head_any": 0,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 8.881784197001252e-16,
+    "quat": 4.440892098500626e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1421",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 21.06,
+     "frames": 1053,
+     "head_hands": 0,
+     "hands": 9,
+     "head_any": 0,
+     "strikes": 10
+    }
+   ],
+   "info": {
+    "frames_clean": 3688,
+    "clean": {
+     "frames_in": 3688,
+     "frames_out": 3688,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      6,
+      49
+     ],
+     [
+      140,
+      186
+     ],
+     [
+      218,
+      315
+     ],
+     [
+      237,
+      295
+     ],
+     [
+      372,
+      391
+     ],
+     [
+      447,
+      473
+     ],
+     [
+      506,
+      549
+     ],
+     [
+      618,
+      675
+     ],
+     [
+      620,
+      640
+     ],
+     [
+      787,
+      851
+     ],
+     [
+      891,
+      917
+     ],
+     [
+      933,
+      954
+     ],
+     [
+      1008,
+      1068
+     ],
+     [
+      1099,
+      1155
+     ],
+     [
+      1188,
+      1234
+     ],
+     [
+      1260,
+      1315
+     ],
+     [
+      1364,
+      1466
+     ],
+     [
+      1386,
+      1440
+     ],
+     [
+      1591,
+      1631
+     ],
+     [
+      1672,
+      1792
+     ],
+     [
+      1704,
+      1732
+     ],
+     [
+      1890,
+      1986
+     ],
+     [
+      2008,
+      2038
+     ],
+     [
+      2046,
+      2090
+     ],
+     [
+      2173,
+      2198
+     ],
+     [
+      2178,
+      2271
+     ],
+     [
+      2246,
+      2276
+     ],
+     [
+      2419,
+      2495
+     ],
+     [
+      2520,
+      2562
+     ],
+     [
+      2631,
+      2888
+     ],
+     [
+      2758,
+      2861
+     ],
+     [
+      2910,
+      3033
+     ],
+     [
+      2979,
+      3136
+     ],
+     [
+      3081,
+      3155
+     ],
+     [
+      3214,
+      3326
+     ],
+     [
+      3216,
+      3548
+     ],
+     [
+      3577,
+      3645
+     ],
+     [
+      3609,
+      3637
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 0,
+     "apex": 9,
+     "apex_m": [
+      0.415,
+      0.317,
+      0.926
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 1,
+     "apex": 20,
+     "apex_m": [
+      0.41,
+      -0.155,
+      0.711
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 136,
+     "apex": 144,
+     "apex_m": [
+      0.381,
+      -0.272,
+      0.956
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 426,
+     "apex": 433,
+     "apex_m": [
+      0.575,
+      0.145,
+      0.701
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 426,
+     "apex": 432,
+     "apex_m": [
+      0.498,
+      -0.1,
+      0.828
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "torso",
+     "onset": 560,
+     "apex": 568,
+     "apex_m": [
+      0.451,
+      -0.179,
+      0.947
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 599,
+     "apex": 619,
+     "apex_m": [
+      0.446,
+      -0.28,
+      0.872
+     ]
+    },
+    {
+     "limb": "l_foot",
+     "type": "uppercut",
+     "band": "low",
+     "onset": 610,
+     "apex": 625,
+     "apex_m": [
+      0.52,
+      0.096,
+      0.303
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 1027,
+     "apex": 1034,
+     "apex_m": [
+      0.35,
+      0.371,
+      0.827
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "torso",
+     "onset": 1027,
+     "apex": 1034,
+     "apex_m": [
+      0.365,
+      -0.347,
+      0.847
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 0,
+   "head_any": 0,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 8.881784197001252e-16,
+    "quat": 5.551115123125783e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1422",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 11.72,
+     "frames": 586,
+     "head_hands": 0,
+     "hands": 1,
+     "head_any": 0,
+     "strikes": 1
+    }
+   ],
+   "info": {
+    "frames_clean": 3047,
+    "clean": {
+     "frames_in": 3047,
+     "frames_out": 3047,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      2,
+      375
+     ],
+     [
+      389,
+      572
+     ],
+     [
+      400,
+      485
+     ],
+     [
+      595,
+      665
+     ],
+     [
+      721,
+      761
+     ],
+     [
+      770,
+      901
+     ],
+     [
+      964,
+      1101
+     ],
+     [
+      1112,
+      1186
+     ],
+     [
+      1246,
+      1385
+     ],
+     [
+      1253,
+      1304
+     ],
+     [
+      1340,
+      1378
+     ],
+     [
+      1405,
+      1471
+     ],
+     [
+      1457,
+      1486
+     ],
+     [
+      1514,
+      1867
+     ],
+     [
+      1536,
+      1589
+     ],
+     [
+      1627,
+      1796
+     ],
+     [
+      1964,
+      2028
+     ],
+     [
+      2070,
+      2114
+     ],
+     [
+      2122,
+      2164
+     ],
+     [
+      2123,
+      2150
+     ],
+     [
+      2200,
+      2310
+     ],
+     [
+      2439,
+      2586
+     ],
+     [
+      2723,
+      2871
+     ],
+     [
+      2959,
+      3013
+     ],
+     [
+      2967,
+      2997
+     ],
+     [
+      3007,
+      3045
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "low",
+     "onset": 42,
+     "apex": 54,
+     "apex_m": [
+      0.467,
+      -0.03,
+      0.763
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 0,
+   "head_any": 0,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 4.440892098500626e-16,
+    "quat": 4.440892098500626e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1423",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 23.72,
+     "frames": 1186,
+     "head_hands": 2,
+     "hands": 9,
+     "head_any": 2,
+     "strikes": 10,
+     "fell": [
+      8.6,
+      5.7,
+      4.74,
+      6.5,
+      5.48,
+      4.42,
+      3.58,
+      2.56,
+      1.54,
+      0.48,
+      8.5,
+      3.3,
+      5.4,
+      5.34,
+      3.32,
+      3.32,
+      2.28,
+      1.56,
+      3.1,
+      2.1,
+      0.64,
+      0.64,
+      null,
+      7.54
+     ],
+     "stay_up": 0.041666666666666664
+    },
+    {
+     "cuts": [
+      [
+       1675,
+       1791
+      ]
+     ],
+     "kept_s": 23.46,
+     "frames": 1173,
+     "head_hands": 2,
+     "hands": 9,
+     "head_any": 2,
+     "strikes": 10,
+     "fell": [
+      8.36,
+      3.66,
+      6.44,
+      5.14,
+      2.68,
+      5.42,
+      null,
+      7.66,
+      null,
+      8.16,
+      7.14,
+      6.2,
+      6.32,
+      5.54,
+      4.38,
+      2.44,
+      2.26,
+      3.78,
+      5.14,
+      2.16,
+      0.66,
+      0.72,
+      null,
+      null
+     ],
+     "stay_up": 0.16666666666666666
+    },
+    {
+     "cuts": [
+      [
+       1675,
+       1791
+      ],
+      [
+       2527,
+       2582
+      ]
+     ],
+     "kept_s": 22.06,
+     "frames": 1103,
+     "head_hands": 2,
+     "hands": 9,
+     "head_any": 2,
+     "strikes": 10,
+     "fell": [
+      8.36,
+      3.08,
+      3.42,
+      6.08,
+      5.8,
+      4.86,
+      2.66,
+      8.94,
+      null,
+      null,
+      null,
+      9.1,
+      8.2,
+      7.52,
+      6.56,
+      5.64,
+      4.0,
+      3.54,
+      2.94,
+      1.6,
+      3.38,
+      0.62,
+      8.34,
+      8.8
+     ],
+     "stay_up": 0.125
+    },
+    {
+     "cuts": [
+      [
+       1675,
+       1791
+      ],
+      [
+       2527,
+       2582
+      ],
+      [
+       2993,
+       3156
+      ]
+     ],
+     "kept_s": 21.14,
+     "frames": 1057,
+     "head_hands": 2,
+     "hands": 9,
+     "head_any": 2,
+     "strikes": 10,
+     "fell": [
+      8.6,
+      2.62,
+      null,
+      7.08,
+      3.3,
+      null,
+      3.34,
+      2.1,
+      null,
+      null,
+      null,
+      null,
+      8.18,
+      7.58,
+      6.86,
+      6.24,
+      5.1,
+      4.2,
+      5.04,
+      2.8,
+      1.7,
+      1.9,
+      8.32,
+      7.62
+     ],
+     "stay_up": 0.25
+    }
+   ],
+   "info": {
+    "frames_clean": 3517,
+    "clean": {
+     "frames_in": 3517,
+     "frames_out": 3517,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      2,
+      66
+     ],
+     [
+      23,
+      39
+     ],
+     [
+      122,
+      146
+     ],
+     [
+      133,
+      161
+     ],
+     [
+      251,
+      356
+     ],
+     [
+      297,
+      349
+     ],
+     [
+      380,
+      427
+     ],
+     [
+      509,
+      643
+     ],
+     [
+      525,
+      582
+     ],
+     [
+      671,
+      688
+     ],
+     [
+      821,
+      931
+     ],
+     [
+      833,
+      1241
+     ],
+     [
+      959,
+      1129
+     ],
+     [
+      1151,
+      1200
+     ],
+     [
+      1278,
+      1295
+     ],
+     [
+      1418,
+      1463
+     ],
+     [
+      1421,
+      1447
+     ],
+     [
+      1455,
+      1538
+     ],
+     [
+      1501,
+      1658
+     ],
+     [
+      1740,
+      1773
+     ],
+     [
+      1749,
+      1773
+     ],
+     [
+      1814,
+      1835
+     ],
+     [
+      1861,
+      1907
+     ],
+     [
+      1997,
+      2027
+     ],
+     [
+      2087,
+      2113
+     ],
+     [
+      2123,
+      2156
+     ],
+     [
+      2268,
+      2331
+     ],
+     [
+      2281,
+      2355
+     ],
+     [
+      2421,
+      2565
+     ],
+     [
+      2471,
+      2594
+     ],
+     [
+      2592,
+      2615
+     ],
+     [
+      2713,
+      2743
+     ],
+     [
+      2798,
+      2822
+     ],
+     [
+      2860,
+      2918
+     ],
+     [
+      2914,
+      2956
+     ],
+     [
+      3046,
+      3071
+     ],
+     [
+      3051,
+      3082
+     ],
+     [
+      3117,
+      3138
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "band": "head",
+     "onset": 1,
+     "apex": 8,
+     "apex_m": [
+      0.366,
+      0.121,
+      1.095
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "band": "torso",
+     "onset": 42,
+     "apex": 61,
+     "apex_m": [
+      0.507,
+      0.013,
+      0.957
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "low",
+     "onset": 280,
+     "apex": 284,
+     "apex_m": [
+      0.331,
+      -0.499,
+      0.71
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "band": "head",
+     "onset": 315,
+     "apex": 321,
+     "apex_m": [
+      0.335,
+      0.18,
+      1.1
+     ]
+    },
+    {
+     "limb": "l_foot",
+     "type": "straight",
+     "band": "low",
+     "onset": 444,
+     "apex": 452,
+     "apex_m": [
+      0.431,
+      0.22,
+      0.336
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 511,
+     "apex": 519,
+     "apex_m": [
+      0.46,
+      -0.132,
+      0.8
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 546,
+     "apex": 553,
+     "apex_m": [
+      0.468,
+      0.086,
+      0.906
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 667,
+     "apex": 677,
+     "apex_m": [
+      0.456,
+      0.03,
+      0.676
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 816,
+     "apex": 823,
+     "apex_m": [
+      0.345,
+      -0.132,
+      0.906
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 963,
+     "apex": 969,
+     "apex_m": [
+      0.474,
+      -0.12,
+      0.974
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": true,
+   "any_ok": true,
+   "stay_up": 0.25,
+   "stay_up_ok": false,
+   "head_hands": 2,
+   "head_any": 2,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 8.881784197001252e-16,
+    "quat": 4.440892098500626e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1707",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 3.74,
+     "frames": 187,
+     "head_hands": 2,
+     "hands": 4,
+     "head_any": 2,
+     "strikes": 4
+    }
+   ],
+   "info": {
+    "frames_clean": 259,
+    "clean": {
+     "frames_in": 357,
+     "frames_out": 259,
+     "repaired_frames": 0,
+     "cut_frames": 83,
+     "pieces": 2
+    },
+    "style_cuts": [
+     [
+      4,
+      34
+     ],
+     [
+      236,
+      257
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 4,
+     "apex": 14,
+     "apex_m": [
+      0.371,
+      -0.306,
+      1.045
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 27,
+     "apex": 38,
+     "apex_m": [
+      0.302,
+      -0.155,
+      1.073
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 28,
+     "apex": 31,
+     "apex_m": [
+      0.479,
+      0.04,
+      0.983
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "torso",
+     "onset": 127,
+     "apex": 143,
+     "apex_m": [
+      0.406,
+      0.179,
+      0.921
+     ]
+    }
+   ],
+   "kept_ok": false,
+   "hand_ok": true,
+   "any_ok": true,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 2,
+   "head_any": 2,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 4.440892098500626e-16,
+    "quat": 3.3306690738754696e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1714",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 5.44,
+     "frames": 272,
+     "head_hands": 1,
+     "hands": 5,
+     "head_any": 1,
+     "strikes": 6
+    }
+   ],
+   "info": {
+    "frames_clean": 287,
+    "clean": {
+     "frames_in": 388,
+     "frames_out": 287,
+     "repaired_frames": 0,
+     "cut_frames": 86,
+     "pieces": 2
+    },
+    "style_cuts": []
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 45,
+     "apex": 49,
+     "apex_m": [
+      0.394,
+      -0.153,
+      0.866
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "head",
+     "onset": 47,
+     "apex": 55,
+     "apex_m": [
+      0.389,
+      0.234,
+      1.09
+     ]
+    },
+    {
+     "limb": "r_foot",
+     "type": "uppercut",
+     "band": "low",
+     "onset": 167,
+     "apex": 180,
+     "apex_m": [
+      0.264,
+      -0.107,
+      0.405
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "band": "torso",
+     "onset": 191,
+     "apex": 198,
+     "apex_m": [
+      0.433,
+      0.131,
+      0.945
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "torso",
+     "onset": 192,
+     "apex": 209,
+     "apex_m": [
+      0.464,
+      0.172,
+      0.931
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 238,
+     "apex": 247,
+     "apex_m": [
+      0.527,
+      -0.008,
+      0.858
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 1,
+   "head_any": 1,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 2.7755575615628914e-16,
+    "quat": 5.551115123125783e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1717",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 1.68,
+     "frames": 84,
+     "head_hands": 1,
+     "hands": 3,
+     "head_any": 1,
+     "strikes": 3
+    }
+   ],
+   "info": {
+    "frames_clean": 212,
+    "clean": {
+     "frames_in": 212,
+     "frames_out": 212,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      6,
+      32
+     ],
+     [
+      14,
+      42
+     ],
+     [
+      103,
+      129
+     ],
+     [
+      182,
+      210
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "low",
+     "onset": 16,
+     "apex": 36,
+     "apex_m": [
+      0.49,
+      0.078,
+      0.682
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 31,
+     "apex": 49,
+     "apex_m": [
+      0.491,
+      0.48,
+      0.998
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "band": "head",
+     "onset": 47,
+     "apex": 53,
+     "apex_m": [
+      0.36,
+      -0.348,
+      1.086
+     ]
+    }
+   ],
+   "kept_ok": false,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 1,
+   "head_any": 1,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 6.661338147750939e-16,
+    "quat": 3.3306690738754696e-16
+   }
+  },
+  {
+   "ok": true,
+   "clip": "kfab_1719",
+   "rounds": [
+    {
+     "cuts": [],
+     "kept_s": 6.46,
+     "frames": 323,
+     "head_hands": 0,
+     "hands": 7,
+     "head_any": 0,
+     "strikes": 7
+    }
+   ],
+   "info": {
+    "frames_clean": 412,
+    "clean": {
+     "frames_in": 412,
+     "frames_out": 412,
+     "repaired_frames": 0,
+     "cut_frames": 0,
+     "pieces": 1
+    },
+    "style_cuts": [
+     [
+      6,
+      31
+     ],
+     [
+      202,
+      230
+     ]
+    ]
+   },
+   "strikes": [
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 1,
+     "apex": 11,
+     "apex_m": [
+      0.479,
+      -0.242,
+      0.974
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 39,
+     "apex": 47,
+     "apex_m": [
+      0.472,
+      0.081,
+      0.933
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 120,
+     "apex": 132,
+     "apex_m": [
+      0.297,
+      0.072,
+      0.973
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "low",
+     "onset": 167,
+     "apex": 173,
+     "apex_m": [
+      0.418,
+      -0.087,
+      0.726
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "band": "torso",
+     "onset": 189,
+     "apex": 193,
+     "apex_m": [
+      0.405,
+      0.007,
+      0.878
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "band": "torso",
+     "onset": 220,
+     "apex": 232,
+     "apex_m": [
+      0.337,
+      -0.364,
+      0.798
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "band": "low",
+     "onset": 247,
+     "apex": 267,
+     "apex_m": [
+      0.501,
+      0.191,
+      0.714
+     ]
+    }
+   ],
+   "kept_ok": true,
+   "hand_ok": false,
+   "any_ok": false,
+   "stay_up": null,
+   "stay_up_ok": false,
+   "head_hands": 0,
+   "head_any": 0,
+   "eligible_hand": false,
+   "eligible_any": false,
+   "fk_err": {
+    "bodies": 30,
+    "pos": 4.440892098500626e-16,
+    "quat": 3.3306690738754696e-16
+   }
+  }
+ ],
+ "aggregate": {
+  "clips": 33,
+  "errors": 0,
+  "measured": 4,
+  "eligible_hand": {
+   "eligible": 1,
+   "head_band_hand_strikes": 4,
+   "head_band_strikes": 4
+  },
+  "eligible_any": {
+   "eligible": 1,
+   "head_band_hand_strikes": 4,
+   "head_band_strikes": 4
+  },
+  "fails": {
+   "kept_ok": 9,
+   "hand_ok": 26,
+   "any_ok": 26,
+   "stay_up_ok": 32
+  },
+  "all_clips_first_round": {
+   "kept_s": 397.5,
+   "head_band_hand_strikes": 45,
+   "head_band_strikes": 45,
+   "clips_kept_ok": 26
+  }
+ }
+}

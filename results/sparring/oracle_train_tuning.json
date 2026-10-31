@@ -1,0 +1,2684 @@
+{
+ "meta": {
+  "script": "scripts/defence_oracle.py --stage tune",
+  "policy": "RL guard_fw=results/policy_mjlab_guard_footwork/policy.onnx",
+  "split": "train",
+  "clips": [
+   "kfab_200",
+   "kfab_201",
+   "kfab_203"
+  ],
+  "tier": "hard",
+  "pushes": false,
+  "reps": 4,
+  "seconds": 20.0,
+  "episodes": 48,
+  "opponent_aim": "standoff+armwarp_vz",
+  "strike_lag_s": 0.02,
+  "episodes_from": "scripts/eval_opponent.py episodes() on TRAIN_CLIPS (hard tier, no scripted hits)",
+  "pre_grid_smoke": "before the grid: one 12-bout train run (reps 1) of lead 0.25 with over 0 and over 1.0, a code smoke; it set the over-command values (see GRID)",
+  "oracle_v1": {
+   "delay_steps": 2,
+   "pre_s": 0.1,
+   "tail_s": 0.15,
+   "near_m": 0.6,
+   "v_close": 1.0,
+   "block_frac": 0.5,
+   "block_m": [
+    0.2,
+    0.3
+   ],
+   "iters": 12,
+   "damp": 0.001,
+   "prior": 0.003,
+   "max_dq": 1.0,
+   "range_frac": 0.95,
+   "slip_roll": 0.3,
+   "dip": 0.15,
+   "slip_rate": 4.0
+  },
+  "oracle_v2_defaults": {
+   "lead_s": 0.25,
+   "over": 0.0,
+   "block_d": 0.15,
+   "tail_s": 0.15,
+   "release_s": 0.1,
+   "zones": [
+    "head"
+   ],
+   "gated": true,
+   "max_dq": 1.2
+  },
+  "grid": {
+   "lead15_over0": {
+    "lead_s": 0.15,
+    "over": 0.0
+   },
+   "lead15_over25": {
+    "lead_s": 0.15,
+    "over": 0.25
+   },
+   "lead15_over50": {
+    "lead_s": 0.15,
+    "over": 0.5
+   },
+   "lead25_over0": {
+    "lead_s": 0.25,
+    "over": 0.0
+   },
+   "lead25_over25": {
+    "lead_s": 0.25,
+    "over": 0.25
+   },
+   "lead25_over50": {
+    "lead_s": 0.25,
+    "over": 0.5
+   },
+   "lead40_over0": {
+    "lead_s": 0.4,
+    "over": 0.0
+   },
+   "lead40_over25": {
+    "lead_s": 0.4,
+    "over": 0.25
+   },
+   "lead40_over50": {
+    "lead_s": 0.4,
+    "over": 0.5
+   },
+   "lead25_over0_d10": {
+    "lead_s": 0.25,
+    "over": 0.0,
+    "block_d": 0.1
+   },
+   "lead25_over0_d22": {
+    "lead_s": 0.25,
+    "over": 0.0,
+    "block_d": 0.22
+   },
+   "lead25_over0_ungated": {
+    "lead_s": 0.25,
+    "over": 0.0,
+    "gated": false
+   }
+  },
+  "pick": {
+   "rule": "largest train reduction in head clean/min (paired diff / policy rate) among configs with train survival >= 0.90",
+   "min_survival": 0.9
+  },
+  "threads": 6,
+  "run_s": {
+   "policy": 66,
+   "lead15_over0": 84,
+   "lead15_over25": 64,
+   "lead15_over50": 57,
+   "lead25_over0": 63,
+   "lead25_over25": 72,
+   "lead25_over50": 59,
+   "lead40_over0": 59,
+   "lead40_over25": 57,
+   "lead40_over50": 54,
+   "lead25_over0_d10": 57,
+   "lead25_over0_d22": 60,
+   "lead25_over0_ungated": 59
+  },
+  "total_s": 814,
+  "why": "v2 (arm_block_v2) was designed after v1's preregistered gate failed (results/sparring/oracle_val.json 'v1': -6%, NO-GO) and its review (forearm a median 0.11 m from its block point, arm joints 0.27 rad off target); tuned here on train clips only, then run once on val",
+  "stats": "vs_policy: config minus unmodified policy on identical episodes, exposure-weighted, (clip, start) cluster bootstrap (eval_opponent.vs_unaimed)",
+  "git_hash": "67929c8a818eccacdcdfe83b8c1c340d28f20403",
+  "git_dirty": true,
+  "mujoco": "3.17.0",
+  "config_hash": "b1f3aaf98196155f",
+  "controller_config_hashes": {
+   "policy": "97169ddb5c465a9d",
+   "lead15_over0": "9ef5e15f79b12cda",
+   "lead15_over25": "87ea1022918b6fa4",
+   "lead15_over50": "173e372f2b8852c1",
+   "lead25_over0": "088590234fd52781",
+   "lead25_over25": "b209803ec1116be1",
+   "lead25_over50": "6528480ee5ed8673",
+   "lead40_over0": "b9dae0e735c34d36",
+   "lead40_over25": "4dbc66db339e04c3",
+   "lead40_over50": "25ced86446ad510f",
+   "lead25_over0_d10": "110a9e39abfee3cc",
+   "lead25_over0_d22": "370001e32f2c9a35",
+   "lead25_over0_ungated": "50aa0d7934c81c93"
+  },
+  "prereg_sha": "fd3bb895d18c27ef",
+  "prereg_rules_sha": "562834645ce51777",
+  "shell_solref": [
+   0.01,
+   1.0
+  ],
+  "opponent_caps": {
+   "policy": "mjlab",
+   "Nm": {
+    "left_hip_pitch": 60.0,
+    "left_hip_roll": 60.0,
+    "left_hip_yaw": 60.0,
+    "left_knee": 60.0,
+    "left_ankle_pitch": 50.0,
+    "left_ankle_roll": 50.0,
+    "right_hip_pitch": 60.0,
+    "right_hip_roll": 60.0,
+    "right_hip_yaw": 60.0,
+    "right_knee": 60.0,
+    "right_ankle_pitch": 50.0,
+    "right_ankle_roll": 50.0,
+    "waist_roll": 60.0,
+    "waist_yaw": 60.0,
+    "left_shoulder_pitch": 60.0,
+    "left_shoulder_roll": 60.0,
+    "left_shoulder_yaw": 33.0,
+    "left_elbow": 33.0,
+    "left_wrist_roll": 33.0,
+    "right_shoulder_pitch": 60.0,
+    "right_shoulder_roll": 60.0,
+    "right_shoulder_yaw": 33.0,
+    "right_elbow": 33.0,
+    "right_wrist_roll": 33.0
+   }
+  },
+  "hit_metric": {
+   "merge_gap_s": 0.1,
+   "min_impulse_Ns": 0.5,
+   "min_peak_N": 5,
+   "v_close_min": 1.0,
+   "max_strike_s": 0.15
+  }
+ },
+ "chosen": {
+  "name": "lead25_over0_d10",
+  "v2": {
+   "lead_s": 0.25,
+   "over": 0.0,
+   "block_d": 0.1,
+   "tail_s": 0.15,
+   "release_s": 0.1,
+   "zones": [
+    "head"
+   ],
+   "gated": true,
+   "max_dq": 1.2
+  },
+  "train_change_frac": -0.618,
+  "train_diff": {
+   "diff": -2.783,
+   "ci95": [
+    -4.128,
+    -1.674
+   ]
+  },
+  "train_survival": 0.979
+ },
+ "configs": {
+  "policy": {
+   "head_clean_pm": {
+    "rate": 4.5,
+    "ci95": [
+     3.261,
+     5.942
+    ],
+    "bout_mean": 4.5
+   },
+   "torso_clean_pm": {
+    "rate": 12.125,
+    "ci95": [
+     10.592,
+     13.75
+    ],
+    "bout_mean": 12.125
+   },
+   "head_landed_pm": {
+    "rate": 7.313,
+    "ci95": [
+     5.809,
+     9.062
+    ],
+    "bout_mean": 7.312
+   },
+   "head_impulse_pm": {
+    "rate": 20.902,
+    "ci95": [
+     16.048,
+     26.405
+    ],
+    "bout_mean": 20.902
+   },
+   "survival": 1.0,
+   "survival_ci95": [
+    0.926,
+    1.0
+   ],
+   "r1_fell": 0.0,
+   "opponent_fell": 0.042,
+   "intent_windows": {
+    "head": 34,
+    "torso": 191,
+    "blocked": 492,
+    "miss": 697,
+    "n": 1414,
+    "head_share": 0.024,
+    "gated_share": 0.524,
+    "closest_cm_median": 28.1
+   },
+   "windows": {
+    "head": 27,
+    "torso": 184,
+    "blocked": 439,
+    "miss": 852,
+    "blocked_share": 0.292
+   },
+   "oracle": {
+    "threat_share": 0.6729,
+    "applied_share": 0.0,
+    "edited_share": 0.0,
+    "threat_share_by_src": {
+     "head": 0.6076,
+     "torso": 0.0,
+     "near": 0.0653
+    },
+    "ik_res_median_m": null,
+    "head_clean_total": 72,
+    "head_clean_in_threat": 70,
+    "head_clean_in_threat_by_src": {
+     "head": 49,
+     "torso": 0,
+     "near": 21
+    },
+    "head_clean_in_applied": 0,
+    "head_clean_in_edited": 0,
+    "head_clean_kicks": 0,
+    "intents": {
+     "head": 1418,
+     "torso": 0,
+     "gated": 745
+    }
+   },
+   "placement": {
+    "at_head_clean_onset_m": {
+     "n": 72,
+     "median": 0.2145,
+     "p90": 0.2516,
+     "within_0p07m": 0.0
+    },
+    "at_intent_apex_m": {
+     "n": 1417,
+     "median": 0.1325,
+     "p90": 0.2408,
+     "within_0p07m": 0.179
+    },
+    "v2_point_to_guard_m_at_apex": {
+     "n": 0
+    },
+    "v2_guard_joint_err_rad_at_apex": {
+     "n": 0
+    },
+    "v2_plan_ik_res_m": {
+     "n": 0
+    },
+    "servo_err_rad_edited_steps": {
+     "n": 0
+    },
+    "servo_err_rad_other_steps": {
+     "n": 96000,
+     "median": 0.0612,
+     "p90": 0.1023
+    },
+    "defs": "forearm = segment R1 elbow link origin -> wrist shell centre (nearer arm); incoming = striking palm -> R1 head centre; state at the last control step start before the onset / at the apex; within_0p07m: share with centre lines closer than 0.07 m (capsule radii); joint errors RMS over shoulder pitch / roll / yaw and elbow; servo error = angle - target in d.ctrl"
+   }
+  },
+  "lead15_over0": {
+   "head_clean_pm": {
+    "rate": 2.688,
+    "ci95": [
+     1.733,
+     3.735
+    ],
+    "bout_mean": 2.688
+   },
+   "torso_clean_pm": {
+    "rate": 11.375,
+    "ci95": [
+     9.456,
+     13.37
+    ],
+    "bout_mean": 11.375
+   },
+   "head_landed_pm": {
+    "rate": 5.438,
+    "ci95": [
+     4.149,
+     6.673
+    ],
+    "bout_mean": 5.438
+   },
+   "head_impulse_pm": {
+    "rate": 15.615,
+    "ci95": [
+     11.103,
+     20.459
+    ],
+    "bout_mean": 15.615
+   },
+   "survival": 1.0,
+   "survival_ci95": [
+    0.926,
+    1.0
+   ],
+   "r1_fell": 0.0,
+   "opponent_fell": 0.083,
+   "intent_windows": {
+    "head": 20,
+    "torso": 215,
+    "blocked": 432,
+    "miss": 747,
+    "n": 1414,
+    "head_share": 0.014,
+    "gated_share": 0.528,
+    "closest_cm_median": 28.4
+   },
+   "windows": {
+    "head": 16,
+    "torso": 201,
+    "blocked": 371,
+    "miss": 914,
+    "blocked_share": 0.247
+   },
+   "oracle": {
+    "threat_share": 0.7342,
+    "applied_share": 0.7329,
+    "edited_share": 0.7329,
+    "threat_share_by_src": {
+     "head": 0.0,
+     "torso": 0.0,
+     "near": 0.0
+    },
+    "ik_res_median_m": null,
+    "head_clean_total": 43,
+    "head_clean_in_threat": 35,
+    "head_clean_in_threat_by_src": {
+     "head": 0,
+     "torso": 0,
+     "near": 0
+    },
+    "head_clean_in_applied": 35,
+    "head_clean_in_edited": 35,
+    "head_clean_kicks": 0,
+    "intents": {
+     "head": 1418,
+     "torso": 0,
+     "gated": 748
+    }
+   },
+   "placement": {
+    "at_head_clean_onset_m": {
+     "n": 43,
+     "median": 0.1393,
+     "p90": 0.2063,
+     "within_0p07m": 0.07
+    },
+    "at_intent_apex_m": {
+     "n": 1417,
+     "median": 0.0965,
+     "p90": 0.1423,
+     "within_0p07m": 0.293
+    },
+    "v2_point_to_guard_m_at_apex": {
+     "n": 1417,
+     "median": 0.0338,
+     "p90": 0.099,
+     "within_0p07m": 0.827
+    },
+    "v2_guard_joint_err_rad_at_apex": {
+     "n": 1417,
+     "median": 0.051,
+     "p90": 0.0787
+    },
+    "v2_plan_ik_res_m": {
+     "n": 1445,
+     "median": 0.0217,
+     "p90": 0.1024
+    },
+    "servo_err_rad_edited_steps": {
+     "n": 36504,
+     "median": 0.0551,
+     "p90": 0.1431
+    },
+    "servo_err_rad_other_steps": {
+     "n": 59496,
+     "median": 0.0633,
+     "p90": 0.107
+    },
+    "defs": "forearm = segment R1 elbow link origin -> wrist shell centre (nearer arm); incoming = striking palm -> R1 head centre; state at the last control step start before the onset / at the apex; within_0p07m: share with centre lines closer than 0.07 m (capsule radii); joint errors RMS over shoulder pitch / roll / yaw and elbow; servo error = angle - target in d.ctrl"
+   },
+   "v2": {
+    "lead_s": 0.15,
+    "over": 0.0,
+    "block_d": 0.15,
+    "tail_s": 0.15,
+    "release_s": 0.1,
+    "zones": [
+     "head"
+    ],
+    "gated": true,
+    "max_dq": 1.2
+   },
+   "vs_policy": {
+    "survival": {
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "opponent_fell": {
+     "diff": 0.042,
+     "ci95": [
+      -0.062,
+      0.14
+     ]
+    },
+    "head_clean_pm": {
+     "diff": -1.813,
+     "ci95": [
+      -3.267,
+      -0.54
+     ]
+    },
+    "head_landed_pm": {
+     "diff": -1.875,
+     "ci95": [
+      -3.667,
+      -0.226
+     ]
+    },
+    "head_impulse_pm": {
+     "diff": -5.288,
+     "ci95": [
+      -11.864,
+      1.294
+     ]
+    },
+    "torso_clean_pm": {
+     "diff": -0.75,
+     "ci95": [
+      -3.0,
+      1.56
+     ]
+    },
+    "torso_landed_pm": {
+     "diff": -1.062,
+     "ci95": [
+      -4.533,
+      2.609
+     ]
+    },
+    "intent_window_head_share": {
+     "diff": -0.01,
+     "ci95": [
+      -0.02,
+      -0.001
+     ]
+    }
+   },
+   "head_clean_change_frac": -0.403
+  },
+  "lead15_over25": {
+   "head_clean_pm": {
+    "rate": 2.717,
+    "ci95": [
+     1.837,
+     3.626
+    ],
+    "bout_mean": 2.688
+   },
+   "torso_clean_pm": {
+    "rate": 11.501,
+    "ci95": [
+     9.975,
+     13.169
+    ],
+    "bout_mean": 11.444
+   },
+   "head_landed_pm": {
+    "rate": 6.003,
+    "ci95": [
+     4.648,
+     7.365
+    ],
+    "bout_mean": 5.938
+   },
+   "head_impulse_pm": {
+    "rate": 17.249,
+    "ci95": [
+     12.714,
+     22.518
+    ],
+    "bout_mean": 17.06
+   },
+   "survival": 0.979,
+   "survival_ci95": [
+    0.891,
+    0.996
+   ],
+   "r1_fell": 0.021,
+   "opponent_fell": 0.188,
+   "intent_windows": {
+    "head": 19,
+    "torso": 190,
+    "blocked": 387,
+    "miss": 801,
+    "n": 1397,
+    "head_share": 0.014,
+    "gated_share": 0.543,
+    "closest_cm_median": 29.5
+   },
+   "windows": {
+    "head": 19,
+    "torso": 175,
+    "blocked": 339,
+    "miss": 952,
+    "blocked_share": 0.228
+   },
+   "oracle": {
+    "threat_share": 0.7339,
+    "applied_share": 0.7325,
+    "edited_share": 0.7325,
+    "threat_share_by_src": {
+     "head": 0.0,
+     "torso": 0.0,
+     "near": 0.0
+    },
+    "ik_res_median_m": null,
+    "head_clean_total": 43,
+    "head_clean_in_threat": 35,
+    "head_clean_in_threat_by_src": {
+     "head": 0,
+     "torso": 0,
+     "near": 0
+    },
+    "head_clean_in_applied": 35,
+    "head_clean_in_edited": 35,
+    "head_clean_kicks": 0,
+    "intents": {
+     "head": 1401,
+     "torso": 0,
+     "gated": 761
+    }
+   },
+   "placement": {
+    "at_head_clean_onset_m": {
+     "n": 43,
+     "median": 0.1193,
+     "p90": 0.2425,
+     "within_0p07m": 0.07
+    },
+    "at_intent_apex_m": {
+     "n": 1400,
+     "median": 0.0853,
+     "p90": 0.1275,
+     "within_0p07m": 0.37
+    },
+    "v2_point_to_guard_m_at_apex": {
+     "n": 1400,
+     "median": 0.021,
+     "p90": 0.0909,
+     "within_0p07m": 0.843
+    },
+    "v2_guard_joint_err_rad_at_apex": {
+     "n": 1400,
+     "median": 0.0701,
+     "p90": 0.1362
+    },
+    "v2_plan_ik_res_m": {
+     "n": 1428,
+     "median": 0.0225,
+     "p90": 0.1031
+    },
+    "servo_err_rad_edited_steps": {
+     "n": 35938,
+     "median": 0.0552,
+     "p90": 0.1646
+    },
+    "servo_err_rad_other_steps": {
+     "n": 59010,
+     "median": 0.0648,
+     "p90": 0.1117
+    },
+    "defs": "forearm = segment R1 elbow link origin -> wrist shell centre (nearer arm); incoming = striking palm -> R1 head centre; state at the last control step start before the onset / at the apex; within_0p07m: share with centre lines closer than 0.07 m (capsule radii); joint errors RMS over shoulder pitch / roll / yaw and elbow; servo error = angle - target in d.ctrl"
+   },
+   "v2": {
+    "lead_s": 0.15,
+    "over": 0.25,
+    "block_d": 0.15,
+    "tail_s": 0.15,
+    "release_s": 0.1,
+    "zones": [
+     "head"
+    ],
+    "gated": true,
+    "max_dq": 1.2
+   },
+   "vs_policy": {
+    "survival": {
+     "diff": -0.021,
+     "ci95": [
+      -0.065,
+      0.0
+     ]
+    },
+    "opponent_fell": {
+     "diff": 0.146,
+     "ci95": [
+      0.021,
+      0.275
+     ]
+    },
+    "head_clean_pm": {
+     "diff": -1.783,
+     "ci95": [
+      -3.574,
+      -0.277
+     ]
+    },
+    "head_landed_pm": {
+     "diff": -1.309,
+     "ci95": [
+      -3.261,
+      0.469
+     ]
+    },
+    "head_impulse_pm": {
+     "diff": -3.653,
+     "ci95": [
+      -10.681,
+      3.063
+     ]
+    },
+    "torso_clean_pm": {
+     "diff": -0.624,
+     "ci95": [
+      -2.728,
+      1.532
+     ]
+    },
+    "torso_landed_pm": {
+     "diff": -3.315,
+     "ci95": [
+      -7.616,
+      0.75
+     ]
+    },
+    "intent_window_head_share": {
+     "diff": -0.01,
+     "ci95": [
+      -0.022,
+      0.0
+     ]
+    }
+   },
+   "head_clean_change_frac": -0.396
+  },
+  "lead15_over50": {
+   "head_clean_pm": {
+    "rate": 2.593,
+    "ci95": [
+     1.755,
+     3.415
+    ],
+    "bout_mean": 2.504
+   },
+   "torso_clean_pm": {
+    "rate": 10.242,
+    "ci95": [
+     8.538,
+     12.119
+    ],
+    "bout_mean": 9.905
+   },
+   "head_landed_pm": {
+    "rate": 5.381,
+    "ci95": [
+     3.993,
+     6.824
+    ],
+    "bout_mean": 5.196
+   },
+   "head_impulse_pm": {
+    "rate": 14.893,
+    "ci95": [
+     10.66,
+     19.375
+    ],
+    "bout_mean": 14.38
+   },
+   "survival": 0.917,
+   "survival_ci95": [
+    0.804,
+    0.967
+   ],
+   "r1_fell": 0.083,
+   "opponent_fell": 0.188,
+   "intent_windows": {
+    "head": 17,
+    "torso": 178,
+    "blocked": 364,
+    "miss": 799,
+    "n": 1358,
+    "head_share": 0.013,
+    "gated_share": 0.537,
+    "closest_cm_median": 29.7
+   },
+   "windows": {
+    "head": 11,
+    "torso": 174,
+    "blocked": 311,
+    "miss": 949,
+    "blocked_share": 0.215
+   },
+   "oracle": {
+    "threat_share": 0.7344,
+    "applied_share": 0.7329,
+    "edited_share": 0.7329,
+    "threat_share_by_src": {
+     "head": 0.0,
+     "torso": 0.0,
+     "near": 0.0
+    },
+    "ik_res_median_m": null,
+    "head_clean_total": 40,
+    "head_clean_in_threat": 36,
+    "head_clean_in_threat_by_src": {
+     "head": 0,
+     "torso": 0,
+     "near": 0
+    },
+    "head_clean_in_applied": 36,
+    "head_clean_in_edited": 36,
+    "head_clean_kicks": 0,
+    "intents": {
+     "head": 1363,
+     "torso": 0,
+     "gated": 733
+    }
+   },
+   "placement": {
+    "at_head_clean_onset_m": {
+     "n": 40,
+     "median": 0.1089,
+     "p90": 0.1883,
+     "within_0p07m": 0.05
+    },
+    "at_intent_apex_m": {
+     "n": 1362,
+     "median": 0.0734,
+     "p90": 0.1153,
+     "within_0p07m": 0.468
+    },
+    "v2_point_to_guard_m_at_apex": {
+     "n": 1362,
+     "median": 0.0333,
+     "p90": 0.0724,
+     "within_0p07m": 0.883
+    },
+    "v2_guard_joint_err_rad_at_apex": {
+     "n": 1362,
+     "median": 0.1312,
+     "p90": 0.2664
+    },
+    "v2_plan_ik_res_m": {
+     "n": 1388,
+     "median": 0.0214,
+     "p90": 0.0891
+    },
+    "servo_err_rad_edited_steps": {
+     "n": 34931,
+     "median": 0.0573,
+     "p90": 0.1925
+    },
+    "servo_err_rad_other_steps": {
+     "n": 57625,
+     "median": 0.0653,
+     "p90": 0.114
+    },
+    "defs": "forearm = segment R1 elbow link origin -> wrist shell centre (nearer arm); incoming = striking palm -> R1 head centre; state at the last control step start before the onset / at the apex; within_0p07m: share with centre lines closer than 0.07 m (capsule radii); joint errors RMS over shoulder pitch / roll / yaw and elbow; servo error = angle - target in d.ctrl"
+   },
+   "v2": {
+    "lead_s": 0.15,
+    "over": 0.5,
+    "block_d": 0.15,
+    "tail_s": 0.15,
+    "release_s": 0.1,
+    "zones": [
+     "head"
+    ],
+    "gated": true,
+    "max_dq": 1.2
+   },
+   "vs_policy": {
+    "survival": {
+     "diff": -0.083,
+     "ci95": [
+      -0.17,
+      -0.02
+     ]
+    },
+    "opponent_fell": {
+     "diff": 0.146,
+     "ci95": [
+      0.02,
+      0.28
+     ]
+    },
+    "head_clean_pm": {
+     "diff": -1.907,
+     "ci95": [
+      -3.566,
+      -0.541
+     ]
+    },
+    "head_landed_pm": {
+     "diff": -1.932,
+     "ci95": [
+      -3.996,
+      -0.128
+     ]
+    },
+    "head_impulse_pm": {
+     "diff": -6.01,
+     "ci95": [
+      -12.271,
+      0.057
+     ]
+    },
+    "torso_clean_pm": {
+     "diff": -1.883,
+     "ci95": [
+      -3.988,
+      0.411
+     ]
+    },
+    "torso_landed_pm": {
+     "diff": -3.085,
+     "ci95": [
+      -7.881,
+      1.643
+     ]
+    },
+    "intent_window_head_share": {
+     "diff": -0.012,
+     "ci95": [
+      -0.021,
+      -0.002
+     ]
+    }
+   },
+   "head_clean_change_frac": -0.424
+  },
+  "lead25_over0": {
+   "head_clean_pm": {
+    "rate": 2.737,
+    "ci95": [
+     1.903,
+     3.656
+    ],
+    "bout_mean": 2.688
+   },
+   "torso_clean_pm": {
+    "rate": 11.012,
+    "ci95": [
+     9.112,
+     13.102
+    ],
+    "bout_mean": 11.223
+   },
+   "head_landed_pm": {
+    "rate": 6.047,
+    "ci95": [
+     4.827,
+     7.327
+    ],
+    "bout_mean": 5.938
+   },
+   "head_impulse_pm": {
+    "rate": 17.21,
+    "ci95": [
+     12.054,
+     23.991
+    ],
+    "bout_mean": 16.899
+   },
+   "survival": 0.979,
+   "survival_ci95": [
+    0.891,
+    0.996
+   ],
+   "r1_fell": 0.021,
+   "opponent_fell": 0.083,
+   "intent_windows": {
+    "head": 19,
+    "torso": 198,
+    "blocked": 401,
+    "miss": 767,
+    "n": 1385,
+    "head_share": 0.014,
+    "gated_share": 0.523,
+    "closest_cm_median": 29.2
+   },
+   "windows": {
+    "head": 16,
+    "torso": 178,
+    "blocked": 334,
+    "miss": 942,
+    "blocked_share": 0.227
+   },
+   "oracle": {
+    "threat_share": 0.7897,
+    "applied_share": 0.7878,
+    "edited_share": 0.7878,
+    "threat_share_by_src": {
+     "head": 0.0,
+     "torso": 0.0,
+     "near": 0.0
+    },
+    "ik_res_median_m": null,
+    "head_clean_total": 43,
+    "head_clean_in_threat": 37,
+    "head_clean_in_threat_by_src": {
+     "head": 0,
+     "torso": 0,
+     "near": 0
+    },
+    "head_clean_in_applied": 36,
+    "head_clean_in_edited": 36,
+    "head_clean_kicks": 0,
+    "intents": {
+     "head": 1389,
+     "torso": 0,
+     "gated": 726
+    }
+   },
+   "placement": {
+    "at_head_clean_onset_m": {
+     "n": 43,
+     "median": 0.1374,
+     "p90": 0.21,
+     "within_0p07m": 0.023
+    },
+    "at_intent_apex_m": {
+     "n": 1388,
+     "median": 0.0965,
+     "p90": 0.145,
+     "within_0p07m": 0.308
+    },
+    "v2_point_to_guard_m_at_apex": {
+     "n": 1388,
+     "median": 0.0342,
+     "p90": 0.0888,
+     "within_0p07m": 0.844
+    },
+    "v2_guard_joint_err_rad_at_apex": {
+     "n": 1388,
+     "median": 0.0529,
+     "p90": 0.0804
+    },
+    "v2_plan_ik_res_m": {
+     "n": 1424,
+     "median": 0.0214,
+     "p90": 0.0907
+    },
+    "servo_err_rad_edited_steps": {
+     "n": 39213,
+     "median": 0.0547,
+     "p90": 0.1366
+    },
+    "servo_err_rad_other_steps": {
+     "n": 55051,
+     "median": 0.0636,
+     "p90": 0.1086
+    },
+    "defs": "forearm = segment R1 elbow link origin -> wrist shell centre (nearer arm); incoming = striking palm -> R1 head centre; state at the last control step start before the onset / at the apex; within_0p07m: share with centre lines closer than 0.07 m (capsule radii); joint errors RMS over shoulder pitch / roll / yaw and elbow; servo error = angle - target in d.ctrl"
+   },
+   "v2": {
+    "lead_s": 0.25,
+    "over": 0.0,
+    "block_d": 0.15,
+    "tail_s": 0.15,
+    "release_s": 0.1,
+    "zones": [
+     "head"
+    ],
+    "gated": true,
+    "max_dq": 1.2
+   },
+   "vs_policy": {
+    "survival": {
+     "diff": -0.021,
+     "ci95": [
+      -0.065,
+      0.0
+     ]
+    },
+    "opponent_fell": {
+     "diff": 0.042,
+     "ci95": [
+      -0.06,
+      0.146
+     ]
+    },
+    "head_clean_pm": {
+     "diff": -1.763,
+     "ci95": [
+      -3.441,
+      -0.375
+     ]
+    },
+    "head_landed_pm": {
+     "diff": -1.266,
+     "ci95": [
+      -3.341,
+      0.552
+     ]
+    },
+    "head_impulse_pm": {
+     "diff": -3.692,
+     "ci95": [
+      -12.058,
+      5.11
+     ]
+    },
+    "torso_clean_pm": {
+     "diff": -1.113,
+     "ci95": [
+      -3.575,
+      1.408
+     ]
+    },
+    "torso_landed_pm": {
+     "diff": -0.904,
+     "ci95": [
+      -5.222,
+      3.389
+     ]
+    },
+    "intent_window_head_share": {
+     "diff": -0.01,
+     "ci95": [
+      -0.023,
+      0.001
+     ]
+    }
+   },
+   "head_clean_change_frac": -0.392
+  },
+  "lead25_over25": {
+   "head_clean_pm": {
+    "rate": 2.227,
+    "ci95": [
+     1.384,
+     3.182
+    ],
+    "bout_mean": 2.255
+   },
+   "torso_clean_pm": {
+    "rate": 11.962,
+    "ci95": [
+     10.149,
+     13.84
+    ],
+    "bout_mean": 11.966
+   },
+   "head_landed_pm": {
+    "rate": 5.09,
+    "ci95": [
+     3.95,
+     6.263
+    ],
+    "bout_mean": 5.215
+   },
+   "head_impulse_pm": {
+    "rate": 15.656,
+    "ci95": [
+     11.704,
+     19.968
+    ],
+    "bout_mean": 16.134
+   },
+   "survival": 0.917,
+   "survival_ci95": [
+    0.804,
+    0.967
+   ],
+   "r1_fell": 0.083,
+   "opponent_fell": 0.083,
+   "intent_windows": {
+    "head": 9,
+    "torso": 189,
+    "blocked": 430,
+    "miss": 759,
+    "n": 1387,
+    "head_share": 0.006,
+    "gated_share": 0.507,
+    "closest_cm_median": 28.4
+   },
+   "windows": {
+    "head": 9,
+    "torso": 175,
+    "blocked": 375,
+    "miss": 914,
+    "blocked_share": 0.255
+   },
+   "oracle": {
+    "threat_share": 0.7911,
+    "applied_share": 0.7896,
+    "edited_share": 0.7896,
+    "threat_share_by_src": {
+     "head": 0.0,
+     "torso": 0.0,
+     "near": 0.0
+    },
+    "ik_res_median_m": null,
+    "head_clean_total": 35,
+    "head_clean_in_threat": 33,
+    "head_clean_in_threat_by_src": {
+     "head": 0,
+     "torso": 0,
+     "near": 0
+    },
+    "head_clean_in_applied": 33,
+    "head_clean_in_edited": 33,
+    "head_clean_kicks": 0,
+    "intents": {
+     "head": 1392,
+     "torso": 0,
+     "gated": 708
+    }
+   },
+   "placement": {
+    "at_head_clean_onset_m": {
+     "n": 35,
+     "median": 0.1051,
+     "p90": 0.1379,
+     "within_0p07m": 0.029
+    },
+    "at_intent_apex_m": {
+     "n": 1391,
+     "median": 0.089,
+     "p90": 0.1296,
+     "within_0p07m": 0.332
+    },
+    "v2_point_to_guard_m_at_apex": {
+     "n": 1391,
+     "median": 0.019,
+     "p90": 0.0614,
+     "within_0p07m": 0.923
+    },
+    "v2_guard_joint_err_rad_at_apex": {
+     "n": 1391,
+     "median": 0.0658,
+     "p90": 0.1179
+    },
+    "v2_plan_ik_res_m": {
+     "n": 1425,
+     "median": 0.0195,
+     "p90": 0.0658
+    },
+    "servo_err_rad_edited_steps": {
+     "n": 39180,
+     "median": 0.055,
+     "p90": 0.1544
+    },
+    "servo_err_rad_other_steps": {
+     "n": 55118,
+     "median": 0.065,
+     "p90": 0.1138
+    },
+    "defs": "forearm = segment R1 elbow link origin -> wrist shell centre (nearer arm); incoming = striking palm -> R1 head centre; state at the last control step start before the onset / at the apex; within_0p07m: share with centre lines closer than 0.07 m (capsule radii); joint errors RMS over shoulder pitch / roll / yaw and elbow; servo error = angle - target in d.ctrl"
+   },
+   "v2": {
+    "lead_s": 0.25,
+    "over": 0.25,
+    "block_d": 0.15,
+    "tail_s": 0.15,
+    "release_s": 0.1,
+    "zones": [
+     "head"
+    ],
+    "gated": true,
+    "max_dq": 1.2
+   },
+   "vs_policy": {
+    "survival": {
+     "diff": -0.083,
+     "ci95": [
+      -0.167,
+      -0.02
+     ]
+    },
+    "opponent_fell": {
+     "diff": 0.042,
+     "ci95": [
+      -0.062,
+      0.14
+     ]
+    },
+    "head_clean_pm": {
+     "diff": -2.273,
+     "ci95": [
+      -3.778,
+      -1.008
+     ]
+    },
+    "head_landed_pm": {
+     "diff": -2.222,
+     "ci95": [
+      -3.948,
+      -0.686
+     ]
+    },
+    "head_impulse_pm": {
+     "diff": -5.247,
+     "ci95": [
+      -11.826,
+      1.342
+     ]
+    },
+    "torso_clean_pm": {
+     "diff": -0.163,
+     "ci95": [
+      -2.64,
+      2.247
+     ]
+    },
+    "torso_landed_pm": {
+     "diff": -3.144,
+     "ci95": [
+      -7.992,
+      1.896
+     ]
+    },
+    "intent_window_head_share": {
+     "diff": -0.018,
+     "ci95": [
+      -0.027,
+      -0.008
+     ]
+    }
+   },
+   "head_clean_change_frac": -0.505
+  },
+  "lead25_over50": {
+   "head_clean_pm": {
+    "rate": 1.949,
+    "ci95": [
+     1.25,
+     2.651
+    ],
+    "bout_mean": 2.014
+   },
+   "torso_clean_pm": {
+    "rate": 10.458,
+    "ci95": [
+     9.002,
+     11.984
+    ],
+    "bout_mean": 10.494
+   },
+   "head_landed_pm": {
+    "rate": 4.417,
+    "ci95": [
+     3.462,
+     5.386
+    ],
+    "bout_mean": 4.441
+   },
+   "head_impulse_pm": {
+    "rate": 16.762,
+    "ci95": [
+     11.362,
+     23.148
+    ],
+    "bout_mean": 16.664
+   },
+   "survival": 0.896,
+   "survival_ci95": [
+    0.778,
+    0.955
+   ],
+   "r1_fell": 0.104,
+   "opponent_fell": 0.125,
+   "intent_windows": {
+    "head": 12,
+    "torso": 183,
+    "blocked": 376,
+    "miss": 786,
+    "n": 1357,
+    "head_share": 0.009,
+    "gated_share": 0.529,
+    "closest_cm_median": 28.9
+   },
+   "windows": {
+    "head": 11,
+    "torso": 171,
+    "blocked": 317,
+    "miss": 942,
+    "blocked_share": 0.22
+   },
+   "oracle": {
+    "threat_share": 0.7912,
+    "applied_share": 0.7896,
+    "edited_share": 0.7896,
+    "threat_share_by_src": {
+     "head": 0.0,
+     "torso": 0.0,
+     "near": 0.0
+    },
+    "ik_res_median_m": null,
+    "head_clean_total": 30,
+    "head_clean_in_threat": 22,
+    "head_clean_in_threat_by_src": {
+     "head": 0,
+     "torso": 0,
+     "near": 0
+    },
+    "head_clean_in_applied": 22,
+    "head_clean_in_edited": 22,
+    "head_clean_kicks": 0,
+    "intents": {
+     "head": 1361,
+     "torso": 0,
+     "gated": 719
+    }
+   },
+   "placement": {
+    "at_head_clean_onset_m": {
+     "n": 30,
+     "median": 0.11,
+     "p90": 0.2104,
+     "within_0p07m": 0.067
+    },
+    "at_intent_apex_m": {
+     "n": 1360,
+     "median": 0.0776,
+     "p90": 0.1207,
+     "within_0p07m": 0.426
+    },
+    "v2_point_to_guard_m_at_apex": {
+     "n": 1360,
+     "median": 0.0315,
+     "p90": 0.0692,
+     "within_0p07m": 0.903
+    },
+    "v2_guard_joint_err_rad_at_apex": {
+     "n": 1360,
+     "median": 0.1323,
+     "p90": 0.2425
+    },
+    "v2_plan_ik_res_m": {
+     "n": 1394,
+     "median": 0.0203,
+     "p90": 0.0829
+    },
+    "servo_err_rad_edited_steps": {
+     "n": 38085,
+     "median": 0.0572,
+     "p90": 0.1813
+    },
+    "servo_err_rad_other_steps": {
+     "n": 54285,
+     "median": 0.0657,
+     "p90": 0.1153
+    },
+    "defs": "forearm = segment R1 elbow link origin -> wrist shell centre (nearer arm); incoming = striking palm -> R1 head centre; state at the last control step start before the onset / at the apex; within_0p07m: share with centre lines closer than 0.07 m (capsule radii); joint errors RMS over shoulder pitch / roll / yaw and elbow; servo error = angle - target in d.ctrl"
+   },
+   "v2": {
+    "lead_s": 0.25,
+    "over": 0.5,
+    "block_d": 0.15,
+    "tail_s": 0.15,
+    "release_s": 0.1,
+    "zones": [
+     "head"
+    ],
+    "gated": true,
+    "max_dq": 1.2
+   },
+   "vs_policy": {
+    "survival": {
+     "diff": -0.104,
+     "ci95": [
+      -0.2,
+      -0.022
+     ]
+    },
+    "opponent_fell": {
+     "diff": 0.083,
+     "ci95": [
+      -0.042,
+      0.213
+     ]
+    },
+    "head_clean_pm": {
+     "diff": -2.551,
+     "ci95": [
+      -3.931,
+      -1.369
+     ]
+    },
+    "head_landed_pm": {
+     "diff": -2.895,
+     "ci95": [
+      -4.58,
+      -1.377
+     ]
+    },
+    "head_impulse_pm": {
+     "diff": -4.141,
+     "ci95": [
+      -10.545,
+      2.19
+     ]
+    },
+    "torso_clean_pm": {
+     "diff": -1.667,
+     "ci95": [
+      -3.712,
+      0.422
+     ]
+    },
+    "torso_landed_pm": {
+     "diff": -4.964,
+     "ci95": [
+      -8.531,
+      -1.557
+     ]
+    },
+    "intent_window_head_share": {
+     "diff": -0.015,
+     "ci95": [
+      -0.026,
+      -0.005
+     ]
+    }
+   },
+   "head_clean_change_frac": -0.567
+  },
+  "lead40_over0": {
+   "head_clean_pm": {
+    "rate": 3.063,
+    "ci95": [
+     1.957,
+     4.277
+    ],
+    "bout_mean": 3.062
+   },
+   "torso_clean_pm": {
+    "rate": 12.625,
+    "ci95": [
+     10.408,
+     15.111
+    ],
+    "bout_mean": 12.625
+   },
+   "head_landed_pm": {
+    "rate": 6.125,
+    "ci95": [
+     4.565,
+     7.789
+    ],
+    "bout_mean": 6.125
+   },
+   "head_impulse_pm": {
+    "rate": 18.828,
+    "ci95": [
+     13.146,
+     25.563
+    ],
+    "bout_mean": 18.828
+   },
+   "survival": 1.0,
+   "survival_ci95": [
+    0.926,
+    1.0
+   ],
+   "r1_fell": 0.0,
+   "opponent_fell": 0.125,
+   "intent_windows": {
+    "head": 23,
+    "torso": 211,
+    "blocked": 424,
+    "miss": 756,
+    "n": 1414,
+    "head_share": 0.016,
+    "gated_share": 0.527,
+    "closest_cm_median": 28.1
+   },
+   "windows": {
+    "head": 19,
+    "torso": 191,
+    "blocked": 359,
+    "miss": 933,
+    "blocked_share": 0.239
+   },
+   "oracle": {
+    "threat_share": 0.8604,
+    "applied_share": 0.8588,
+    "edited_share": 0.8588,
+    "threat_share_by_src": {
+     "head": 0.0,
+     "torso": 0.0,
+     "near": 0.0
+    },
+    "ik_res_median_m": null,
+    "head_clean_total": 49,
+    "head_clean_in_threat": 45,
+    "head_clean_in_threat_by_src": {
+     "head": 0,
+     "torso": 0,
+     "near": 0
+    },
+    "head_clean_in_applied": 45,
+    "head_clean_in_edited": 45,
+    "head_clean_kicks": 0,
+    "intents": {
+     "head": 1418,
+     "torso": 0,
+     "gated": 747
+    }
+   },
+   "placement": {
+    "at_head_clean_onset_m": {
+     "n": 49,
+     "median": 0.1234,
+     "p90": 0.1652,
+     "within_0p07m": 0.061
+    },
+    "at_intent_apex_m": {
+     "n": 1417,
+     "median": 0.1011,
+     "p90": 0.1464,
+     "within_0p07m": 0.281
+    },
+    "v2_point_to_guard_m_at_apex": {
+     "n": 1417,
+     "median": 0.0351,
+     "p90": 0.0825,
+     "within_0p07m": 0.85
+    },
+    "v2_guard_joint_err_rad_at_apex": {
+     "n": 1417,
+     "median": 0.0525,
+     "p90": 0.0808
+    },
+    "v2_plan_ik_res_m": {
+     "n": 1457,
+     "median": 0.0244,
+     "p90": 0.0855
+    },
+    "servo_err_rad_edited_steps": {
+     "n": 44035,
+     "median": 0.0539,
+     "p90": 0.1171
+    },
+    "servo_err_rad_other_steps": {
+     "n": 51965,
+     "median": 0.0627,
+     "p90": 0.1064
+    },
+    "defs": "forearm = segment R1 elbow link origin -> wrist shell centre (nearer arm); incoming = striking palm -> R1 head centre; state at the last control step start before the onset / at the apex; within_0p07m: share with centre lines closer than 0.07 m (capsule radii); joint errors RMS over shoulder pitch / roll / yaw and elbow; servo error = angle - target in d.ctrl"
+   },
+   "v2": {
+    "lead_s": 0.4,
+    "over": 0.0,
+    "block_d": 0.15,
+    "tail_s": 0.15,
+    "release_s": 0.1,
+    "zones": [
+     "head"
+    ],
+    "gated": true,
+    "max_dq": 1.2
+   },
+   "vs_policy": {
+    "survival": {
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "opponent_fell": {
+     "diff": 0.083,
+     "ci95": [
+      0.0,
+      0.184
+     ]
+    },
+    "head_clean_pm": {
+     "diff": -1.438,
+     "ci95": [
+      -3.133,
+      0.064
+     ]
+    },
+    "head_landed_pm": {
+     "diff": -1.188,
+     "ci95": [
+      -3.319,
+      0.8
+     ]
+    },
+    "head_impulse_pm": {
+     "diff": -2.074,
+     "ci95": [
+      -10.299,
+      6.518
+     ]
+    },
+    "torso_clean_pm": {
+     "diff": 0.5,
+     "ci95": [
+      -2.16,
+      3.061
+     ]
+    },
+    "torso_landed_pm": {
+     "diff": -2.938,
+     "ci95": [
+      -6.78,
+      0.913
+     ]
+    },
+    "intent_window_head_share": {
+     "diff": -0.008,
+     "ci95": [
+      -0.017,
+      0.001
+     ]
+    }
+   },
+   "head_clean_change_frac": -0.32
+  },
+  "lead40_over25": {
+   "head_clean_pm": {
+    "rate": 2.905,
+    "ci95": [
+     1.958,
+     3.879
+    ],
+    "bout_mean": 2.876
+   },
+   "torso_clean_pm": {
+    "rate": 10.137,
+    "ci95": [
+     8.366,
+     11.931
+    ],
+    "bout_mean": 9.897
+   },
+   "head_landed_pm": {
+    "rate": 6.134,
+    "ci95": [
+     4.583,
+     7.791
+    ],
+    "bout_mean": 6.001
+   },
+   "head_impulse_pm": {
+    "rate": 20.493,
+    "ci95": [
+     13.69,
+     29.332
+    ],
+    "bout_mean": 20.161
+   },
+   "survival": 0.938,
+   "survival_ci95": [
+    0.832,
+    0.979
+   ],
+   "r1_fell": 0.062,
+   "opponent_fell": 0.104,
+   "intent_windows": {
+    "head": 18,
+    "torso": 180,
+    "blocked": 364,
+    "miss": 804,
+    "n": 1366,
+    "head_share": 0.013,
+    "gated_share": 0.531,
+    "closest_cm_median": 29.8
+   },
+   "windows": {
+    "head": 17,
+    "torso": 163,
+    "blocked": 313,
+    "miss": 957,
+    "blocked_share": 0.216
+   },
+   "oracle": {
+    "threat_share": 0.8583,
+    "applied_share": 0.8565,
+    "edited_share": 0.8565,
+    "threat_share_by_src": {
+     "head": 0.0,
+     "torso": 0.0,
+     "near": 0.0
+    },
+    "ik_res_median_m": null,
+    "head_clean_total": 45,
+    "head_clean_in_threat": 39,
+    "head_clean_in_threat_by_src": {
+     "head": 0,
+     "torso": 0,
+     "near": 0
+    },
+    "head_clean_in_applied": 39,
+    "head_clean_in_edited": 39,
+    "head_clean_kicks": 0,
+    "intents": {
+     "head": 1371,
+     "torso": 0,
+     "gated": 727
+    }
+   },
+   "placement": {
+    "at_head_clean_onset_m": {
+     "n": 45,
+     "median": 0.1105,
+     "p90": 0.1618,
+     "within_0p07m": 0.133
+    },
+    "at_intent_apex_m": {
+     "n": 1370,
+     "median": 0.0843,
+     "p90": 0.1311,
+     "within_0p07m": 0.386
+    },
+    "v2_point_to_guard_m_at_apex": {
+     "n": 1370,
+     "median": 0.0203,
+     "p90": 0.0895,
+     "within_0p07m": 0.847
+    },
+    "v2_guard_joint_err_rad_at_apex": {
+     "n": 1370,
+     "median": 0.0684,
+     "p90": 0.1379
+    },
+    "v2_plan_ik_res_m": {
+     "n": 1410,
+     "median": 0.0228,
+     "p90": 0.1035
+    },
+    "servo_err_rad_edited_steps": {
+     "n": 42247,
+     "median": 0.0539,
+     "p90": 0.1344
+    },
+    "servo_err_rad_other_steps": {
+     "n": 50683,
+     "median": 0.0645,
+     "p90": 0.1127
+    },
+    "defs": "forearm = segment R1 elbow link origin -> wrist shell centre (nearer arm); incoming = striking palm -> R1 head centre; state at the last control step start before the onset / at the apex; within_0p07m: share with centre lines closer than 0.07 m (capsule radii); joint errors RMS over shoulder pitch / roll / yaw and elbow; servo error = angle - target in d.ctrl"
+   },
+   "v2": {
+    "lead_s": 0.4,
+    "over": 0.25,
+    "block_d": 0.15,
+    "tail_s": 0.15,
+    "release_s": 0.1,
+    "zones": [
+     "head"
+    ],
+    "gated": true,
+    "max_dq": 1.2
+   },
+   "vs_policy": {
+    "survival": {
+     "diff": -0.062,
+     "ci95": [
+      -0.133,
+      0.0
+     ]
+    },
+    "opponent_fell": {
+     "diff": 0.062,
+     "ci95": [
+      -0.021,
+      0.156
+     ]
+    },
+    "head_clean_pm": {
+     "diff": -1.595,
+     "ci95": [
+      -2.921,
+      -0.405
+     ]
+    },
+    "head_landed_pm": {
+     "diff": -1.179,
+     "ci95": [
+      -2.952,
+      0.624
+     ]
+    },
+    "head_impulse_pm": {
+     "diff": -0.409,
+     "ci95": [
+      -7.982,
+      7.768
+     ]
+    },
+    "torso_clean_pm": {
+     "diff": -1.988,
+     "ci95": [
+      -4.372,
+      0.251
+     ]
+    },
+    "torso_landed_pm": {
+     "diff": -4.772,
+     "ci95": [
+      -8.923,
+      -0.774
+     ]
+    },
+    "intent_window_head_share": {
+     "diff": -0.011,
+     "ci95": [
+      -0.02,
+      -0.002
+     ]
+    }
+   },
+   "head_clean_change_frac": -0.354
+  },
+  "lead40_over50": {
+   "head_clean_pm": {
+    "rate": 2.456,
+    "ci95": [
+     1.67,
+     3.291
+    ],
+    "bout_mean": 2.393
+   },
+   "torso_clean_pm": {
+    "rate": 11.394,
+    "ci95": [
+     9.821,
+     13.057
+    ],
+    "bout_mean": 11.03
+   },
+   "head_landed_pm": {
+    "rate": 5.595,
+    "ci95": [
+     4.151,
+     7.133
+    ],
+    "bout_mean": 5.361
+   },
+   "head_impulse_pm": {
+    "rate": 22.565,
+    "ci95": [
+     14.871,
+     31.572
+    ],
+    "bout_mean": 21.287
+   },
+   "survival": 0.771,
+   "survival_ci95": [
+    0.635,
+    0.867
+   ],
+   "r1_fell": 0.229,
+   "opponent_fell": 0.146,
+   "intent_windows": {
+    "head": 13,
+    "torso": 168,
+    "blocked": 321,
+    "miss": 785,
+    "n": 1287,
+    "head_share": 0.01,
+    "gated_share": 0.508,
+    "closest_cm_median": 28.9
+   },
+   "windows": {
+    "head": 10,
+    "torso": 153,
+    "blocked": 285,
+    "miss": 919,
+    "blocked_share": 0.208
+   },
+   "oracle": {
+    "threat_share": 0.8591,
+    "applied_share": 0.857,
+    "edited_share": 0.857,
+    "threat_share_by_src": {
+     "head": 0.0,
+     "torso": 0.0,
+     "near": 0.0
+    },
+    "ik_res_median_m": null,
+    "head_clean_total": 36,
+    "head_clean_in_threat": 33,
+    "head_clean_in_threat_by_src": {
+     "head": 0,
+     "torso": 0,
+     "near": 0
+    },
+    "head_clean_in_applied": 33,
+    "head_clean_in_edited": 33,
+    "head_clean_kicks": 0,
+    "intents": {
+     "head": 1291,
+     "torso": 0,
+     "gated": 656
+    }
+   },
+   "placement": {
+    "at_head_clean_onset_m": {
+     "n": 36,
+     "median": 0.1013,
+     "p90": 0.1343,
+     "within_0p07m": 0.139
+    },
+    "at_intent_apex_m": {
+     "n": 1290,
+     "median": 0.0758,
+     "p90": 0.1204,
+     "within_0p07m": 0.443
+    },
+    "v2_point_to_guard_m_at_apex": {
+     "n": 1290,
+     "median": 0.0325,
+     "p90": 0.076,
+     "within_0p07m": 0.869
+    },
+    "v2_guard_joint_err_rad_at_apex": {
+     "n": 1290,
+     "median": 0.1327,
+     "p90": 0.2538
+    },
+    "v2_plan_ik_res_m": {
+     "n": 1334,
+     "median": 0.023,
+     "p90": 0.0962
+    },
+    "servo_err_rad_edited_steps": {
+     "n": 39649,
+     "median": 0.0559,
+     "p90": 0.1513
+    },
+    "servo_err_rad_other_steps": {
+     "n": 48291,
+     "median": 0.0653,
+     "p90": 0.1145
+    },
+    "defs": "forearm = segment R1 elbow link origin -> wrist shell centre (nearer arm); incoming = striking palm -> R1 head centre; state at the last control step start before the onset / at the apex; within_0p07m: share with centre lines closer than 0.07 m (capsule radii); joint errors RMS over shoulder pitch / roll / yaw and elbow; servo error = angle - target in d.ctrl"
+   },
+   "v2": {
+    "lead_s": 0.4,
+    "over": 0.5,
+    "block_d": 0.15,
+    "tail_s": 0.15,
+    "release_s": 0.1,
+    "zones": [
+     "head"
+    ],
+    "gated": true,
+    "max_dq": 1.2
+   },
+   "vs_policy": {
+    "survival": {
+     "diff": -0.229,
+     "ci95": [
+      -0.354,
+      -0.12
+     ]
+    },
+    "opponent_fell": {
+     "diff": 0.104,
+     "ci95": [
+      -0.02,
+      0.229
+     ]
+    },
+    "head_clean_pm": {
+     "diff": -2.044,
+     "ci95": [
+      -3.437,
+      -0.826
+     ]
+    },
+    "head_landed_pm": {
+     "diff": -1.718,
+     "ci95": [
+      -3.515,
+      -0.01
+     ]
+    },
+    "head_impulse_pm": {
+     "diff": 1.663,
+     "ci95": [
+      -6.779,
+      11.17
+     ]
+    },
+    "torso_clean_pm": {
+     "diff": -0.731,
+     "ci95": [
+      -3.062,
+      1.544
+     ]
+    },
+    "torso_landed_pm": {
+     "diff": -3.676,
+     "ci95": [
+      -8.526,
+      0.684
+     ]
+    },
+    "intent_window_head_share": {
+     "diff": -0.014,
+     "ci95": [
+      -0.023,
+      -0.005
+     ]
+    }
+   },
+   "head_clean_change_frac": -0.454
+  },
+  "lead25_over0_d10": {
+   "head_clean_pm": {
+    "rate": 1.717,
+    "ci95": [
+     1.081,
+     2.413
+    ],
+    "bout_mean": 1.688
+   },
+   "torso_clean_pm": {
+    "rate": 12.144,
+    "ci95": [
+     10.316,
+     14.0
+    ],
+    "bout_mean": 12.218
+   },
+   "head_landed_pm": {
+    "rate": 6.104,
+    "ci95": [
+     4.761,
+     7.44
+    ],
+    "bout_mean": 6.0
+   },
+   "head_impulse_pm": {
+    "rate": 19.017,
+    "ci95": [
+     12.55,
+     26.166
+    ],
+    "bout_mean": 18.692
+   },
+   "survival": 0.979,
+   "survival_ci95": [
+    0.891,
+    0.996
+   ],
+   "r1_fell": 0.021,
+   "opponent_fell": 0.104,
+   "intent_windows": {
+    "head": 16,
+    "torso": 192,
+    "blocked": 358,
+    "miss": 822,
+    "n": 1388,
+    "head_share": 0.012,
+    "gated_share": 0.538,
+    "closest_cm_median": 29.2
+   },
+   "windows": {
+    "head": 10,
+    "torso": 182,
+    "blocked": 308,
+    "miss": 973,
+    "blocked_share": 0.209
+   },
+   "oracle": {
+    "threat_share": 0.7941,
+    "applied_share": 0.7924,
+    "edited_share": 0.7924,
+    "threat_share_by_src": {
+     "head": 0.0,
+     "torso": 0.0,
+     "near": 0.0
+    },
+    "ik_res_median_m": null,
+    "head_clean_total": 27,
+    "head_clean_in_threat": 20,
+    "head_clean_in_threat_by_src": {
+     "head": 0,
+     "torso": 0,
+     "near": 0
+    },
+    "head_clean_in_applied": 20,
+    "head_clean_in_edited": 20,
+    "head_clean_kicks": 0,
+    "intents": {
+     "head": 1392,
+     "torso": 0,
+     "gated": 748
+    }
+   },
+   "placement": {
+    "at_head_clean_onset_m": {
+     "n": 27,
+     "median": 0.0955,
+     "p90": 0.1931,
+     "within_0p07m": 0.111
+    },
+    "at_intent_apex_m": {
+     "n": 1391,
+     "median": 0.0729,
+     "p90": 0.1012,
+     "within_0p07m": 0.458
+    },
+    "v2_point_to_guard_m_at_apex": {
+     "n": 1391,
+     "median": 0.0345,
+     "p90": 0.053,
+     "within_0p07m": 0.951
+    },
+    "v2_guard_joint_err_rad_at_apex": {
+     "n": 1391,
+     "median": 0.0509,
+     "p90": 0.0721
+    },
+    "v2_plan_ik_res_m": {
+     "n": 1424,
+     "median": 0.0249,
+     "p90": 0.0513
+    },
+    "servo_err_rad_edited_steps": {
+     "n": 38911,
+     "median": 0.0527,
+     "p90": 0.154
+    },
+    "servo_err_rad_other_steps": {
+     "n": 55453,
+     "median": 0.0649,
+     "p90": 0.1126
+    },
+    "defs": "forearm = segment R1 elbow link origin -> wrist shell centre (nearer arm); incoming = striking palm -> R1 head centre; state at the last control step start before the onset / at the apex; within_0p07m: share with centre lines closer than 0.07 m (capsule radii); joint errors RMS over shoulder pitch / roll / yaw and elbow; servo error = angle - target in d.ctrl"
+   },
+   "v2": {
+    "lead_s": 0.25,
+    "over": 0.0,
+    "block_d": 0.1,
+    "tail_s": 0.15,
+    "release_s": 0.1,
+    "zones": [
+     "head"
+    ],
+    "gated": true,
+    "max_dq": 1.2
+   },
+   "vs_policy": {
+    "survival": {
+     "diff": -0.021,
+     "ci95": [
+      -0.065,
+      0.0
+     ]
+    },
+    "opponent_fell": {
+     "diff": 0.062,
+     "ci95": [
+      -0.043,
+      0.17
+     ]
+    },
+    "head_clean_pm": {
+     "diff": -2.783,
+     "ci95": [
+      -4.128,
+      -1.674
+     ]
+    },
+    "head_landed_pm": {
+     "diff": -1.208,
+     "ci95": [
+      -2.938,
+      0.343
+     ]
+    },
+    "head_impulse_pm": {
+     "diff": -1.886,
+     "ci95": [
+      -9.572,
+      5.78
+     ]
+    },
+    "torso_clean_pm": {
+     "diff": 0.019,
+     "ci95": [
+      -2.246,
+      2.143
+     ]
+    },
+    "torso_landed_pm": {
+     "diff": -1.515,
+     "ci95": [
+      -5.081,
+      1.947
+     ]
+    },
+    "intent_window_head_share": {
+     "diff": -0.013,
+     "ci95": [
+      -0.023,
+      -0.002
+     ]
+    }
+   },
+   "head_clean_change_frac": -0.618
+  },
+  "lead25_over0_d22": {
+   "head_clean_pm": {
+    "rate": 3.658,
+    "ci95": [
+     2.61,
+     4.856
+    ],
+    "bout_mean": 3.625
+   },
+   "torso_clean_pm": {
+    "rate": 11.982,
+    "ci95": [
+     10.433,
+     13.569
+    ],
+    "bout_mean": 11.969
+   },
+   "head_landed_pm": {
+    "rate": 6.685,
+    "ci95": [
+     5.204,
+     8.242
+    ],
+    "bout_mean": 6.766
+   },
+   "head_impulse_pm": {
+    "rate": 16.573,
+    "ci95": [
+     12.209,
+     21.357
+    ],
+    "bout_mean": 16.936
+   },
+   "survival": 0.979,
+   "survival_ci95": [
+    0.891,
+    0.996
+   ],
+   "r1_fell": 0.021,
+   "opponent_fell": 0.104,
+   "intent_windows": {
+    "head": 26,
+    "torso": 197,
+    "blocked": 451,
+    "miss": 725,
+    "n": 1399,
+    "head_share": 0.019,
+    "gated_share": 0.537,
+    "closest_cm_median": 28.5
+   },
+   "windows": {
+    "head": 20,
+    "torso": 176,
+    "blocked": 397,
+    "miss": 892,
+    "blocked_share": 0.267
+   },
+   "oracle": {
+    "threat_share": 0.7912,
+    "applied_share": 0.7897,
+    "edited_share": 0.7897,
+    "threat_share_by_src": {
+     "head": 0.0,
+     "torso": 0.0,
+     "near": 0.0
+    },
+    "ik_res_median_m": null,
+    "head_clean_total": 58,
+    "head_clean_in_threat": 53,
+    "head_clean_in_threat_by_src": {
+     "head": 0,
+     "torso": 0,
+     "near": 0
+    },
+    "head_clean_in_applied": 53,
+    "head_clean_in_edited": 53,
+    "head_clean_kicks": 0,
+    "intents": {
+     "head": 1403,
+     "torso": 0,
+     "gated": 753
+    }
+   },
+   "placement": {
+    "at_head_clean_onset_m": {
+     "n": 58,
+     "median": 0.1714,
+     "p90": 0.231,
+     "within_0p07m": 0.034
+    },
+    "at_intent_apex_m": {
+     "n": 1402,
+     "median": 0.1228,
+     "p90": 0.2066,
+     "within_0p07m": 0.228
+    },
+    "v2_point_to_guard_m_at_apex": {
+     "n": 1402,
+     "median": 0.0358,
+     "p90": 0.1031,
+     "within_0p07m": 0.837
+    },
+    "v2_guard_joint_err_rad_at_apex": {
+     "n": 1402,
+     "median": 0.054,
+     "p90": 0.0912
+    },
+    "v2_plan_ik_res_m": {
+     "n": 1436,
+     "median": 0.0191,
+     "p90": 0.1025
+    },
+    "servo_err_rad_edited_steps": {
+     "n": 39632,
+     "median": 0.0579,
+     "p90": 0.1402
+    },
+    "servo_err_rad_other_steps": {
+     "n": 55510,
+     "median": 0.0637,
+     "p90": 0.1077
+    },
+    "defs": "forearm = segment R1 elbow link origin -> wrist shell centre (nearer arm); incoming = striking palm -> R1 head centre; state at the last control step start before the onset / at the apex; within_0p07m: share with centre lines closer than 0.07 m (capsule radii); joint errors RMS over shoulder pitch / roll / yaw and elbow; servo error = angle - target in d.ctrl"
+   },
+   "v2": {
+    "lead_s": 0.25,
+    "over": 0.0,
+    "block_d": 0.22,
+    "tail_s": 0.15,
+    "release_s": 0.1,
+    "zones": [
+     "head"
+    ],
+    "gated": true,
+    "max_dq": 1.2
+   },
+   "vs_policy": {
+    "survival": {
+     "diff": -0.021,
+     "ci95": [
+      -0.065,
+      0.0
+     ]
+    },
+    "opponent_fell": {
+     "diff": 0.062,
+     "ci95": [
+      -0.043,
+      0.163
+     ]
+    },
+    "head_clean_pm": {
+     "diff": -0.842,
+     "ci95": [
+      -2.506,
+      0.674
+     ]
+    },
+    "head_landed_pm": {
+     "diff": -0.628,
+     "ci95": [
+      -2.872,
+      1.367
+     ]
+    },
+    "head_impulse_pm": {
+     "diff": -4.329,
+     "ci95": [
+      -11.536,
+      2.851
+     ]
+    },
+    "torso_clean_pm": {
+     "diff": -0.143,
+     "ci95": [
+      -2.208,
+      1.836
+     ]
+    },
+    "torso_landed_pm": {
+     "diff": -3.952,
+     "ci95": [
+      -7.979,
+      0.245
+     ]
+    },
+    "intent_window_head_share": {
+     "diff": -0.005,
+     "ci95": [
+      -0.016,
+      0.005
+     ]
+    }
+   },
+   "head_clean_change_frac": -0.187
+  },
+  "lead25_over0_ungated": {
+   "head_clean_pm": {
+    "rate": 3.125,
+    "ci95": [
+     2.1,
+     4.326
+    ],
+    "bout_mean": 3.125
+   },
+   "torso_clean_pm": {
+    "rate": 12.188,
+    "ci95": [
+     10.34,
+     14.188
+    ],
+    "bout_mean": 12.188
+   },
+   "head_landed_pm": {
+    "rate": 6.313,
+    "ci95": [
+     4.875,
+     7.86
+    ],
+    "bout_mean": 6.312
+   },
+   "head_impulse_pm": {
+    "rate": 16.865,
+    "ci95": [
+     12.419,
+     21.478
+    ],
+    "bout_mean": 16.865
+   },
+   "survival": 1.0,
+   "survival_ci95": [
+    0.926,
+    1.0
+   ],
+   "r1_fell": 0.0,
+   "opponent_fell": 0.083,
+   "intent_windows": {
+    "head": 24,
+    "torso": 199,
+    "blocked": 476,
+    "miss": 715,
+    "n": 1414,
+    "head_share": 0.017,
+    "gated_share": 0.53,
+    "closest_cm_median": 28.4
+   },
+   "windows": {
+    "head": 14,
+    "torso": 181,
+    "blocked": 438,
+    "miss": 869,
+    "blocked_share": 0.292
+   },
+   "oracle": {
+    "threat_share": 0.4211,
+    "applied_share": 0.4203,
+    "edited_share": 0.4203,
+    "threat_share_by_src": {
+     "head": 0.0,
+     "torso": 0.0,
+     "near": 0.0
+    },
+    "ik_res_median_m": null,
+    "head_clean_total": 50,
+    "head_clean_in_threat": 21,
+    "head_clean_in_threat_by_src": {
+     "head": 0,
+     "torso": 0,
+     "near": 0
+    },
+    "head_clean_in_applied": 20,
+    "head_clean_in_edited": 20,
+    "head_clean_kicks": 0,
+    "intents": {
+     "head": 1418,
+     "torso": 0,
+     "gated": 752
+    }
+   },
+   "placement": {
+    "at_head_clean_onset_m": {
+     "n": 50,
+     "median": 0.1797,
+     "p90": 0.2494,
+     "within_0p07m": 0.04
+    },
+    "at_intent_apex_m": {
+     "n": 1417,
+     "median": 0.1114,
+     "p90": 0.2154,
+     "within_0p07m": 0.236
+    },
+    "v2_point_to_guard_m_at_apex": {
+     "n": 666,
+     "median": 0.0322,
+     "p90": 0.0691,
+     "within_0p07m": 0.904
+    },
+    "v2_guard_joint_err_rad_at_apex": {
+     "n": 666,
+     "median": 0.0519,
+     "p90": 0.0724
+    },
+    "v2_plan_ik_res_m": {
+     "n": 685,
+     "median": 0.0202,
+     "p90": 0.0716
+    },
+    "servo_err_rad_edited_steps": {
+     "n": 20851,
+     "median": 0.0543,
+     "p90": 0.1471
+    },
+    "servo_err_rad_other_steps": {
+     "n": 75149,
+     "median": 0.0624,
+     "p90": 0.1059
+    },
+    "defs": "forearm = segment R1 elbow link origin -> wrist shell centre (nearer arm); incoming = striking palm -> R1 head centre; state at the last control step start before the onset / at the apex; within_0p07m: share with centre lines closer than 0.07 m (capsule radii); joint errors RMS over shoulder pitch / roll / yaw and elbow; servo error = angle - target in d.ctrl"
+   },
+   "v2": {
+    "lead_s": 0.25,
+    "over": 0.0,
+    "block_d": 0.15,
+    "tail_s": 0.15,
+    "release_s": 0.1,
+    "zones": [
+     "head"
+    ],
+    "gated": false,
+    "max_dq": 1.2
+   },
+   "vs_policy": {
+    "survival": {
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "opponent_fell": {
+     "diff": 0.042,
+     "ci95": [
+      -0.061,
+      0.143
+     ]
+    },
+    "head_clean_pm": {
+     "diff": -1.375,
+     "ci95": [
+      -3.125,
+      0.125
+     ]
+    },
+    "head_landed_pm": {
+     "diff": -1.0,
+     "ci95": [
+      -3.064,
+      0.83
+     ]
+    },
+    "head_impulse_pm": {
+     "diff": -4.037,
+     "ci95": [
+      -10.37,
+      1.781
+     ]
+    },
+    "torso_clean_pm": {
+     "diff": 0.062,
+     "ci95": [
+      -2.067,
+      2.234
+     ]
+    },
+    "torso_landed_pm": {
+     "diff": -1.375,
+     "ci95": [
+      -5.413,
+      2.572
+     ]
+    },
+    "intent_window_head_share": {
+     "diff": -0.007,
+     "ci95": [
+      -0.019,
+      0.004
+     ]
+    }
+   },
+   "head_clean_change_frac": -0.306
+  }
+ }
+}

@@ -1,0 +1,6731 @@
+{
+ "clips": [
+  "kfab_200",
+  "kfab_201",
+  "kfab_203"
+ ],
+ "loco": false,
+ "outputs": {
+  "fb_l1.npz": "cb0bc0aa86431fdc957efcfabcac354da1c89defa2ad167b30b3a95087d2d3a7",
+  "fb_l1_track.csv": "ec0904044204f71ad3fef7d41bc50fad1e1664c82f2b242eec09b92b92161d7a",
+  "fb_l1_track_index.json": "94ba46de71b71f5f4275ad08865be139a1a57772f05e3b26f2e8d10b8a660cbd"
+ },
+ "sources": {
+  "configs/r1_assumptions.yaml": "eb101651ab857cabf9e91dec73701b56c60193b8a4a30156276ead9efb6ce0e6",
+  "gpu/export_fb_library.py": "df2c9d43b8d2e767e61ae92a84d286f8740fb79e4f0e4b3a114da5bb75d3458d",
+  "gpu/export_fb_motion.py": "7b1a8bc24fa3979f59946a20337f0bd114592da1a55cd2093ab410a37f101848",
+  "gpu/export_motion.py": "d927a0c1a7ff6e1e4e7b0cc4bd5df9f2bd063183fd03017ee738753fe5074833",
+  "gpu/export_warps.py": "d120b969b1ea1a1042a6f1e50660db5f4e58df32a0544c4505109d68036ce7d4",
+  "gpu/fb_mirror.py": "7af21bfaaa68b16b2350cc5ed68fb8862a6e501d8723f0e610ed335df90105fb",
+  "gpu/motions/fb/fb_motion.npz": "b66f0f7e7d5aba7f5801cba4c6c319b16e1be13e4c1f4e7f56d2304692d70efa",
+  "r1gym/aim.py": "85bdd7a8c635153267f7a9d18f56b32f0cd294d1ce26c12f90125ac4342eb407",
+  "r1gym/assets/r1/r1.xml": "19c2291ce675217cc193092e59726bbd8d21c53bd5b2599912b60fe538f2de5f",
+  "r1gym/env.py": "610590390ae590b87efa59121c5614aa5f6379cba7ed115fbc125387694371a9",
+  "r1gym/model.py": "7950039beacecb65de7750f63931c5648e0bb8554d30883c611164a83123dec0",
+  "r1gym/opponent.py": "c63e1348527dc99d1374a19ea30150f56c66f2d33fd0ab77c264f3d39073fc30",
+  "r1gym/scenario.py": "a646cc90e4e2a452960daf92726c7ea062dde0193b9744269ce40f8588517116",
+  "r1gym/strikes.py": "83af4735900bff1b105a8ab002d62055e169cb8f665cf345bb221961b32437c6"
+ },
+ "git": "6ef119a2477825789e3666f0db5d8a4507f898ad+dirty",
+ "versions": {
+  "mujoco": "3.17.0",
+  "numpy": "2.5.4",
+  "python": "3.12.13"
+ },
+ "seed": 0,
+ "families": [
+  "mirror",
+  "warp",
+  "reangle",
+  "combo"
+ ],
+ "draws": {
+  "mirror": 1,
+  "warp": 2,
+  "reangle": 2,
+  "combo": 1
+ },
+ "prior": {
+  "warp_speed": [
+   0.7,
+   1.3
+  ],
+  "warp_pre_s": 0.2,
+  "warp_post_s": 0.1,
+  "reangle_deg": {
+   "hook": [
+    -40.0,
+    40.0
+   ],
+   "straight": [
+    -20.0,
+    20.0
+   ]
+  },
+  "uppercut_elev_deg": [
+   30.0,
+   70.0
+  ],
+  "reangle_s": 0.1,
+  "reangle_ramp_s": 0.1,
+  "combo_fade_s": [
+   0.15,
+   0.35
+  ],
+  "combo_pad_s": 0.1,
+  "combo_max": 3,
+  "combo_gap_s": 1.0,
+  "combo_source": {
+   "kfab_200": "kfab_201",
+   "kfab_201": "kfab_203",
+   "kfab_203": "kfab_200"
+  }
+ },
+ "combo_fades": [
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17
+ ],
+ "reject": {
+  "path_m": 0.03,
+  "foot_m": 0.01,
+  "com_m": 0.02,
+  "speed_tol": 0.05,
+  "glove_m": 0.75,
+  "reach_m": 0.0,
+  "max_dq": 0.8,
+  "ik_iters": 40,
+  "ik_prior": 0.001
+ },
+ "range_tol": 0.0001,
+ "blend_s": 0.4,
+ "clean_starts": true,
+ "vmax": {
+  "0": [
+   12.5,
+   9.613462455,
+   6.348366163,
+   12.5,
+   5.177844894,
+   3.116028479,
+   12.5,
+   7.435246663,
+   5.10746571,
+   12.5,
+   6.712571219,
+   2.336300809,
+   8.663863128,
+   11.075088567,
+   12.5,
+   12.5,
+   12.5,
+   12.5,
+   6.879262978,
+   12.5,
+   12.5,
+   12.5,
+   12.5,
+   6.967035584
+  ],
+  "1": [
+   12.5,
+   7.435246663,
+   5.10746571,
+   12.5,
+   6.712571219,
+   2.336300809,
+   12.5,
+   9.613462455,
+   6.348366163,
+   12.5,
+   5.177844894,
+   3.116028479,
+   8.663863128,
+   11.075088567,
+   12.5,
+   12.5,
+   12.5,
+   12.5,
+   6.967035584,
+   12.5,
+   12.5,
+   12.5,
+   12.5,
+   6.879262978
+  ]
+ },
+ "disclosures": [
+  "Warp speed skew (A6.4): the warp prior U(0.7, 1.3) is symmetric (drawn mean 1.0064), but the accepted warps skew slow: mean speed 0.884 (9 faster, 44 slower of 53); of 44 rejected, 44 are speed-ups (mean 1.1537). This is a structural consequence of export_warps' speed rule (|dq| <= max(p99, the window's own fastest) + 0.05 rad/s): a strike sped up by s passes only where the clip set's p99 is above s x its own fastest joint speed, so the accepted set is slow-biased although the prior is not.",
+  "Mirror conjugation (A6.2): rows with mirror = 1 are performed by the mirror-conjugated tracker (gpu/fb_mirror.py); the T1 motion holds them un-mirrored and leaves out the mirror family.",
+  "Combos (A6.1): the stated speed rule (allowance max(p99, the host window's own fastest, the source segment's own fastest) + 0.05 rad/s, the join never counted) with the shortest passing fade in the prior range [0.15, 0.35] s; 4 of 13 tried splices survive.",
+  "vmax (p99 joint speed) is computed per clip set (A6.3): kfab_200/201/203."
+ ],
+ "rows": [
+  {
+   "name": "l1_mirror_kfab_200_m0",
+   "family": "mirror",
+   "host": "kfab_200",
+   "mirror": 1,
+   "conj": true,
+   "draw": 0,
+   "frames": 250,
+   "sources": {
+    "kfab_200": [
+     0,
+     249
+    ]
+   },
+   "q_sha256": "bd784745b4c1cff4a60dc00d5759da58da55d73a7e6266880465d901c2c5d49d",
+   "strikes": 8,
+   "hand_strikes": 8,
+   "mods": []
+  },
+  {
+   "name": "l1_mirror_kfab_201_m0",
+   "family": "mirror",
+   "host": "kfab_201",
+   "mirror": 1,
+   "conj": true,
+   "draw": 0,
+   "frames": 722,
+   "sources": {
+    "kfab_201": [
+     0,
+     721
+    ]
+   },
+   "q_sha256": "62e14f4c14094d4ee4689eff354c1fd0887ab116f76569e5cd0578944812d585",
+   "strikes": 20,
+   "hand_strikes": 19,
+   "mods": []
+  },
+  {
+   "name": "l1_mirror_kfab_203_m0",
+   "family": "mirror",
+   "host": "kfab_203",
+   "mirror": 1,
+   "conj": true,
+   "draw": 0,
+   "frames": 276,
+   "sources": {
+    "kfab_203": [
+     0,
+     275
+    ]
+   },
+   "q_sha256": "74cd8ff22e85c13da5ad3dc9e7bb144a30e1df14e7e8528b5aeb3529a77b6aa6",
+   "strikes": 10,
+   "hand_strikes": 10,
+   "mods": []
+  },
+  {
+   "name": "l1_warp_kfab_200_o0",
+   "family": "warp",
+   "host": "kfab_200",
+   "mirror": 0,
+   "conj": false,
+   "draw": 0,
+   "frames": 255,
+   "sources": {
+    "kfab_200": [
+     0,
+     249
+    ]
+   },
+   "q_sha256": "ccf4a05be6c9600944920d84d44d8a247de0d63f4169cb12bdfdd0ab8fc1c69f",
+   "strikes": 8,
+   "hand_strikes": 8,
+   "mods": [
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 240,
+     "apex": 246,
+     "end": 246,
+     "speed": 0.951329,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 176,
+     "apex": 188,
+     "end": 188,
+     "speed": 1.173031,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_shoulder_pitch_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 31,
+     "apex": 40,
+     "end": 41,
+     "speed": 0.93438,
+     "status": "accept",
+     "speed_frames": 0.945629,
+     "frames_in": 25,
+     "frames_out": 26
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "onset": 222,
+     "apex": 228,
+     "end": 229,
+     "speed": 1.298565,
+     "status": "accept",
+     "speed_frames": 1.251423,
+     "frames_in": 22,
+     "frames_out": 19
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 105,
+     "apex": 114,
+     "end": 115,
+     "speed": 0.884708,
+     "status": "accept",
+     "speed_frames": 0.896314,
+     "frames_in": 25,
+     "frames_out": 27
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 8,
+     "apex": 21,
+     "end": 21,
+     "speed": 0.760791,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 187,
+     "apex": 206,
+     "end": 207,
+     "speed": 0.898942,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 141,
+     "apex": 147,
+     "end": 148,
+     "speed": 0.739451,
+     "status": "accept",
+     "speed_frames": 0.735575,
+     "frames_in": 22,
+     "frames_out": 27
+    }
+   ]
+  },
+  {
+   "name": "l1_warp_kfab_200_o1",
+   "family": "warp",
+   "host": "kfab_200",
+   "mirror": 0,
+   "conj": false,
+   "draw": 1,
+   "frames": 258,
+   "sources": {
+    "kfab_200": [
+     0,
+     249
+    ]
+   },
+   "q_sha256": "ee91b834a559d855647a46060dbe38e25cdb43a8eee591bb9b4a451b2d38365f",
+   "strikes": 7,
+   "hand_strikes": 7,
+   "mods": [
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "onset": 222,
+     "apex": 228,
+     "end": 229,
+     "speed": 0.768677,
+     "status": "accept",
+     "speed_frames": 0.777981,
+     "frames_in": 22,
+     "frames_out": 26
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 176,
+     "apex": 188,
+     "end": 188,
+     "speed": 0.862137,
+     "status": "accept",
+     "speed_frames": 0.864989,
+     "frames_in": 27,
+     "frames_out": 30
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 8,
+     "apex": 21,
+     "end": 21,
+     "speed": 0.983675,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 187,
+     "apex": 206,
+     "end": 207,
+     "speed": 1.117695,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 240,
+     "apex": 246,
+     "end": 246,
+     "speed": 0.889378,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 31,
+     "apex": 40,
+     "end": 41,
+     "speed": 1.210614,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_ankle_pitch_joint",
+      "right_hip_pitch_joint",
+      "right_knee_joint",
+      "left_shoulder_yaw_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_yaw_joint"
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 105,
+     "apex": 114,
+     "end": 115,
+     "speed": 0.964283,
+     "status": "accept",
+     "speed_frames": 0.945629,
+     "frames_in": 25,
+     "frames_out": 26
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 141,
+     "apex": 147,
+     "end": 148,
+     "speed": 0.993716,
+     "status": "accept",
+     "speed_frames": 1.0,
+     "frames_in": 22,
+     "frames_out": 22
+    }
+   ]
+  },
+  {
+   "name": "l1_warp_kfab_200_m0",
+   "family": "warp",
+   "host": "kfab_200",
+   "mirror": 1,
+   "conj": true,
+   "draw": 0,
+   "frames": 253,
+   "sources": {
+    "kfab_200": [
+     0,
+     249
+    ]
+   },
+   "q_sha256": "81de9a972ec838a89771733a6e2a8e77302595086589da3274219ad807810640",
+   "strikes": 8,
+   "hand_strikes": 8,
+   "mods": [
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "onset": 222,
+     "apex": 228,
+     "end": 229,
+     "speed": 1.138903,
+     "status": "accept",
+     "speed_frames": 1.156491,
+     "frames_in": 22,
+     "frames_out": 20
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 176,
+     "apex": 188,
+     "end": 188,
+     "speed": 1.254922,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_shoulder_pitch_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 8,
+     "apex": 21,
+     "end": 21,
+     "speed": 0.819216,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 141,
+     "apex": 147,
+     "end": 148,
+     "speed": 0.748129,
+     "status": "accept",
+     "speed_frames": 0.735575,
+     "frames_in": 22,
+     "frames_out": 27
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 31,
+     "apex": 40,
+     "end": 41,
+     "speed": 1.276719,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_hip_pitch_joint",
+      "left_knee_joint",
+      "right_hip_roll_joint",
+      "right_ankle_pitch_joint",
+      "right_ankle_roll_joint",
+      "left_shoulder_pitch_joint",
+      "left_shoulder_yaw_joint",
+      "right_shoulder_yaw_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 105,
+     "apex": 114,
+     "end": 115,
+     "speed": 1.140354,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_hip_roll_joint",
+      "right_knee_joint",
+      "right_elbow_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 187,
+     "apex": 206,
+     "end": 207,
+     "speed": 1.137909,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 240,
+     "apex": 246,
+     "end": 246,
+     "speed": 0.901386,
+     "status": "skip",
+     "reason": "seam"
+    }
+   ]
+  },
+  {
+   "name": "l1_warp_kfab_200_m1",
+   "family": "warp",
+   "host": "kfab_200",
+   "mirror": 1,
+   "conj": true,
+   "draw": 1,
+   "frames": 261,
+   "sources": {
+    "kfab_200": [
+     0,
+     249
+    ]
+   },
+   "q_sha256": "1c4714d37351c2b7957c588dec72e62a2c40e2a2f6a3a62ab2e81f930575d83f",
+   "strikes": 8,
+   "hand_strikes": 8,
+   "mods": [
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 31,
+     "apex": 40,
+     "end": 41,
+     "speed": 1.115012,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_hip_pitch_joint",
+      "left_knee_joint",
+      "right_ankle_pitch_joint",
+      "left_shoulder_pitch_joint",
+      "left_shoulder_yaw_joint",
+      "right_shoulder_yaw_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 187,
+     "apex": 206,
+     "end": 207,
+     "speed": 0.716225,
+     "status": "accept",
+     "speed_frames": 0.709297,
+     "frames_in": 35,
+     "frames_out": 46
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 176,
+     "apex": 188,
+     "end": 188,
+     "speed": 0.877226,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 105,
+     "apex": 114,
+     "end": 115,
+     "speed": 1.19907,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_hip_roll_joint",
+      "right_knee_joint",
+      "right_elbow_joint"
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 240,
+     "apex": 246,
+     "end": 246,
+     "speed": 0.942965,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 8,
+     "apex": 21,
+     "end": 21,
+     "speed": 1.298721,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 141,
+     "apex": 147,
+     "end": 148,
+     "speed": 1.040132,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_hip_pitch_joint",
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "left_elbow_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "onset": 222,
+     "apex": 228,
+     "end": 229,
+     "speed": 0.8854,
+     "status": "skip",
+     "reason": "overlap"
+    }
+   ]
+  },
+  {
+   "name": "l1_warp_kfab_201_o0",
+   "family": "warp",
+   "host": "kfab_201",
+   "mirror": 0,
+   "conj": false,
+   "draw": 0,
+   "frames": 746,
+   "sources": {
+    "kfab_201": [
+     0,
+     721
+    ]
+   },
+   "q_sha256": "292031b31d5ff77044306c3034ad00831c09dcd757564eaccd81ad1d52bb42ea",
+   "strikes": 17,
+   "hand_strikes": 16,
+   "mods": [
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 287,
+     "apex": 305,
+     "end": 306,
+     "speed": 0.95143,
+     "status": "accept",
+     "speed_frames": 0.963541,
+     "frames_in": 34,
+     "frames_out": 35
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 540,
+     "apex": 559,
+     "end": 559,
+     "speed": 1.106039,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_hip_pitch_joint",
+      "right_hip_roll_joint",
+      "right_hip_yaw_joint",
+      "waist_roll_joint",
+      "left_shoulder_pitch_joint",
+      "left_shoulder_yaw_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_yaw_joint",
+      "right_elbow_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 138,
+     "apex": 144,
+     "end": 144,
+     "speed": 1.017588,
+     "status": "accept",
+     "speed_frames": 1.0,
+     "frames_in": 21,
+     "frames_out": 21
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 557,
+     "apex": 577,
+     "end": 581,
+     "speed": 0.899632,
+     "status": "accept",
+     "speed_frames": 0.912597,
+     "frames_in": 39,
+     "frames_out": 42
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 493,
+     "apex": 508,
+     "end": 509,
+     "speed": 0.739481,
+     "status": "accept",
+     "speed_frames": 0.7413,
+     "frames_in": 31,
+     "frames_out": 39
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 462,
+     "apex": 470,
+     "end": 471,
+     "speed": 1.080768,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_hip_roll_joint",
+      "left_elbow_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "onset": 101,
+     "apex": 116,
+     "end": 116,
+     "speed": 1.053522,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_wrist_roll_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 710,
+     "apex": 715,
+     "end": 715,
+     "speed": 0.939325,
+     "status": "accept",
+     "speed_frames": 0.925093,
+     "frames_in": 20,
+     "frames_out": 21
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 658,
+     "apex": 678,
+     "end": 684,
+     "speed": 1.12287,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_hip_roll_joint",
+      "left_ankle_roll_joint",
+      "right_knee_joint",
+      "right_ankle_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_elbow_joint",
+      "right_elbow_joint"
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 124,
+     "apex": 132,
+     "end": 132,
+     "speed": 1.086556,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 451,
+     "apex": 457,
+     "end": 458,
+     "speed": 1.243724,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_hip_pitch_joint",
+      "left_knee_joint",
+      "left_elbow_joint"
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 237,
+     "apex": 240,
+     "end": 241,
+     "speed": 0.793338,
+     "status": "accept",
+     "speed_frames": 0.786277,
+     "frames_in": 19,
+     "frames_out": 22
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "onset": 384,
+     "apex": 394,
+     "end": 394,
+     "speed": 0.756534,
+     "status": "accept",
+     "speed_frames": 0.772764,
+     "frames_in": 25,
+     "frames_out": 30
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 715,
+     "apex": 720,
+     "end": 720,
+     "speed": 0.913417,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 537,
+     "apex": 541,
+     "end": 541,
+     "speed": 0.79822,
+     "status": "accept",
+     "speed_frames": 0.786277,
+     "frames_in": 19,
+     "frames_out": 22
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 1,
+     "apex": 21,
+     "end": 32,
+     "speed": 1.236506,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 62,
+     "apex": 71,
+     "end": 72,
+     "speed": 1.037989,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_hip_pitch_joint",
+      "waist_yaw_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 408,
+     "apex": 420,
+     "end": 420,
+     "speed": 1.203778,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "onset": 183,
+     "apex": 201,
+     "end": 201,
+     "speed": 1.17891,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_ankle_pitch_joint",
+      "right_knee_joint"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "l1_warp_kfab_201_o1",
+   "family": "warp",
+   "host": "kfab_201",
+   "mirror": 0,
+   "conj": false,
+   "draw": 1,
+   "frames": 725,
+   "sources": {
+    "kfab_201": [
+     0,
+     721
+    ]
+   },
+   "q_sha256": "2044d2bfeecccbe23b1e5a0336ade93391a39f32030ae63cb857ee4ade5274c9",
+   "strikes": 19,
+   "hand_strikes": 18,
+   "mods": [
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 715,
+     "apex": 720,
+     "end": 720,
+     "speed": 0.79319,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 493,
+     "apex": 508,
+     "end": 509,
+     "speed": 1.275065,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_hip_pitch_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "onset": 101,
+     "apex": 116,
+     "end": 116,
+     "speed": 0.911158,
+     "status": "accept",
+     "speed_frames": 0.917813,
+     "frames_in": 30,
+     "frames_out": 32
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 537,
+     "apex": 541,
+     "end": 541,
+     "speed": 1.022749,
+     "status": "accept",
+     "speed_frames": 1.0,
+     "frames_in": 19,
+     "frames_out": 19
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 462,
+     "apex": 470,
+     "end": 471,
+     "speed": 0.990856,
+     "status": "accept",
+     "speed_frames": 1.0,
+     "frames_in": 24,
+     "frames_out": 24
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 540,
+     "apex": 559,
+     "end": 559,
+     "speed": 0.921399,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 62,
+     "apex": 71,
+     "end": 72,
+     "speed": 1.063593,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_hip_pitch_joint",
+      "waist_yaw_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint"
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 557,
+     "apex": 577,
+     "end": 581,
+     "speed": 1.224472,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_hip_pitch_joint",
+      "right_ankle_roll_joint",
+      "waist_roll_joint",
+      "left_shoulder_pitch_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_yaw_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 138,
+     "apex": 144,
+     "end": 144,
+     "speed": 1.123893,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_knee_joint",
+      "waist_yaw_joint",
+      "left_elbow_joint",
+      "left_wrist_roll_joint",
+      "right_elbow_joint",
+      "right_wrist_roll_joint"
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 237,
+     "apex": 240,
+     "end": 241,
+     "speed": 0.727071,
+     "status": "accept",
+     "speed_frames": 0.731514,
+     "frames_in": 19,
+     "frames_out": 23
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 1,
+     "apex": 21,
+     "end": 32,
+     "speed": 0.921205,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 287,
+     "apex": 305,
+     "end": 306,
+     "speed": 1.073899,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "left_wrist_roll_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 408,
+     "apex": 420,
+     "end": 420,
+     "speed": 1.152511,
+     "status": "accept",
+     "speed_frames": 1.178397,
+     "frames_in": 27,
+     "frames_out": 24
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 710,
+     "apex": 715,
+     "end": 715,
+     "speed": 1.06551,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_knee_joint",
+      "waist_yaw_joint"
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 451,
+     "apex": 457,
+     "end": 458,
+     "speed": 1.16554,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "onset": 183,
+     "apex": 201,
+     "end": 201,
+     "speed": 0.997517,
+     "status": "accept",
+     "speed_frames": 1.0,
+     "frames_in": 33,
+     "frames_out": 33
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 658,
+     "apex": 678,
+     "end": 684,
+     "speed": 1.243465,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_hip_roll_joint",
+      "left_hip_yaw_joint",
+      "right_knee_joint",
+      "right_ankle_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_elbow_joint",
+      "right_elbow_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "onset": 384,
+     "apex": 394,
+     "end": 394,
+     "speed": 0.99634,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 124,
+     "apex": 132,
+     "end": 132,
+     "speed": 0.807582,
+     "status": "skip",
+     "reason": "overlap"
+    }
+   ]
+  },
+  {
+   "name": "l1_warp_kfab_201_m0",
+   "family": "warp",
+   "host": "kfab_201",
+   "mirror": 1,
+   "conj": true,
+   "draw": 0,
+   "frames": 738,
+   "sources": {
+    "kfab_201": [
+     0,
+     721
+    ]
+   },
+   "q_sha256": "a672aadbafc1725130760a903c1fd5031e477be3114279ffe0f117ca1300e629",
+   "strikes": 19,
+   "hand_strikes": 18,
+   "mods": [
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 658,
+     "apex": 678,
+     "end": 684,
+     "speed": 1.005979,
+     "status": "accept",
+     "speed_frames": 1.0,
+     "frames_in": 41,
+     "frames_out": 41
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 557,
+     "apex": 577,
+     "end": 581,
+     "speed": 1.212848,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_hip_pitch_joint",
+      "left_ankle_roll_joint",
+      "waist_roll_joint",
+      "left_shoulder_pitch_joint",
+      "left_shoulder_yaw_joint",
+      "right_shoulder_pitch_joint"
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 1,
+     "apex": 21,
+     "end": 32,
+     "speed": 0.982378,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 537,
+     "apex": 541,
+     "end": 541,
+     "speed": 0.813199,
+     "status": "accept",
+     "speed_frames": 0.786277,
+     "frames_in": 19,
+     "frames_out": 22
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 451,
+     "apex": 457,
+     "end": 458,
+     "speed": 0.839009,
+     "status": "accept",
+     "speed_frames": 0.824858,
+     "frames_in": 22,
+     "frames_out": 25
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 138,
+     "apex": 144,
+     "end": 144,
+     "speed": 0.738905,
+     "status": "accept",
+     "speed_frames": 0.720177,
+     "frames_in": 21,
+     "frames_out": 26
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 408,
+     "apex": 420,
+     "end": 420,
+     "speed": 0.937897,
+     "status": "accept",
+     "speed_frames": 0.950988,
+     "frames_in": 27,
+     "frames_out": 28
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 540,
+     "apex": 559,
+     "end": 559,
+     "speed": 0.924454,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 62,
+     "apex": 71,
+     "end": 72,
+     "speed": 1.057405,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_hip_pitch_joint",
+      "waist_yaw_joint",
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint"
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 710,
+     "apex": 715,
+     "end": 715,
+     "speed": 1.09163,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_knee_joint",
+      "waist_yaw_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 715,
+     "apex": 720,
+     "end": 720,
+     "speed": 1.272951,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 462,
+     "apex": 470,
+     "end": 471,
+     "speed": 1.009028,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 124,
+     "apex": 132,
+     "end": 132,
+     "speed": 1.11611,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "onset": 183,
+     "apex": 201,
+     "end": 201,
+     "speed": 1.266092,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_hip_pitch_joint",
+      "left_knee_joint",
+      "right_ankle_pitch_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 237,
+     "apex": 240,
+     "end": 241,
+     "speed": 1.225682,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_elbow_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_yaw_joint"
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "onset": 101,
+     "apex": 116,
+     "end": 116,
+     "speed": 0.84674,
+     "status": "accept",
+     "speed_frames": 0.847214,
+     "frames_in": 30,
+     "frames_out": 34
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 287,
+     "apex": 305,
+     "end": 306,
+     "speed": 1.067088,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint",
+      "right_wrist_roll_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 493,
+     "apex": 508,
+     "end": 509,
+     "speed": 1.23433,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_hip_pitch_joint"
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "onset": 384,
+     "apex": 394,
+     "end": 394,
+     "speed": 1.075984,
+     "status": "skip",
+     "reason": "overlap"
+    }
+   ]
+  },
+  {
+   "name": "l1_warp_kfab_201_m1",
+   "family": "warp",
+   "host": "kfab_201",
+   "mirror": 1,
+   "conj": true,
+   "draw": 1,
+   "frames": 751,
+   "sources": {
+    "kfab_201": [
+     0,
+     721
+    ]
+   },
+   "q_sha256": "4eeabcb68b894965af6f456fd5d8b29ad936c03269b6b95beafa7f260f0d3b76",
+   "strikes": 17,
+   "hand_strikes": 16,
+   "mods": [
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 557,
+     "apex": 577,
+     "end": 581,
+     "speed": 0.829321,
+     "status": "accept",
+     "speed_frames": 0.838539,
+     "frames_in": 39,
+     "frames_out": 45
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "onset": 101,
+     "apex": 116,
+     "end": 116,
+     "speed": 1.087127,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_wrist_roll_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 124,
+     "apex": 132,
+     "end": 132,
+     "speed": 0.919376,
+     "status": "accept",
+     "speed_frames": 0.938944,
+     "frames_in": 23,
+     "frames_out": 24
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 462,
+     "apex": 470,
+     "end": 471,
+     "speed": 1.035996,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_hip_roll_joint",
+      "right_elbow_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 62,
+     "apex": 71,
+     "end": 72,
+     "speed": 0.789397,
+     "status": "accept",
+     "speed_frames": 0.772764,
+     "frames_in": 25,
+     "frames_out": 30
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 287,
+     "apex": 305,
+     "end": 306,
+     "speed": 1.160009,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_ankle_roll_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint",
+      "right_wrist_roll_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 237,
+     "apex": 240,
+     "end": 241,
+     "speed": 1.292581,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_ankle_pitch_joint",
+      "left_elbow_joint",
+      "left_wrist_roll_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_yaw_joint"
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 658,
+     "apex": 678,
+     "end": 684,
+     "speed": 0.957021,
+     "status": "accept",
+     "speed_frames": 0.943483,
+     "frames_in": 41,
+     "frames_out": 43
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 540,
+     "apex": 559,
+     "end": 559,
+     "speed": 0.903593,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 138,
+     "apex": 144,
+     "end": 144,
+     "speed": 0.866251,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 537,
+     "apex": 541,
+     "end": 541,
+     "speed": 0.737096,
+     "status": "accept",
+     "speed_frames": 0.731514,
+     "frames_in": 19,
+     "frames_out": 23
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 408,
+     "apex": 420,
+     "end": 420,
+     "speed": 0.739008,
+     "status": "accept",
+     "speed_frames": 0.729662,
+     "frames_in": 27,
+     "frames_out": 34
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "onset": 183,
+     "apex": 201,
+     "end": 201,
+     "speed": 1.29603,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_knee_joint",
+      "right_ankle_pitch_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 493,
+     "apex": 508,
+     "end": 509,
+     "speed": 1.143023,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_hip_pitch_joint"
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 710,
+     "apex": 715,
+     "end": 715,
+     "speed": 0.864605,
+     "status": "accept",
+     "speed_frames": 0.85923,
+     "frames_in": 20,
+     "frames_out": 22
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 1,
+     "apex": 21,
+     "end": 32,
+     "speed": 1.290629,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 715,
+     "apex": 720,
+     "end": 720,
+     "speed": 0.948733,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 451,
+     "apex": 457,
+     "end": 458,
+     "speed": 0.862437,
+     "status": "accept",
+     "speed_frames": 0.876898,
+     "frames_in": 22,
+     "frames_out": 24
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "onset": 384,
+     "apex": 394,
+     "end": 394,
+     "speed": 0.992769,
+     "status": "skip",
+     "reason": "overlap"
+    }
+   ]
+  },
+  {
+   "name": "l1_warp_kfab_203_o0",
+   "family": "warp",
+   "host": "kfab_203",
+   "mirror": 0,
+   "conj": false,
+   "draw": 0,
+   "frames": 299,
+   "sources": {
+    "kfab_203": [
+     0,
+     275
+    ]
+   },
+   "q_sha256": "a3041682801df54ed9191a764a0108cc03e93669ffc1023c46650a4452e442af",
+   "strikes": 9,
+   "hand_strikes": 9,
+   "mods": [
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 55,
+     "apex": 64,
+     "end": 64,
+     "speed": 1.19354,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_shoulder_pitch_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 221,
+     "apex": 241,
+     "end": 245,
+     "speed": 0.826737,
+     "status": "accept",
+     "speed_frames": 0.816316,
+     "frames_in": 39,
+     "frames_out": 46
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 0,
+     "apex": 20,
+     "end": 38,
+     "speed": 1.16349,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 214,
+     "apex": 224,
+     "end": 224,
+     "speed": 1.287103,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 99,
+     "apex": 116,
+     "end": 116,
+     "speed": 0.78295,
+     "status": "accept",
+     "speed_frames": 0.774246,
+     "frames_in": 32,
+     "frames_out": 39
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 139,
+     "apex": 159,
+     "end": 162,
+     "speed": 0.763341,
+     "status": "accept",
+     "speed_frames": 0.769199,
+     "frames_in": 38,
+     "frames_out": 47
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 0,
+     "apex": 18,
+     "end": 18,
+     "speed": 0.767316,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 120,
+     "apex": 121,
+     "end": 122,
+     "speed": 1.080246,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 37,
+     "apex": 45,
+     "end": 46,
+     "speed": 1.121612,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_hip_pitch_joint",
+      "left_ankle_pitch_joint",
+      "right_ankle_roll_joint",
+      "right_shoulder_pitch_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 81,
+     "apex": 95,
+     "end": 96,
+     "speed": 0.765963,
+     "status": "skip",
+     "reason": "overlap"
+    }
+   ]
+  },
+  {
+   "name": "l1_warp_kfab_203_o1",
+   "family": "warp",
+   "host": "kfab_203",
+   "mirror": 0,
+   "conj": false,
+   "draw": 1,
+   "frames": 286,
+   "sources": {
+    "kfab_203": [
+     0,
+     275
+    ]
+   },
+   "q_sha256": "8b85699fffafad0884df4d41c2e29099e7270d312f77d0214ebb73cb733c870b",
+   "strikes": 9,
+   "hand_strikes": 9,
+   "mods": [
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 0,
+     "apex": 20,
+     "end": 38,
+     "speed": 0.782759,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 99,
+     "apex": 116,
+     "end": 116,
+     "speed": 1.294292,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "waist_roll_joint",
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_yaw_joint",
+      "right_elbow_joint",
+      "right_wrist_roll_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 55,
+     "apex": 64,
+     "end": 64,
+     "speed": 0.883151,
+     "status": "accept",
+     "speed_frames": 0.89057,
+     "frames_in": 24,
+     "frames_out": 26
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 81,
+     "apex": 95,
+     "end": 96,
+     "speed": 0.854944,
+     "status": "accept",
+     "speed_frames": 0.847214,
+     "frames_in": 30,
+     "frames_out": 34
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 221,
+     "apex": 241,
+     "end": 245,
+     "speed": 1.19574,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_hip_yaw_joint",
+      "left_shoulder_pitch_joint",
+      "left_elbow_joint",
+      "right_wrist_roll_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 0,
+     "apex": 18,
+     "end": 18,
+     "speed": 1.196836,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 120,
+     "apex": 121,
+     "end": 122,
+     "speed": 0.701969,
+     "status": "accept",
+     "speed_frames": 0.686965,
+     "frames_in": 17,
+     "frames_out": 21
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 214,
+     "apex": 224,
+     "end": 224,
+     "speed": 1.059679,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_shoulder_pitch_joint"
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 139,
+     "apex": 159,
+     "end": 162,
+     "speed": 1.058309,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_knee_joint",
+      "left_wrist_roll_joint"
+     ]
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 37,
+     "apex": 45,
+     "end": 46,
+     "speed": 1.204611,
+     "status": "skip",
+     "reason": "overlap"
+    }
+   ]
+  },
+  {
+   "name": "l1_warp_kfab_203_m0",
+   "family": "warp",
+   "host": "kfab_203",
+   "mirror": 1,
+   "conj": true,
+   "draw": 0,
+   "frames": 288,
+   "sources": {
+    "kfab_203": [
+     0,
+     275
+    ]
+   },
+   "q_sha256": "a74fd5320b0b29b1e1f088afd68f66ec8475382d00da53918ad58939ed3f10ff",
+   "strikes": 9,
+   "hand_strikes": 9,
+   "mods": [
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 139,
+     "apex": 159,
+     "end": 162,
+     "speed": 1.009033,
+     "status": "accept",
+     "speed_frames": 1.0,
+     "frames_in": 38,
+     "frames_out": 38
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 55,
+     "apex": 64,
+     "end": 64,
+     "speed": 1.021599,
+     "status": "accept",
+     "speed_frames": 1.0,
+     "frames_in": 24,
+     "frames_out": 24
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 120,
+     "apex": 121,
+     "end": 122,
+     "speed": 1.050862,
+     "status": "accept",
+     "speed_frames": 1.0,
+     "frames_in": 17,
+     "frames_out": 17
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 214,
+     "apex": 224,
+     "end": 224,
+     "speed": 0.826807,
+     "status": "accept",
+     "speed_frames": 0.810381,
+     "frames_in": 25,
+     "frames_out": 29
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 99,
+     "apex": 116,
+     "end": 116,
+     "speed": 1.10165,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 37,
+     "apex": 45,
+     "end": 46,
+     "speed": 0.939738,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 0,
+     "apex": 20,
+     "end": 38,
+     "speed": 1.186995,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 221,
+     "apex": 241,
+     "end": 245,
+     "speed": 1.284279,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 81,
+     "apex": 95,
+     "end": 96,
+     "speed": 0.726808,
+     "status": "accept",
+     "speed_frames": 0.732449,
+     "frames_in": 30,
+     "frames_out": 38
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 0,
+     "apex": 18,
+     "end": 18,
+     "speed": 0.778375,
+     "status": "skip",
+     "reason": "seam"
+    }
+   ]
+  },
+  {
+   "name": "l1_warp_kfab_203_m1",
+   "family": "warp",
+   "host": "kfab_203",
+   "mirror": 1,
+   "conj": true,
+   "draw": 1,
+   "frames": 283,
+   "sources": {
+    "kfab_203": [
+     0,
+     275
+    ]
+   },
+   "q_sha256": "487833bca2f383b3ecb98630b9c95c572f3a74d4c21e97844342ca2c5f6c039a",
+   "strikes": 10,
+   "hand_strikes": 10,
+   "mods": [
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 99,
+     "apex": 116,
+     "end": 116,
+     "speed": 0.991255,
+     "status": "accept",
+     "speed_frames": 1.0,
+     "frames_in": 32,
+     "frames_out": 32
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 139,
+     "apex": 159,
+     "end": 162,
+     "speed": 0.836367,
+     "status": "accept",
+     "speed_frames": 0.834026,
+     "frames_in": 38,
+     "frames_out": 44
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 37,
+     "apex": 45,
+     "end": 46,
+     "speed": 1.117537,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "left_ankle_roll_joint",
+      "right_hip_pitch_joint",
+      "right_ankle_pitch_joint",
+      "left_shoulder_pitch_joint"
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 55,
+     "apex": 64,
+     "end": 64,
+     "speed": 0.952071,
+     "status": "accept",
+     "speed_frames": 0.942482,
+     "frames_in": 24,
+     "frames_out": 25
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 0,
+     "apex": 18,
+     "end": 18,
+     "speed": 0.722975,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 120,
+     "apex": 121,
+     "end": 122,
+     "speed": 0.954611,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 214,
+     "apex": 224,
+     "end": 224,
+     "speed": 1.144997,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint"
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 221,
+     "apex": 241,
+     "end": 245,
+     "speed": 1.105526,
+     "status": "reject",
+     "reason": "speed",
+     "joints": [
+      "right_shoulder_pitch_joint",
+      "right_elbow_joint"
+     ]
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 81,
+     "apex": 95,
+     "end": 96,
+     "speed": 0.877238,
+     "status": "skip",
+     "reason": "overlap"
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 0,
+     "apex": 20,
+     "end": 38,
+     "speed": 0.861773,
+     "status": "skip",
+     "reason": "seam"
+    }
+   ]
+  },
+  {
+   "name": "l1_reangle_kfab_200_o0",
+   "family": "reangle",
+   "host": "kfab_200",
+   "mirror": 0,
+   "conj": false,
+   "draw": 0,
+   "frames": 250,
+   "sources": {
+    "kfab_200": [
+     0,
+     249
+    ]
+   },
+   "q_sha256": "aab77f7dab3e2d489b1a4b3a5fed0ab303e6b84385215d849262ab1e87c55745",
+   "strikes": 8,
+   "hand_strikes": 8,
+   "mods": [
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 31,
+     "apex": 40,
+     "end": 41,
+     "elev0_deg": -6.073,
+     "delta_deg": 0.517,
+     "elev1_deg": -5.556,
+     "path_m": 0.00012,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.3304,
+     "reach_excess_m": -0.04010919355403453,
+     "apex_fwd_m": 0.3744244055913672,
+     "speed_joints": [
+      "right_shoulder_pitch_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 141,
+     "apex": 147,
+     "end": 148,
+     "elev0_deg": 35.279,
+     "delta_deg": 6.288,
+     "elev1_deg": 41.566,
+     "path_m": 0.01207,
+     "foot_m": 0.0,
+     "com_m": 0.0002,
+     "glove_m": 0.4315,
+     "reach_excess_m": -0.02944075308012878,
+     "apex_fwd_m": 0.32906118630111775,
+     "speed_joints": [
+      "right_shoulder_pitch_joint",
+      "right_elbow_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 105,
+     "apex": 114,
+     "end": 115,
+     "elev0_deg": -41.773,
+     "delta_deg": -37.615,
+     "elev1_deg": -79.388,
+     "path_m": 0.03721,
+     "foot_m": 0.0,
+     "com_m": 0.0011,
+     "glove_m": 0.4375,
+     "reach_excess_m": -0.007180252832854728,
+     "apex_fwd_m": 0.6015685960370099,
+     "speed_joints": [
+      "left_elbow_joint"
+     ],
+     "reason": "path,speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 176,
+     "apex": 188,
+     "end": 188,
+     "elev0_deg": -34.702,
+     "delta_deg": 14.743,
+     "elev1_deg": -19.958,
+     "path_m": 0.00158,
+     "foot_m": 0.0,
+     "com_m": 0.0001,
+     "glove_m": 0.3718,
+     "reach_excess_m": -0.0031187456891492715,
+     "apex_fwd_m": 0.5144275430944263,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "onset": 222,
+     "apex": 228,
+     "end": 229,
+     "elev0_deg": 48.557,
+     "delta_deg": 6.8,
+     "elev1_deg": 55.357,
+     "path_m": 0.00987,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4375,
+     "reach_excess_m": -0.0016569252813998236,
+     "apex_fwd_m": 0.5347354279529843,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 8,
+     "apex": 21,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 187,
+     "apex": 206,
+     "end": 207,
+     "elev0_deg": -41.708,
+     "delta_deg": 19.479,
+     "elev1_deg": -22.229,
+     "path_m": 0.00206,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.2579,
+     "reach_excess_m": -0.009113737354877305,
+     "apex_fwd_m": 0.35588134690413076,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 240,
+     "apex": 246,
+     "end": 246,
+     "elev0_deg": 23.244,
+     "delta_deg": -2.042,
+     "elev1_deg": 21.202,
+     "path_m": 0.00051,
+     "foot_m": 0.0,
+     "com_m": 0.0002,
+     "glove_m": 0.3803,
+     "reach_excess_m": -0.005935163644466779,
+     "apex_fwd_m": 0.5656443671116813,
+     "speed_joints": [],
+     "status": "accept"
+    }
+   ]
+  },
+  {
+   "name": "l1_reangle_kfab_200_o1",
+   "family": "reangle",
+   "host": "kfab_200",
+   "mirror": 0,
+   "conj": false,
+   "draw": 1,
+   "frames": 250,
+   "sources": {
+    "kfab_200": [
+     0,
+     249
+    ]
+   },
+   "q_sha256": "c6b1656d2948381ed3ed8d3a168e68011e8634fb950671622441b17bb5d37fae",
+   "strikes": 8,
+   "hand_strikes": 8,
+   "mods": [
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 187,
+     "apex": 206,
+     "end": 207,
+     "elev0_deg": -41.708,
+     "delta_deg": -26.773,
+     "elev1_deg": -68.481,
+     "path_m": 0.00372,
+     "foot_m": 0.0,
+     "com_m": 0.0034,
+     "glove_m": 0.2946,
+     "reach_excess_m": -0.006420529815873044,
+     "apex_fwd_m": 0.35588134690413076,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 141,
+     "apex": 147,
+     "end": 148,
+     "elev0_deg": 35.279,
+     "delta_deg": -1.646,
+     "elev1_deg": 33.632,
+     "path_m": 0.00177,
+     "foot_m": 0.0,
+     "com_m": 0.0003,
+     "glove_m": 0.4313,
+     "reach_excess_m": -0.03310721042930315,
+     "apex_fwd_m": 0.32906118630111775,
+     "speed_joints": [
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 8,
+     "apex": 21,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 176,
+     "apex": 188,
+     "end": 188,
+     "elev0_deg": -34.702,
+     "delta_deg": 27.339,
+     "elev1_deg": -7.363,
+     "path_m": 0.00271,
+     "foot_m": 0.0,
+     "com_m": 0.0001,
+     "glove_m": 0.3716,
+     "reach_excess_m": -0.003178410181419067,
+     "apex_fwd_m": 0.5144275430944263,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 31,
+     "apex": 40,
+     "end": 41,
+     "elev0_deg": -6.073,
+     "delta_deg": 29.875,
+     "elev1_deg": 23.802,
+     "path_m": 0.03441,
+     "foot_m": 0.0,
+     "com_m": 0.0003,
+     "glove_m": 0.3256,
+     "reach_excess_m": -0.03839232566651396,
+     "apex_fwd_m": 0.3744244055913672,
+     "speed_joints": [
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint",
+      "right_elbow_joint"
+     ],
+     "reason": "path,speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "onset": 222,
+     "apex": 228,
+     "end": 229,
+     "elev0_deg": 48.557,
+     "delta_deg": 4.145,
+     "elev1_deg": 52.702,
+     "path_m": 0.00591,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4374,
+     "reach_excess_m": -0.002648555189452617,
+     "apex_fwd_m": 0.5347354279529843,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 105,
+     "apex": 114,
+     "end": 115,
+     "elev0_deg": -41.773,
+     "delta_deg": 35.15,
+     "elev1_deg": -6.623,
+     "path_m": 0.00613,
+     "foot_m": 0.0,
+     "com_m": 0.0015,
+     "glove_m": 0.4309,
+     "reach_excess_m": 0.0007420646662661401,
+     "apex_fwd_m": 0.6015685960370099,
+     "speed_joints": [
+      "left_elbow_joint"
+     ],
+     "reason": "speed,reach",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 240,
+     "apex": 246,
+     "end": 246,
+     "elev0_deg": 23.244,
+     "delta_deg": 27.562,
+     "elev1_deg": 50.806,
+     "path_m": 0.026,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4094,
+     "reach_excess_m": -0.0019016413391315101,
+     "apex_fwd_m": 0.5656443671116813,
+     "speed_joints": [
+      "right_shoulder_roll_joint",
+      "right_elbow_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    }
+   ]
+  },
+  {
+   "name": "l1_reangle_kfab_200_m0",
+   "family": "reangle",
+   "host": "kfab_200",
+   "mirror": 1,
+   "conj": true,
+   "draw": 0,
+   "frames": 250,
+   "sources": {
+    "kfab_200": [
+     0,
+     249
+    ]
+   },
+   "q_sha256": "b43db903652ac6d74fe7196e4d6e5d3059fdc9c1dc6fd7da7b962b9ba5248835",
+   "strikes": 8,
+   "hand_strikes": 8,
+   "mods": [
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 240,
+     "apex": 246,
+     "end": 246,
+     "elev0_deg": 23.244,
+     "delta_deg": 3.513,
+     "elev1_deg": 26.757,
+     "path_m": 0.00101,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.3816,
+     "reach_excess_m": -0.005449828564107584,
+     "apex_fwd_m": 0.5656443671116813,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 105,
+     "apex": 114,
+     "end": 115,
+     "elev0_deg": -41.773,
+     "delta_deg": 20.078,
+     "elev1_deg": -21.694,
+     "path_m": 0.00495,
+     "foot_m": 0.0,
+     "com_m": 0.001,
+     "glove_m": 0.4331,
+     "reach_excess_m": 0.0005688821819374024,
+     "apex_fwd_m": 0.6015685960370099,
+     "speed_joints": [],
+     "reason": "reach",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 8,
+     "apex": 21,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 187,
+     "apex": 206,
+     "end": 207,
+     "elev0_deg": -41.708,
+     "delta_deg": 32.381,
+     "elev1_deg": -9.327,
+     "path_m": 0.00307,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.2552,
+     "reach_excess_m": -0.009745801504755236,
+     "apex_fwd_m": 0.35588134690413076,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 141,
+     "apex": 147,
+     "end": 148,
+     "elev0_deg": 35.279,
+     "delta_deg": -23.032,
+     "elev1_deg": 12.246,
+     "path_m": 0.05949,
+     "foot_m": 0.0,
+     "com_m": 0.0046,
+     "glove_m": 0.4276,
+     "reach_excess_m": -0.037834425083449696,
+     "apex_fwd_m": 0.32906118630111775,
+     "speed_joints": [
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "left_elbow_joint"
+     ],
+     "reason": "path,speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "onset": 222,
+     "apex": 228,
+     "end": 229,
+     "elev0_deg": 48.557,
+     "delta_deg": 17.777,
+     "elev1_deg": 66.334,
+     "path_m": 0.02739,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4375,
+     "reach_excess_m": 0.002103240627432279,
+     "apex_fwd_m": 0.5347354279529843,
+     "speed_joints": [],
+     "reason": "reach",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 31,
+     "apex": 40,
+     "end": 41,
+     "elev0_deg": -6.073,
+     "delta_deg": -32.427,
+     "elev1_deg": -38.5,
+     "path_m": 0.07192,
+     "foot_m": 0.0,
+     "com_m": 0.0019,
+     "glove_m": 0.3623,
+     "reach_excess_m": -0.034297558419583596,
+     "apex_fwd_m": 0.3744244055913672,
+     "speed_joints": [
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "left_elbow_joint"
+     ],
+     "reason": "path,speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 176,
+     "apex": 188,
+     "end": 188,
+     "elev0_deg": -34.702,
+     "delta_deg": -27.669,
+     "elev1_deg": -62.37,
+     "path_m": 0.00409,
+     "foot_m": 0.0,
+     "com_m": 0.0019,
+     "glove_m": 0.3867,
+     "reach_excess_m": -0.0003071114568853339,
+     "apex_fwd_m": 0.5144275430944263,
+     "speed_joints": [],
+     "status": "accept"
+    }
+   ]
+  },
+  {
+   "name": "l1_reangle_kfab_200_m1",
+   "family": "reangle",
+   "host": "kfab_200",
+   "mirror": 1,
+   "conj": true,
+   "draw": 1,
+   "frames": 250,
+   "sources": {
+    "kfab_200": [
+     0,
+     249
+    ]
+   },
+   "q_sha256": "31c0698fc9352e81c499f9c773dd6b25116653a6a579935738ba0a1675e63296",
+   "strikes": 8,
+   "hand_strikes": 8,
+   "mods": [
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 187,
+     "apex": 206,
+     "end": 207,
+     "elev0_deg": -41.708,
+     "delta_deg": -38.104,
+     "elev1_deg": -79.812,
+     "path_m": 0.0059,
+     "foot_m": 0.0,
+     "com_m": 0.0048,
+     "glove_m": 0.3132,
+     "reach_excess_m": -0.004510045768232385,
+     "apex_fwd_m": 0.35588134690413076,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 141,
+     "apex": 147,
+     "end": 148,
+     "elev0_deg": 35.279,
+     "delta_deg": 4.841,
+     "elev1_deg": 40.119,
+     "path_m": 0.00845,
+     "foot_m": 0.0,
+     "com_m": 0.0001,
+     "glove_m": 0.4315,
+     "reach_excess_m": -0.030181248216761547,
+     "apex_fwd_m": 0.32906118630111775,
+     "speed_joints": [
+      "left_shoulder_pitch_joint",
+      "left_elbow_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 31,
+     "apex": 40,
+     "end": 41,
+     "elev0_deg": -6.073,
+     "delta_deg": -3.326,
+     "elev1_deg": -9.399,
+     "path_m": 0.00082,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.3311,
+     "reach_excess_m": -0.0396392555383972,
+     "apex_fwd_m": 0.3744244055913672,
+     "speed_joints": [
+      "left_shoulder_pitch_joint",
+      "left_shoulder_yaw_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 240,
+     "apex": 246,
+     "end": 246,
+     "elev0_deg": 23.244,
+     "delta_deg": 12.116,
+     "elev1_deg": 35.359,
+     "path_m": 0.00448,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.3841,
+     "reach_excess_m": -0.004433422063714665,
+     "apex_fwd_m": 0.5656443671116813,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "onset": 222,
+     "apex": 228,
+     "end": 229,
+     "elev0_deg": 48.557,
+     "delta_deg": 15.192,
+     "elev1_deg": 63.749,
+     "path_m": 0.02356,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4375,
+     "reach_excess_m": 0.0012698840053776417,
+     "apex_fwd_m": 0.5347354279529843,
+     "speed_joints": [],
+     "reason": "reach",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 176,
+     "apex": 188,
+     "end": 188,
+     "elev0_deg": -34.702,
+     "delta_deg": -0.89,
+     "elev1_deg": -35.592,
+     "path_m": 0.00011,
+     "foot_m": 0.0,
+     "com_m": 0.0001,
+     "glove_m": 0.3725,
+     "reach_excess_m": -0.0025235283811692044,
+     "apex_fwd_m": 0.5144275430944263,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 8,
+     "apex": 21,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 105,
+     "apex": 114,
+     "end": 115,
+     "elev0_deg": -41.773,
+     "delta_deg": 35.425,
+     "elev1_deg": -6.347,
+     "path_m": 0.00614,
+     "foot_m": 0.0,
+     "com_m": 0.0015,
+     "glove_m": 0.4309,
+     "reach_excess_m": 0.000742119940287278,
+     "apex_fwd_m": 0.6015685960370099,
+     "speed_joints": [
+      "right_elbow_joint"
+     ],
+     "reason": "speed,reach",
+     "status": "reject"
+    }
+   ]
+  },
+  {
+   "name": "l1_reangle_kfab_201_o0",
+   "family": "reangle",
+   "host": "kfab_201",
+   "mirror": 0,
+   "conj": false,
+   "draw": 0,
+   "frames": 722,
+   "sources": {
+    "kfab_201": [
+     0,
+     721
+    ]
+   },
+   "q_sha256": "64d15e06fc37f8ac525cec064c8db053042adf42c78502ed457c4a8d9b32789e",
+   "strikes": 20,
+   "hand_strikes": 19,
+   "mods": [
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 493,
+     "apex": 508,
+     "end": 509,
+     "elev0_deg": -12.131,
+     "delta_deg": 5.341,
+     "elev1_deg": -6.791,
+     "path_m": 0.00017,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4022,
+     "reach_excess_m": -0.002880774790424312,
+     "apex_fwd_m": 0.37298503887708123,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 451,
+     "apex": 457,
+     "end": 458,
+     "elev0_deg": -9.9,
+     "delta_deg": -26.807,
+     "elev1_deg": -36.707,
+     "path_m": 0.0217,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4371,
+     "reach_excess_m": -0.012349429678324308,
+     "apex_fwd_m": 0.6189621193345772,
+     "speed_joints": [
+      "left_elbow_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 138,
+     "apex": 144,
+     "end": 144,
+     "elev0_deg": -16.842,
+     "delta_deg": -15.782,
+     "elev1_deg": -32.624,
+     "path_m": 0.00431,
+     "foot_m": 0.0,
+     "com_m": 0.002,
+     "glove_m": 0.4352,
+     "reach_excess_m": -0.0018760488419282684,
+     "apex_fwd_m": 0.5926146160601365,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 658,
+     "apex": 678,
+     "end": 684,
+     "elev0_deg": -43.799,
+     "delta_deg": 15.903,
+     "elev1_deg": -27.896,
+     "path_m": 0.00414,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.3667,
+     "reach_excess_m": -0.03906683481816953,
+     "apex_fwd_m": 0.4384978003687158,
+     "speed_joints": [
+      "right_elbow_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 124,
+     "apex": 132,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 1,
+     "apex": 21,
+     "end": 32,
+     "elev0_deg": -13.088,
+     "delta_deg": 10.066,
+     "elev1_deg": -3.023,
+     "path_m": 0.00038,
+     "foot_m": 0.0,
+     "com_m": 0.0002,
+     "glove_m": 0.3669,
+     "reach_excess_m": -0.008482258611520799,
+     "apex_fwd_m": 0.42881466375275384,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 710,
+     "apex": 715,
+     "end": 715,
+     "elev0_deg": 19.835,
+     "delta_deg": -4.489,
+     "elev1_deg": 15.346,
+     "path_m": 0.00341,
+     "foot_m": 0.0,
+     "com_m": 0.0003,
+     "glove_m": 0.404,
+     "reach_excess_m": -0.025531736872614452,
+     "apex_fwd_m": 0.43034707480250306,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 287,
+     "apex": 305,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "onset": 101,
+     "apex": 116,
+     "end": 116,
+     "elev0_deg": 55.404,
+     "delta_deg": -1.88,
+     "elev1_deg": 53.524,
+     "path_m": 0.00045,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4363,
+     "reach_excess_m": -0.0015910356748440324,
+     "apex_fwd_m": 0.4439698436714842,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 537,
+     "apex": 541,
+     "end": 541,
+     "elev0_deg": -20.305,
+     "delta_deg": -12.013,
+     "elev1_deg": -32.318,
+     "path_m": 0.00284,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4261,
+     "reach_excess_m": -0.005220530266755841,
+     "apex_fwd_m": 0.5142312842284962,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "onset": 384,
+     "apex": 394,
+     "end": 394,
+     "elev0_deg": 49.329,
+     "delta_deg": 19.271,
+     "elev1_deg": 68.6,
+     "path_m": 0.02271,
+     "foot_m": 0.0,
+     "com_m": 0.0035,
+     "glove_m": 0.4342,
+     "reach_excess_m": 0.011219970140289803,
+     "apex_fwd_m": 0.47946544729055296,
+     "speed_joints": [
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint",
+      "right_elbow_joint"
+     ],
+     "reason": "speed,reach",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 540,
+     "apex": 559,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 62,
+     "apex": 71,
+     "end": 72,
+     "elev0_deg": -25.554,
+     "delta_deg": -10.629,
+     "elev1_deg": -36.182,
+     "path_m": 0.00517,
+     "foot_m": 0.0,
+     "com_m": 0.0001,
+     "glove_m": 0.431,
+     "reach_excess_m": -0.003503568048098815,
+     "apex_fwd_m": 0.6102220801658429,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "onset": 183,
+     "apex": 201,
+     "end": 201,
+     "elev0_deg": 53.558,
+     "delta_deg": 14.996,
+     "elev1_deg": 68.554,
+     "path_m": 0.00798,
+     "foot_m": 0.0,
+     "com_m": 0.0001,
+     "glove_m": 0.4379,
+     "reach_excess_m": 0.001475031569426244,
+     "apex_fwd_m": 0.3552475434388908,
+     "speed_joints": [],
+     "reason": "reach",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 408,
+     "apex": 420,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 715,
+     "apex": 720,
+     "end": 720,
+     "elev0_deg": -6.833,
+     "delta_deg": -9.842,
+     "elev1_deg": -16.675,
+     "path_m": 0.08899,
+     "foot_m": 0.0,
+     "com_m": 0.0021,
+     "glove_m": 0.4206,
+     "reach_excess_m": 0.007797412552481675,
+     "apex_fwd_m": 0.3506110576294152,
+     "speed_joints": [
+      "left_elbow_joint"
+     ],
+     "reason": "path,speed,reach",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 557,
+     "apex": 577,
+     "end": 581,
+     "elev0_deg": 23.105,
+     "delta_deg": 10.89,
+     "elev1_deg": 33.995,
+     "path_m": 0.06128,
+     "foot_m": 0.0,
+     "com_m": 0.0005,
+     "glove_m": 0.4374,
+     "reach_excess_m": -0.11201794950797717,
+     "apex_fwd_m": 0.28535324467329,
+     "speed_joints": [],
+     "reason": "path",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 237,
+     "apex": 240,
+     "end": 241,
+     "elev0_deg": -25.306,
+     "delta_deg": 35.369,
+     "elev1_deg": 10.062,
+     "path_m": 0.00826,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4052,
+     "reach_excess_m": -0.006101780779860733,
+     "apex_fwd_m": 0.48187610518219653,
+     "speed_joints": [
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "left_elbow_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 462,
+     "apex": 470,
+     "end": 471,
+     "elev0_deg": -6.115,
+     "delta_deg": 29.212,
+     "elev1_deg": 23.098,
+     "path_m": 0.00529,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.3672,
+     "reach_excess_m": -0.0076706617037564095,
+     "apex_fwd_m": 0.5570383171760696,
+     "speed_joints": [],
+     "status": "accept"
+    }
+   ]
+  },
+  {
+   "name": "l1_reangle_kfab_201_o1",
+   "family": "reangle",
+   "host": "kfab_201",
+   "mirror": 0,
+   "conj": false,
+   "draw": 1,
+   "frames": 722,
+   "sources": {
+    "kfab_201": [
+     0,
+     721
+    ]
+   },
+   "q_sha256": "7b27b02de63b8d8704b3f1b0f43098e8476ba5c1525eda0d3011311be9c98476",
+   "strikes": 20,
+   "hand_strikes": 19,
+   "mods": [
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 237,
+     "apex": 240,
+     "end": 241,
+     "elev0_deg": -25.306,
+     "delta_deg": -33.0,
+     "elev1_deg": -58.306,
+     "path_m": 0.14725,
+     "foot_m": 0.0,
+     "com_m": 0.0055,
+     "glove_m": 0.4133,
+     "reach_excess_m": 0.0008738827112839687,
+     "apex_fwd_m": 0.48187610518219653,
+     "speed_joints": [
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "left_elbow_joint"
+     ],
+     "reason": "path,speed,reach",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 124,
+     "apex": 132,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 658,
+     "apex": 678,
+     "end": 684,
+     "elev0_deg": -43.799,
+     "delta_deg": 9.01,
+     "elev1_deg": -34.789,
+     "path_m": 0.0027,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.3688,
+     "reach_excess_m": -0.03826004730474397,
+     "apex_fwd_m": 0.4384978003687158,
+     "speed_joints": [
+      "right_elbow_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 287,
+     "apex": 305,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 557,
+     "apex": 577,
+     "end": 581,
+     "elev0_deg": 23.105,
+     "delta_deg": 5.781,
+     "elev1_deg": 28.886,
+     "path_m": 0.03262,
+     "foot_m": 0.0,
+     "com_m": 0.0002,
+     "glove_m": 0.4375,
+     "reach_excess_m": -0.11524995500756813,
+     "apex_fwd_m": 0.28535324467329,
+     "speed_joints": [],
+     "reason": "path",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 715,
+     "apex": 720,
+     "end": 720,
+     "elev0_deg": -6.833,
+     "delta_deg": 2.386,
+     "elev1_deg": -4.446,
+     "path_m": 0.00414,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4207,
+     "reach_excess_m": -0.009273533459750183,
+     "apex_fwd_m": 0.3506110576294152,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 462,
+     "apex": 470,
+     "end": 471,
+     "elev0_deg": -6.115,
+     "delta_deg": 18.859,
+     "elev1_deg": 12.744,
+     "path_m": 0.00213,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.3624,
+     "reach_excess_m": -0.010475501114484365,
+     "apex_fwd_m": 0.5570383171760696,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "onset": 183,
+     "apex": 201,
+     "end": 201,
+     "elev0_deg": 53.558,
+     "delta_deg": 3.998,
+     "elev1_deg": 57.556,
+     "path_m": 0.00247,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4379,
+     "reach_excess_m": 0.00022714393203981942,
+     "apex_fwd_m": 0.3552475434388908,
+     "speed_joints": [],
+     "reason": "reach",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 451,
+     "apex": 457,
+     "end": 458,
+     "elev0_deg": -9.9,
+     "delta_deg": 15.632,
+     "elev1_deg": 5.732,
+     "path_m": 0.00338,
+     "foot_m": 0.0,
+     "com_m": 0.0005,
+     "glove_m": 0.4346,
+     "reach_excess_m": -0.010684347152254636,
+     "apex_fwd_m": 0.6189621193345772,
+     "speed_joints": [
+      "left_elbow_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "onset": 384,
+     "apex": 394,
+     "end": 394,
+     "elev0_deg": 49.329,
+     "delta_deg": 17.489,
+     "elev1_deg": 66.818,
+     "path_m": 0.01918,
+     "foot_m": 0.0,
+     "com_m": 0.0031,
+     "glove_m": 0.4339,
+     "reach_excess_m": 0.009890881260683715,
+     "apex_fwd_m": 0.47946544729055296,
+     "speed_joints": [
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint",
+      "right_elbow_joint"
+     ],
+     "reason": "speed,reach",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 138,
+     "apex": 144,
+     "end": 144,
+     "elev0_deg": -16.842,
+     "delta_deg": 5.913,
+     "elev1_deg": -10.929,
+     "path_m": 0.00082,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4352,
+     "reach_excess_m": -0.0016691670605394338,
+     "apex_fwd_m": 0.5926146160601365,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 1,
+     "apex": 21,
+     "end": 32,
+     "elev0_deg": -13.088,
+     "delta_deg": -31.082,
+     "elev1_deg": -44.171,
+     "path_m": 0.00267,
+     "foot_m": 0.0,
+     "com_m": 0.0004,
+     "glove_m": 0.3735,
+     "reach_excess_m": -0.005047778518613544,
+     "apex_fwd_m": 0.42881466375275384,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 537,
+     "apex": 541,
+     "end": 541,
+     "elev0_deg": -20.305,
+     "delta_deg": 32.186,
+     "elev1_deg": 11.881,
+     "path_m": 0.00196,
+     "foot_m": 0.0,
+     "com_m": 0.0007,
+     "glove_m": 0.4263,
+     "reach_excess_m": -0.009718055785465696,
+     "apex_fwd_m": 0.5142312842284962,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 710,
+     "apex": 715,
+     "end": 715,
+     "elev0_deg": 19.835,
+     "delta_deg": -39.179,
+     "elev1_deg": -19.344,
+     "path_m": 0.00576,
+     "foot_m": 0.0,
+     "com_m": 0.0022,
+     "glove_m": 0.4052,
+     "reach_excess_m": -0.024398810219440903,
+     "apex_fwd_m": 0.43034707480250306,
+     "speed_joints": [
+      "right_shoulder_yaw_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 408,
+     "apex": 420,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 540,
+     "apex": 559,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 493,
+     "apex": 508,
+     "end": 509,
+     "elev0_deg": -12.131,
+     "delta_deg": 19.162,
+     "elev1_deg": 7.031,
+     "path_m": 0.00052,
+     "foot_m": 0.0,
+     "com_m": 0.0002,
+     "glove_m": 0.4011,
+     "reach_excess_m": -0.0044101014921122395,
+     "apex_fwd_m": 0.37298503887708123,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 62,
+     "apex": 71,
+     "end": 72,
+     "elev0_deg": -25.554,
+     "delta_deg": 2.688,
+     "elev1_deg": -22.865,
+     "path_m": 0.00081,
+     "foot_m": 0.0,
+     "com_m": 0.0001,
+     "glove_m": 0.4296,
+     "reach_excess_m": -0.003102728741224303,
+     "apex_fwd_m": 0.6102220801658429,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "uppercut",
+     "onset": 101,
+     "apex": 116,
+     "end": 116,
+     "elev0_deg": 55.404,
+     "delta_deg": -1.73,
+     "elev1_deg": 53.674,
+     "path_m": 0.00041,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4363,
+     "reach_excess_m": -0.0015730931096283318,
+     "apex_fwd_m": 0.4439698436714842,
+     "speed_joints": [],
+     "status": "accept"
+    }
+   ]
+  },
+  {
+   "name": "l1_reangle_kfab_201_m0",
+   "family": "reangle",
+   "host": "kfab_201",
+   "mirror": 1,
+   "conj": true,
+   "draw": 0,
+   "frames": 722,
+   "sources": {
+    "kfab_201": [
+     0,
+     721
+    ]
+   },
+   "q_sha256": "7dff7b462335ca4b9c293d60494a0fd8abe69698e32805faaa5afd89384414f4",
+   "strikes": 20,
+   "hand_strikes": 19,
+   "mods": [
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 124,
+     "apex": 132,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 451,
+     "apex": 457,
+     "end": 458,
+     "elev0_deg": -9.9,
+     "delta_deg": 24.323,
+     "elev1_deg": 14.424,
+     "path_m": 0.0043,
+     "foot_m": 0.0,
+     "com_m": 0.0009,
+     "glove_m": 0.4342,
+     "reach_excess_m": -0.009917233332683906,
+     "apex_fwd_m": 0.6189621193345772,
+     "speed_joints": [
+      "right_elbow_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 462,
+     "apex": 470,
+     "end": 471,
+     "elev0_deg": -6.115,
+     "delta_deg": 7.702,
+     "elev1_deg": 1.587,
+     "path_m": 0.00052,
+     "foot_m": 0.0,
+     "com_m": 0.0001,
+     "glove_m": 0.3591,
+     "reach_excess_m": -0.012398473879817629,
+     "apex_fwd_m": 0.5570383171760696,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 62,
+     "apex": 71,
+     "end": 72,
+     "elev0_deg": -25.554,
+     "delta_deg": 10.996,
+     "elev1_deg": -14.558,
+     "path_m": 0.00261,
+     "foot_m": 0.0,
+     "com_m": 0.0003,
+     "glove_m": 0.4289,
+     "reach_excess_m": -0.002717492568250157,
+     "apex_fwd_m": 0.6102220801658429,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 557,
+     "apex": 577,
+     "end": 581,
+     "elev0_deg": 23.105,
+     "delta_deg": -12.706,
+     "elev1_deg": 10.398,
+     "path_m": 0.14622,
+     "foot_m": 0.0,
+     "com_m": 0.0017,
+     "glove_m": 0.4378,
+     "reach_excess_m": -0.12239387550290326,
+     "apex_fwd_m": 0.28535324467329,
+     "speed_joints": [
+      "right_elbow_joint"
+     ],
+     "reason": "path,speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 715,
+     "apex": 720,
+     "end": 720,
+     "elev0_deg": -6.833,
+     "delta_deg": -18.196,
+     "elev1_deg": -25.029,
+     "path_m": 0.15683,
+     "foot_m": 0.0,
+     "com_m": 0.003,
+     "glove_m": 0.4204,
+     "reach_excess_m": 0.02301379359945538,
+     "apex_fwd_m": 0.3506110576294152,
+     "speed_joints": [
+      "right_elbow_joint"
+     ],
+     "reason": "path,speed,reach",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "onset": 183,
+     "apex": 201,
+     "end": 201,
+     "elev0_deg": 53.558,
+     "delta_deg": 14.675,
+     "elev1_deg": 68.233,
+     "path_m": 0.00786,
+     "foot_m": 0.0,
+     "com_m": 0.0001,
+     "glove_m": 0.4379,
+     "reach_excess_m": 0.0014391421724550546,
+     "apex_fwd_m": 0.3552475434388908,
+     "speed_joints": [],
+     "reason": "reach",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "onset": 384,
+     "apex": 394,
+     "end": 394,
+     "elev0_deg": 49.329,
+     "delta_deg": 19.377,
+     "elev1_deg": 68.706,
+     "path_m": 0.02292,
+     "foot_m": 0.0,
+     "com_m": 0.0035,
+     "glove_m": 0.4342,
+     "reach_excess_m": 0.011299179242187929,
+     "apex_fwd_m": 0.47946544729055296,
+     "speed_joints": [
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "left_elbow_joint"
+     ],
+     "reason": "speed,reach",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 408,
+     "apex": 420,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "onset": 101,
+     "apex": 116,
+     "end": 116,
+     "elev0_deg": 55.404,
+     "delta_deg": 5.399,
+     "elev1_deg": 60.803,
+     "path_m": 0.00112,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4355,
+     "reach_excess_m": -0.0006974620511325247,
+     "apex_fwd_m": 0.4439698436714842,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 287,
+     "apex": 305,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 537,
+     "apex": 541,
+     "end": 541,
+     "elev0_deg": -20.305,
+     "delta_deg": 12.889,
+     "elev1_deg": -7.416,
+     "path_m": 0.00108,
+     "foot_m": 0.0,
+     "com_m": 0.0005,
+     "glove_m": 0.4261,
+     "reach_excess_m": -0.008401110331199724,
+     "apex_fwd_m": 0.5142312842284962,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 1,
+     "apex": 21,
+     "end": 32,
+     "elev0_deg": -13.088,
+     "delta_deg": -35.733,
+     "elev1_deg": -48.821,
+     "path_m": 0.00333,
+     "foot_m": 0.0,
+     "com_m": 0.0005,
+     "glove_m": 0.3751,
+     "reach_excess_m": -0.004518280351330006,
+     "apex_fwd_m": 0.42881466375275384,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 540,
+     "apex": 559,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 710,
+     "apex": 715,
+     "end": 715,
+     "elev0_deg": 19.835,
+     "delta_deg": 19.685,
+     "elev1_deg": 39.52,
+     "path_m": 0.00725,
+     "foot_m": 0.0,
+     "com_m": 0.0033,
+     "glove_m": 0.4038,
+     "reach_excess_m": -0.02012756128995352,
+     "apex_fwd_m": 0.43034707480250306,
+     "speed_joints": [
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 493,
+     "apex": 508,
+     "end": 509,
+     "elev0_deg": -12.131,
+     "delta_deg": -11.901,
+     "elev1_deg": -24.032,
+     "path_m": 0.00044,
+     "foot_m": 0.0,
+     "com_m": 0.0003,
+     "glove_m": 0.404,
+     "reach_excess_m": -0.0007476559868109245,
+     "apex_fwd_m": 0.37298503887708123,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 237,
+     "apex": 240,
+     "end": 241,
+     "elev0_deg": -25.306,
+     "delta_deg": -16.727,
+     "elev1_deg": -42.034,
+     "path_m": 0.04325,
+     "foot_m": 0.0,
+     "com_m": 0.0045,
+     "glove_m": 0.4116,
+     "reach_excess_m": -0.003105539994771478,
+     "apex_fwd_m": 0.48187610518219653,
+     "speed_joints": [
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint",
+      "right_elbow_joint"
+     ],
+     "reason": "path,speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 138,
+     "apex": 144,
+     "end": 144,
+     "elev0_deg": -16.842,
+     "delta_deg": 9.083,
+     "elev1_deg": -7.759,
+     "path_m": 0.00112,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4352,
+     "reach_excess_m": -0.001600703760017308,
+     "apex_fwd_m": 0.5926146160601365,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 658,
+     "apex": 678,
+     "end": 684,
+     "elev0_deg": -43.799,
+     "delta_deg": 5.371,
+     "elev1_deg": -38.428,
+     "path_m": 0.00176,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.37,
+     "reach_excess_m": -0.03762397551284663,
+     "apex_fwd_m": 0.4384978003687158,
+     "speed_joints": [
+      "left_elbow_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    }
+   ]
+  },
+  {
+   "name": "l1_reangle_kfab_201_m1",
+   "family": "reangle",
+   "host": "kfab_201",
+   "mirror": 1,
+   "conj": true,
+   "draw": 1,
+   "frames": 722,
+   "sources": {
+    "kfab_201": [
+     0,
+     721
+    ]
+   },
+   "q_sha256": "23492c7d7f4ec202e776f6239d3545f017819cfca96cd572f20e1134e07eb16d",
+   "strikes": 19,
+   "hand_strikes": 18,
+   "mods": [
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 715,
+     "apex": 720,
+     "end": 720,
+     "elev0_deg": -6.833,
+     "delta_deg": 35.223,
+     "elev1_deg": 28.39,
+     "path_m": 0.10911,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4159,
+     "reach_excess_m": 0.007146784005867768,
+     "apex_fwd_m": 0.3506110576294152,
+     "speed_joints": [
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint",
+      "right_elbow_joint"
+     ],
+     "reason": "path,speed,reach",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 493,
+     "apex": 508,
+     "end": 509,
+     "elev0_deg": -12.131,
+     "delta_deg": -10.266,
+     "elev1_deg": -22.398,
+     "path_m": 0.00037,
+     "foot_m": 0.0,
+     "com_m": 0.0002,
+     "glove_m": 0.4038,
+     "reach_excess_m": -0.0009556602796351177,
+     "apex_fwd_m": 0.37298503887708123,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 710,
+     "apex": 715,
+     "end": 715,
+     "elev0_deg": 19.835,
+     "delta_deg": -32.291,
+     "elev1_deg": -12.456,
+     "path_m": 0.00646,
+     "foot_m": 0.0,
+     "com_m": 0.0012,
+     "glove_m": 0.405,
+     "reach_excess_m": -0.025450894757022724,
+     "apex_fwd_m": 0.43034707480250306,
+     "speed_joints": [
+      "left_shoulder_yaw_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 237,
+     "apex": 240,
+     "end": 241,
+     "elev0_deg": -25.306,
+     "delta_deg": -27.041,
+     "elev1_deg": -52.348,
+     "path_m": 0.10891,
+     "foot_m": 0.0,
+     "com_m": 0.0055,
+     "glove_m": 0.4126,
+     "reach_excess_m": -0.0006182533576814531,
+     "apex_fwd_m": 0.48187610518219653,
+     "speed_joints": [
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint",
+      "right_elbow_joint"
+     ],
+     "reason": "path,speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "onset": 183,
+     "apex": 201,
+     "end": 201,
+     "elev0_deg": 53.558,
+     "delta_deg": 6.769,
+     "elev1_deg": 60.328,
+     "path_m": 0.00407,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4379,
+     "reach_excess_m": 0.0005439365108043104,
+     "apex_fwd_m": 0.3552475434388908,
+     "speed_joints": [],
+     "reason": "reach",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "onset": 101,
+     "apex": 116,
+     "end": 116,
+     "elev0_deg": 55.404,
+     "delta_deg": -12.239,
+     "elev1_deg": 43.165,
+     "path_m": 0.00344,
+     "foot_m": 0.0,
+     "com_m": 0.0002,
+     "glove_m": 0.4368,
+     "reach_excess_m": -0.0027654348129126927,
+     "apex_fwd_m": 0.4439698436714842,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 451,
+     "apex": 457,
+     "end": 458,
+     "elev0_deg": -9.9,
+     "delta_deg": -36.155,
+     "elev1_deg": -46.055,
+     "path_m": 0.03568,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4376,
+     "reach_excess_m": -0.01211256827106888,
+     "apex_fwd_m": 0.6189621193345772,
+     "speed_joints": [
+      "right_elbow_joint"
+     ],
+     "reason": "path,speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "uppercut",
+     "onset": 384,
+     "apex": 394,
+     "end": 394,
+     "elev0_deg": 49.329,
+     "delta_deg": 18.902,
+     "elev1_deg": 68.231,
+     "path_m": 0.02201,
+     "foot_m": 0.0,
+     "com_m": 0.0034,
+     "glove_m": 0.4341,
+     "reach_excess_m": 0.010944680562834597,
+     "apex_fwd_m": 0.47946544729055296,
+     "speed_joints": [
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "left_elbow_joint"
+     ],
+     "reason": "speed,reach",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 62,
+     "apex": 71,
+     "end": 72,
+     "elev0_deg": -25.554,
+     "delta_deg": -3.69,
+     "elev1_deg": -29.243,
+     "path_m": 0.00138,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4302,
+     "reach_excess_m": -0.0033180524376824616,
+     "apex_fwd_m": 0.6102220801658429,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 124,
+     "apex": 132,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 1,
+     "apex": 21,
+     "end": 32,
+     "elev0_deg": -13.088,
+     "delta_deg": -26.772,
+     "elev1_deg": -39.86,
+     "path_m": 0.00213,
+     "foot_m": 0.0,
+     "com_m": 0.0004,
+     "glove_m": 0.3724,
+     "reach_excess_m": -0.005521328688965099,
+     "apex_fwd_m": 0.42881466375275384,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 658,
+     "apex": 678,
+     "end": 684,
+     "elev0_deg": -43.799,
+     "delta_deg": 3.013,
+     "elev1_deg": -40.786,
+     "path_m": 0.00105,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.3707,
+     "reach_excess_m": -0.037136512598119065,
+     "apex_fwd_m": 0.4384978003687158,
+     "speed_joints": [
+      "left_elbow_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 408,
+     "apex": 420,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 557,
+     "apex": 577,
+     "end": 581,
+     "elev0_deg": 23.105,
+     "delta_deg": 5.198,
+     "elev1_deg": 28.303,
+     "path_m": 0.0294,
+     "foot_m": 0.0,
+     "com_m": 0.0002,
+     "glove_m": 0.4375,
+     "reach_excess_m": -0.11558016425203707,
+     "apex_fwd_m": 0.28535324467329,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 537,
+     "apex": 541,
+     "end": 541,
+     "elev0_deg": -20.305,
+     "delta_deg": -35.005,
+     "elev1_deg": -55.31,
+     "path_m": 0.02424,
+     "foot_m": 0.0,
+     "com_m": 0.0002,
+     "glove_m": 0.4288,
+     "reach_excess_m": -0.003168907197198756,
+     "apex_fwd_m": 0.5142312842284962,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 138,
+     "apex": 144,
+     "end": 144,
+     "elev0_deg": -16.842,
+     "delta_deg": -18.179,
+     "elev1_deg": -35.021,
+     "path_m": 0.00534,
+     "foot_m": 0.0,
+     "com_m": 0.0023,
+     "glove_m": 0.4352,
+     "reach_excess_m": -0.0018704937155580303,
+     "apex_fwd_m": 0.5926146160601365,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 540,
+     "apex": 559,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 462,
+     "apex": 470,
+     "end": 471,
+     "elev0_deg": -6.115,
+     "delta_deg": -35.672,
+     "elev1_deg": -41.787,
+     "path_m": 0.03123,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.3679,
+     "reach_excess_m": -0.008080718631907735,
+     "apex_fwd_m": 0.5570383171760696,
+     "speed_joints": [
+      "left_shoulder_pitch_joint",
+      "left_elbow_joint"
+     ],
+     "reason": "path,speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 287,
+     "apex": 305,
+     "status": "skip",
+     "reason": "type"
+    }
+   ]
+  },
+  {
+   "name": "l1_reangle_kfab_203_o0",
+   "family": "reangle",
+   "host": "kfab_203",
+   "mirror": 0,
+   "conj": false,
+   "draw": 0,
+   "frames": 276,
+   "sources": {
+    "kfab_203": [
+     0,
+     275
+    ]
+   },
+   "q_sha256": "b234212f92bb59c769c41283f1d2f880e30f6b24a1dd6f39238d5a18f2c71f65",
+   "strikes": 10,
+   "hand_strikes": 10,
+   "mods": [
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 221,
+     "apex": 241,
+     "end": 245,
+     "elev0_deg": -21.413,
+     "delta_deg": 6.383,
+     "elev1_deg": -15.03,
+     "path_m": 0.00454,
+     "foot_m": 0.0,
+     "com_m": 0.0003,
+     "glove_m": 0.3275,
+     "reach_excess_m": -0.02296474824638023,
+     "apex_fwd_m": 0.3732254914177035,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 81,
+     "apex": 95,
+     "end": 96,
+     "elev0_deg": 42.538,
+     "delta_deg": -21.854,
+     "elev1_deg": 20.684,
+     "path_m": 0.00705,
+     "foot_m": 0.0,
+     "com_m": 0.0001,
+     "glove_m": 0.3992,
+     "reach_excess_m": -0.0054929855491649415,
+     "apex_fwd_m": 0.47682478130271955,
+     "speed_joints": [
+      "right_elbow_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 55,
+     "apex": 64,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 0,
+     "apex": 18,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 139,
+     "apex": 159,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 214,
+     "apex": 224,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 0,
+     "apex": 20,
+     "end": 38,
+     "elev0_deg": 27.654,
+     "delta_deg": -5.042,
+     "elev1_deg": 22.612,
+     "path_m": 0.00034,
+     "foot_m": 0.0,
+     "com_m": 0.0001,
+     "glove_m": 0.3258,
+     "reach_excess_m": -0.0206314532364959,
+     "apex_fwd_m": 0.3116672725970204,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 37,
+     "apex": 45,
+     "end": 46,
+     "elev0_deg": 24.483,
+     "delta_deg": -24.89,
+     "elev1_deg": -0.407,
+     "path_m": 0.00829,
+     "foot_m": 0.0,
+     "com_m": 0.0025,
+     "glove_m": 0.3869,
+     "reach_excess_m": -0.029212254723266995,
+     "apex_fwd_m": 0.46632125885367226,
+     "speed_joints": [
+      "right_shoulder_pitch_joint",
+      "right_shoulder_yaw_joint",
+      "right_elbow_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 99,
+     "apex": 116,
+     "end": 116,
+     "elev0_deg": -25.317,
+     "delta_deg": 0.33,
+     "elev1_deg": -24.987,
+     "path_m": 0.0007,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.435,
+     "reach_excess_m": -0.005911538111951109,
+     "apex_fwd_m": 0.47372377034218865,
+     "speed_joints": [
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 120,
+     "apex": 121,
+     "end": 122,
+     "elev0_deg": 41.127,
+     "delta_deg": -38.222,
+     "elev1_deg": 2.906,
+     "path_m": 0.07413,
+     "foot_m": 0.0,
+     "com_m": 0.0009,
+     "glove_m": 0.4344,
+     "reach_excess_m": 0.06718027276942146,
+     "apex_fwd_m": 0.3686932134369732,
+     "speed_joints": [
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "left_elbow_joint"
+     ],
+     "reason": "path,speed,reach",
+     "status": "reject"
+    }
+   ]
+  },
+  {
+   "name": "l1_reangle_kfab_203_o1",
+   "family": "reangle",
+   "host": "kfab_203",
+   "mirror": 0,
+   "conj": false,
+   "draw": 1,
+   "frames": 276,
+   "sources": {
+    "kfab_203": [
+     0,
+     275
+    ]
+   },
+   "q_sha256": "23e28ac0ae476b50814a7f3d6e7fddfe727e6c340f8c036d843bc767fc00f7a5",
+   "strikes": 10,
+   "hand_strikes": 10,
+   "mods": [
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 37,
+     "apex": 45,
+     "end": 46,
+     "elev0_deg": 24.483,
+     "delta_deg": -23.415,
+     "elev1_deg": 1.068,
+     "path_m": 0.00806,
+     "foot_m": 0.0,
+     "com_m": 0.0023,
+     "glove_m": 0.3872,
+     "reach_excess_m": -0.028517107328350444,
+     "apex_fwd_m": 0.46632125885367226,
+     "speed_joints": [
+      "right_shoulder_pitch_joint",
+      "right_shoulder_yaw_joint",
+      "right_elbow_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 221,
+     "apex": 241,
+     "end": 245,
+     "elev0_deg": -21.413,
+     "delta_deg": -18.282,
+     "elev1_deg": -39.695,
+     "path_m": 0.05088,
+     "foot_m": 0.0,
+     "com_m": 0.0009,
+     "glove_m": 0.3571,
+     "reach_excess_m": -0.02084043100274252,
+     "apex_fwd_m": 0.3732254914177035,
+     "speed_joints": [
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint"
+     ],
+     "reason": "path,speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 55,
+     "apex": 64,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 0,
+     "apex": 20,
+     "end": 38,
+     "elev0_deg": 27.654,
+     "delta_deg": 12.353,
+     "elev1_deg": 40.007,
+     "path_m": 0.00104,
+     "foot_m": 0.0,
+     "com_m": 0.0002,
+     "glove_m": 0.3255,
+     "reach_excess_m": -0.015978521720774186,
+     "apex_fwd_m": 0.3116672725970204,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 0,
+     "apex": 18,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 214,
+     "apex": 224,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 120,
+     "apex": 121,
+     "end": 122,
+     "elev0_deg": 41.127,
+     "delta_deg": 10.433,
+     "elev1_deg": 51.561,
+     "path_m": 0.01603,
+     "foot_m": 0.0,
+     "com_m": 0.0025,
+     "glove_m": 0.4371,
+     "reach_excess_m": 0.11501016561919658,
+     "apex_fwd_m": 0.3686932134369732,
+     "speed_joints": [
+      "left_shoulder_pitch_joint",
+      "left_shoulder_yaw_joint",
+      "left_elbow_joint"
+     ],
+     "reason": "speed,reach",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 139,
+     "apex": 159,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 99,
+     "apex": 116,
+     "end": 116,
+     "elev0_deg": -25.317,
+     "delta_deg": -17.965,
+     "elev1_deg": -43.282,
+     "path_m": 0.06287,
+     "foot_m": 0.0,
+     "com_m": 0.0027,
+     "glove_m": 0.4339,
+     "reach_excess_m": -0.01340493848251273,
+     "apex_fwd_m": 0.47372377034218865,
+     "speed_joints": [
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint"
+     ],
+     "reason": "path,speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 81,
+     "apex": 95,
+     "end": 96,
+     "elev0_deg": 42.538,
+     "delta_deg": 37.745,
+     "elev1_deg": 80.283,
+     "path_m": 0.08164,
+     "foot_m": 0.0,
+     "com_m": 0.0001,
+     "glove_m": 0.4178,
+     "reach_excess_m": -0.010305477458034507,
+     "apex_fwd_m": 0.47682478130271955,
+     "speed_joints": [],
+     "reason": "path",
+     "status": "reject"
+    }
+   ]
+  },
+  {
+   "name": "l1_reangle_kfab_203_m0",
+   "family": "reangle",
+   "host": "kfab_203",
+   "mirror": 1,
+   "conj": true,
+   "draw": 0,
+   "frames": 276,
+   "sources": {
+    "kfab_203": [
+     0,
+     275
+    ]
+   },
+   "q_sha256": "3ae25b3b6ddddae022343eb15ef11c70f908b6a5996ae145baf7208e5b712cd9",
+   "strikes": 10,
+   "hand_strikes": 10,
+   "mods": [
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 37,
+     "apex": 45,
+     "end": 46,
+     "elev0_deg": 24.483,
+     "delta_deg": -11.555,
+     "elev1_deg": 12.928,
+     "path_m": 0.00436,
+     "foot_m": 0.0,
+     "com_m": 0.0011,
+     "glove_m": 0.3889,
+     "reach_excess_m": -0.02215770750510221,
+     "apex_fwd_m": 0.46632125885367226,
+     "speed_joints": [
+      "left_shoulder_pitch_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 81,
+     "apex": 95,
+     "end": 96,
+     "elev0_deg": 42.538,
+     "delta_deg": -28.803,
+     "elev1_deg": 13.735,
+     "path_m": 0.01112,
+     "foot_m": 0.0,
+     "com_m": 0.0002,
+     "glove_m": 0.3951,
+     "reach_excess_m": -0.005655317036782959,
+     "apex_fwd_m": 0.47682478130271955,
+     "speed_joints": [
+      "left_elbow_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 0,
+     "apex": 18,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 214,
+     "apex": 224,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 99,
+     "apex": 116,
+     "end": 116,
+     "elev0_deg": -25.317,
+     "delta_deg": 22.176,
+     "elev1_deg": -3.141,
+     "path_m": 0.01577,
+     "foot_m": 0.0,
+     "com_m": 0.002,
+     "glove_m": 0.4349,
+     "reach_excess_m": -0.0023124538660813654,
+     "apex_fwd_m": 0.47372377034218865,
+     "speed_joints": [
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_elbow_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 0,
+     "apex": 20,
+     "end": 38,
+     "elev0_deg": 27.654,
+     "delta_deg": 0.51,
+     "elev1_deg": 28.164,
+     "path_m": 4e-05,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.3257,
+     "reach_excess_m": -0.01934490495015001,
+     "apex_fwd_m": 0.3116672725970204,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 221,
+     "apex": 241,
+     "end": 245,
+     "elev0_deg": -21.413,
+     "delta_deg": 13.037,
+     "elev1_deg": -8.377,
+     "path_m": 0.00617,
+     "foot_m": 0.0,
+     "com_m": 0.0003,
+     "glove_m": 0.3253,
+     "reach_excess_m": -0.02268912417540392,
+     "apex_fwd_m": 0.3732254914177035,
+     "speed_joints": [
+      "left_shoulder_yaw_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 55,
+     "apex": 64,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 120,
+     "apex": 121,
+     "end": 122,
+     "elev0_deg": 41.127,
+     "delta_deg": 39.451,
+     "elev1_deg": 80.578,
+     "path_m": 0.20845,
+     "foot_m": 0.0,
+     "com_m": 0.0037,
+     "glove_m": 0.4367,
+     "reach_excess_m": 0.11894182547594667,
+     "apex_fwd_m": 0.3686932134369732,
+     "speed_joints": [
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint",
+      "right_elbow_joint"
+     ],
+     "reason": "path,speed,reach",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 139,
+     "apex": 159,
+     "status": "skip",
+     "reason": "type"
+    }
+   ]
+  },
+  {
+   "name": "l1_reangle_kfab_203_m1",
+   "family": "reangle",
+   "host": "kfab_203",
+   "mirror": 1,
+   "conj": true,
+   "draw": 1,
+   "frames": 276,
+   "sources": {
+    "kfab_203": [
+     0,
+     275
+    ]
+   },
+   "q_sha256": "4c3d0df0a8ac6125afed6fcefd90206537f2ff60cef0594b4ebba9c3d83c7cfa",
+   "strikes": 10,
+   "hand_strikes": 10,
+   "mods": [
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 214,
+     "apex": 224,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 55,
+     "apex": 64,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 120,
+     "apex": 121,
+     "end": 122,
+     "elev0_deg": 41.127,
+     "delta_deg": -18.209,
+     "elev1_deg": 22.919,
+     "path_m": 0.03734,
+     "foot_m": 0.0,
+     "com_m": 0.0,
+     "glove_m": 0.4367,
+     "reach_excess_m": 0.09511562844505322,
+     "apex_fwd_m": 0.3686932134369732,
+     "speed_joints": [
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint",
+      "right_elbow_joint"
+     ],
+     "reason": "path,speed,reach",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "downward",
+     "onset": 139,
+     "apex": 159,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "downward",
+     "onset": 0,
+     "apex": 18,
+     "status": "skip",
+     "reason": "type"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 37,
+     "apex": 45,
+     "end": 46,
+     "elev0_deg": 24.483,
+     "delta_deg": -12.102,
+     "elev1_deg": 12.382,
+     "path_m": 0.00456,
+     "foot_m": 0.0,
+     "com_m": 0.0011,
+     "glove_m": 0.3888,
+     "reach_excess_m": -0.022477327896507138,
+     "apex_fwd_m": 0.46632125885367226,
+     "speed_joints": [
+      "left_shoulder_pitch_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "l_hand",
+     "type": "straight",
+     "onset": 221,
+     "apex": 241,
+     "end": 245,
+     "elev0_deg": -21.413,
+     "delta_deg": -7.29,
+     "elev1_deg": -28.703,
+     "path_m": 0.00834,
+     "foot_m": 0.0,
+     "com_m": 0.0012,
+     "glove_m": 0.3359,
+     "reach_excess_m": -0.022393208272364296,
+     "apex_fwd_m": 0.3732254914177035,
+     "speed_joints": [
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "hook",
+     "onset": 99,
+     "apex": 116,
+     "end": 116,
+     "elev0_deg": -25.317,
+     "delta_deg": 29.115,
+     "elev1_deg": 3.798,
+     "path_m": 0.07411,
+     "foot_m": 0.0,
+     "com_m": 0.0045,
+     "glove_m": 0.4343,
+     "reach_excess_m": -0.0030707318019591034,
+     "apex_fwd_m": 0.47372377034218865,
+     "speed_joints": [
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint",
+      "right_elbow_joint"
+     ],
+     "reason": "path,speed",
+     "status": "reject"
+    },
+    {
+     "limb": "r_hand",
+     "type": "straight",
+     "onset": 0,
+     "apex": 20,
+     "end": 38,
+     "elev0_deg": 27.654,
+     "delta_deg": 8.714,
+     "elev1_deg": 36.368,
+     "path_m": 0.0007,
+     "foot_m": 0.0,
+     "com_m": 0.0001,
+     "glove_m": 0.3256,
+     "reach_excess_m": -0.01709719028918072,
+     "apex_fwd_m": 0.3116672725970204,
+     "speed_joints": [],
+     "status": "accept"
+    },
+    {
+     "limb": "l_hand",
+     "type": "hook",
+     "onset": 81,
+     "apex": 95,
+     "end": 96,
+     "elev0_deg": 42.538,
+     "delta_deg": -27.218,
+     "elev1_deg": 15.32,
+     "path_m": 0.00747,
+     "foot_m": 0.0,
+     "com_m": 0.0001,
+     "glove_m": 0.396,
+     "reach_excess_m": -0.005629212616420021,
+     "apex_fwd_m": 0.47682478130271955,
+     "speed_joints": [
+      "left_elbow_joint"
+     ],
+     "reason": "speed",
+     "status": "reject"
+    }
+   ]
+  },
+  {
+   "name": "l1_combo_kfab_200_o0",
+   "family": "combo",
+   "host": "kfab_200",
+   "mirror": 0,
+   "conj": false,
+   "draw": 0,
+   "frames": 271,
+   "sources": {
+    "kfab_200": [
+     0,
+     249
+    ],
+    "kfab_201": [
+     375,
+     404
+    ]
+   },
+   "q_sha256": "738a35fc174357e5b30ce2bbf5ff8cb3478a2f17ec7684de1e93cb93e4d45337",
+   "strikes": 9,
+   "hand_strikes": 9,
+   "mods": [
+    {
+     "host_limb": "r_hand",
+     "host_end": 246,
+     "fade_drawn_s": [
+      0.27331,
+      0.29997
+     ],
+     "src_mirror": 1,
+     "src_limb": "r_hand",
+     "src_type": "hook",
+     "src_onset": 62,
+     "src_apex": 71,
+     "src_end": 72,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 207,
+     "fade_drawn_s": [
+      0.211114,
+      0.163481
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "uppercut",
+     "src_onset": 183,
+     "src_apex": 201,
+     "src_end": 201,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 21,
+     "fade_drawn_s": [
+      0.150608,
+      0.173191
+     ],
+     "src_mirror": 0,
+     "src_limb": "r_hand",
+     "src_type": "downward",
+     "src_onset": 287,
+     "src_apex": 305,
+     "src_end": 306,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 229,
+     "fade_drawn_s": [
+      0.25288,
+      0.1987
+     ],
+     "src_mirror": 0,
+     "src_limb": "r_hand",
+     "src_type": "straight",
+     "src_onset": 658,
+     "src_apex": 678,
+     "src_end": 684,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 188,
+     "fade_drawn_s": [
+      0.328963,
+      0.276749
+     ],
+     "src_mirror": 0,
+     "src_limb": "r_hand",
+     "src_type": "downward",
+     "src_onset": 408,
+     "src_apex": 420,
+     "src_end": 420,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 115,
+     "fade_drawn_s": [
+      0.284918,
+      0.227193
+     ],
+     "src_mirror": 0,
+     "src_limb": "r_hand",
+     "src_type": "hook",
+     "src_onset": 462,
+     "src_apex": 470,
+     "src_end": 471,
+     "status": "skip",
+     "reason": "gap"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 148,
+     "fade_drawn_s": [
+      0.200788,
+      0.289602
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "downward",
+     "src_onset": 287,
+     "src_apex": 305,
+     "src_end": 306,
+     "status": "reject",
+     "reason": "speed",
+     "fades": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+     ],
+     "joints": [
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "right_hip_yaw_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint"
+     ]
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 41,
+     "fade_drawn_s": [
+      0.160516,
+      0.203067
+     ],
+     "src_mirror": 0,
+     "src_limb": "r_hand",
+     "src_type": "uppercut",
+     "src_onset": 384,
+     "src_apex": 394,
+     "src_end": 394,
+     "status": "accept",
+     "fade": 9,
+     "fade_s": 0.18,
+     "fades_failed": [
+      8
+     ],
+     "inserted_frames": 21
+    }
+   ]
+  },
+  {
+   "name": "l1_combo_kfab_200_m0",
+   "family": "combo",
+   "host": "kfab_200",
+   "mirror": 1,
+   "conj": true,
+   "draw": 0,
+   "frames": 250,
+   "sources": {
+    "kfab_200": [
+     0,
+     249
+    ]
+   },
+   "q_sha256": "bd784745b4c1cff4a60dc00d5759da58da55d73a7e6266880465d901c2c5d49d",
+   "strikes": 8,
+   "hand_strikes": 8,
+   "mods": [
+    {
+     "host_limb": "r_hand",
+     "host_end": 21,
+     "fade_drawn_s": [
+      0.196257,
+      0.25581
+     ],
+     "src_mirror": 0,
+     "src_limb": "r_hand",
+     "src_type": "downward",
+     "src_onset": 287,
+     "src_apex": 305,
+     "src_end": 306,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 115,
+     "fade_drawn_s": [
+      0.277319,
+      0.177425
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "uppercut",
+     "src_onset": 101,
+     "src_apex": 116,
+     "src_end": 116,
+     "status": "skip",
+     "reason": "gap"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 246,
+     "fade_drawn_s": [
+      0.28648,
+      0.206497
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "uppercut",
+     "src_onset": 101,
+     "src_apex": 116,
+     "src_end": 116,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 188,
+     "fade_drawn_s": [
+      0.329572,
+      0.280071
+     ],
+     "src_mirror": 0,
+     "src_limb": "r_hand",
+     "src_type": "hook",
+     "src_onset": 710,
+     "src_apex": 715,
+     "src_end": 715,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 229,
+     "fade_drawn_s": [
+      0.261588,
+      0.241768
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "uppercut",
+     "src_onset": 384,
+     "src_apex": 394,
+     "src_end": 394,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 207,
+     "fade_drawn_s": [
+      0.195791,
+      0.270063
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 1,
+     "src_apex": 21,
+     "src_end": 32,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 148,
+     "fade_drawn_s": [
+      0.155719,
+      0.155313
+     ],
+     "src_mirror": 1,
+     "src_limb": "r_hand",
+     "src_type": "hook",
+     "src_onset": 62,
+     "src_apex": 71,
+     "src_end": 72,
+     "status": "reject",
+     "reason": "speed",
+     "fades": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+     ],
+     "joints": [
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint"
+     ]
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 41,
+     "fade_drawn_s": [
+      0.17303,
+      0.261008
+     ],
+     "src_mirror": 0,
+     "src_limb": "r_hand",
+     "src_type": "uppercut",
+     "src_onset": 384,
+     "src_apex": 394,
+     "src_end": 394,
+     "status": "reject",
+     "reason": "speed",
+     "fades": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "joints": [
+      "left_knee_joint",
+      "right_elbow_joint",
+      "right_shoulder_pitch_joint"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "l1_combo_kfab_201_o0",
+   "family": "combo",
+   "host": "kfab_201",
+   "mirror": 0,
+   "conj": false,
+   "draw": 0,
+   "frames": 743,
+   "sources": {
+    "kfab_201": [
+     0,
+     721
+    ],
+    "kfab_203": [
+     205,
+     233
+    ]
+   },
+   "q_sha256": "d079b65e3d03faf0a0107533fcd5164ad8a8f6f9ade0e14442c560cdcf898a27",
+   "strikes": 22,
+   "hand_strikes": 21,
+   "mods": [
+    {
+     "host_limb": "r_hand",
+     "host_end": 144,
+     "fade_drawn_s": [
+      0.326616,
+      0.165869
+     ],
+     "src_mirror": 0,
+     "src_limb": "l_hand",
+     "src_type": "downward",
+     "src_onset": 214,
+     "src_apex": 224,
+     "src_end": 224,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 559,
+     "fade_drawn_s": [
+      0.223103,
+      0.324311
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "straight",
+     "src_onset": 221,
+     "src_apex": 241,
+     "src_end": 245,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 306,
+     "fade_drawn_s": [
+      0.224471,
+      0.237658
+     ],
+     "src_mirror": 0,
+     "src_limb": "r_hand",
+     "src_type": "straight",
+     "src_onset": 221,
+     "src_apex": 241,
+     "src_end": 245,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 420,
+     "fade_drawn_s": [
+      0.287142,
+      0.189837
+     ],
+     "src_mirror": 0,
+     "src_limb": "l_hand",
+     "src_type": "straight",
+     "src_onset": 0,
+     "src_apex": 20,
+     "src_end": 38,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 581,
+     "fade_drawn_s": [
+      0.334808,
+      0.261203
+     ],
+     "src_mirror": 0,
+     "src_limb": "l_hand",
+     "src_type": "straight",
+     "src_onset": 0,
+     "src_apex": 20,
+     "src_end": 38,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 541,
+     "fade_drawn_s": [
+      0.301974,
+      0.281024
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "downward",
+     "src_onset": 0,
+     "src_apex": 18,
+     "src_end": 18,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 72,
+     "fade_drawn_s": [
+      0.218785,
+      0.2347
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "downward",
+     "src_onset": 0,
+     "src_apex": 18,
+     "src_end": 18,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 720,
+     "fade_drawn_s": [
+      0.190106,
+      0.196468
+     ],
+     "src_mirror": 0,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 120,
+     "src_apex": 121,
+     "src_end": 122,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 201,
+     "fade_drawn_s": [
+      0.341951,
+      0.204031
+     ],
+     "src_mirror": 0,
+     "src_limb": "r_hand",
+     "src_type": "downward",
+     "src_onset": 55,
+     "src_apex": 64,
+     "src_end": 64,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 509,
+     "fade_drawn_s": [
+      0.273501,
+      0.222615
+     ],
+     "src_mirror": 0,
+     "src_limb": "l_hand",
+     "src_type": "downward",
+     "src_onset": 214,
+     "src_apex": 224,
+     "src_end": 224,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 116,
+     "fade_drawn_s": [
+      0.317981,
+      0.317698
+     ],
+     "src_mirror": 0,
+     "src_limb": "r_hand",
+     "src_type": "hook",
+     "src_onset": 37,
+     "src_apex": 45,
+     "src_end": 46,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 715,
+     "fade_drawn_s": [
+      0.265409,
+      0.286376
+     ],
+     "src_mirror": 0,
+     "src_limb": "l_hand",
+     "src_type": "straight",
+     "src_onset": 0,
+     "src_apex": 20,
+     "src_end": 38,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 394,
+     "fade_drawn_s": [
+      0.290699,
+      0.199843
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 37,
+     "src_apex": 45,
+     "src_end": 46,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 458,
+     "fade_drawn_s": [
+      0.231328,
+      0.336011
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "straight",
+     "src_onset": 221,
+     "src_apex": 241,
+     "src_end": 245,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 241,
+     "fade_drawn_s": [
+      0.323964,
+      0.23461
+     ],
+     "src_mirror": 0,
+     "src_limb": "l_hand",
+     "src_type": "downward",
+     "src_onset": 139,
+     "src_apex": 159,
+     "src_end": 162,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 132,
+     "fade_drawn_s": [
+      0.223795,
+      0.249591
+     ],
+     "src_mirror": 0,
+     "src_limb": "l_hand",
+     "src_type": "downward",
+     "src_onset": 214,
+     "src_apex": 224,
+     "src_end": 224,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 684,
+     "fade_drawn_s": [
+      0.265226,
+      0.164529
+     ],
+     "src_mirror": 1,
+     "src_limb": "r_hand",
+     "src_type": "downward",
+     "src_onset": 139,
+     "src_apex": 159,
+     "src_end": 162,
+     "status": "reject",
+     "reason": "speed",
+     "fades": [
+      8,
+      9,
+      10,
+      11,
+      12
+     ],
+     "joints": [
+      "left_elbow_joint",
+      "right_hip_yaw_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint"
+     ]
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 471,
+     "fade_drawn_s": [
+      0.262223,
+      0.230724
+     ],
+     "src_mirror": 1,
+     "src_limb": "r_hand",
+     "src_type": "downward",
+     "src_onset": 214,
+     "src_apex": 224,
+     "src_end": 224,
+     "status": "accept",
+     "fade": 8,
+     "fade_s": 0.16,
+     "fades_failed": [],
+     "inserted_frames": 21
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 32,
+     "fade_drawn_s": [
+      0.18571,
+      0.167509
+     ],
+     "src_mirror": 1,
+     "src_limb": "r_hand",
+     "src_type": "hook",
+     "src_onset": 120,
+     "src_apex": 121,
+     "src_end": 122,
+     "status": "reject",
+     "reason": "speed",
+     "fades": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+     ],
+     "joints": [
+      "left_elbow_joint",
+      "left_shoulder_pitch_joint",
+      "left_shoulder_yaw_joint",
+      "left_wrist_roll_joint",
+      "right_elbow_joint",
+      "right_hip_yaw_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint",
+      "right_wrist_roll_joint",
+      "waist_roll_joint"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "l1_combo_kfab_201_m0",
+   "family": "combo",
+   "host": "kfab_201",
+   "mirror": 1,
+   "conj": true,
+   "draw": 0,
+   "frames": 743,
+   "sources": {
+    "kfab_201": [
+     0,
+     721
+    ],
+    "kfab_203": [
+     201,
+     238
+    ]
+   },
+   "q_sha256": "12c585645df9a51b24fbf51e9a48ab91dbee0d5a8343208ab70b01162e8854bd",
+   "strikes": 23,
+   "hand_strikes": 22,
+   "mods": [
+    {
+     "host_limb": "l_hand",
+     "host_end": 116,
+     "fade_drawn_s": [
+      0.299884,
+      0.22557
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "downward",
+     "src_onset": 55,
+     "src_apex": 64,
+     "src_end": 64,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 394,
+     "fade_drawn_s": [
+      0.232287,
+      0.208851
+     ],
+     "src_mirror": 0,
+     "src_limb": "l_hand",
+     "src_type": "straight",
+     "src_onset": 0,
+     "src_apex": 20,
+     "src_end": 38,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 541,
+     "fade_drawn_s": [
+      0.178192,
+      0.208001
+     ],
+     "src_mirror": 0,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 120,
+     "src_apex": 121,
+     "src_end": 122,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 684,
+     "fade_drawn_s": [
+      0.294467,
+      0.275487
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "downward",
+     "src_onset": 0,
+     "src_apex": 18,
+     "src_end": 18,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 32,
+     "fade_drawn_s": [
+      0.237088,
+      0.191104
+     ],
+     "src_mirror": 0,
+     "src_limb": "r_hand",
+     "src_type": "downward",
+     "src_onset": 0,
+     "src_apex": 18,
+     "src_end": 18,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 715,
+     "fade_drawn_s": [
+      0.178754,
+      0.227528
+     ],
+     "src_mirror": 1,
+     "src_limb": "r_hand",
+     "src_type": "hook",
+     "src_onset": 120,
+     "src_apex": 121,
+     "src_end": 122,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 720,
+     "fade_drawn_s": [
+      0.299553,
+      0.305186
+     ],
+     "src_mirror": 1,
+     "src_limb": "r_hand",
+     "src_type": "hook",
+     "src_onset": 120,
+     "src_apex": 121,
+     "src_end": 122,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 132,
+     "fade_drawn_s": [
+      0.319386,
+      0.314029
+     ],
+     "src_mirror": 0,
+     "src_limb": "r_hand",
+     "src_type": "downward",
+     "src_onset": 55,
+     "src_apex": 64,
+     "src_end": 64,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 420,
+     "fade_drawn_s": [
+      0.248343,
+      0.321041
+     ],
+     "src_mirror": 1,
+     "src_limb": "r_hand",
+     "src_type": "straight",
+     "src_onset": 0,
+     "src_apex": 20,
+     "src_end": 38,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 72,
+     "fade_drawn_s": [
+      0.256867,
+      0.218693
+     ],
+     "src_mirror": 0,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 120,
+     "src_apex": 121,
+     "src_end": 122,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 458,
+     "fade_drawn_s": [
+      0.185075,
+      0.319379
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 81,
+     "src_apex": 95,
+     "src_end": 96,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 559,
+     "fade_drawn_s": [
+      0.254443,
+      0.346771
+     ],
+     "src_mirror": 1,
+     "src_limb": "r_hand",
+     "src_type": "downward",
+     "src_onset": 139,
+     "src_apex": 159,
+     "src_end": 162,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 201,
+     "fade_drawn_s": [
+      0.159518,
+      0.256397
+     ],
+     "src_mirror": 0,
+     "src_limb": "r_hand",
+     "src_type": "downward",
+     "src_onset": 0,
+     "src_apex": 18,
+     "src_end": 18,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 144,
+     "fade_drawn_s": [
+      0.173416,
+      0.208053
+     ],
+     "src_mirror": 0,
+     "src_limb": "l_hand",
+     "src_type": "straight",
+     "src_onset": 0,
+     "src_apex": 20,
+     "src_end": 38,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 471,
+     "fade_drawn_s": [
+      0.252945,
+      0.194273
+     ],
+     "src_mirror": 0,
+     "src_limb": "r_hand",
+     "src_type": "hook",
+     "src_onset": 81,
+     "src_apex": 95,
+     "src_end": 96,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 509,
+     "fade_drawn_s": [
+      0.155535,
+      0.217614
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 37,
+     "src_apex": 45,
+     "src_end": 46,
+     "status": "skip",
+     "reason": "max"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 581,
+     "fade_drawn_s": [
+      0.341932,
+      0.316391
+     ],
+     "src_mirror": 1,
+     "src_limb": "r_hand",
+     "src_type": "downward",
+     "src_onset": 214,
+     "src_apex": 224,
+     "src_end": 224,
+     "status": "reject",
+     "reason": "speed",
+     "fades": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "joints": [
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "right_shoulder_pitch_joint"
+     ]
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 306,
+     "fade_drawn_s": [
+      0.313288,
+      0.174544
+     ],
+     "src_mirror": 1,
+     "src_limb": "r_hand",
+     "src_type": "downward",
+     "src_onset": 214,
+     "src_apex": 224,
+     "src_end": 224,
+     "status": "accept",
+     "fade": 17,
+     "fade_s": 0.34,
+     "fades_failed": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+     ],
+     "inserted_frames": 21
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 241,
+     "fade_drawn_s": [
+      0.235815,
+      0.174793
+     ],
+     "src_mirror": 0,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 120,
+     "src_apex": 121,
+     "src_end": 122,
+     "status": "reject",
+     "reason": "speed",
+     "fades": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "joints": [
+      "left_ankle_pitch_joint",
+      "left_hip_yaw_joint",
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "right_elbow_joint",
+      "right_hip_yaw_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint",
+      "right_wrist_roll_joint",
+      "waist_roll_joint"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "l1_combo_kfab_203_o0",
+   "family": "combo",
+   "host": "kfab_203",
+   "mirror": 0,
+   "conj": false,
+   "draw": 0,
+   "frames": 307,
+   "sources": {
+    "kfab_200": [
+     177,
+     217
+    ],
+    "kfab_203": [
+     0,
+     275
+    ]
+   },
+   "q_sha256": "ae0af65386a7d6b6a6330bb36a47401276fc3c75f596bf17db7b1826edaf2581",
+   "strikes": 12,
+   "hand_strikes": 12,
+   "mods": [
+    {
+     "host_limb": "l_hand",
+     "host_end": 38,
+     "fade_drawn_s": [
+      0.27438,
+      0.310295
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 176,
+     "src_apex": 188,
+     "src_end": 188,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 64,
+     "fade_drawn_s": [
+      0.300178,
+      0.332786
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 141,
+     "src_apex": 147,
+     "src_end": 148,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 116,
+     "fade_drawn_s": [
+      0.281117,
+      0.312313
+     ],
+     "src_mirror": 1,
+     "src_limb": "r_hand",
+     "src_type": "uppercut",
+     "src_onset": 222,
+     "src_apex": 228,
+     "src_end": 229,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 224,
+     "fade_drawn_s": [
+      0.174398,
+      0.177348
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 141,
+     "src_apex": 147,
+     "src_end": 148,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 46,
+     "fade_drawn_s": [
+      0.241202,
+      0.301473
+     ],
+     "src_mirror": 0,
+     "src_limb": "l_hand",
+     "src_type": "downward",
+     "src_onset": 8,
+     "src_apex": 21,
+     "src_end": 21,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 122,
+     "fade_drawn_s": [
+      0.309747,
+      0.324906
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 176,
+     "src_apex": 188,
+     "src_end": 188,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 18,
+     "fade_drawn_s": [
+      0.28957,
+      0.168424
+     ],
+     "src_mirror": 0,
+     "src_limb": "r_hand",
+     "src_type": "hook",
+     "src_onset": 141,
+     "src_apex": 147,
+     "src_end": 148,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 96,
+     "fade_drawn_s": [
+      0.250557,
+      0.210256
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 141,
+     "src_apex": 147,
+     "src_end": 148,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 245,
+     "fade_drawn_s": [
+      0.344019,
+      0.247272
+     ],
+     "src_mirror": 1,
+     "src_limb": "r_hand",
+     "src_type": "hook",
+     "src_onset": 187,
+     "src_apex": 206,
+     "src_end": 207,
+     "status": "accept",
+     "fade": 10,
+     "fade_s": 0.2,
+     "fades_failed": [
+      8,
+      9
+     ],
+     "inserted_frames": 31
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 162,
+     "fade_drawn_s": [
+      0.191485,
+      0.338189
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 141,
+     "src_apex": 147,
+     "src_end": 148,
+     "status": "reject",
+     "reason": "speed",
+     "fades": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+     ],
+     "joints": [
+      "left_shoulder_pitch_joint",
+      "right_ankle_pitch_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "l1_combo_kfab_203_m0",
+   "family": "combo",
+   "host": "kfab_203",
+   "mirror": 1,
+   "conj": true,
+   "draw": 0,
+   "frames": 276,
+   "sources": {
+    "kfab_203": [
+     0,
+     275
+    ]
+   },
+   "q_sha256": "74cd8ff22e85c13da5ad3dc9e7bb144a30e1df14e7e8528b5aeb3529a77b6aa6",
+   "strikes": 10,
+   "hand_strikes": 10,
+   "mods": [
+    {
+     "host_limb": "l_hand",
+     "host_end": 46,
+     "fade_drawn_s": [
+      0.211991,
+      0.285169
+     ],
+     "src_mirror": 0,
+     "src_limb": "r_hand",
+     "src_type": "hook",
+     "src_onset": 240,
+     "src_apex": 246,
+     "src_end": 246,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 18,
+     "fade_drawn_s": [
+      0.154928,
+      0.175163
+     ],
+     "src_mirror": 0,
+     "src_limb": "l_hand",
+     "src_type": "downward",
+     "src_onset": 8,
+     "src_apex": 21,
+     "src_end": 21,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 122,
+     "fade_drawn_s": [
+      0.204446,
+      0.223272
+     ],
+     "src_mirror": 1,
+     "src_limb": "r_hand",
+     "src_type": "hook",
+     "src_onset": 187,
+     "src_apex": 206,
+     "src_end": 207,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 38,
+     "fade_drawn_s": [
+      0.34597,
+      0.235678
+     ],
+     "src_mirror": 1,
+     "src_limb": "r_hand",
+     "src_type": "uppercut",
+     "src_onset": 222,
+     "src_apex": 228,
+     "src_end": 229,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 96,
+     "fade_drawn_s": [
+      0.297239,
+      0.224782
+     ],
+     "src_mirror": 0,
+     "src_limb": "l_hand",
+     "src_type": "downward",
+     "src_onset": 8,
+     "src_apex": 21,
+     "src_end": 21,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 162,
+     "fade_drawn_s": [
+      0.224391,
+      0.321228
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 240,
+     "src_apex": 246,
+     "src_end": 246,
+     "status": "skip",
+     "reason": "seam"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 64,
+     "fade_drawn_s": [
+      0.210335,
+      0.191151
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 176,
+     "src_apex": 188,
+     "src_end": 188,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 116,
+     "fade_drawn_s": [
+      0.166226,
+      0.333869
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 176,
+     "src_apex": 188,
+     "src_end": 188,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "r_hand",
+     "host_end": 224,
+     "fade_drawn_s": [
+      0.21971,
+      0.259971
+     ],
+     "src_mirror": 1,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 141,
+     "src_apex": 147,
+     "src_end": 148,
+     "status": "skip",
+     "reason": "guard"
+    },
+    {
+     "host_limb": "l_hand",
+     "host_end": 245,
+     "fade_drawn_s": [
+      0.161627,
+      0.157838
+     ],
+     "src_mirror": 0,
+     "src_limb": "l_hand",
+     "src_type": "hook",
+     "src_onset": 105,
+     "src_apex": 114,
+     "src_end": 115,
+     "status": "reject",
+     "reason": "speed",
+     "fades": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+     ],
+     "joints": [
+      "left_hip_yaw_joint",
+      "left_shoulder_pitch_joint",
+      "right_shoulder_pitch_joint"
+     ]
+    }
+   ]
+  }
+ ],
+ "reject_stats": {
+  "mirror": {
+   "rows": 3,
+   "strikes": 0,
+   "accept": 0,
+   "reject": {},
+   "skip": {},
+   "frames": 1248,
+   "tried": 0,
+   "reject_share": null,
+   "seconds": 24.96
+  },
+  "warp": {
+   "rows": 12,
+   "strikes": 148,
+   "accept": 53,
+   "reject": {
+    "speed": 44
+   },
+   "skip": {
+    "seam": 24,
+    "overlap": 27
+   },
+   "frames": 5143,
+   "tried": 97,
+   "reject_share": 0.4536,
+   "seconds": 102.86,
+   "speed_accept": {
+    "n": 53,
+    "mean": 0.884,
+    "faster": 9,
+    "slower": 44
+   },
+   "speed_reject": {
+    "n": 44,
+    "mean": 1.1537,
+    "faster": 44,
+    "slower": 0
+   },
+   "speed_drawn_mean": 1.0064
+  },
+  "reangle": {
+   "rows": 12,
+   "strikes": 148,
+   "accept": 48,
+   "reject": {
+    "speed": 54,
+    "path": 22,
+    "reach": 21
+   },
+   "skip": {
+    "type": 36
+   },
+   "frames": 4992,
+   "tried": 112,
+   "reject_share": 0.5714,
+   "seconds": 99.84,
+   "delta_accept": {
+    "n": 48,
+    "mean": -0.132,
+    "mean_abs": 13.697,
+    "up": 27,
+    "down": 21
+   },
+   "delta_reject": {
+    "n": 64,
+    "mean": 0.081,
+    "mean_abs": 19.94,
+    "up": 36,
+    "down": 28
+   }
+  },
+  "combo": {
+   "rows": 6,
+   "strikes": 74,
+   "accept": 4,
+   "reject": {
+    "speed": 9
+   },
+   "skip": {
+    "seam": 12,
+    "guard": 20,
+    "gap": 2,
+    "max": 27
+   },
+   "frames": 2590,
+   "tried": 13,
+   "reject_share": 0.6923,
+   "seconds": 51.8,
+   "fades_accepted_frames": [
+    8,
+    9,
+    10,
+    17
+   ],
+   "splices_surviving": 4
+  }
+ },
+ "track_motion": {
+  "frames": 27306,
+  "rows": 33,
+  "originals": [
+   "kfab_200",
+   "kfab_201",
+   "kfab_203"
+  ],
+  "conjugated": [
+   "l1_warp_kfab_200_m0",
+   "l1_warp_kfab_200_m1",
+   "l1_warp_kfab_201_m0",
+   "l1_warp_kfab_201_m1",
+   "l1_warp_kfab_203_m0",
+   "l1_warp_kfab_203_m1",
+   "l1_reangle_kfab_200_m0",
+   "l1_reangle_kfab_200_m1",
+   "l1_reangle_kfab_201_m0",
+   "l1_reangle_kfab_201_m1",
+   "l1_reangle_kfab_203_m0",
+   "l1_reangle_kfab_203_m1",
+   "l1_combo_kfab_200_m0",
+   "l1_combo_kfab_201_m0",
+   "l1_combo_kfab_203_m0"
+  ]
+ }
+}

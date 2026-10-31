@@ -1,0 +1,8 @@
+{
+ "about": "Recovering a trainable checkpoint for the footwork guard (sparring plan M1). The shipped policy_mjlab_guard_footwork keeps only its ONNX: its model_7496.pt was lost (gpu/README.md, stage 3). The defender work warm-starts from a .pt, so the same training is re-run. The rule is fixed before the pod is created.",
+ "written": "2026-10-28, before the pod was created",
+ "run": "R1-Spar-Footwork-Guard (gpu/r1_spar_task.py), 1500 iterations, 4096 envs, resumed from results/policy_mjlab_guard/model_5997.pt: the command that produced the shipped policy (gpu/README.md, stage 3). 1x RTX 4090, RunPod secure, about $0.89/h.",
+ "candidate": "the final checkpoint and its exported ONNX, with the shipped policy's gym.json (results/policy_mjlab_guard_footwork/gym.json)",
+ "rule": "scripts/eval_opponent.py --split val, hard tier: survival >= 0.939 and up-and-within-1 m (survival_in_ring) >= 0.736, i.e. within 3 pp of the shipped guard_fw's 0.969 / 0.766 (results/eval_opponent/summary_val_hard.json). If it passes, it becomes the warm start for the defender (guard_fw'); the shipped ONNX stays the shipped policy. If it fails, the result is reported and the defender warm-starts from it anyway, with its own baseline row, so every comparison stays paired against the same starting point.",
+ "test": "not run: this is a training artefact, not a shipped policy"
+}

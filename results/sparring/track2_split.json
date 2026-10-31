@@ -1,0 +1,527 @@
+{
+ "about": "Track 2 partition (M2V2_PLAN_v3 6.2 item 3, T2-2; TRACK2_APPROVED.md): the downloaded KungFuAthlete fist-form clips split by",
+ "dataset": {
+  "hf": "LuluCao/KungfuAthleteBot",
+  "commit": "ff09f3795dc99bef73b21413b03fa8470917a22c",
+  "folder": "org_smooth_mj",
+  "license": "MIT per paper / Apache-2.0 per HF card"
+ },
+ "seed": 20261030,
+ "shares": {
+  "train": 0.6,
+  "val2": 0.2,
+  "test2": 0.2
+ },
+ "rule": "group by video title (scene suffix removed); per style (title keyword) largest-remainder counts; titles sorted, rng(seed).permutation; val2 first, then test2, rest train. Titles only; npz hashed, never parsed.",
+ "excluded_ids": [
+  196,
+  197,
+  198,
+  199,
+  200,
+  201,
+  202,
+  203,
+  204,
+  205,
+  206
+ ],
+ "excluded_titles": {
+  "196": "段位制长拳四段单练套路-Scene-001.mp4",
+  "197": "段位制长拳四段单练套路-Scene-002.mp4",
+  "198": "段位制长拳四段单练套路-Scene-003.mp4",
+  "199": "段位制长拳六段单练套路-Scene-007.mp4",
+  "200": "段位制长拳六段单练套路-Scene-005.mp4",
+  "201": "段位制长拳六段单练套路-Scene-002.mp4",
+  "202": "段位制长拳六段单练套路-Scene-001.mp4",
+  "203": "段位制长拳六段单练套路-Scene-008.mp4",
+  "204": "段位制长拳六段单练套路-Scene-006.mp4",
+  "205": "段位制长拳六段单练套路-Scene-003.mp4",
+  "206": "段位制长拳六段单练套路-Scene-004.mp4"
+ },
+ "excluded_note": "IDs 196-206 (duan-4 196-198, duan-6 199-206: the kfab train/val/test routine and the quarantined 206) excluded before the download (TRACK2_APPROVED.md); none of them is in fist_ids.txt (asserted)",
+ "inputs": {
+  "action_titles.csv": "e80bfa4126caa3b6268ce87794aa8354fff4124c04d44192137813ee56d027d6",
+  "fist_ids.txt": "bdfa045da926924e2a14cb57846689a93e83cc95072b04d2f8f373ade106720a",
+  "manifest_expected.tsv": "83314f0f14cca48ae36d4058ba49d3c8da059d6b5239e9cdf226e1de49f24f98"
+ },
+ "npz_checked": {
+  "files": 80,
+  "against": "manifest_expected.tsv size + LFS sha256",
+  "ok": true
+ },
+ "clip_sha256": {
+  "kfab_78": "4e70525e755aba2f66cf146fdaacfaa4ba082f0fdc133b925958cc7387b3880e",
+  "kfab_230": "939564995b7b8793b57c40d4a7b23524551b7ba8d944a9626582b7021149619d",
+  "kfab_231": "3d95c993bd1147921c7798523aca189906481a662dcbc4216d963d3c9df74892",
+  "kfab_235": "da8a9eb8a528755469d2c541c9fb3cf8489e3b7fef2f62ef05afc9dc7fb29bb9",
+  "kfab_237": "d2a432f8636b294caa4911ddc7b065967ab71f52e220312e25b106feb08ffced",
+  "kfab_239": "2850f349a40c7ae3aaa7326b50cb4d58d9443b4266aaac45224b7594c37e5628",
+  "kfab_240": "331a41d2fa2307784984d1df2f0164fec62cada2f7ab7618052e934b1e94f305",
+  "kfab_242": "121eff97a1d9016da77db2e2ea0faf106332090b35c33f4a32aac21c96c2d896",
+  "kfab_292": "499b5342416c7ce2285f88552ad4352bee0ac521eaa1c10c29fe83cc29a949c3",
+  "kfab_332": "63762d0033899892581b68dd4adae8578c7d3a3fd5122d74a7d77cca7a326371",
+  "kfab_333": "71503bb3e425b7cb88746047a5ee6adfa72a05853556ba88b45bfd6d51593de1",
+  "kfab_481": "be5560a2476e73bfcb8b6a921a7a84035d122ffd754a8fd8988cfc0146f86f25",
+  "kfab_482": "e06b9ba8357b49400ce9aa5faa7452c9de808b95f105d2c77259a21d86c6ce7f",
+  "kfab_497": "6fd601a6390e080e34a6b99b6f7cb815056a992e044dbd01f4a9e35d1659fbe6",
+  "kfab_498": "971d735c3afebea5ff32ab5df7a3d120cd51cd45d7289c5236e44259a6eb0746",
+  "kfab_535": "27638c2fee62ba9bb1318967470f7ea6d90d532b49b697473584c212a5132481",
+  "kfab_539": "1ed6ebc1826b493d8105f8b3cb836e590a25c93e8e4b4299c6a2a4ac7667198c",
+  "kfab_541": "03974b04474ec1556627cd78d360a352e00ead9417017a6a67d298953aea8eee",
+  "kfab_543": "67801d607eca7beae7b8cfe6639867688e1b1c01b82092ebae1344accd9a76dc",
+  "kfab_544": "439123504478e43dd637ba53f03c894b092a69b0af4e0a618f024a651f869fa8",
+  "kfab_546": "d8cac7ff991e2fb9140366a7e9dfc0cc48bee9a9a1a9f86ef03f9a41575abcff",
+  "kfab_547": "5545f8c77134240ddc33083cf9662c66e9d9dcd233227f8304938b7d6f5b2668",
+  "kfab_548": "65599633a0abaae4357bed87f9f5439179bef19813fed61d28c5125fdf298d86",
+  "kfab_549": "8c0d02e409e338750a56049ad2f716e1c154186fdef8552666f0c028d3d1116d",
+  "kfab_550": "c6aff1ce4be3331c87d8ff1348d1009db5b55929090a23397a05e2863c230ec0",
+  "kfab_552": "b7793a0bc938b95f16bb8922e998058253fea9e74c255e763d75add930f45e9e",
+  "kfab_553": "c90b07527f08db8c260fff213939f27fe08448a37dab029a5df843bb185a557d",
+  "kfab_554": "6c99288c7259345a297b8bff718cf9dcb23c49a2301c73a81664f245451888ef",
+  "kfab_555": "972992d3fbcebb18744522ae6649fa527404aef9caa54c7098c5ada74fa32a34",
+  "kfab_557": "0cd058bdf633be46276468e26f7fef49e675612584ee1c1edf592b806d885ec7",
+  "kfab_558": "773f24704ef852f18d9272d8cedbaa13ebf415d8cb515f9146fd4d3e9b6852f8",
+  "kfab_559": "19dbc98c097be01c35afd46b84ddb44b3b55fa17429935d3c9499b0d09717b13",
+  "kfab_560": "eac2b826b3703e7b529d9a6992a3f290064831ca957cf28d4ca2ee80d47a89d7",
+  "kfab_561": "854852108096239ad85541b235aa220cf17693487ebe618cef8cf6b8de3d16eb",
+  "kfab_562": "49d8f7285c501efdf829a4f1022e454bece666fc9061f4476760fe8ac28fdc97",
+  "kfab_564": "bb4ac712e04208bac24f7df59d7aa4b3e6e4e686594baafc00bf78fdf5a1e19c",
+  "kfab_810": "fbc051da18c85b0778f8afcfa93d54979f7dd6b9cd72b2728579837365912e86",
+  "kfab_811": "9d53a83e1a77dc144481015712d9daaaa68f84a152248186ee17b5aba11fb742",
+  "kfab_812": "6327fa077cb47ea2cd8b6b3ff6e33c088d36308c8436d715aa2c932dc264a188",
+  "kfab_916": "127ce1807141898fa2c2299046c5752ca17618724bd3f45f52dd5a70e163aadd",
+  "kfab_918": "96b9334501f13aabc0c342078e1ee5d5dc1390b23752dce6ab19e9723644070a",
+  "kfab_1021": "2b03b68f0993305f0cf5ddb3858855f458e523fd6f20f8bf104e11743aabd35e",
+  "kfab_1022": "7c59fbf361a2429d02214946f2d8ab92cda11f4e36e321611bf9f538d654166c",
+  "kfab_1080": "37929a3b7279a54509a25940a58d69e9204bab13973e60b17a4dbdeacbcf07df",
+  "kfab_1081": "92f51191e2ae31bf3539d3c57073fb7c9418c5b9ea1be43874f97c8b57830da5",
+  "kfab_1082": "583cde78efd0cfaf09d09dd7d86c081ee4c53665313ab87a7b7520f7365cfaa0",
+  "kfab_1084": "cc96dd20ae288b58b49a6a188077919f29e8b72029cc7af7532feff9a48d9add",
+  "kfab_1086": "484cdb1d04054185cc84dca2bf22a360f2a935b418584da8fcbd5abe700d953b",
+  "kfab_1088": "05d675e5816e7e8bf2178794510bd0d0e5f215ca9419d1652566863a183a1804",
+  "kfab_1244": "aba7de68412a1d1739ceef097e9918376d66e238ab50e6da41a8bff92e382b0a",
+  "kfab_1245": "f274e5edb9ca098ab5010405f3d23be646bdc8d69a7abff2c4a50ea7d3217f20",
+  "kfab_1305": "e51359e5ef4fb620cf172838f8a957e1c62770e261b74e340bd078ec2c9a3d8c",
+  "kfab_1306": "7ad3870b2196d0f6e040052bd5623bde0ee65a4bf4ca88bd434fb0983f7d9f3b",
+  "kfab_1307": "53d9de06e92734a94706b23b98200c6c28cbacd2d636da4876075bb9947707a7",
+  "kfab_1308": "e145f3b1dd13b097482f2b341d07bc2fa35a92c68f805822eee29f9ff4a424b4",
+  "kfab_1315": "ba7fd27e6733d241f3fba46e83b5a2440f561d0d675c54acaa4a0b26638d2c84",
+  "kfab_1316": "922ad46ef7fe9e2c3e808c3103bd8f9fbb3c1d0bccd50d143e453b57a27734fd",
+  "kfab_1317": "5666fcee69172ded25d5deefb2d484dfb16bd80c6a7d7ac1d3402a5677271e59",
+  "kfab_1318": "a2884aa37a6c5c02b08d6b6d1688c7890d8954893a6df8d5b3c59336ede2308f",
+  "kfab_1420": "51dcf6931f7be979a545135b515aa38176e15b19b171bcc22d283d89d200537a",
+  "kfab_1421": "e9a3a636a964b824c87b57ea0f4c7f79796678b9cefd8ad375898d00a0a5088c",
+  "kfab_1422": "b0d93141177726638484f999bcedb1aa84f71180161482ae0193e4ef26473731",
+  "kfab_1423": "1477bd1ceef28fa66a50d4ab03d87967e9197a501e08a2d747c799183f8f9fe3",
+  "kfab_1424": "238ea53054acefd5c2e1b9030140bd067ce67298a0d52b685a0746829709b1fc",
+  "kfab_1426": "7d6cc56e2a0aedc4ea951c153bef391efb687a57baa0aa16b1c9d7ce77748203",
+  "kfab_1427": "0ae634ead292dc4177acfc643f2dddc20181a14c747c267bbb56e70fb9c42480",
+  "kfab_1428": "7b1e941448d1b5df0a5f7a866670bad10ffe516f3e0f478bdb551e9d9720c54e",
+  "kfab_1430": "ae2f43cf1633e0897eb46f252701df532f24d472ec5f74053a72af6ef1f4cee9",
+  "kfab_1431": "edea93aa4a9e29159fe88c67ca605a206173a6b41bc049c057a2c05e870f78a4",
+  "kfab_1433": "13cd30348dd90aabf05e890d93da4775744c042de13470845c378921d145c81a",
+  "kfab_1434": "862c40295a94c5f80abd186db20d38476d9d8116b7bcec1e959a56abdea738eb",
+  "kfab_1435": "96706b32d2d47e9a9acce7f4c62a1bed9aa5a5cf448907522ca36f05158245ee",
+  "kfab_1436": "846a372b1000bfeb0e0a526418b75fa1a51e6f1a5b97689f91aeb7d91a587323",
+  "kfab_1437": "f650fd36763f444772cc4fdeb942f0c9cb07485523ba2307c9afb2a6a5bccc05",
+  "kfab_1438": "148f4cb2cacb2d804430c93f7fa215bc4418a9219b5133ed72271c8c44127c55",
+  "kfab_1439": "f5edf71829587e1bc832dea733b52db6136fa19c7eb73020955cd5c05a1ddf47",
+  "kfab_1707": "c2ac4780591edd5cc002265a977cc6535a95e89c846700c0f1512c0f6c275912",
+  "kfab_1714": "ffd5eb2186d42168334a0c65f2153bcb6fac6a58c534cc2ab3f0fc724970cc14",
+  "kfab_1717": "00f65661ff75c4f430e7b99f3745f6ef06055fbdc6ab49587afe5f351377349b",
+  "kfab_1719": "8d03c7adc37ea473a4c2c3bb74b573228f1bf93bab19ede8f061e257da8e72bf"
+ },
+ "videos": [
+  {
+   "title": "段位制长拳一段",
+   "style": "changquan",
+   "routine": "duanwei_一",
+   "split": "test2",
+   "ids": [
+    1244,
+    1245
+   ]
+  },
+  {
+   "title": "第一套国际武术竞赛套路-长拳-第四段（动作名称）",
+   "style": "changquan",
+   "routine": "guoyi_changquan",
+   "split": "test2",
+   "ids": [
+    916
+   ]
+  },
+  {
+   "title": "第一套国际武术竞赛套路-南拳-第一段-国一南拳#桂平市竞技武术训练馆#桂平市竞技武术队",
+   "style": "nanquan",
+   "routine": "guoyi_nanquan",
+   "split": "test2",
+   "ids": [
+    1439
+   ]
+  },
+  {
+   "title": "42式太极拳-第四段 #桂平市竞技武术训练馆 #桂平市竞技武术队",
+   "style": "taichi",
+   "routine": "taichi42",
+   "split": "test2",
+   "ids": [
+    810,
+    811,
+    812
+   ]
+  },
+  {
+   "title": "段位制长拳三段单练套路",
+   "style": "changquan",
+   "routine": "duanwei_三",
+   "split": "train",
+   "ids": [
+    1315,
+    1316,
+    1317,
+    1318
+   ]
+  },
+  {
+   "title": "段位制长拳二段",
+   "style": "changquan",
+   "routine": "duanwei_二",
+   "split": "train",
+   "ids": [
+    918
+   ]
+  },
+  {
+   "title": "段位制长拳五段单练套路",
+   "style": "changquan",
+   "routine": "duanwei_五",
+   "split": "train",
+   "ids": [
+    1707,
+    1714,
+    1717,
+    1719
+   ]
+  },
+  {
+   "title": "第一套国际武术竞赛套路-长拳-第三段（动作名称）",
+   "style": "changquan",
+   "routine": "guoyi_changquan",
+   "split": "train",
+   "ids": [
+    230,
+    231
+   ]
+  },
+  {
+   "title": "第一套国际武术竞赛套路-长拳-第二段（动作名称）",
+   "style": "changquan",
+   "routine": "guoyi_changquan",
+   "split": "train",
+   "ids": [
+    1305
+   ]
+  },
+  {
+   "title": "第一套国际武术竞赛套路-长拳（完整版）国一长拳",
+   "style": "changquan",
+   "routine": "guoyi_changquan",
+   "split": "train",
+   "ids": [
+    1080,
+    1081,
+    1082,
+    1084,
+    1086,
+    1088
+   ]
+  },
+  {
+   "title": "第一套国际武术竞赛套路长拳-第一段（动作名称）",
+   "style": "changquan",
+   "routine": "guoyi_changquan",
+   "split": "train",
+   "ids": [
+    497,
+    498
+   ]
+  },
+  {
+   "title": "长拳类单拍脚组合",
+   "style": "changquan",
+   "routine": "长拳类单拍脚组合",
+   "split": "train",
+   "ids": [
+    1021,
+    1022
+   ]
+  },
+  {
+   "title": "南拳类指定难度：腾空外摆腿720°+马步、旋风脚720°+马步、旋风脚540°+单碟步、腾空外摆腿540°+马步。",
+   "style": "nanquan",
+   "routine": "南拳类指定难度：腾空外摆腿720°+马步、旋风脚720°+马步、旋风脚540°+单碟步、腾空外摆腿540°+马步。",
+   "split": "train",
+   "ids": [
+    78
+   ]
+  },
+  {
+   "title": "第一套国际武术竞赛套路-南拳-第三段-国一南拳#桂平市竞技武术训练馆#桂平市竞技武术队",
+   "style": "nanquan",
+   "routine": "guoyi_nanquan",
+   "split": "train",
+   "ids": [
+    1306
+   ]
+  },
+  {
+   "title": "42式太极拳",
+   "style": "taichi",
+   "routine": "taichi42",
+   "split": "train",
+   "ids": [
+    1307,
+    1308
+   ]
+  },
+  {
+   "title": "42式太极拳-完整版 #桂平市竞技武术训练馆 #桂平市竞技武术队",
+   "style": "taichi",
+   "routine": "taichi42",
+   "split": "train",
+   "ids": [
+    1420,
+    1421,
+    1422,
+    1423
+   ]
+  },
+  {
+   "title": "42式太极拳-第二段 #桂平市竞技武术训练馆 #桂平市竞技武术队",
+   "style": "taichi",
+   "routine": "taichi42",
+   "split": "train",
+   "ids": [
+    481,
+    482
+   ]
+  },
+  {
+   "title": "太极拳",
+   "style": "taichi",
+   "routine": "太极拳",
+   "split": "train",
+   "ids": [
+    292
+   ]
+  },
+  {
+   "title": "体育高考武术套路项目（少年规定拳）",
+   "style": "changquan",
+   "routine": "shaonian",
+   "split": "val2",
+   "ids": [
+    535,
+    539,
+    541,
+    543,
+    544,
+    546,
+    547,
+    548,
+    549,
+    550,
+    552,
+    553,
+    554,
+    555,
+    557,
+    558,
+    559,
+    560,
+    561,
+    562,
+    564
+   ]
+  },
+  {
+   "title": "少年规定拳（体育高考武术项目）",
+   "style": "changquan",
+   "routine": "shaonian",
+   "split": "val2",
+   "ids": [
+    1424,
+    1426,
+    1427,
+    1428,
+    1430,
+    1431,
+    1433,
+    1434,
+    1435,
+    1436,
+    1437,
+    1438
+   ]
+  },
+  {
+   "title": "第一套国际武术竞赛套路-南拳-完整版-国一南拳#桂平市竞技武术训练馆#桂平市竞技武术队",
+   "style": "nanquan",
+   "routine": "guoyi_nanquan",
+   "split": "val2",
+   "ids": [
+    235,
+    237,
+    239,
+    240,
+    242
+   ]
+  },
+  {
+   "title": "42式太极拳-第三段 #桂平市竞技武术训练馆 #桂平市竞技武术队",
+   "style": "taichi",
+   "routine": "taichi42",
+   "split": "val2",
+   "ids": [
+    332,
+    333
+   ]
+  }
+ ],
+ "counts": {
+  "train": {
+   "videos": 14,
+   "clips": 33,
+   "styles": {
+    "changquan": 8,
+    "nanquan": 2,
+    "taichi": 4
+   }
+  },
+  "val2": {
+   "videos": 4,
+   "clips": 40,
+   "styles": {
+    "changquan": 2,
+    "nanquan": 1,
+    "taichi": 1
+   }
+  },
+  "test2": {
+   "videos": 4,
+   "clips": 7,
+   "styles": {
+    "changquan": 2,
+    "nanquan": 1,
+    "taichi": 1
+   }
+  }
+ },
+ "splits": {
+  "train": [
+   "kfab_78",
+   "kfab_230",
+   "kfab_231",
+   "kfab_292",
+   "kfab_481",
+   "kfab_482",
+   "kfab_497",
+   "kfab_498",
+   "kfab_918",
+   "kfab_1021",
+   "kfab_1022",
+   "kfab_1080",
+   "kfab_1081",
+   "kfab_1082",
+   "kfab_1084",
+   "kfab_1086",
+   "kfab_1088",
+   "kfab_1305",
+   "kfab_1306",
+   "kfab_1307",
+   "kfab_1308",
+   "kfab_1315",
+   "kfab_1316",
+   "kfab_1317",
+   "kfab_1318",
+   "kfab_1420",
+   "kfab_1421",
+   "kfab_1422",
+   "kfab_1423",
+   "kfab_1707",
+   "kfab_1714",
+   "kfab_1717",
+   "kfab_1719"
+  ],
+  "val2": [
+   "kfab_235",
+   "kfab_237",
+   "kfab_239",
+   "kfab_240",
+   "kfab_242",
+   "kfab_332",
+   "kfab_333",
+   "kfab_535",
+   "kfab_539",
+   "kfab_541",
+   "kfab_543",
+   "kfab_544",
+   "kfab_546",
+   "kfab_547",
+   "kfab_548",
+   "kfab_549",
+   "kfab_550",
+   "kfab_552",
+   "kfab_553",
+   "kfab_554",
+   "kfab_555",
+   "kfab_557",
+   "kfab_558",
+   "kfab_559",
+   "kfab_560",
+   "kfab_561",
+   "kfab_562",
+   "kfab_564",
+   "kfab_1424",
+   "kfab_1426",
+   "kfab_1427",
+   "kfab_1428",
+   "kfab_1430",
+   "kfab_1431",
+   "kfab_1433",
+   "kfab_1434",
+   "kfab_1435",
+   "kfab_1436",
+   "kfab_1437",
+   "kfab_1438"
+  ],
+  "test2": [
+   "kfab_810",
+   "kfab_811",
+   "kfab_812",
+   "kfab_916",
+   "kfab_1244",
+   "kfab_1245",
+   "kfab_1439"
+  ]
+ },
+ "split_sha256": "6a30c05307d2187bfb56cfc338795d5a714b77f975fd4a1303f8d407c8768ed2",
+ "routine_overlap": {
+  "guoyi_changquan": [
+   "test2",
+   "train"
+  ],
+  "guoyi_nanquan": [
+   "test2",
+   "train",
+   "val2"
+  ],
+  "taichi42": [
+   "test2",
+   "train",
+   "val2"
+  ]
+ }
+}

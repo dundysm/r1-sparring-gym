@@ -1,0 +1,24 @@
+start 01:24:23
+setup 01:25:27 mujoco 3.5.0 warp 1.12.1
+calcheck rc 0 CALCHECK {"file": "/root/m1_calibration.json", "attack": [1.5, 80.0, -0.02], "sha256_16": "3c28ff91fb099739", "chosen": {"mass": 1.5, "fmax": 80.0, "delta": -0.02}, "constants_match": true, "attack_row": {"pass_": true, "median_Ns": 3.52, "checks": {"impulse": true, "head_clean": true, "speed": true, "agree_rate": true, "agree_impulse": true}}, "attack_recheck": {"seeds": [64, 127], "pass_": true, "median_Ns": 3.231, "checks": {"impulse": true, "head_clean": true, "speed": true, "agree_rate": true, "agree_impulse": true}}, "match": true, "deviation": null, "pass": true}
+widened 01:25:32 widen: {"actor_state_dict": "83 -> 111 (new inputs at 83:111), count 7.37e+08", "critic_state_dict": "98 -> 136 (new inputs at 98:136), count 7.37e+08"} iter 7496
+m1check mesh gravcomp 1 01:28:20 head_clean_pm 11.643 median_impulse 4.039 n 4096 torso_clean_pm 9.008 blocked 0.623 vneg_share 0.0085 falls_pm 0.3179 pass False attack 1.5,80,-0.02
+retune: trying 1.5,70,-0.02 01:28:20
+m1check mesh gravcomp 1 01:29:44 head_clean_pm 11.441 median_impulse 3.653 n 4096 torso_clean_pm 8.919 blocked 0.624 vneg_share 0.0076 falls_pm 0.2131 pass False attack 1.5,70,-0.02
+retune: trying 1.5,60,-0.02 01:29:44
+m1check mesh gravcomp 1 01:31:05 head_clean_pm 11.629 median_impulse 3.615 n 4096 torso_clean_pm 8.669 blocked 0.617 vneg_share 0.0072 falls_pm 0.1216 pass False attack 1.5,60,-0.02
+retune: trying 1.0,80,-0.02 01:31:05
+m1check mesh gravcomp 1 01:32:30 head_clean_pm 11.829 median_impulse 3.579 n 4096 torso_clean_pm 9.66 blocked 0.648 vneg_share 0.0065 falls_pm 0.2798 pass False attack 1.0,80,-0.02
+retune: trying 1.0,60,-0.02 01:32:30
+m1check mesh gravcomp 1 01:33:52 head_clean_pm 12.245 median_impulse 3.267 n 4096 torso_clean_pm 9.781 blocked 0.658 vneg_share 0.006 falls_pm 0.1106 pass True attack 1.0,60,-0.02
+attack row 1.0,60,-0.02
+smoke mesh 4096 01:41:23 GATE {"log": "/root/smoke_mesh_4096.log", "iterations": 200, "mean_iter_s": 2.11, "iter_s_at_first": 2.12, "mean_collection_s": 1.956, "nan_terminations": 0.0, "nan_logged": 200, "shell_proxy": "mesh", "num_envs": 4096, "pass_speed": false, "pass_nan": true, "pass": false} overall False
+fallback capsule proxies 01:41:23
+m1check capsule gravcomp 1 01:42:44 head_clean_pm 13.689 median_impulse 3.44 n 4096 torso_clean_pm 13.348 blocked 0.651 vneg_share 0.0038 falls_pm 0.1106 pass True attack 1.0,60,-0.02
+smoke capsule 4096 01:50:14 GATE {"log": "/root/smoke_capsule_4096.log", "iterations": 200, "mean_iter_s": 2.115, "iter_s_at_first": 2.12, "mean_collection_s": 1.963, "nan_terminations": 0.0, "nan_logged": 200, "shell_proxy": "capsule", "num_envs": 4096, "pass_speed": false, "pass_nan": true, "pass": false} overall False
+fallback 3072 envs 01:50:14
+smoke capsule 3072 01:57:09 GATE {"log": "/root/smoke_capsule_3072.log", "iterations": 200, "mean_iter_s": 1.945, "iter_s_at_first": 1.94, "mean_collection_s": 1.791, "nan_terminations": 0.0, "nan_logged": 200, "shell_proxy": "capsule", "num_envs": 3072, "pass_speed": true, "pass_nan": true, "pass": true, "deviation": "speed gate passed at 3072 envs; prereg_m2.json m1_gate_before_training.speed says 4096"} overall True
+M1_GATE_PASSED_DEVIATION 01:57:09 proxy capsule gravcomp 1 num_envs 3072: calibration: ATTACK [1.0, 60.0, -0.02] is not the calibration's chosen row {'mass': 1.5, 'fmax': 80.0, 'delta': -0.02}: gate 1 GPU retune (section 8 item 29): the CPU-calibrated row 1.5,80,-0.02 failed gate 1 on the GPU; 1.0,60,-0.02 is the first row of the predeclared grid that passes | speed gate passed at 3072 envs; prereg_m2.json m1_gate_before_training.speed says 4096
+trained A 02:47:18 logs/rsl_rl/r1_spar/2026-10-29_01-57-16_spar_A/ model_8995.pt iter_s 1.95 obs opp_keypoints
+trained B 03:37:20 logs/rsl_rl/r1_spar/2026-10-29_02-47-26_spar_B/ model_8995.pt iter_s 1.95 obs opp_keypoints
+trained Blind 04:26:22 logs/rsl_rl/r1_spar/2026-10-29_03-37-29_spar_Blind/ model_8995.pt iter_s 1.91 obs opp_keypoints_blind

@@ -1,0 +1,88 @@
+{
+ "about": "Track 2 eligibility (M2V2_PLAN_v3 6.2 item 3, T2-3), SEALED for val2/test2: every clip of a split of results/sparring/",
+ "split": "test2",
+ "split_sha256": "6a30c05307d2187bfb56cfc338795d5a714b77f975fd4a1303f8d407c8768ed2",
+ "rule": {
+  "kept_min_s": 4.0,
+  "head_min": 2,
+  "stay_up_min": 0.9,
+  "starts": 24,
+  "seconds": 10.0,
+  "alone_distance_m": 4.0,
+  "tracker": "model_13749.pt float32",
+  "cut_pre_s": 0.8,
+  "cut_post_s": 0.1,
+  "cluster_gap_s": 1.0,
+  "max_cut_rounds": 3,
+  "head_band": [
+   1.02,
+   1.23
+  ]
+ },
+ "val2_head_band_hand_strikes_min": 30,
+ "bookkeeping_seeds": [
+  25950,
+  25956
+ ],
+ "seed_note": "tracker-alone worlds are seed-free; ids checked by fb_seeds role track2",
+ "wall_s": 36.7,
+ "sealed": true,
+ "per_clip": {
+  "kfab_810": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_811": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_812": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_916": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_1244": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_1245": {
+   "eligible_hand": false,
+   "eligible_any": false
+  },
+  "kfab_1439": {
+   "eligible_hand": false,
+   "eligible_any": false
+  }
+ },
+ "aggregate": {
+  "clips": 7,
+  "errors": 0,
+  "measured": 0,
+  "eligible_hand": {
+   "eligible": 0,
+   "head_band_hand_strikes": 0,
+   "head_band_strikes": 0
+  },
+  "eligible_any": {
+   "eligible": 0,
+   "head_band_hand_strikes": 0,
+   "head_band_strikes": 0
+  },
+  "fails": {
+   "kept_ok": 2,
+   "hand_ok": 7,
+   "any_ok": 7,
+   "stay_up_ok": 7
+  },
+  "all_clips_first_round": {
+   "kept_s": 53.0,
+   "head_band_hand_strikes": 6,
+   "head_band_strikes": 6,
+   "clips_kept_ok": 5
+  }
+ },
+ "errors": []
+}

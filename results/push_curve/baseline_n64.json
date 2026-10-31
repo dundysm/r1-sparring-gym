@@ -1,0 +1,138 @@
+{
+ "v2": {
+  "policy": "results/policy/policy.pt",
+  "by_impulse": {
+   "5": {
+    "n": 64,
+    "fall_rate": 0.047,
+    "ci95": [
+     0.016,
+     0.129
+    ],
+    "stepped_share_of_survivors": 0.0
+   },
+   "10": {
+    "n": 64,
+    "fall_rate": 0.578,
+    "ci95": [
+     0.456,
+     0.691
+    ],
+    "stepped_share_of_survivors": 0.0
+   },
+   "15": {
+    "n": 64,
+    "fall_rate": 1.0,
+    "ci95": [
+     0.943,
+     1.0
+    ],
+    "stepped_share_of_survivors": null
+   },
+   "20": {
+    "n": 64,
+    "fall_rate": 1.0,
+    "ci95": [
+     0.943,
+     1.0
+    ],
+    "stepped_share_of_survivors": null
+   },
+   "25": {
+    "n": 64,
+    "fall_rate": 1.0,
+    "ci95": [
+     0.943,
+     1.0
+    ],
+    "stepped_share_of_survivors": null
+   },
+   "30": {
+    "n": 64,
+    "fall_rate": 1.0,
+    "ci95": [
+     0.943,
+     1.0
+    ],
+    "stepped_share_of_survivors": null
+   },
+   "35": {
+    "n": 64,
+    "fall_rate": 1.0,
+    "ci95": [
+     0.943,
+     1.0
+    ],
+    "stepped_share_of_survivors": null
+   }
+  }
+ },
+ "step": {
+  "policy": "results/policy_mjlab_footwork/policy.onnx",
+  "by_impulse": {
+   "5": {
+    "n": 64,
+    "fall_rate": 0.0,
+    "ci95": [
+     0.0,
+     0.057
+    ],
+    "stepped_share_of_survivors": 0.156
+   },
+   "10": {
+    "n": 64,
+    "fall_rate": 0.0,
+    "ci95": [
+     0.0,
+     0.057
+    ],
+    "stepped_share_of_survivors": 0.5
+   },
+   "15": {
+    "n": 64,
+    "fall_rate": 0.031,
+    "ci95": [
+     0.009,
+     0.107
+    ],
+    "stepped_share_of_survivors": 0.758
+   },
+   "20": {
+    "n": 64,
+    "fall_rate": 0.0,
+    "ci95": [
+     0.0,
+     0.057
+    ],
+    "stepped_share_of_survivors": 0.969
+   },
+   "25": {
+    "n": 64,
+    "fall_rate": 0.047,
+    "ci95": [
+     0.016,
+     0.129
+    ],
+    "stepped_share_of_survivors": 0.984
+   },
+   "30": {
+    "n": 64,
+    "fall_rate": 0.062,
+    "ci95": [
+     0.025,
+     0.15
+    ],
+    "stepped_share_of_survivors": 0.967
+   },
+   "35": {
+    "n": 64,
+    "fall_rate": 0.281,
+    "ci95": [
+     0.186,
+     0.401
+    ],
+    "stepped_share_of_survivors": 1.0
+   }
+  }
+ }
+}

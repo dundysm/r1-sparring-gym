@@ -3,7 +3,7 @@
 and the operator it chose (results/opponent_aim/aim_check.json, results/opponent_tracker/aim.json), and the hard tier with and
 without the aim: against the shipped footwork policies (results/eval_opponent/aim/, after merging main) and, archived, as first
 run against PR #13's bases (results/eval_opponent/aim_pre14/). --write replaces the blocks between '<!-- tag:begin -->' and
-'<!-- tag:end -->': aim in README.md, results in docs/AIMED_OPPONENT.md (after checking that the preregistered text above its
+'<!-- tag:end -->': aim in docs/RESULTS.md, results in docs/AIMED_OPPONENT.md (after checking that the preregistered text above its
 Results section still hashes to what every M1 result was computed under); without it the blocks are printed."""
 import sys, json, argparse
 from pathlib import Path
@@ -272,7 +272,7 @@ if __name__ == "__main__":
         for tag, txt in blocks:
             i, k = s.index(f"<!-- {tag}:begin -->"), s.index(f"<!-- {tag}:end -->"); s = s[:i] + f"<!-- {tag}:begin -->" + txt + s[k:]
         p.write_bytes(s.replace("\r\n", "\n").encode("utf-8"))
-    put(ROOT / "README.md", (("aim", "\n" + b + "\n"),)); print("README block written")
+    put(ROOT / "docs" / "RESULTS.md", (("aim", "\n" + b + "\n"),)); print("docs/RESULTS.md aim block written")
     sha = prereg_sha(); put(PREREG, (("results", "\n" + db + "\n"),))
     assert prereg_sha() == sha and all(p == sha for _, p, _, _, _ in provenance_rows()), "docs/AIMED_OPPONENT.md above '## Results' changed since the runs"
     print("docs/AIMED_OPPONENT.md results written; preregistration text unchanged:", sha)

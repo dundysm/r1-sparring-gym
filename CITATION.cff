@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "r1-sparring-gym: hit-robust footwork for a simulated Unitree R1"
+authors:
+  - family-names: Pasupuleti
+    given-names: Dundy
+repository-code: "https://github.com/dundysm/r1-sparring-gym"
+license: Apache-2.0

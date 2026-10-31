@@ -172,8 +172,8 @@ def loco_bars(ho_pilot, ho_start, seen_pilot, seen_start):
         lp, up = rate_u(pl); ls, us = rate_u(st); u = up - us; se = u.std(ddof=1) / math.sqrt(len(pl)); res.append((lp - ls, se)); ds.append(st[:, 0] - pl[:, 0])
     (lh, sh), (lsn, ssn) = res; d = np.concatenate(ds); sd = d.std(ddof=1) / math.sqrt(len(d))
     c = dict(heldout=bool(lh <= math.log(0.90) and lh + Z90 * sh < 0), seen=bool(lsn <= math.log(0.85) and lsn + Z90 * ssn < math.log(0.95)),
-             survival=bool(-d.mean() >= -0.015 and -d.mean() - Z90 * sd >= -0.04), generalisation=bool(lsn < 0 and lh / lsn >= 0.4))
-    return dict(R_heldout=math.exp(lh), R_seen=math.exp(lsn), surv_diff=float(-d.mean()), g=float(lh / lsn) if lsn else None, **c, proceed=all(c.values()))
+             survival=bool(d.mean() >= -0.015 and d.mean() - Z90 * sd >= -0.04), generalisation=bool(lsn < 0 and lh / lsn >= 0.4))   # d = falls(start) - falls(pilot) = survival pilot - start (M10 verify: was -d)
+    return dict(R_heldout=math.exp(lh), R_seen=math.exp(lsn), surv_diff=float(d.mean()), g=float(lh / lsn) if lsn else None, **c, proceed=all(c.values()))
 
 # ---- reproduce gate_power_v3 with this module's decisions
 def _gp(path=GP_PATH):

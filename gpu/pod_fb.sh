@@ -12,7 +12,8 @@
 # Asserts (P0): uploads md5 (md5sum -c uploads.md5); versions (mujoco, mujoco-warp, warp-lang, torch, mjlab, rsl-rl-lib) recorded vs
 # local mujoco 3.17.0 / mjlab 1.2.0; assert_sim: the task's MujocoCfg = SIM + FB_SOLVER, njmax 600, nconmax 128, and tf32 off
 # (fb_opponent.pin_precision + precision_ok); the M9 model diff rerun with the pod's mujoco (FB_POD=1 scripts/fb_m9_check.py).
-# Not yet written (later milestones; a real run stops there): scripts/fb_p1.py (P1), fb_t1c.py (P2's T1-c), fb_loco_eval.py (P3).
+# Evaluations (M10): scripts/fb_p1.py (P1; the R0-EO pod reference at $FB_R0EO, default $W/r0eo_pod, A8.2), fb_t1c.py (P2's T1-c,
+# both arms on this pod's CPU, A8.2), fb_loco_eval.py (P3; start and G re-run here beside the pilots, A8.2).
 set -u
 R=${FB_REPO:-/root/repo}; DRY=${FB_DRY:-0}; FAKE=${FB_FAKE_GPU:-0}; W=${FB_ROOT:-/root}; [ "$DRY" = 1 ] && W=${TMPDIR:-/tmp}/fb_pod_dry
 [ "${1:-}" = md5 ] || mkdir -p $W; P=$W/progress_fb.txt; OUT=$W/out_fb; NE=${FB_NUM_ENVS:-4096}; N=${FB_CPUS:-$(nproc)}
@@ -101,15 +102,15 @@ P0() {
   log "P0 done: pick the most env-steps/s; > 6 s/it: a second pod, > 9 s/it: time an H100 / L40S (throughput rules, section 4)"
 }
 
-P1() { log "P1 parity"; cd $R; run python -I scripts/fb_p1.py --all --out $W/p1.json > $W/p1.log 2>&1 || fail p1; }
+P1() { log "P1 parity"; cd $R; FB_ROOT=$W FB_UNITREE=$U run python -I scripts/fb_p1.py --all --out $W/p1.json --r0eo ${FB_R0EO:-$W/r0eo_pod} --workers $(( N - T )) > $W/p1.log 2>&1 || fail p1; }
 
 P2() {
   log "P2 T1 (reangle family only, A9.3) and T1-LOCO"; cdu
   run taskset -c $TRAIN_CPUS python scripts/r1_track_spar_t1.py R1-Track-Spar-Reangle --env.scene.num-envs $NE --agent.max-iterations 4000 --motion-file motions/fb_l1_track.npz \
-    --agent.resume True --agent.load-run t0 --agent.load-checkpoint model_13749.pt > $W/t1.log 2>&1 || fail t1
-  cd $R; bgrun python -I scripts/fb_t1c.py --workers $(( N - T )) --out $W/t1c.json > $W/t1c.log 2>&1 || log "T1-c failed: 100% T0 (plan 2.2)"
+    --agent.resume True --agent.load-run t0 --agent.load-checkpoint model_13749.pt --agent.run-name t1 > $W/t1.log 2>&1 || fail t1
+  cd $R; FB_ROOT=$W bgrun python -I scripts/fb_t1c.py --workers $(( N - T )) --out $W/t1c.json > $W/t1c.log 2>&1 || log "T1-c failed: 100% T0 (plan 2.2)"
   cdu; run taskset -c $TRAIN_CPUS python scripts/r1_track_spar_t1.py R1-Track-Spar-Reangle-LOCO --env.scene.num-envs $NE --agent.max-iterations 3000 --motion-file motions/fb_l1_track_loco.npz \
-    --agent.resume True --agent.load-run t0 --agent.load-checkpoint model_13749.pt > $W/t1_loco.log 2>&1 || fail t1_loco
+    --agent.resume True --agent.load-run t0 --agent.load-checkpoint model_13749.pt --agent.run-name t1_loco > $W/t1_loco.log 2>&1 || fail t1_loco
 }
 
 train() {   # $1 task, $2 run name, $3 seed, $4 stage (A0 / A / B), $5 iterations, $6 resume <run dir>/<ckpt>, $7 cpus
@@ -144,7 +145,7 @@ pair() {   # sighted + blind twin; concurrently on the two halves of the trainin
   if [ "${FB_TWO_PROC:-0}" = 1 ]; then one $1 $2 $3 $4 $5 $6 0 $TRAIN_A & one $1 $2 $3 $4 $5 $6 1 $TRAIN_B & wait
   else one $1 $2 $3 $4 $5 $6 0 $TRAIN_CPUS; one $1 $2 $3 $4 $5 $6 1 $TRAIN_CPUS; fi
 }
-P3() { log "P3 LOCO pilot"; pair 42 loco $LOCO_A0 $LOCO_A $LOCO_B R1-Fb-LOCO; cd $R; bgrun python -I scripts/fb_loco_eval.py --out $W/loco.json > $W/loco_eval.log 2>&1 || log "LOCO eval failed"; }
+P3() { log "P3 LOCO pilot"; pair 42 loco $LOCO_A0 $LOCO_A $LOCO_B R1-Fb-LOCO; cd $R; FB_ROOT=$W bgrun python -I scripts/fb_loco_eval.py --workers $(( N - T )) --out $W/loco.json > $W/loco_eval.log 2>&1 || { log "LOCO eval: $(tail -1 $W/loco_eval.log)"; fail loco; }; }   # P3's bars gate P4-P6 (plan 4: proceed iff all four)
 P456() { log "P4-P6 main pairs"; for s in $SEEDS; do pair $s main $ITERS_A0 $ITERS_A $ITERS_B R1-Fb; done; }
 P7() { log "P7 pack"; pack; log "ALL_DONE"; }
 md5() { local o=${1:?usage: pod_fb.sh md5 <out file>}; (cd $R && md5sum $UPLOADS) > $o || { echo "md5: an upload is missing"; exit 1; }; echo "MD5 $(wc -l < $o) files -> $o"; }

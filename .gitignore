@@ -9,3 +9,9 @@ showcase/frames/
 showcase/frames_dl/
 showcase/preview/
 *.blend1
+
+# local clutter
+MUJOCO_LOG.TXT
+.venv/
+.pytest_cache/
+.DS_Store
